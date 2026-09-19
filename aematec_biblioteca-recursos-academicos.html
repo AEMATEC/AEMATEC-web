@@ -207,12 +207,14 @@
         <div><dt class="font-sans text-xs font-bold uppercase text-[#718590]">Archivo</dt><dd id="academic-modal-file" class="mt-1 text-[#18384E]"></dd></div>
         <div><dt class="font-sans text-xs font-bold uppercase text-[#718590]">Publicado</dt><dd id="academic-modal-date" class="mt-1 text-[#18384E]"></dd></div>
       </dl>
-      <div class="mt-6 flex justify-end gap-3"><a id="academic-modal-open" target="_blank" rel="noopener" class="flex h-11 items-center rounded-[9px] border border-[#9DB6C1] px-5 font-sans text-xs font-bold"><i class="fa-regular fa-eye mr-2"></i>Abrir archivo</a><a id="academic-modal-download" download class="flex h-11 items-center rounded-[9px] bg-[#00AFC1] px-5 font-sans text-xs font-bold text-white"><i class="fa-solid fa-download mr-2"></i>Descargar</a></div>
+      <div class="mt-6 flex justify-end gap-3"><a id="academic-modal-edit" href="#" class="hidden h-11 items-center rounded-[9px] border border-[#9DB6C1] px-5 font-sans text-xs font-bold"><i class="fa-solid fa-pen mr-2"></i>Editar (moderador)</a><a id="academic-modal-open" target="_blank" rel="noopener" class="flex h-11 items-center rounded-[9px] border border-[#9DB6C1] px-5 font-sans text-xs font-bold"><i class="fa-regular fa-eye mr-2"></i>Abrir archivo</a><a id="academic-modal-download" download class="flex h-11 items-center rounded-[9px] bg-[#00AFC1] px-5 font-sans text-xs font-bold text-white"><i class="fa-solid fa-download mr-2"></i>Descargar</a></div>
     </article>
   </div>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
     const mobileMenuToggle = document.querySelector("#mobile-menu-toggle");
     const primaryNavigation = document.querySelector("#primary-navigation");
     mobileMenuToggle.addEventListener("click", () => {
@@ -267,6 +269,8 @@
     let filtered = [];
     let page = 1;
     const pageSize = 5;
+    let isModerator = false;
+    const ownerEmails = ["angeloyeshuac@gmail.com", "angcalderon@estudiantec.cr"];
     search.value = new URLSearchParams(window.location.search).get("q") || "";
     const escapeHtml = value => String(value || "").replace(/[&<>"']/g, char => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#039;" }[char]));
     const courseLabel = code => courseNames[code] ? `${code} — ${courseNames[code]}` : code || "Curso no indicado";
@@ -288,6 +292,10 @@
       document.querySelector("#academic-modal-date").textContent = formatDate(resource.createdAt);
       document.querySelector("#academic-modal-open").href = resource.fileUrl || "#";
       document.querySelector("#academic-modal-download").href = resource.fileUrl || "#";
+      const editLink = document.querySelector("#academic-modal-edit");
+      editLink.classList.toggle("hidden", !isModerator);
+      editLink.classList.toggle("flex", isModerator);
+      editLink.href = `aematec_biblioteca-moderacion.html?edit=${resource.id}`;
       resourceModal.classList.remove("hidden");
       resourceModal.classList.add("flex");
       document.body.classList.add("overflow-hidden");
@@ -312,7 +320,7 @@
         <div class="w-[62px] h-[72px] rounded-[11px] bg-[#EDF2FA] text-[#486398] flex items-center justify-center text-2xl"><i class="${resource.extension === "ggb" ? "fa-solid" : "fa-regular"} ${iconFor(resource.extension)}"></i></div>
         <div class="flex-1"><div class="flex items-center gap-3"><span class="font-sans text-[10px] font-bold bg-[#E9EEF9] text-[#3B568D] px-2.5 py-1 rounded-full">${escapeHtml((resource.type || "RECURSO").toUpperCase())}</span><span title="${escapeHtml(courseNames[resource.course] || "")}" class="font-sans text-[11px] font-bold text-[#008F9E]">${escapeHtml(resource.course || "Sin curso")}</span></div>
         <h3 class="font-sans font-bold text-[18px] mt-2">${escapeHtml(resource.title)}</h3><p class="text-sm text-[#687B86] mt-1">${escapeHtml(resource.description)}</p><p class="text-xs text-[#7A8C96] mt-2">Por <strong class="text-[#4A606D]">${escapeHtml(resource.author)}</strong> · ${escapeHtml(courseLabel(resource.course))}</p></div>
-        <div class="flex gap-2"><button type="button" data-view-academic="${escapeHtml(resource.id)}" class="flex h-11 w-11 items-center justify-center rounded-[8px] border border-[#A9BEC7] text-[#38566A]" aria-label="Ver detalles"><i class="fa-regular fa-eye"></i></button><a href="${escapeHtml(resource.fileUrl)}" download class="h-11 rounded-[8px] bg-[#00AFC1] px-5 font-sans text-xs font-bold text-white flex items-center"><i class="fa-solid fa-download mr-2"></i>Descargar</a></div></article>`).join("") : '<p class="rounded-[15px] border border-[#D6E2E7] bg-white p-8 text-center text-[#607480]">No encontramos materiales con esos filtros.</p>';
+        <div class="flex gap-2">${isModerator ? `<a href="aematec_biblioteca-moderacion.html?edit=${escapeHtml(resource.id)}" class="flex h-11 w-11 items-center justify-center rounded-[8px] border border-[#9DB6C1] text-[#38566A]" title="Editar (moderador)"><i class="fa-solid fa-pen"></i></a>` : ""}<button type="button" data-view-academic="${escapeHtml(resource.id)}" class="flex h-11 w-11 items-center justify-center rounded-[8px] border border-[#A9BEC7] text-[#38566A]" aria-label="Ver detalles"><i class="fa-regular fa-eye"></i></button><a href="${escapeHtml(resource.fileUrl)}" download class="h-11 rounded-[8px] bg-[#00AFC1] px-5 font-sans text-xs font-bold text-white flex items-center"><i class="fa-solid fa-download mr-2"></i>Descargar</a></div></article>`).join("") : '<p class="rounded-[15px] border border-[#D6E2E7] bg-white p-8 text-center text-[#607480]">No encontramos materiales con esos filtros.</p>';
       list.querySelectorAll("[data-view-academic]").forEach(button => button.addEventListener("click", () => openResourceModal(resources.find(resource => resource.id === button.dataset.viewAcademic))));
       const pageButtons = [];
       if (totalPages > 1) {
@@ -369,9 +377,16 @@
     }
     if (config?.projectId && config.projectId !== "REEMPLAZAR") {
       try {
-        const snapshot = await getDocs(query(collection(getFirestore(initializeApp(config)), "resources"), where("published", "==", true)));
+        const app = initializeApp(config);
+        const db = getFirestore(app);
+        const snapshot = await getDocs(query(collection(db, "resources"), where("published", "==", true)));
         resources = snapshot.docs.map(item => ({ id: item.id, ...item.data() })).filter(resource => resource.section === "academico");
         render();
+        onAuthStateChanged(getAuth(app), async user => {
+          const email = user?.email?.toLowerCase();
+          isModerator = Boolean(email) && (ownerEmails.includes(email) || (await getDoc(doc(db, "moderators", email))).exists());
+          render();
+        });
       } catch (error) { count.textContent = "No se pudieron cargar los materiales"; list.innerHTML = `<p class="rounded-[15px] border border-[#D6E2E7] bg-white p-8 text-center text-[#C2413B]">Error al cargar la biblioteca: ${escapeHtml(error.message)}</p>`; }
     } else { count.textContent = "No se pudo conectar con la biblioteca"; }
   </script>

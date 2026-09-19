@@ -343,12 +343,13 @@
         <div><dt class="font-sans text-xs font-bold uppercase text-[#718590]">Archivo</dt><dd id="modal-file" class="mt-1 text-[#18384E]"></dd></div>
         <div><dt class="font-sans text-xs font-bold uppercase text-[#718590]">Publicado</dt><dd id="modal-date" class="mt-1 text-[#18384E]"></dd></div>
       </dl>
-      <div class="mt-6 flex justify-end gap-3"><a id="modal-open" target="_blank" rel="noopener" class="flex h-11 items-center rounded-[9px] border border-[#9DB6C1] px-5 font-sans text-xs font-bold"><i class="fa-regular fa-eye mr-2"></i>Abrir archivo</a><a id="modal-download" download class="flex h-11 items-center rounded-[9px] bg-[#00AFC1] px-5 font-sans text-xs font-bold text-white"><i class="fa-solid fa-download mr-2"></i>Descargar</a></div>
+      <div class="mt-6 flex justify-end gap-3"><a id="modal-edit" href="#" class="hidden h-11 items-center rounded-[9px] border border-[#9DB6C1] px-5 font-sans text-xs font-bold"><i class="fa-solid fa-pen mr-2"></i>Editar (moderador)</a><a id="modal-open" target="_blank" rel="noopener" class="flex h-11 items-center rounded-[9px] border border-[#9DB6C1] px-5 font-sans text-xs font-bold"><i class="fa-regular fa-eye mr-2"></i>Abrir archivo</a><a id="modal-download" download class="flex h-11 items-center rounded-[9px] bg-[#00AFC1] px-5 font-sans text-xs font-bold text-white"><i class="fa-solid fa-download mr-2"></i>Descargar</a></div>
     </article>
   </div>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, query, where, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
     const mobileMenuToggle = document.querySelector("#mobile-menu-toggle");
     const primaryNavigation = document.querySelector("#primary-navigation");
@@ -387,6 +388,8 @@
     const pageSize = 5;
     let resources = [];
     let page = 1;
+    let isModerator = false;
+    const ownerEmails = ["angeloyeshuac@gmail.com", "angcalderon@estudiantec.cr"];
 
     const escapeHtml = value => String(value || "").replace(/[&<>"']/g, character => ({
       "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
@@ -413,6 +416,10 @@
       document.querySelector("#modal-date").textContent = formatDate(resource.createdAt);
       document.querySelector("#modal-open").href = resource.fileUrl || "#";
       document.querySelector("#modal-download").href = resource.fileUrl || "#";
+      const editLink = document.querySelector("#modal-edit");
+      editLink.classList.toggle("hidden", !isModerator);
+      editLink.classList.toggle("flex", isModerator);
+      editLink.href = `aematec_biblioteca-moderacion.html?edit=${resource.id}`;
       modal.classList.remove("hidden");
       modal.classList.add("flex");
       document.body.classList.add("overflow-hidden");
@@ -450,7 +457,7 @@
           <h3 class="font-sans font-bold text-[19px] mt-5">${escapeHtml(resource.title)}</h3><p class="text-sm text-[#607480] mt-3 leading-6">${escapeHtml(resource.description)}</p>
           <div class="mt-5 grid grid-cols-2 gap-3 text-xs text-[#627783]"><span><i class="fa-solid fa-graduation-cap w-5 text-[#00A6B8]"></i>${escapeHtml(resource.course || "Nivel no indicado")}</span><span><i class="fa-solid fa-shapes w-5 text-[#00A6B8]"></i>${escapeHtml(resource.topic || "Matemática")}</span></div>
           <p class="mt-5 pt-4 border-t border-[#E4EAED] text-xs text-[#6F818C]">Por <strong class="text-[#405968]">${escapeHtml(resource.author)}</strong></p>
-          <div class="mt-5 flex gap-3"><button type="button" data-view-resource="${escapeHtml(resource.id)}" class="flex-1 h-10 border border-[#9DB6C1] rounded-[8px] font-sans font-bold text-xs"><i class="fa-regular fa-eye mr-2"></i>Ver</button><a href="${escapeHtml(resource.fileUrl)}" download class="flex-1 h-10 bg-[#00AFC1] text-white rounded-[8px] flex items-center justify-center font-sans font-bold text-xs"><i class="fa-solid fa-download mr-2"></i>Descargar</a></div>
+          <div class="mt-5 flex gap-3">${isModerator ? `<a href="aematec_biblioteca-moderacion.html?edit=${escapeHtml(resource.id)}" class="flex h-10 w-10 items-center justify-center rounded-[8px] border border-[#9DB6C1] font-sans font-bold text-xs" title="Editar (moderador)"><i class="fa-solid fa-pen"></i></a>` : ""}<button type="button" data-view-resource="${escapeHtml(resource.id)}" class="flex-1 h-10 border border-[#9DB6C1] rounded-[8px] font-sans font-bold text-xs"><i class="fa-regular fa-eye mr-2"></i>Ver</button><a href="${escapeHtml(resource.fileUrl)}" download class="flex-1 h-10 bg-[#00AFC1] text-white rounded-[8px] flex items-center justify-center font-sans font-bold text-xs"><i class="fa-solid fa-download mr-2"></i>Descargar</a></div>
         </article>`).join("");
       }
       const pageButtons = [];
@@ -489,14 +496,20 @@
     } else {
       try {
         const app = initializeApp(config);
+        const db = getFirestore(app);
         const resourcesQuery = query(
-          collection(getFirestore(app), "resources"),
+          collection(db, "resources"),
           where("section", "==", "docentes"),
           where("published", "==", true)
         );
         const snapshot = await getDocs(resourcesQuery);
         resources = snapshot.docs.map(document => ({ id: document.id, ...document.data() }));
         render();
+        onAuthStateChanged(getAuth(app), async user => {
+          const email = user?.email?.toLowerCase();
+          isModerator = Boolean(email) && (ownerEmails.includes(email) || (await getDoc(doc(db, "moderators", email))).exists());
+          render();
+        });
       } catch (error) {
         count.textContent = "No se pudieron cargar los materiales";
         grid.innerHTML = `<p class="col-span-1 bg-white border border-[#D6E2E7] rounded-[16px] p-8 text-center text-[#C2413B]">Error al cargar la biblioteca: ${escapeHtml(error.message)}</p>`;

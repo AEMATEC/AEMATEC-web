@@ -66,9 +66,34 @@
       </section>
     </section>
   </main>
+  <div id="edit-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-[#0D2B45]/60 p-6 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="edit-modal-title">
+    <article class="relative max-h-[90vh] w-full max-w-[650px] overflow-y-auto rounded-[20px] bg-white p-8 shadow-2xl">
+      <button id="edit-modal-close" type="button" class="absolute right-5 top-5 flex h-10 w-10 items-center justify-center rounded-full bg-[#F0F4F6] text-[#5F7480]" aria-label="Cerrar edición"><i class="fa-solid fa-xmark"></i></button>
+      <p class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#00A6B8]">Editar recurso</p>
+      <h2 id="edit-modal-title" class="mt-3 pr-12 font-sans text-2xl font-bold">Editar metadatos</h2>
+      <p class="mt-2 text-sm text-[#607480]">El autor y el archivo original no se pueden modificar desde aquí.</p>
+      <form id="edit-form" class="mt-6 space-y-4">
+        <div><label for="edit-title" class="font-sans text-xs font-bold">Título</label><input id="edit-title" required maxlength="120" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+        <div><label for="edit-description" class="font-sans text-xs font-bold">Descripción</label><textarea id="edit-description" required maxlength="300" class="mt-2 h-24 w-full rounded-[9px] border border-[#BFD0D8] px-3 py-2 resize-none"></textarea></div>
+        <div id="edit-labels-wrap"><span class="font-sans text-xs font-bold">Etiquetas</span><div id="edit-labels" class="mt-2 grid grid-cols-2 gap-2 text-xs text-[#526A78]"></div></div>
+        <div id="edit-docentes-fields" class="grid grid-cols-2 gap-4 hidden">
+          <div><label for="edit-grade" class="font-sans text-xs font-bold">Grado</label><select id="edit-grade" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] bg-white px-3"><option value="">Seleccionar grado</option><option>Primero</option><option>Segundo</option><option>Tercero</option><option>Cuarto</option><option>Quinto</option><option>Sexto</option><option>Sétimo</option><option>Octavo</option><option>Noveno</option><option>Décimo</option><option>Undécimo</option><option>Duodécimo</option><option>Universitario</option><option>Para-universitario</option></select></div>
+          <div><label for="edit-materials" class="font-sans text-xs font-bold">Materiales</label><input id="edit-materials" maxlength="300" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+          <label class="col-span-2 flex items-center gap-3 font-sans text-xs font-bold"><input id="edit-requires-internet" type="checkbox" class="h-4 w-4 accent-[#00AFC1]"> Requiere internet</label>
+        </div>
+        <div id="edit-academico-fields" class="grid grid-cols-2 gap-4 hidden">
+          <div><label for="edit-course" class="font-sans text-xs font-bold">Curso</label><input id="edit-course" maxlength="80" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+          <div><label for="edit-course-code" class="font-sans text-xs font-bold">Código de curso</label><input id="edit-course-code" maxlength="20" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+        </div>
+        <div><label for="edit-explanation-url" class="font-sans text-xs font-bold">Enlace de explicación (opcional)</label><input id="edit-explanation-url" type="url" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+        <p id="edit-status" role="alert" class="text-sm" hidden></p>
+        <div class="flex justify-end gap-3 pt-2"><button type="button" id="edit-cancel" class="h-11 rounded-[9px] border border-[#AFC2CB] px-5 font-sans text-xs font-bold">Cancelar</button><button type="submit" class="h-11 rounded-[9px] bg-[#0D2B45] px-6 font-sans text-xs font-bold text-white">Guardar cambios</button></div>
+      </form>
+    </article>
+  </div>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { browserSessionPersistence, getAuth, onAuthStateChanged, setPersistence, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { browserLocalPersistence, getAuth, onAuthStateChanged, setPersistence, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import { getFirestore, collection, getDocs, getDoc, query, where, updateDoc, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
     import { getStorage, ref, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
@@ -77,13 +102,120 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
     const storage = getStorage(app);
-    await setPersistence(auth, browserSessionPersistence);
+    // Persistencia local: el moderador permanece logueado en este navegador entre visitas.
+    await setPersistence(auth, browserLocalPersistence);
     const loginPanel = document.querySelector("#login-panel");
     const moderationPanel = document.querySelector("#moderation-panel");
     const pendingList = document.querySelector("#pending-list");
     const panelStatus = document.querySelector("#panel-status");
     const escapeHtml = value => String(value || "").replace(/[&<>"']/g, character => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#039;" }[character]));
     const fileSize = bytes => bytes ? `${(bytes / 1024 / 1024).toFixed(2)} MB` : "Tamaño no indicado";
+
+    const docentesLabels = ["Actividad inicial / Exploratorio", "Juego", "Cotidiano", "Guía didáctica", "Unidad didáctica", "Planeamiento", "Tarea", "Recurso tecnológico", "Movilización de Conocimientos", "Debate", "Discusión matemática", "Trabajo independiente", "Guía de Trabajo Autónomo"];
+    const academicoLabels = ["Solución", "Prueba escrita", "Quiz", "Reposición", "Investigación", "Apuntes", "Resumen"];
+    const typeMap = {
+      "Actividad inicial / Exploratorio": "Actividad", Cotidiano: "Actividad", Tarea: "Actividad",
+      Juego: "Juego", "Guía didáctica": "Guía didáctica", "Unidad didáctica": "Planeamiento",
+      Planeamiento: "Planeamiento", "Recurso tecnológico": "Recurso digital",
+      "Movilización de Conocimientos": "Actividad", Debate: "Actividad",
+      "Discusión matemática": "Actividad", "Trabajo independiente": "Actividad",
+      "Guía de Trabajo Autónomo": "Guía didáctica",
+      Solución: "Solución", "Prueba escrita": "Examen", Quiz: "Examen",
+      Reposición: "Examen", Investigación: "Apuntes", Apuntes: "Apuntes", Resumen: "Apuntes"
+    };
+    const editModal = document.querySelector("#edit-modal");
+    const editForm = document.querySelector("#edit-form");
+    const editStatus = document.querySelector("#edit-status");
+    const editLabelsWrap = document.querySelector("#edit-labels");
+    const editDocentesFields = document.querySelector("#edit-docentes-fields");
+    const editAcademicoFields = document.querySelector("#edit-academico-fields");
+    let editingId = null;
+
+    function closeEditModal() {
+      editModal.classList.add("hidden");
+      editModal.classList.remove("flex");
+      document.body.classList.remove("overflow-hidden");
+      editingId = null;
+      const params = new URLSearchParams(window.location.search);
+      if (params.has("edit")) {
+        params.delete("edit");
+        const query = params.toString();
+        window.history.replaceState({}, "", window.location.pathname + (query ? `?${query}` : ""));
+      }
+    }
+
+    function openEditModal(id, resource) {
+      editingId = id;
+      editStatus.hidden = true;
+      document.querySelector("#edit-title").value = resource.title || "";
+      document.querySelector("#edit-description").value = resource.description || "";
+      document.querySelector("#edit-explanation-url").value = resource.explanationUrl || "";
+      const isDocente = resource.section === "docentes";
+      editDocentesFields.classList.toggle("hidden", !isDocente);
+      editAcademicoFields.classList.toggle("hidden", isDocente);
+      document.querySelector("#edit-grade").value = resource.grade || "";
+      document.querySelector("#edit-materials").value = resource.materials || "";
+      document.querySelector("#edit-requires-internet").checked = Boolean(resource.requiresInternet);
+      document.querySelector("#edit-course").value = resource.course || "";
+      document.querySelector("#edit-course-code").value = resource.courseCode || "";
+      const availableLabels = isDocente ? docentesLabels : academicoLabels;
+      const currentLabels = Array.isArray(resource.labels) ? resource.labels : [];
+      editLabelsWrap.innerHTML = availableLabels.map(label => `<label><input type="checkbox" data-edit-label="${escapeHtml(label)}" ${currentLabels.includes(label) ? "checked" : ""} class="accent-[#00AFC1]"> ${escapeHtml(label)}</label>`).join("");
+      editModal.classList.remove("hidden");
+      editModal.classList.add("flex");
+      document.body.classList.add("overflow-hidden");
+      document.querySelector("#edit-title").focus();
+    }
+
+    document.querySelector("#edit-modal-close").addEventListener("click", closeEditModal);
+    document.querySelector("#edit-cancel").addEventListener("click", closeEditModal);
+    editModal.addEventListener("click", event => { if (event.target === editModal) closeEditModal(); });
+    document.addEventListener("keydown", event => { if (event.key === "Escape" && !editModal.classList.contains("hidden")) closeEditModal(); });
+
+    editForm.addEventListener("submit", async event => {
+      event.preventDefault();
+      if (!editingId) return;
+      const isDocente = !editDocentesFields.classList.contains("hidden");
+      const labels = [...editLabelsWrap.querySelectorAll("[data-edit-label]:checked")].map(input => input.dataset.editLabel);
+      if (!labels.length) {
+        editStatus.textContent = "Selecciona al menos una etiqueta.";
+        editStatus.className = "text-sm text-[#C2413B]";
+        editStatus.hidden = false;
+        return;
+      }
+      const updates = {
+        title: document.querySelector("#edit-title").value.trim(),
+        description: document.querySelector("#edit-description").value.trim(),
+        labels, type: typeMap[labels[0]],
+        explanationUrl: document.querySelector("#edit-explanation-url").value.trim()
+      };
+      if (isDocente) {
+        updates.grade = document.querySelector("#edit-grade").value;
+        updates.materials = document.querySelector("#edit-materials").value.trim();
+        updates.requiresInternet = document.querySelector("#edit-requires-internet").checked;
+      } else {
+        updates.course = document.querySelector("#edit-course").value.trim();
+        updates.courseCode = document.querySelector("#edit-course-code").value.trim();
+      }
+      try {
+        await updateDoc(doc(db, "resources", editingId), updates);
+        closeEditModal();
+        await loadPending();
+      } catch (error) {
+        editStatus.textContent = `No se pudo guardar: ${error.message}`;
+        editStatus.className = "text-sm text-[#C2413B]";
+        editStatus.hidden = false;
+      }
+    });
+
+    async function openEditFromId(id) {
+      const resourceDocument = await getDoc(doc(db, "resources", id));
+      if (!resourceDocument.exists()) {
+        panelStatus.textContent = "El recurso solicitado no existe.";
+        return;
+      }
+      openEditModal(id, resourceDocument.data());
+    }
 
     document.querySelector("#login-form").addEventListener("submit", async event => {
       event.preventDefault();
@@ -147,10 +279,11 @@
           <div class="flex flex-wrap items-start justify-between gap-3"><div><span class="font-sans text-[10px] font-bold uppercase text-[#00A6B8]">${escapeHtml(resource.type)}</span><h2 class="mt-2 font-sans text-xl font-bold">${escapeHtml(resource.title)}</h2></div><span class="rounded-full bg-[#FFF1D9] px-3 py-1 font-sans text-[10px] font-bold text-[#946316]">PENDIENTE</span></div>
           <p class="mt-3 leading-6 text-[#607480]">${escapeHtml(resource.description)}</p>
           <dl class="mt-4 grid gap-2 text-sm text-[#405968] sm:grid-cols-2"><div><strong>Autor:</strong> ${escapeHtml(resource.author)}</div><div><strong>Curso:</strong> ${escapeHtml(resource.course || "No indicado")}</div><div><strong>Materiales:</strong> ${escapeHtml(resource.materials || "No indicados")}</div><div><strong>Internet:</strong> ${resource.requiresInternet ? "Sí" : "No"} · ${escapeHtml((resource.extension || "").toUpperCase())} · ${fileSize(resource.size)}</div></dl>
-          <div class="mt-5 flex flex-wrap gap-3"><a href="${escapeHtml(resource.fileUrl)}" target="_blank" rel="noopener" class="rounded-[8px] border border-[#9DB6C1] px-4 py-2 font-sans text-xs font-bold">Ver archivo</a><button data-action="approved" data-id="${item.id}" class="rounded-[8px] bg-[#00AFC1] px-4 py-2 font-sans text-xs font-bold text-white">Aprobar y publicar</button><button data-action="rejected" data-id="${item.id}" class="rounded-[8px] border border-[#C2413B] px-4 py-2 font-sans text-xs font-bold text-[#C2413B]">Rechazar</button><button data-action="delete" data-id="${item.id}" class="rounded-[8px] border border-[#AFC2CB] px-4 py-2 font-sans text-xs font-bold">Eliminar</button></div>
+          <div class="mt-5 flex flex-wrap gap-3"><a href="${escapeHtml(resource.fileUrl)}" target="_blank" rel="noopener" class="rounded-[8px] border border-[#9DB6C1] px-4 py-2 font-sans text-xs font-bold">Ver archivo</a><button data-edit-id="${item.id}" class="rounded-[8px] border border-[#9DB6C1] px-4 py-2 font-sans text-xs font-bold"><i class="fa-solid fa-pen mr-1"></i>Editar</button><button data-action="approved" data-id="${item.id}" class="rounded-[8px] bg-[#00AFC1] px-4 py-2 font-sans text-xs font-bold text-white">Aprobar y publicar</button><button data-action="rejected" data-id="${item.id}" class="rounded-[8px] border border-[#C2413B] px-4 py-2 font-sans text-xs font-bold text-[#C2413B]">Rechazar</button><button data-action="delete" data-id="${item.id}" class="rounded-[8px] border border-[#AFC2CB] px-4 py-2 font-sans text-xs font-bold">Eliminar</button></div>
         </article>`;
       }).join("");
       pendingList.querySelectorAll("button[data-action]").forEach(button => button.addEventListener("click", () => handleAction(button.dataset.action, button.dataset.id)));
+      pendingList.querySelectorAll("[data-edit-id]").forEach(button => button.addEventListener("click", () => openEditFromId(button.dataset.editId)));
     }
 
     async function handleAction(action, id) {
@@ -183,6 +316,8 @@
       if (allowed) {
         loadPending().catch(error => { panelStatus.textContent = `No se pudieron cargar los pendientes: ${error.message}`; });
         loadModerators().catch(error => { document.querySelector("#moderator-status").textContent = `No se pudieron cargar los moderadores: ${error.message}`; });
+        const editId = new URLSearchParams(window.location.search).get("edit");
+        if (editId) openEditFromId(editId).catch(error => { panelStatus.textContent = `No se pudo abrir el recurso: ${error.message}`; });
       } else if (user) {
         document.querySelector("#login-status").textContent = "Esta cuenta no tiene permisos de moderador.";
         document.querySelector("#login-status").hidden = false;

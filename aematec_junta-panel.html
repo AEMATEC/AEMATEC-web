@@ -293,12 +293,47 @@
           list.innerHTML = `<li class="py-3 text-sm text-[#607480]">Aún no hay registros.</li>`;
           return;
         }
-        list.innerHTML = snapshot.docs.map(item => `
-          <li class="flex items-center justify-between gap-4 py-3">
-            <span class="font-sans text-sm">${escapeHtml(item.id)}</span>
-            <button type="button" data-remove-item="${escapeHtml(item.id)}" class="font-sans text-xs font-bold text-[#C2413B]">Quitar</button>
-          </li>
-        `).join("");
+
+        if (section === "junta") {
+          list.innerHTML = snapshot.docs.map(item => {
+            const data = item.data();
+            return `
+              <li class="flex flex-wrap items-center justify-between gap-3 py-4" data-row="${escapeHtml(item.id)}">
+                <span class="font-sans text-sm font-semibold w-full sm:w-auto sm:min-w-[220px]">${escapeHtml(item.id)}</span>
+                <input type="text" data-field="nombre" placeholder="Nombre completo" value="${escapeHtml(data.nombre)}" class="h-9 flex-1 min-w-[160px] rounded-[8px] border border-[#BFD0D8] px-2 text-sm">
+                <input type="text" data-field="puesto" placeholder="Puesto (ej. Presidencia)" value="${escapeHtml(data.puesto)}" class="h-9 flex-1 min-w-[160px] rounded-[8px] border border-[#BFD0D8] px-2 text-sm">
+                <button type="button" data-save-item="${escapeHtml(item.id)}" class="font-sans text-xs font-bold text-[#087F8C]">Guardar</button>
+                <button type="button" data-remove-item="${escapeHtml(item.id)}" class="font-sans text-xs font-bold text-[#C2413B]">Quitar</button>
+              </li>
+            `;
+          }).join("");
+
+          list.querySelectorAll("[data-save-item]").forEach(button => button.addEventListener("click", async () => {
+            const email = button.dataset.saveItem;
+            const row = list.querySelector(`[data-row="${CSS.escape(email)}"]`);
+            const nombre = row.querySelector('[data-field="nombre"]').value.trim();
+            const puesto = row.querySelector('[data-field="puesto"]').value.trim();
+            try {
+              await setDoc(doc(db, "junta", email), { email, nombre, puesto }, { merge: true });
+              document.querySelector("#section-status").textContent = `✓ Datos de ${email} guardados.`;
+              document.querySelector("#section-status").className = "text-sm text-[#087F8C]";
+              document.querySelector("#section-status").hidden = false;
+              setTimeout(() => document.querySelector("#section-status").hidden = true, 2500);
+            } catch (error) {
+              document.querySelector("#section-status").textContent = `Error al guardar: ${error.message}`;
+              document.querySelector("#section-status").className = "text-sm text-[#C2413B]";
+              document.querySelector("#section-status").hidden = false;
+            }
+          }));
+        } else {
+          list.innerHTML = snapshot.docs.map(item => `
+            <li class="flex items-center justify-between gap-4 py-3">
+              <span class="font-sans text-sm">${escapeHtml(item.id)}</span>
+              <button type="button" data-remove-item="${escapeHtml(item.id)}" class="font-sans text-xs font-bold text-[#C2413B]">Quitar</button>
+            </li>
+          `).join("");
+        }
+
         list.querySelectorAll("[data-remove-item]").forEach(button => button.addEventListener("click", async () => {
           if (!confirm(`¿Quitar ${button.dataset.removeItem} de ${section}?`)) return;
           try {

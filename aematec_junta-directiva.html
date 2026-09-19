@@ -33,7 +33,6 @@
     }
   </style>
   <title>Junta Directiva — AEMATEC</title>
-  <script src="assets/firebase-config.js"></script>
 </head>
 
 <body class="w-[1440px] min-h-screen bg-[#F4F8FA] text-[#0D2B45] font-serif" style="background-image: radial-gradient(circle at 12% 18%, rgba(0, 175, 193, 0.13) 0, rgba(0, 175, 193, 0.13) 1.2px, transparent 1.8px), radial-gradient(circle at 84% 72%, rgba(13, 43, 69, 0.09) 0, rgba(13, 43, 69, 0.09) 1.2px, transparent 1.8px); background-size: 28px 28px, 36px 36px;">
@@ -82,11 +81,11 @@
           <div id="medios-contacto" class="space-y-3">
             <div class="flex items-center gap-3">
               <i class="fa-solid fa-envelope text-[#00A6B8] w-6"></i>
-              <a id="contacto-email" href="#" class="text-sm text-[#0D2B45] hover:text-[#00A6B8] font-semibold">Cargando...</a>
+              <a id="contacto-email" href="mailto:aematec@estudiantec.cr" class="text-sm text-[#0D2B45] hover:text-[#00A6B8] font-semibold">aematec@estudiantec.cr</a>
             </div>
             <div class="flex items-center gap-3">
               <i class="fa-solid fa-phone text-[#00A6B8] w-6"></i>
-              <span id="contacto-phone" class="text-sm text-[#0D2B45]">Cargando...</span>
+              <span id="contacto-phone" class="text-sm text-[#0D2B45]">2550-2463</span>
             </div>
           </div>
         </div>
@@ -94,15 +93,15 @@
         <div class="rounded-[16px] border border-[#D8E3E9] bg-white p-6 shadow-sm">
           <h2 class="font-sans font-bold text-lg mb-4">Síguenos</h2>
           <div id="medios-difusion" class="grid grid-cols-3 gap-4">
-            <a id="link-whatsapp" href="#" target="_blank" rel="noopener" class="flex flex-col items-center gap-2 p-3 rounded-[12px] hover:bg-[#F0F4F7] transition">
+            <a id="link-whatsapp" href="https://chat.whatsapp.com/HyBk6tUHyf44MlURrVgiTi" target="_blank" rel="noopener" class="flex flex-col items-center gap-2 p-3 rounded-[12px] hover:bg-[#F0F4F7] transition">
               <i class="fa-brands fa-whatsapp text-2xl text-[#3B8F5B]"></i>
               <span class="text-xs font-sans font-bold">WhatsApp</span>
             </a>
-            <a id="link-instagram" href="#" target="_blank" rel="noopener" class="flex flex-col items-center gap-2 p-3 rounded-[12px] hover:bg-[#F0F4F7] transition">
+            <a id="link-instagram" href="https://www.instagram.com/aematec?stkn=enY1bDVmY3p1a3J4" target="_blank" rel="noopener" class="flex flex-col items-center gap-2 p-3 rounded-[12px] hover:bg-[#F0F4F7] transition">
               <i class="fa-brands fa-instagram text-2xl text-[#E1306C]"></i>
               <span class="text-xs font-sans font-bold">Instagram</span>
             </a>
-            <a id="link-telegram" href="#" target="_blank" rel="noopener" class="flex flex-col items-center gap-2 p-3 rounded-[12px] hover:bg-[#F0F4F7] transition">
+            <a id="link-telegram" href="https://t.me/comunidadmatec" target="_blank" rel="noopener" class="flex flex-col items-center gap-2 p-3 rounded-[12px] hover:bg-[#F0F4F7] transition">
               <i class="fa-brands fa-telegram text-2xl text-[#0088cc]"></i>
               <span class="text-xs font-sans font-bold">Telegram</span>
             </a>
@@ -112,10 +111,11 @@
 
       <div class="rounded-[16px] border border-[#D8E3E9] bg-white p-6 shadow-sm">
         <h2 class="font-sans font-bold text-lg mb-4">Integrantes actuales</h2>
-        <p class="text-sm text-[#5B6E7B] mb-5">La información de los integrantes de la Junta se completa desde el panel de administración.</p>
-        <div class="text-center py-8 text-[#607480]">
-          <i class="fa-solid fa-hourglass-end text-3xl mb-3"></i>
-          <p class="text-sm">Cargando información...</p>
+        <div id="miembros-junta" class="grid grid-cols-2 gap-4">
+          <div class="text-center py-8 text-[#607480] col-span-2">
+            <i class="fa-solid fa-hourglass-end text-3xl mb-3"></i>
+            <p class="text-sm">Cargando información...</p>
+          </div>
         </div>
       </div>
     </section>
@@ -146,7 +146,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const app = initializeApp(window.AEMATEC_FIREBASE_CONFIG);
     const db = getFirestore(app);
@@ -154,28 +154,54 @@
     async function loadMedios() {
       try {
         const doc_snap = await getDoc(doc(db, "config", "medios_oficiales"));
-        const data = doc_snap.exists() ? doc_snap.data() : {};
-        
-        const email = data.email || "aematec@estudiantec.cr";
-        const phone = data.phone || "2550-2463";
-        const whatsapp = data.whatsapp || "https://chat.whatsapp.com/HyBk6tUHyf44MlURrVgiTi";
-        const instagram = data.instagram || "https://www.instagram.com/aematec?stkn=enY1bDVmY3p1a3J4";
-        const telegram = data.telegram || "https://t.me/comunidadmatec";
+        if (!doc_snap.exists()) return;
+        const data = doc_snap.data();
 
-        document.querySelector("#contacto-email").href = `mailto:${email}`;
-        document.querySelector("#contacto-email").textContent = email;
-        document.querySelector("#contacto-phone").textContent = phone;
-        
-        document.querySelector("#link-whatsapp").href = whatsapp;
-        document.querySelector("#link-instagram").href = instagram;
-        document.querySelector("#link-telegram").href = telegram;
+        if (data.email) {
+          document.querySelector("#contacto-email").href = `mailto:${data.email}`;
+          document.querySelector("#contacto-email").textContent = data.email;
+        }
+        if (data.phone) document.querySelector("#contacto-phone").textContent = data.phone;
+        if (data.whatsapp) document.querySelector("#link-whatsapp").href = data.whatsapp;
+        if (data.instagram) document.querySelector("#link-instagram").href = data.instagram;
+        if (data.telegram) document.querySelector("#link-telegram").href = data.telegram;
       } catch (error) {
-        console.error("Error cargando medios:", error);
+        console.error("No se pudieron cargar los medios desde Firestore, se mantienen los valores fijos:", error);
+      }
+    }
+
+    const escapeHtml = value => String(value || "").replace(/[&<>"']/g, character => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#039;" }[character]));
+
+    async function loadMiembros() {
+      const container = document.querySelector("#miembros-junta");
+      try {
+        const snapshot = await getDocs(collection(db, "junta"));
+        if (snapshot.empty) {
+          container.innerHTML = `<p class="col-span-2 text-center text-sm text-[#607480] py-6">Aún no se han registrado integrantes.</p>`;
+          return;
+        }
+        container.innerHTML = snapshot.docs.map(item => {
+          const data = item.data();
+          const nombre = data.nombre || item.id;
+          const puesto = data.puesto || "Miembro de Junta Directiva";
+          return `
+            <div class="flex items-center gap-4 rounded-[12px] border border-[#E2E9EC] p-4">
+              <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#E6F8FA] text-[#009CAD]"><i class="fa-solid fa-user"></i></div>
+              <div>
+                <p class="font-sans font-bold text-sm">${escapeHtml(nombre)}</p>
+                <p class="text-xs text-[#607480]">${escapeHtml(puesto)}</p>
+              </div>
+            </div>
+          `;
+        }).join("");
+      } catch (error) {
+        container.innerHTML = `<p class="col-span-2 text-center text-sm text-[#C2413B] py-6">No se pudo cargar la información de la Junta.</p>`;
       }
     }
 
     loadMedios();
-  </script>'
+    loadMiembros();
+  </script>
 </body>
 
 </html>

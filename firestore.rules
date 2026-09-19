@@ -37,7 +37,8 @@ service cloud.firestore {
     }
 
     match /junta/{email} {
-      allow read, create, update, delete: if isJunta();
+      allow read: if true;
+      allow create, update, delete: if isJunta();
     }
 
     match /fiscalia/{email} {
@@ -73,10 +74,20 @@ service cloud.firestore {
         && request.resource.data.extension in ['', 'pdf', 'docx', 'pptx', 'xlsx', 'zip', 'ggb']
         && request.resource.data.size is number && request.resource.data.size <= 25 * 1024 * 1024
         && request.resource.data.status == 'pending'
-        && request.resource.data.published == false;
+        && request.resource.data.published == false
+        && request.resource.data.keys().hasOnly([
+          'title', 'description', 'section', 'type', 'labels', 'grade', 'educationalCycle',
+          'course', 'courseCode', 'author', 'materials', 'requiresInternet', 'explanationUrl',
+          'explanation', 'extension', 'size', 'storagePath', 'fileUrl', 'status', 'published', 'createdAt'
+        ]);
+      // Los moderadores pueden editar los metadatos de cualquier recurso (incluso ya
+      // publicado), pero nunca el autor ni el archivo/contenido original.
       allow update: if isModerator()
-        && request.resource.data.status in ['approved', 'rejected']
-        && request.resource.data.published == (request.resource.data.status == 'approved');
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'title', 'description', 'labels', 'type', 'explanationUrl',
+          'grade', 'materials', 'requiresInternet', 'course', 'courseCode',
+          'status', 'published'
+        ]);
       allow delete: if isModerator();
     }
   }

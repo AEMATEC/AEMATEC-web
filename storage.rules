@@ -2,7 +2,14 @@ rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
     match /recursos/{section}/{fileName} {
+      function isModerator() {
+        return request.auth != null
+          && (request.auth.token.email in ['angeloyeshuac@gmail.com', 'angcalderon@estudiantec.cr']
+            || firestore.exists(/databases/(default)/documents/moderators/$(request.auth.token.email)));
+      }
+
       allow read: if true;
+      // Cualquiera puede subir material nuevo; solo un moderador puede reemplazar un archivo existente.
       allow write: if section in ['docentes', 'academico']
         && request.resource.size <= 25 * 1024 * 1024
         && fileName.matches('^[a-f0-9-]+(-explicacion)?\\.(pdf|docx|pptx|xlsx|zip|ggb)$')
@@ -14,9 +21,9 @@ service firebase.storage {
           'application/zip', 'application/x-zip-compressed',
           'application/vnd.geogebra.file',
           'application/octet-stream'
-        ];
-      allow delete: if request.auth != null
-        && request.auth.token.email in ['angeloyeshuac@gmail.com', 'angcalderon@estudiantec.cr'];
+        ]
+        && (resource == null || isModerator());
+      allow delete: if isModerator();
     }
   }
 }
