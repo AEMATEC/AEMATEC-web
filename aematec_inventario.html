@@ -13,52 +13,271 @@
     href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&display=swap"
     rel="stylesheet">
   <script>tailwind.config = { theme: { extend: { fontFamily: { sans: ['Montserrat', 'sans-serif'], serif: ['Source Serif 4', 'serif'] } } } }</script>
+  <script src="assets/firebase-config.js"></script>
   <style>
     @media (max-width: 767px) {
-      body[class~="w-[1440px]"] { width: 100% !important; max-width: 100%; overflow-x: hidden; }
-      [class~="w-[1240px]"] { width: auto !important; max-width: none; }
-      html, body { max-width: 100%; }
-      header > div, main > section > div { width: calc(100% - 2rem) !important; margin-left: auto; margin-right: auto; }
-      header { height: auto !important; padding: 1rem 0; }
-      header > div { position: relative; display: grid !important; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 0.75rem; padding-left: 0.25rem; padding-right: 0.25rem; }
-      header > div > a { display: contents; }
-      header > div > a img { grid-column: 1; width: 92px; }
-      header > div > a > div { display: none; }
-      header > div > a > span { grid-column: 2; min-width: 0; overflow: hidden; font-size: 0.82rem; text-align: center; text-overflow: ellipsis; white-space: nowrap; }
-      #mobile-menu-toggle { display: flex; grid-column: 3; margin-left: 0; }
-      header nav { display: none !important; grid-column: 1 / -1; width: 100%; flex-direction: column; align-items: stretch; gap: 0.5rem !important; padding-top: 0.75rem; border-top: 1px solid #D8E3E9; }
-      header nav.is-open { display: flex !important; }
-      header nav a { width: 100%; padding: 0.7rem 0; font-size: 0.8rem; }
+      body[class~="w-[1440px]"] {
+        width: 100% !important;
+        max-width: 100%;
+        overflow-x: hidden;
+      }
+
+      [class~="w-[1240px]"] {
+        width: auto !important;
+        max-width: none;
+      }
+
+      html,
+      body {
+        max-width: 100%;
+      }
+
+      header>div,
+      main>section>div,
+      footer>div {
+        width: calc(100% - 2rem) !important;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      header {
+        height: auto !important;
+        padding: 1rem 0;
+      }
+
+      header>div {
+        position: relative;
+        display: grid !important;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 0.75rem;
+        padding-left: 0.25rem;
+        padding-right: 0.25rem;
+      }
+
+      header>div>a {
+        display: contents;
+      }
+
+      header>div>a img {
+        grid-column: 1;
+        width: 92px;
+      }
+
+      header>div>a>div {
+        display: none;
+      }
+
+      header>div>a>span {
+        grid-column: 2;
+        min-width: 0;
+        overflow: hidden;
+        font-size: 0.82rem;
+        text-align: center;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      #mobile-menu-toggle {
+        display: flex;
+        grid-column: 3;
+        margin-left: 0;
+      }
+
+      header nav {
+        display: none !important;
+        grid-column: 1 / -1;
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5rem !important;
+        padding-top: 0.75rem;
+        border-top: 1px solid #D8E3E9;
+      }
+
+      header nav.is-open {
+        display: flex !important;
+      }
+
+      header nav a {
+        width: 100%;
+        padding: 0.7rem 0;
+        font-size: 0.8rem;
+      }
+
+      #inv-hero-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.25rem;
+      }
+
+      #inv-tabs {
+        flex-wrap: wrap;
+      }
+
+      #inv-tabs button {
+        flex: 1 1 calc(50% - 0.5rem);
+      }
+
+      #inv-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+      }
+
+      #inv-toolbar>* {
+        width: 100%;
+      }
+
+      #item-modal article,
+      #admin-item-modal article,
+      #loan-modal article,
+      #junta-login-modal article {
+        padding: 1.25rem;
+      }
+
+      #item-modal .item-fields {
+        grid-template-columns: 1fr;
+      }
+
+      footer>div {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
     }
+
     @media (min-width: 768px) and (max-width: 1279px) {
-      body[class~="w-[1440px]"] { width: 100% !important; max-width: 100%; overflow-x: hidden; }
-      [class~="w-[1240px]"] { width: auto !important; max-width: none; }
-      html, body { max-width: 100%; }
-      header > div, main > section > div { width: calc(100% - 4rem) !important; margin-left: auto; margin-right: auto; }
+      body[class~="w-[1440px]"] {
+        width: 100% !important;
+        max-width: 100%;
+        overflow-x: hidden;
+      }
+
+      [class~="w-[1240px]"] {
+        width: auto !important;
+        max-width: none;
+      }
+
+      html,
+      body {
+        max-width: 100%;
+      }
+
+      header>div,
+      main>section>div,
+      footer>div {
+        width: calc(100% - 4rem) !important;
+        margin-left: auto;
+        margin-right: auto;
+      }
     }
+
     @media (min-width: 768px) {
-      body[class~="w-[1440px]"] { width: 100% !important; max-width: 100%; overflow-x: hidden; }
-      [class~="w-[1240px]"] { width: min(1240px, calc(100% - clamp(2rem, 8vw, 12.5rem))) !important; max-width: none; }
+      body[class~="w-[1440px]"] {
+        width: 100% !important;
+        max-width: 100%;
+        overflow-x: hidden;
+      }
+
+      [class~="w-[1240px]"] {
+        width: min(1240px, calc(100% - clamp(2rem, 8vw, 12.5rem))) !important;
+        max-width: none;
+      }
     }
+
     header nav a,
-    header > div > a {
+    header>div>a {
       transition: transform 180ms ease, color 180ms ease, background-color 180ms ease;
       transform-origin: center;
     }
+
     header nav a:hover,
     header nav a:focus-visible,
-    header > div > a:hover,
-    header > div > a:focus-visible {
+    header>div>a:hover,
+    header>div>a:focus-visible {
       transform: scale(1.04);
     }
+
     @media (prefers-reduced-motion: reduce) {
-      header nav a, header > div > a { transition: none; }
+
+      header nav a,
+      header>div>a,
+      .inv-tab-btn {
+        transition: none;
+      }
+    }
+
+    .inv-tab-btn {
+      transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease;
+    }
+
+    .inv-tab-btn.is-active {
+      background: #0D2B45;
+      color: #FFFFFF;
+      border-color: #0D2B45;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(13, 43, 69, 0.6);
+      padding: 1.5rem;
+      backdrop-filter: blur(4px);
+    }
+
+    .modal-overlay.is-open {
+      display: flex;
+    }
+
+    .book-cover {
+      aspect-ratio: 2 / 3;
+    }
+
+    .line-clamp-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .item-fields dt {
+      font-family: Montserrat, sans-serif;
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #718590;
+    }
+
+    .item-fields dd {
+      margin-top: 0.25rem;
+      color: #18384E;
+      font-size: 0.95rem;
+    }
+
+    .exemplar-row {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr 1.2fr auto auto;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    @media (max-width: 767px) {
+      .exemplar-row {
+        grid-template-columns: 1fr 1fr;
+      }
     }
   </style>
   <title>Inventario — AEMATEC</title>
 </head>
 
-<body class="w-[1440px] min-h-screen bg-[#F4F8FA] text-[#0D2B45] font-serif" style="background-image: radial-gradient(circle at 12% 18%, rgba(0, 175, 193, 0.13) 0, rgba(0, 175, 193, 0.13) 1.2px, transparent 1.8px), radial-gradient(circle at 84% 72%, rgba(13, 43, 69, 0.09) 0, rgba(13, 43, 69, 0.09) 1.2px, transparent 1.8px); background-size: 28px 28px, 36px 36px;">
+<body class="w-[1440px] min-h-screen bg-[#F4F8FA] text-[#0D2B45] font-serif"
+  style="background-image: radial-gradient(circle at 12% 18%, rgba(0, 175, 193, 0.13) 0, rgba(0, 175, 193, 0.13) 1.2px, transparent 1.8px), radial-gradient(circle at 84% 72%, rgba(13, 43, 69, 0.09) 0, rgba(13, 43, 69, 0.09) 1.2px, transparent 1.8px); background-size: 28px 28px, 36px 36px;">
   <header data-design-id="header-aematec" class="h-[92px] bg-white border-b border-[#D8E3E9] flex items-center">
     <div class="w-[1240px] mx-auto flex items-center justify-between">
       <a href="index.html" class="flex items-center gap-5">
@@ -66,10 +285,13 @@
         <div class="h-9 w-px bg-[#D8E3E9]"></div>
         <span class="font-sans font-bold text-[18px] tracking-[-0.02em]">AEMATEC</span>
       </a>
-      <button id="mobile-menu-toggle" type="button" class="hidden h-11 w-11 items-center justify-center rounded-[10px] border border-[#BFD0D8] text-[#0D2B45]" aria-expanded="false" aria-controls="primary-navigation" aria-label="Abrir menú">
+      <button id="mobile-menu-toggle" type="button"
+        class="hidden h-11 w-11 items-center justify-center rounded-[10px] border border-[#BFD0D8] text-[#0D2B45]"
+        aria-expanded="false" aria-controls="primary-navigation" aria-label="Abrir menú">
         <i class="fa-solid fa-bars"></i>
       </button>
-      <nav id="primary-navigation" data-design-id="nav-aematec" class="flex items-center gap-8 font-sans text-[14px] font-semibold">
+      <nav id="primary-navigation" data-design-id="nav-aematec"
+        class="flex items-center gap-8 font-sans text-[14px] font-semibold">
         <a href="index.html" class="text-[#405769] hover:text-[#00A6B8]">Inicio</a>
         <a href="aematec_biblioteca-home.html" class="text-[#405769] hover:text-[#00A6B8]">Biblioteca</a>
         <a href="aematec_inventario.html" class="text-[#00A6B8] border-b-2 border-[#00B5C8] py-2">Inventario</a>
@@ -83,16 +305,67 @@
   </header>
 
   <main data-design-id="main-aematec" class="flex-1">
-    <section class="w-[1240px] mx-auto py-[96px] text-center">
-      <div class="mx-auto flex h-[88px] w-[88px] items-center justify-center rounded-full bg-[#E6F8FA] text-[#009CAD] text-[34px]">
-        <i class="fa-solid fa-boxes-stacked"></i>
+    <section class="bg-[#075766] text-white">
+      <div class="w-[1240px] mx-auto py-[50px]">
+        <div id="inv-hero-row" class="flex justify-between items-end">
+          <div>
+            <div class="font-sans text-xs font-semibold text-[#B8E2E5] mb-4"><a href="index.html">Inicio</a><i
+                class="fa-solid fa-chevron-right text-[9px] mx-3"></i><span class="text-[#00A6B8]">Inventario</span>
+            </div>
+            <h1 class="font-sans text-[38px] leading-tight font-bold tracking-[-0.02em]">Inventario AEMATEC</h1>
+            <p class="text-[16px] text-[#D0E7E8] mt-3 max-w-[640px]">Consulta los bienes de la asociación: activos
+              institucionales, activos AEMATEC, biblioteca y consumibles. Puedes solicitar el préstamo de bienes
+              disponibles; la entrega se coordina en físico con la Junta Directiva.</p>
+          </div>
+          <div class="flex flex-col items-end gap-3">
+            <div
+              class="w-[74px] h-[74px] rounded-[18px] bg-white/10 text-[#63E0E1] flex items-center justify-center text-[30px]">
+              <i class="fa-solid fa-boxes-stacked"></i>
+            </div>
+            <button id="junta-access-btn" type="button"
+              class="font-sans text-xs font-bold text-[#B8E2E5] hover:text-white flex items-center gap-2"><i
+                class="fa-solid fa-user-shield"></i>Acceso Junta Directiva</button>
+            <div id="junta-session-bar" hidden class="font-sans text-xs text-[#B8E2E5] flex items-center gap-2"><i
+                class="fa-solid fa-circle-check text-[#63E0E1]"></i><span id="junta-session-email"></span><button
+                id="junta-logout-btn" type="button" class="font-bold text-white underline">Salir</button></div>
+          </div>
+        </div>
+        <form id="inv-search-form"
+          class="mt-8 h-[54px] bg-white rounded-[12px] flex items-center p-1.5 shadow-lg max-w-[560px]">
+          <i class="fa-solid fa-magnifying-glass text-[#00A6B8] ml-3"></i>
+          <input id="inv-search" class="flex-1 h-full outline-none px-4 text-base text-[#18384E]"
+            placeholder="Buscar por nombre, código o ubicación...">
+          <button type="submit"
+            class="h-[42px] px-6 bg-[#00C0C7] text-white font-sans font-bold text-sm rounded-[9px]">Buscar</button>
+        </form>
       </div>
-      <p class="mt-7 font-sans text-xs font-bold uppercase tracking-[0.18em] text-[#00A6B8]">Próximamente</p>
-      <h1 class="mt-2 font-sans text-[34px] font-bold tracking-[-0.02em]">Inventario</h1>
-      <p class="mt-4 max-w-[560px] mx-auto text-[#5B6E7B] leading-7">Muy pronto podrás consultar los bienes de la asociación y, si eres Asociado, solicitar préstamos. La Junta Directiva podrá administrar el inventario completo desde aquí.</p>
-      <a href="index.html" class="mt-8 inline-flex items-center gap-2 font-sans text-sm font-bold text-[#008F9E] hover:text-[#00A6B8]">
-        <i class="fa-solid fa-arrow-left"></i> Volver al inicio
-      </a>
+    </section>
+
+    <section class="w-[1240px] mx-auto py-[42px]">
+      <div id="inv-tabs" class="flex gap-3">
+        <button type="button" data-tipo="institucional"
+          class="inv-tab-btn is-active flex-1 h-12 rounded-[10px] border border-[#CBD9DF] bg-white font-sans text-sm font-bold text-[#405968]"><i
+            class="fa-solid fa-building mr-2"></i>Activos institucionales</button>
+        <button type="button" data-tipo="aematec"
+          class="inv-tab-btn flex-1 h-12 rounded-[10px] border border-[#CBD9DF] bg-white font-sans text-sm font-bold text-[#405968]"><i
+            class="fa-solid fa-toolbox mr-2"></i>Activos AEMATEC</button>
+        <button type="button" data-tipo="biblioteca"
+          class="inv-tab-btn flex-1 h-12 rounded-[10px] border border-[#CBD9DF] bg-white font-sans text-sm font-bold text-[#405968]"><i
+            class="fa-solid fa-book mr-2"></i>Biblioteca</button>
+        <button type="button" data-tipo="consumible"
+          class="inv-tab-btn flex-1 h-12 rounded-[10px] border border-[#CBD9DF] bg-white font-sans text-sm font-bold text-[#405968]"><i
+            class="fa-solid fa-box-open mr-2"></i>Consumibles</button>
+      </div>
+
+      <div id="inv-toolbar" class="mt-7 flex justify-between items-center">
+        <span id="inv-count" class="font-sans font-bold text-lg">Cargando inventario...</span>
+        <button id="inv-add-btn" type="button" hidden
+          class="h-11 px-5 rounded-[9px] bg-[#0D2B45] text-white font-sans text-sm font-bold flex items-center gap-2"><i
+            class="fa-solid fa-plus"></i>Agregar bien</button>
+      </div>
+
+      <div id="inv-grid" class="mt-6 grid grid-cols-1 gap-4"></div>
+      <div id="inv-pagination" class="mt-8 flex items-center justify-center gap-2 font-sans text-sm"></div>
     </section>
   </main>
 
@@ -100,14 +373,182 @@
     <div class="w-[1240px] mx-auto py-9 flex items-center justify-between">
       <div class="flex items-center gap-4"><img src="assets/logo-aematec.svg" alt="AEMATEC"
           class="w-[125px] brightness-0 invert"><span
-          class="text-sm text-[#B9CAD4] border-l border-white/20 pl-4">Asociación de Estudiantes de Enseñanza de la Matemática con Entornos Tecnológicos</span></div>
+          class="text-sm text-[#B9CAD4] border-l border-white/20 pl-4">Asociación de Estudiantes de Enseñanza de la
+          Matemática con Entornos Tecnológicos</span></div>
       <div class="text-right text-xs text-[#AFC1CC]">
         <p>Asociación de Estudiantes de Enseñanza de la Matemática con Entornos Tecnológicos</p>
         <p class="mt-1">Instituto Tecnológico de Costa Rica</p>
       </div>
     </div>
   </footer>
-  <script>
+
+  <div id="item-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="item-modal-title">
+    <article class="relative max-h-[90vh] w-full max-w-[680px] overflow-y-auto rounded-[20px] bg-white p-8 shadow-2xl">
+      <button type="button" data-close-modal
+        class="absolute right-5 top-5 flex h-10 w-10 items-center justify-center rounded-full bg-[#F0F4F6] text-[#5F7480]"
+        aria-label="Cerrar detalles"><i class="fa-solid fa-xmark"></i></button>
+      <p class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#00A6B8]" id="item-modal-kicker">Detalle
+        del bien</p>
+      <div class="mt-4 flex gap-5">
+        <img id="item-modal-cover" src="" alt="" hidden
+          class="book-cover w-[110px] flex-shrink-0 rounded-[10px] object-cover border border-[#E2E9EC]">
+        <div class="min-w-0">
+          <h2 id="item-modal-title" class="font-sans text-[24px] font-bold pr-8"></h2>
+          <p id="item-modal-subtitle" class="mt-1 text-[#607480]"></p>
+        </div>
+      </div>
+      <dl id="item-modal-fields" class="item-fields mt-6 grid grid-cols-2 gap-4 border-y border-[#E2E9EC] py-5 text-sm">
+      </dl>
+      <div class="mt-6 flex flex-wrap justify-end gap-3">
+        <button type="button" id="item-modal-delete" hidden
+          class="h-11 px-5 rounded-[9px] border border-[#E2A0A0] text-[#C2413B] font-sans text-xs font-bold"><i
+            class="fa-solid fa-trash mr-2"></i>Eliminar</button>
+        <button type="button" id="item-modal-edit" hidden
+          class="h-11 px-5 rounded-[9px] border border-[#9DB6C1] font-sans text-xs font-bold"><i
+            class="fa-solid fa-pen mr-2"></i>Editar</button>
+        <button type="button" id="item-modal-loan" hidden
+          class="h-11 px-5 rounded-[9px] bg-[#00AFC1] text-white font-sans text-xs font-bold"><i
+            class="fa-solid fa-hand-holding mr-2"></i>Solicitar préstamo</button>
+      </div>
+    </article>
+  </div>
+
+  <div id="loan-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="loan-modal-title">
+    <article class="relative max-h-[90vh] w-full max-w-[480px] overflow-y-auto rounded-[20px] bg-white p-8 shadow-2xl">
+      <button type="button" data-close-modal
+        class="absolute right-5 top-5 flex h-10 w-10 items-center justify-center rounded-full bg-[#F0F4F6] text-[#5F7480]"
+        aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+      <p class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#00A6B8]">Solicitar préstamo</p>
+      <h2 id="loan-modal-title" class="mt-2 font-sans text-xl font-bold pr-8"></h2>
+      <p class="mt-2 text-sm text-[#607480]">El préstamo se entrega en físico. La Junta Directiva recibirá tu solicitud
+        y te contactará para coordinar la entrega.</p>
+      <form id="loan-form" class="mt-5 space-y-4">
+        <div><label for="loan-nombre" class="font-sans text-xs font-bold">Nombre completo</label><input id="loan-nombre"
+            type="text" required maxlength="120" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3">
+        </div>
+        <div><label for="loan-carne" class="font-sans text-xs font-bold">Carné o identificación</label><input
+            id="loan-carne" type="text" required maxlength="30"
+            class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+        <div><label for="loan-contacto" class="font-sans text-xs font-bold">Correo o teléfono de contacto</label><input
+            id="loan-contacto" type="text" required maxlength="160"
+            class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+        <div><label for="loan-fecha" class="font-sans text-xs font-bold">Fecha prevista de devolución
+            (opcional)</label><input id="loan-fecha" type="date"
+            class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+        <div><label for="loan-notas" class="font-sans text-xs font-bold">Notas (opcional)</label><textarea
+            id="loan-notas" maxlength="300" rows="2"
+            class="mt-2 w-full rounded-[9px] border border-[#BFD0D8] px-3 py-2"></textarea></div>
+        <button type="submit"
+          class="h-11 w-full rounded-[9px] bg-[#0D2B45] font-sans text-sm font-bold text-white">Enviar
+          solicitud</button>
+        <p id="loan-status" role="status" class="text-sm" hidden></p>
+      </form>
+    </article>
+  </div>
+
+  <div id="junta-login-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="junta-login-title">
+    <article class="relative w-full max-w-[420px] rounded-[20px] bg-white p-8 shadow-2xl">
+      <button type="button" data-close-modal
+        class="absolute right-5 top-5 flex h-10 w-10 items-center justify-center rounded-full bg-[#F0F4F6] text-[#5F7480]"
+        aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+      <p class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#00A6B8]">Junta Directiva</p>
+      <h2 id="junta-login-title" class="mt-2 font-sans text-xl font-bold">Acceso al inventario</h2>
+      <form id="junta-login-form" class="mt-5 space-y-4">
+        <div><label for="junta-email" class="font-sans text-xs font-bold">Correo</label><input id="junta-email"
+            type="email" required autocomplete="email"
+            class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+        <div><label for="junta-password" class="font-sans text-xs font-bold">Contraseña</label><input
+            id="junta-password" type="password" required autocomplete="current-password"
+            class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+        <button type="submit"
+          class="h-11 w-full rounded-[9px] bg-[#0D2B45] font-sans text-sm font-bold text-white">Iniciar sesión</button>
+        <p id="junta-login-status" role="alert" class="text-sm text-[#C2413B]" hidden></p>
+      </form>
+    </article>
+  </div>
+
+  <div id="admin-item-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="admin-modal-title">
+    <article class="relative max-h-[90vh] w-full max-w-[640px] overflow-y-auto rounded-[20px] bg-white p-8 shadow-2xl">
+      <button type="button" data-close-modal
+        class="absolute right-5 top-5 flex h-10 w-10 items-center justify-center rounded-full bg-[#F0F4F6] text-[#5F7480]"
+        aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+      <p class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#00A6B8]" id="admin-modal-kicker">Agregar
+        bien</p>
+      <h2 id="admin-modal-title" class="mt-2 font-sans text-xl font-bold">Nuevo bien</h2>
+      <form id="admin-item-form" class="mt-5 space-y-4">
+        <div id="admin-fields" class="space-y-4"></div>
+        <button type="submit" id="admin-submit-btn"
+          class="h-11 w-full rounded-[9px] bg-[#0D2B45] font-sans text-sm font-bold text-white">Guardar</button>
+        <p id="admin-status" role="status" class="text-sm" hidden></p>
+      </form>
+    </article>
+  </div>
+
+  <datalist id="cat-aematec">
+    <option>Equipo tecnológico</option>
+    <option>Mobiliario</option>
+    <option>Electrodoméstico</option>
+    <option>Material didáctico</option>
+    <option>Decoración</option>
+    <option>Herramientas</option>
+    <option>Cocina</option>
+    <option>Juegos</option>
+    <option>Limpieza</option>
+    <option>Otro</option>
+  </datalist>
+  <datalist id="cat-biblioteca">
+    <option>Álgebra</option>
+    <option>Álgebra Lineal</option>
+    <option>Geometría</option>
+    <option>Probabilidad</option>
+    <option>Estadística</option>
+    <option>Cálculo</option>
+    <option>Trigonometría</option>
+  </datalist>
+  <datalist id="cat-consumible">
+    <option>Cocina</option>
+    <option>Limpieza</option>
+    <option>Oficina</option>
+    <option>Otro</option>
+  </datalist>
+  <datalist id="cat-estados">
+    <option>Excelente</option>
+    <option>Bueno</option>
+    <option>Regular</option>
+    <option>Malo</option>
+    <option>En reparación</option>
+    <option>Extraviado</option>
+  </datalist>
+  <datalist id="cat-ubicaciones">
+    <option>Escritorio</option>
+    <option>Biblioteca</option>
+    <option>Librería</option>
+    <option>Estantería</option>
+    <option>Gabinete 1</option>
+    <option>Gabinete 2</option>
+    <option>Gabinete 3</option>
+    <option>Gabinete 4</option>
+    <option>Mueble refrigeradora</option>
+  </datalist>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, getDoc, serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import {
+      getAuth, onAuthStateChanged, browserSessionPersistence, setPersistence,
+      signInWithEmailAndPassword, signOut
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
+    const config = window.AEMATEC_FIREBASE_CONFIG;
+    const app = initializeApp(config);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+    const storage = getStorage(app);
+    const ownerEmails = ["angeloyeshuac@gmail.com", "angcalderon@estudiantec.cr"];
+
     const mobileMenuToggle = document.querySelector("#mobile-menu-toggle");
     const primaryNavigation = document.querySelector("#primary-navigation");
     mobileMenuToggle.addEventListener("click", () => {
@@ -116,6 +557,505 @@
       mobileMenuToggle.setAttribute("aria-label", isOpen ? "Cerrar menú" : "Abrir menú");
       mobileMenuToggle.innerHTML = `<i class="fa-solid ${isOpen ? "fa-xmark" : "fa-bars"}"></i>`;
     });
+
+    const escapeHtml = value => String(value ?? "").replace(/[&<>"']/g, character => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
+    }[character]));
+    const formatDate = timestamp => timestamp?.seconds ? new Date(timestamp.seconds * 1000).toLocaleDateString("es-CR") : "No indicada";
+
+    const TIPO_LABELS = { institucional: "Activo institucional", aematec: "Activo AEMATEC", biblioteca: "Libro", consumible: "Consumible" };
+    const TIPO_ICON = { institucional: "fa-building", aematec: "fa-toolbox", consumible: "fa-box-open" };
+    const pageSize = 8;
+
+    let itemsByTipo = { institucional: [], aematec: [], biblioteca: [], consumible: [] };
+    let activeTab = "institucional";
+    let page = 1;
+    let isJunta = false;
+    let currentItem = null;
+
+    function showModal(modal) {
+      modal.classList.add("is-open");
+      document.body.classList.add("overflow-hidden");
+    }
+    function hideModal(modal) {
+      modal.classList.remove("is-open");
+      document.body.classList.remove("overflow-hidden");
+    }
+    document.querySelectorAll("[data-close-modal]").forEach(button => {
+      button.addEventListener("click", () => hideModal(button.closest(".modal-overlay")));
+    });
+    document.querySelectorAll(".modal-overlay").forEach(overlay => {
+      overlay.addEventListener("click", event => { if (event.target === overlay) hideModal(overlay); });
+    });
+
+    async function loadInventory() {
+      const snapshot = await getDocs(collection(db, "inventario"));
+      itemsByTipo = { institucional: [], aematec: [], biblioteca: [], consumible: [] };
+      snapshot.forEach(document => {
+        const data = { id: document.id, ...document.data() };
+        if (itemsByTipo[data.tipo]) itemsByTipo[data.tipo].push(data);
+      });
+      Object.values(itemsByTipo).forEach(list => list.sort((a, b) =>
+        (a.titulo || a.nombre || a.articulo || "").localeCompare(b.titulo || b.nombre || b.articulo || "", "es")
+      ));
+      renderGrid();
+    }
+
+    function searchableText(item) {
+      return [
+        item.codigo, item.nombre, item.titulo, item.autor, item.categoria, item.articulo,
+        item.ubicacion, item.descripcion, item.marca
+      ].filter(Boolean).join(" ").toLowerCase();
+    }
+
+    function renderGrid() {
+      const searchValue = document.querySelector("#inv-search").value.trim().toLowerCase();
+      let list = itemsByTipo[activeTab] || [];
+      if (searchValue) list = list.filter(item => searchableText(item).includes(searchValue));
+
+      const totalPages = Math.max(1, Math.ceil(list.length / pageSize));
+      page = Math.min(page, totalPages);
+      const pageItems = list.slice((page - 1) * pageSize, page * pageSize);
+
+      const grid = document.querySelector("#inv-grid");
+      grid.className = activeTab === "biblioteca"
+        ? "mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+        : "mt-6 grid grid-cols-1 gap-4";
+
+      document.querySelector("#inv-count").textContent = `${list.length} ${list.length === 1 ? "resultado" : "resultados"}`;
+      document.querySelector("#inv-add-btn").hidden = !isJunta;
+
+      if (!pageItems.length) {
+        grid.innerHTML = `<p class="col-span-full text-center text-[#607480] py-10"><i class="fa-solid fa-box-open text-2xl mb-3 block"></i>No hay bienes registrados en este apartado todavía.</p>`;
+      } else {
+        grid.innerHTML = pageItems.map(item => activeTab === "biblioteca" ? bookCardHtml(item) : itemCardHtml(item)).join("");
+      }
+      renderPagination(totalPages);
+      attachCardEvents();
+    }
+
+    function bookCardHtml(item) {
+      const disponibles = (item.ejemplares || []).filter(exemplar => exemplar.disponible).length;
+      const copias = (item.ejemplares || []).length;
+      return `
+        <article class="bg-white border border-[#D6E2E7] rounded-[16px] overflow-hidden flex flex-col hover:border-[#8ED5DD]">
+          <div class="book-cover bg-[#EAF1F4] flex items-center justify-center overflow-hidden">
+            ${item.portadaUrl
+          ? `<img src="${escapeHtml(item.portadaUrl)}" alt="Portada de ${escapeHtml(item.titulo)}" class="w-full h-full object-cover">`
+          : `<i class="fa-solid fa-book text-[#9DB6C1] text-4xl"></i>`}
+          </div>
+          <div class="p-4 flex flex-col flex-1">
+            <h3 class="font-sans font-bold text-[15px] leading-tight line-clamp-2">${escapeHtml(item.titulo)}</h3>
+            <p class="text-xs text-[#607480] mt-1 line-clamp-2">${escapeHtml(item.autor)}</p>
+            <span class="mt-3 inline-block w-fit font-sans text-[11px] font-bold ${disponibles > 0 ? "bg-[#DFF6F8] text-[#087F8C]" : "bg-[#F5E4E4] text-[#A0403A]"} px-2.5 py-1 rounded-full">${disponibles}/${copias} copia${copias === 1 ? "" : "s"} disponible${disponibles === 1 ? "" : "s"}</span>
+            <button type="button" data-view="${item.id}" class="mt-4 h-9 border border-[#9DB6C1] rounded-[8px] font-sans font-bold text-xs">Ver detalle</button>
+          </div>
+        </article>`;
+    }
+
+    function itemCardHtml(item) {
+      const nombre = item.nombre || item.articulo || "Sin nombre";
+      const bajoStock = activeTab === "consumible" && Number(item.existenciaActual) <= Number(item.existenciaMinima);
+      return `
+        <article class="bg-white border border-[#D6E2E7] rounded-[14px] p-5 flex items-center gap-4 hover:border-[#8ED5DD]">
+          <div class="h-12 w-12 rounded-[10px] bg-[#E6F8FA] text-[#009CAD] flex items-center justify-center text-lg flex-shrink-0"><i class="fa-solid ${TIPO_ICON[activeTab] || "fa-cube"}"></i></div>
+          <div class="flex-1 min-w-0">
+            <p class="font-sans font-bold text-[15px] truncate">${escapeHtml(nombre)}</p>
+            <p class="text-xs text-[#607480] mt-0.5 truncate">${escapeHtml(item.codigo || "")} · ${escapeHtml(item.ubicacion || "Sin ubicación")}</p>
+          </div>
+          ${bajoStock ? `<span class="font-sans text-[11px] font-bold bg-[#FCE9E7] text-[#C2413B] px-2.5 py-1 rounded-full flex-shrink-0">Bajo stock</span>` : ""}
+          ${item.estado ? `<span class="hidden sm:inline-block font-sans text-[11px] font-bold bg-[#EAF1F4] text-[#405968] px-2.5 py-1 rounded-full flex-shrink-0">${escapeHtml(item.estado)}</span>` : ""}
+          <button type="button" data-view="${item.id}" class="h-9 px-4 border border-[#9DB6C1] rounded-[8px] font-sans font-bold text-xs flex-shrink-0">Ver detalle</button>
+        </article>`;
+    }
+
+    function attachCardEvents() {
+      document.querySelectorAll("[data-view]").forEach(button => {
+        button.addEventListener("click", () => {
+          const item = itemsByTipo[activeTab].find(entry => entry.id === button.dataset.view);
+          if (item) openItemModal(item);
+        });
+      });
+    }
+
+    function renderPagination(totalPages) {
+      const pagination = document.querySelector("#inv-pagination");
+      if (totalPages <= 1) { pagination.innerHTML = ""; return; }
+      let html = "";
+      for (let index = 1; index <= totalPages; index += 1) {
+        html += `<button type="button" data-page="${index}" class="w-10 h-10 rounded-[8px] ${index === page ? "bg-[#0D2B45] text-white" : "bg-white border border-[#CBD9DF]"} flex items-center justify-center">${index}</button>`;
+      }
+      pagination.innerHTML = html;
+      pagination.querySelectorAll("[data-page]").forEach(button => {
+        button.addEventListener("click", () => { page = Number(button.dataset.page); renderGrid(); });
+      });
+    }
+
+    document.querySelectorAll(".inv-tab-btn").forEach(button => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll(".inv-tab-btn").forEach(other => other.classList.remove("is-active"));
+        button.classList.add("is-active");
+        activeTab = button.dataset.tipo;
+        page = 1;
+        renderGrid();
+      });
+    });
+
+    document.querySelector("#inv-search-form").addEventListener("submit", event => {
+      event.preventDefault();
+      page = 1;
+      renderGrid();
+    });
+    document.querySelector("#inv-search").addEventListener("input", () => { page = 1; renderGrid(); });
+
+    function fieldRow(label, value) {
+      return `<div><dt>${escapeHtml(label)}</dt><dd>${value ?? "No indicado"}</dd></div>`;
+    }
+
+    function fieldsHtmlFor(item) {
+      if (item.tipo === "institucional") {
+        return [
+          fieldRow("Código interno", escapeHtml(item.codigo)),
+          fieldRow("Placa institucional", escapeHtml(item.placa)),
+          fieldRow("Descripción", escapeHtml(item.descripcion)),
+          fieldRow("Marca", escapeHtml(item.marca)),
+          fieldRow("Estado", escapeHtml(item.estado)),
+          fieldRow("Ubicación", escapeHtml(item.ubicacion)),
+          fieldRow("Custodio", escapeHtml(item.responsable)),
+          fieldRow("Última revisión", escapeHtml(item.fecha)),
+          fieldRow("Observaciones", escapeHtml(item.observaciones))
+        ].join("");
+      }
+      if (item.tipo === "aematec") {
+        return [
+          fieldRow("Código", escapeHtml(item.codigo)),
+          fieldRow("Categoría", escapeHtml(item.categoria)),
+          fieldRow("Descripción", escapeHtml(item.descripcion)),
+          fieldRow("Marca", escapeHtml(item.marca)),
+          fieldRow("Fecha compra/donación", escapeHtml(item.fecha)),
+          fieldRow("Valor", item.valor ? `₡${Number(item.valor).toLocaleString("es-CR")}` : "No indicado"),
+          fieldRow("Estado", escapeHtml(item.estado)),
+          fieldRow("Ubicación", escapeHtml(item.ubicacion)),
+          fieldRow("Responsable", escapeHtml(item.responsable)),
+          fieldRow("Observaciones", escapeHtml(item.observaciones))
+        ].join("");
+      }
+      if (item.tipo === "biblioteca") {
+        const ejemplaresHtml = (item.ejemplares || []).map(exemplar =>
+          `<li class="flex justify-between gap-3 py-1.5 border-b border-[#EEF2F4] last:border-0">
+            <span>${escapeHtml(exemplar.codigo)} · ${escapeHtml(exemplar.ubicacion)}</span>
+            <span class="${exemplar.disponible ? "text-[#087F8C]" : "text-[#A0403A]"} font-semibold">${escapeHtml(exemplar.estado)} · ${exemplar.disponible ? "Disponible" : "No disponible"}</span>
+          </li>`).join("") || "<li>Sin ejemplares registrados.</li>";
+        return [
+          fieldRow("Autor", escapeHtml(item.autor)),
+          fieldRow("Edición", escapeHtml(item.edicion)),
+          fieldRow("Año", escapeHtml(item.anio)),
+          fieldRow("Categoría", escapeHtml(item.categoria)),
+          fieldRow("Observaciones", escapeHtml(item.observaciones))
+        ].join("") + `<div class="col-span-2"><dt>Ejemplares</dt><dd><ul class="mt-1 text-sm">${ejemplaresHtml}</ul></dd></div>`;
+      }
+      return [
+        fieldRow("Código", escapeHtml(item.codigo)),
+        fieldRow("Categoría", escapeHtml(item.categoria)),
+        fieldRow("Unidad", escapeHtml(item.unidad)),
+        fieldRow("Existencia actual", escapeHtml(item.existenciaActual)),
+        fieldRow("Existencia mínima", escapeHtml(item.existenciaMinima)),
+        fieldRow("Ubicación", escapeHtml(item.ubicacion)),
+        fieldRow("Última actualización", formatDate(item.updatedAt)),
+        fieldRow("Observaciones", escapeHtml(item.observaciones))
+      ].join("");
+    }
+
+    function isPrestable(item) {
+      if (item.tipo === "aematec") return true;
+      if (item.tipo === "biblioteca") return (item.ejemplares || []).some(exemplar => exemplar.disponible);
+      return false;
+    }
+
+    function openItemModal(item) {
+      currentItem = item;
+      const cover = document.querySelector("#item-modal-cover");
+      cover.hidden = item.tipo !== "biblioteca";
+      if (item.tipo === "biblioteca") cover.src = item.portadaUrl || "";
+      document.querySelector("#item-modal-kicker").textContent = TIPO_LABELS[item.tipo];
+      document.querySelector("#item-modal-title").textContent = item.tipo === "biblioteca" ? item.titulo : (item.nombre || item.articulo);
+      document.querySelector("#item-modal-subtitle").textContent = item.tipo === "biblioteca" ? (item.autor || "") : (item.codigo || "");
+      document.querySelector("#item-modal-fields").innerHTML = fieldsHtmlFor(item);
+      document.querySelector("#item-modal-loan").hidden = !isPrestable(item);
+      document.querySelector("#item-modal-edit").hidden = !isJunta;
+      document.querySelector("#item-modal-delete").hidden = !isJunta;
+      showModal(document.querySelector("#item-modal"));
+    }
+
+    document.querySelector("#item-modal-loan").addEventListener("click", () => {
+      if (!currentItem) return;
+      document.querySelector("#loan-modal-title").textContent = currentItem.tipo === "biblioteca" ? currentItem.titulo : (currentItem.nombre || currentItem.articulo);
+      document.querySelector("#loan-form").reset();
+      document.querySelector("#loan-status").hidden = true;
+      showModal(document.querySelector("#loan-modal"));
+    });
+
+    document.querySelector("#loan-form").addEventListener("submit", async event => {
+      event.preventDefault();
+      const status = document.querySelector("#loan-status");
+      const submitButton = event.target.querySelector("button[type=submit]");
+      submitButton.disabled = true;
+      try {
+        await addDoc(collection(db, "prestamoSolicitudes"), {
+          itemId: currentItem.id,
+          itemTipo: currentItem.tipo,
+          itemNombre: currentItem.tipo === "biblioteca" ? currentItem.titulo : (currentItem.nombre || currentItem.articulo),
+          itemCodigo: currentItem.codigo || (currentItem.ejemplares?.[0]?.codigo || ""),
+          solicitanteNombre: document.querySelector("#loan-nombre").value.trim(),
+          solicitanteCarne: document.querySelector("#loan-carne").value.trim(),
+          solicitanteContacto: document.querySelector("#loan-contacto").value.trim(),
+          fechaPrevista: document.querySelector("#loan-fecha").value,
+          notas: document.querySelector("#loan-notas").value.trim(),
+          estado: "pendiente",
+          createdAt: serverTimestamp()
+        });
+        status.hidden = false;
+        status.className = "text-sm text-[#087F8C]";
+        status.textContent = "Solicitud enviada. La Junta Directiva se pondrá en contacto contigo para coordinar la entrega.";
+        event.target.reset();
+      } catch (error) {
+        status.hidden = false;
+        status.className = "text-sm text-[#C2413B]";
+        status.textContent = `No se pudo enviar la solicitud: ${error.message}`;
+      } finally {
+        submitButton.disabled = false;
+      }
+    });
+
+    setPersistence(auth, browserSessionPersistence);
+    document.querySelector("#junta-access-btn").addEventListener("click", () => {
+      document.querySelector("#junta-login-status").hidden = true;
+      document.querySelector("#junta-login-form").reset();
+      showModal(document.querySelector("#junta-login-modal"));
+    });
+    document.querySelector("#junta-login-form").addEventListener("submit", async event => {
+      event.preventDefault();
+      const status = document.querySelector("#junta-login-status");
+      try {
+        await signInWithEmailAndPassword(auth, document.querySelector("#junta-email").value.trim(), document.querySelector("#junta-password").value);
+        hideModal(document.querySelector("#junta-login-modal"));
+      } catch (error) {
+        status.hidden = false;
+        status.textContent = "No se pudo iniciar sesión. Verifica tu correo y contraseña.";
+      }
+    });
+    document.querySelector("#junta-logout-btn").addEventListener("click", () => signOut(auth));
+
+    onAuthStateChanged(auth, async user => {
+      isJunta = false;
+      if (user) {
+        try {
+          const juntaDoc = await getDoc(doc(db, "junta", user.email));
+          isJunta = ownerEmails.includes(user.email) || juntaDoc.exists();
+        } catch {
+          isJunta = false;
+        }
+      }
+      document.querySelector("#junta-access-btn").hidden = !!user;
+      document.querySelector("#junta-session-bar").hidden = !user;
+      if (user) document.querySelector("#junta-session-email").textContent = user.email;
+      renderGrid();
+    });
+
+    let exemplarRowCount = 0;
+    function exemplarRowHtml(exemplar = {}) {
+      exemplarRowCount += 1;
+      const rowId = `ex-row-${exemplarRowCount}`;
+      return `
+        <div class="exemplar-row" id="${rowId}">
+          <input type="text" placeholder="Código" value="${escapeHtml(exemplar.codigo || "")}" data-exemplar="codigo" required class="h-10 rounded-[8px] border border-[#BFD0D8] px-2 text-sm">
+          <input type="text" list="cat-estados" placeholder="Estado" value="${escapeHtml(exemplar.estado || "")}" data-exemplar="estado" class="h-10 rounded-[8px] border border-[#BFD0D8] px-2 text-sm">
+          <input type="text" list="cat-ubicaciones" placeholder="Ubicación" value="${escapeHtml(exemplar.ubicacion || "Biblioteca")}" data-exemplar="ubicacion" class="h-10 rounded-[8px] border border-[#BFD0D8] px-2 text-sm">
+          <label class="flex items-center gap-1 text-xs"><input type="checkbox" data-exemplar="disponible" ${exemplar.disponible !== false ? "checked" : ""} class="accent-[#00AFC1]">Disp.</label>
+          <button type="button" data-remove-row="${rowId}" class="h-9 w-9 rounded-[8px] border border-[#E2A0A0] text-[#C2413B]"><i class="fa-solid fa-xmark"></i></button>
+        </div>`;
+    }
+
+    function fieldsFormFor(tipo, item = {}) {
+      if (tipo === "institucional") {
+        return `
+          <div class="grid grid-cols-2 gap-4">
+            <div><label class="font-sans text-xs font-bold">Código interno</label><input name="codigo" required value="${escapeHtml(item.codigo)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+            <div><label class="font-sans text-xs font-bold">Placa institucional</label><input name="placa" value="${escapeHtml(item.placa)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+          </div>
+          <div><label class="font-sans text-xs font-bold">Nombre del activo</label><input name="nombre" required value="${escapeHtml(item.nombre)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+          <div><label class="font-sans text-xs font-bold">Descripción</label><textarea name="descripcion" rows="2" class="mt-2 w-full rounded-[9px] border border-[#BFD0D8] px-3 py-2">${escapeHtml(item.descripcion)}</textarea></div>
+          <div class="grid grid-cols-2 gap-4">
+            <div><label class="font-sans text-xs font-bold">Marca</label><input name="marca" value="${escapeHtml(item.marca)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+            <div><label class="font-sans text-xs font-bold">Estado</label><input name="estado" list="cat-estados" value="${escapeHtml(item.estado)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div><label class="font-sans text-xs font-bold">Ubicación</label><input name="ubicacion" list="cat-ubicaciones" value="${escapeHtml(item.ubicacion)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+            <div><label class="font-sans text-xs font-bold">Custodio</label><input name="responsable" value="${escapeHtml(item.responsable || "AEMATEC")}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+          </div>
+          <div><label class="font-sans text-xs font-bold">Observaciones</label><textarea name="observaciones" rows="2" class="mt-2 w-full rounded-[9px] border border-[#BFD0D8] px-3 py-2">${escapeHtml(item.observaciones)}</textarea></div>`;
+      }
+      if (tipo === "aematec") {
+        return `
+          <div class="grid grid-cols-2 gap-4">
+            <div><label class="font-sans text-xs font-bold">Código</label><input name="codigo" required value="${escapeHtml(item.codigo)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+            <div><label class="font-sans text-xs font-bold">Categoría</label><input name="categoria" list="cat-aematec" required value="${escapeHtml(item.categoria)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+          </div>
+          <div><label class="font-sans text-xs font-bold">Nombre del activo</label><input name="nombre" required value="${escapeHtml(item.nombre)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+          <div><label class="font-sans text-xs font-bold">Descripción</label><textarea name="descripcion" rows="2" class="mt-2 w-full rounded-[9px] border border-[#BFD0D8] px-3 py-2">${escapeHtml(item.descripcion)}</textarea></div>
+          <div class="grid grid-cols-2 gap-4">
+            <div><label class="font-sans text-xs font-bold">Marca</label><input name="marca" value="${escapeHtml(item.marca)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+            <div><label class="font-sans text-xs font-bold">Valor (₡)</label><input name="valor" type="number" min="0" value="${escapeHtml(item.valor)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div><label class="font-sans text-xs font-bold">Estado</label><input name="estado" list="cat-estados" value="${escapeHtml(item.estado)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+            <div><label class="font-sans text-xs font-bold">Ubicación</label><input name="ubicacion" list="cat-ubicaciones" value="${escapeHtml(item.ubicacion)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+          </div>
+          <div><label class="font-sans text-xs font-bold">Responsable</label><input name="responsable" value="${escapeHtml(item.responsable || "AEMATEC")}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+          <div><label class="font-sans text-xs font-bold">Observaciones</label><textarea name="observaciones" rows="2" class="mt-2 w-full rounded-[9px] border border-[#BFD0D8] px-3 py-2">${escapeHtml(item.observaciones)}</textarea></div>`;
+      }
+      if (tipo === "consumible") {
+        return `
+          <div class="grid grid-cols-2 gap-4">
+            <div><label class="font-sans text-xs font-bold">Código</label><input name="codigo" required value="${escapeHtml(item.codigo)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+            <div><label class="font-sans text-xs font-bold">Categoría</label><input name="categoria" list="cat-consumible" required value="${escapeHtml(item.categoria)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+          </div>
+          <div><label class="font-sans text-xs font-bold">Artículo</label><input name="articulo" required value="${escapeHtml(item.articulo)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+          <div class="grid grid-cols-3 gap-4">
+            <div><label class="font-sans text-xs font-bold">Unidad</label><input name="unidad" value="${escapeHtml(item.unidad)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+            <div><label class="font-sans text-xs font-bold">Existencia actual</label><input name="existenciaActual" type="number" min="0" value="${escapeHtml(item.existenciaActual ?? 0)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+            <div><label class="font-sans text-xs font-bold">Existencia mínima</label><input name="existenciaMinima" type="number" min="0" value="${escapeHtml(item.existenciaMinima ?? 0)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+          </div>
+          <div><label class="font-sans text-xs font-bold">Ubicación</label><input name="ubicacion" list="cat-ubicaciones" value="${escapeHtml(item.ubicacion)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+          <div><label class="font-sans text-xs font-bold">Observaciones</label><textarea name="observaciones" rows="2" class="mt-2 w-full rounded-[9px] border border-[#BFD0D8] px-3 py-2">${escapeHtml(item.observaciones)}</textarea></div>`;
+      }
+      exemplarRowCount = 0;
+      const exemplarRows = (item.ejemplares && item.ejemplares.length ? item.ejemplares : [{ codigo: "", estado: "Bueno", ubicacion: "Biblioteca", disponible: true }])
+        .map(exemplarRowHtml).join("");
+      return `
+        <div><label class="font-sans text-xs font-bold">Título</label><input name="titulo" required value="${escapeHtml(item.titulo)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+        <div><label class="font-sans text-xs font-bold">Autor</label><input name="autor" required value="${escapeHtml(item.autor)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+        <div class="grid grid-cols-3 gap-4">
+          <div><label class="font-sans text-xs font-bold">Edición</label><input name="edicion" value="${escapeHtml(item.edicion || "N/A")}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+          <div><label class="font-sans text-xs font-bold">Año</label><input name="anio" value="${escapeHtml(item.anio || "N/A")}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+          <div><label class="font-sans text-xs font-bold">Categoría</label><input name="categoria" list="cat-biblioteca" value="${escapeHtml(item.categoria)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+        </div>
+        <div><label class="font-sans text-xs font-bold">Portada</label><input type="file" id="portada-file" accept="image/jpeg,image/png,image/webp" class="mt-2 w-full text-sm"><p class="mt-1 text-xs text-[#607480]">Imagen JPG, PNG o WEBP de máximo 5 MB.</p></div>
+        <div><label class="font-sans text-xs font-bold">Observaciones</label><textarea name="observaciones" rows="2" class="mt-2 w-full rounded-[9px] border border-[#BFD0D8] px-3 py-2">${escapeHtml(item.observaciones)}</textarea></div>
+        <div class="border-t border-[#E2E9EC] pt-4">
+          <div class="flex justify-between items-center">
+            <label class="font-sans text-xs font-bold">Ejemplares</label>
+            <button type="button" id="add-exemplar-btn" class="font-sans text-xs font-bold text-[#008F9E]"><i class="fa-solid fa-plus mr-1"></i>Añadir ejemplar</button>
+          </div>
+          <div id="ejemplares-rows" class="mt-3 space-y-2">${exemplarRows}</div>
+        </div>`;
+    }
+
+    function attachExemplarEvents() {
+      const addButton = document.querySelector("#add-exemplar-btn");
+      if (!addButton) return;
+      addButton.addEventListener("click", () => {
+        document.querySelector("#ejemplares-rows").insertAdjacentHTML("beforeend", exemplarRowHtml());
+        attachRemoveEvents();
+      });
+      attachRemoveEvents();
+    }
+    function attachRemoveEvents() {
+      document.querySelectorAll("[data-remove-row]").forEach(button => {
+        button.onclick = () => document.querySelector(`#${button.dataset.removeRow}`)?.remove();
+      });
+    }
+
+    function openAdminModal(tipo, item = null) {
+      document.querySelector("#admin-modal-kicker").textContent = TIPO_LABELS[tipo];
+      document.querySelector("#admin-modal-title").textContent = item ? "Editar bien" : "Agregar bien";
+      document.querySelector("#admin-fields").innerHTML = fieldsFormFor(tipo, item || {});
+      document.querySelector("#admin-item-form").dataset.tipo = tipo;
+      document.querySelector("#admin-item-form").dataset.itemId = item?.id || "";
+      document.querySelector("#admin-status").hidden = true;
+      if (tipo === "biblioteca") attachExemplarEvents();
+      showModal(document.querySelector("#admin-item-modal"));
+    }
+
+    document.querySelector("#inv-add-btn").addEventListener("click", () => openAdminModal(activeTab));
+    document.querySelector("#item-modal-edit").addEventListener("click", () => {
+      hideModal(document.querySelector("#item-modal"));
+      openAdminModal(currentItem.tipo, currentItem);
+    });
+    document.querySelector("#item-modal-delete").addEventListener("click", async () => {
+      if (!currentItem || !confirm("¿Eliminar este bien del inventario? Esta acción no se puede deshacer.")) return;
+      try {
+        if (currentItem.tipo === "biblioteca" && currentItem.portadaPath) {
+          await deleteObject(ref(storage, currentItem.portadaPath)).catch(() => { });
+        }
+        await deleteDoc(doc(db, "inventario", currentItem.id));
+        hideModal(document.querySelector("#item-modal"));
+        await loadInventory();
+      } catch (error) {
+        alert(`No se pudo eliminar: ${error.message}`);
+      }
+    });
+
+    async function uploadCover(file) {
+      const extension = file.name.split(".").pop()?.toLowerCase();
+      if (!["jpg", "jpeg", "png", "webp"].includes(extension) || file.size > 5 * 1024 * 1024) {
+        throw new Error("La portada debe ser JPG, PNG o WEBP de máximo 5 MB.");
+      }
+      const fileId = crypto.randomUUID();
+      const storagePath = `inventario/biblioteca/${fileId}.${extension}`;
+      const upload = uploadBytesResumable(ref(storage, storagePath), file, { contentType: file.type });
+      await new Promise((resolve, reject) => upload.on("state_changed", () => { }, reject, resolve));
+      return { storagePath, portadaUrl: await getDownloadURL(upload.snapshot.ref) };
+    }
+
+    document.querySelector("#admin-item-form").addEventListener("submit", async event => {
+      event.preventDefault();
+      const form = event.target;
+      const tipo = form.dataset.tipo;
+      const itemId = form.dataset.itemId;
+      const status = document.querySelector("#admin-status");
+      const submitButton = document.querySelector("#admin-submit-btn");
+      submitButton.disabled = true;
+      try {
+        const fields = Object.fromEntries(new FormData(form).entries());
+        const payload = { tipo, ...fields, updatedAt: serverTimestamp() };
+        if (tipo === "aematec") payload.valor = Number(fields.valor) || 0;
+        if (tipo === "consumible") {
+          payload.existenciaActual = Number(fields.existenciaActual) || 0;
+          payload.existenciaMinima = Number(fields.existenciaMinima) || 0;
+        }
+        if (tipo === "biblioteca") {
+          payload.ejemplares = [...document.querySelectorAll(".exemplar-row")].map(row => ({
+            codigo: row.querySelector("[data-exemplar=codigo]").value.trim(),
+            estado: row.querySelector("[data-exemplar=estado]").value.trim(),
+            ubicacion: row.querySelector("[data-exemplar=ubicacion]").value.trim(),
+            disponible: row.querySelector("[data-exemplar=disponible]").checked
+          })).filter(exemplar => exemplar.codigo);
+          const coverFile = document.querySelector("#portada-file")?.files[0];
+          if (coverFile) {
+            const uploaded = await uploadCover(coverFile);
+            payload.portadaUrl = uploaded.portadaUrl;
+            payload.portadaPath = uploaded.storagePath;
+          }
+        }
+        if (itemId) {
+          await updateDoc(doc(db, "inventario", itemId), payload);
+        } else {
+          payload.createdAt = serverTimestamp();
+          await addDoc(collection(db, "inventario"), payload);
+        }
+        hideModal(document.querySelector("#admin-item-modal"));
+        await loadInventory();
+      } catch (error) {
+        status.hidden = false;
+        status.className = "text-sm text-[#C2413B]";
+        status.textContent = `No se pudo guardar: ${error.message}`;
+      } finally {
+        submitButton.disabled = false;
+      }
+    });
+
+    loadInventory();
   </script>
 </body>
 

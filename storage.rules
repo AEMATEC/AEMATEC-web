@@ -25,5 +25,20 @@ service firebase.storage {
         && (resource == null || isModerator());
       allow delete: if isModerator();
     }
+
+    match /inventario/biblioteca/{fileName} {
+      function isJunta() {
+        return request.auth != null
+          && (request.auth.token.email in ['angeloyeshuac@gmail.com', 'angcalderon@estudiantec.cr']
+            || firestore.exists(/databases/(default)/documents/junta/$(request.auth.token.email)));
+      }
+
+      allow read: if true;
+      allow write: if request.resource.size <= 5 * 1024 * 1024
+        && fileName.matches('^[a-f0-9-]+\\.(jpg|jpeg|png|webp)$')
+        && request.resource.contentType in ['image/jpeg', 'image/png', 'image/webp']
+        && isJunta();
+      allow delete: if isJunta();
+    }
   }
 }

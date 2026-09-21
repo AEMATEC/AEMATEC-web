@@ -1,0 +1,14 @@
+{
+    "name": "aematec-inventario-import",
+    "private": true,
+    "version": "1.0.0",
+    "description": "Script único para importar el inventario real desde el Excel a Firestore.",
+    "scripts": {
+        "import": "node import-inventario.js",
+        "dry-run": "node import-inventario.js --dry-run"
+    },
+    "dependencies": {
+        "firebase-admin": "^12.7.0",
+        "xlsx": "^0.18.5"
+    }
+}
