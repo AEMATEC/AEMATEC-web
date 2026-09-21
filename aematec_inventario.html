@@ -836,12 +836,26 @@
     document.querySelector("#junta-login-form").addEventListener("submit", async event => {
       event.preventDefault();
       const status = document.querySelector("#junta-login-status");
+      status.hidden = true;
+      const email = document.querySelector("#junta-email").value.trim();
+      const password = document.querySelector("#junta-password").value;
       try {
-        await signInWithEmailAndPassword(auth, document.querySelector("#junta-email").value.trim(), document.querySelector("#junta-password").value);
+        const credential = await signInWithEmailAndPassword(auth, email, password);
+        // Solo se acepta el inicio de sesión si el correo autenticado en Firebase es de Junta Directiva.
+        const juntaDoc = await getDoc(doc(db, "junta", credential.user.email));
+        const authorized = ownerEmails.includes(credential.user.email) || juntaDoc.exists();
+        if (!authorized) {
+          await signOut(auth);
+          status.hidden = false;
+          status.textContent = "Este correo no pertenece a la Junta Directiva.";
+          return;
+        }
         hideModal(document.querySelector("#junta-login-modal"));
       } catch (error) {
         status.hidden = false;
-        status.textContent = "No se pudo iniciar sesión. Verifica tu correo y contraseña.";
+        status.textContent = ["auth/user-not-found", "auth/wrong-password", "auth/invalid-credential", "auth/invalid-email"].includes(error.code)
+          ? "Correo o contraseña incorrectos, o el correo no está registrado en Firebase."
+          : `No se pudo iniciar sesión: ${error.message}`;
       }
     });
     document.querySelector("#junta-logout-btn").addEventListener("click", () => signOut(auth));
@@ -940,7 +954,13 @@
           <div><label class="font-sans text-xs font-bold">Año</label><input name="anio" value="${escapeHtml(item.anio || "N/A")}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
           <div><label class="font-sans text-xs font-bold">Categoría</label><input name="categoria" list="cat-biblioteca" value="${escapeHtml(item.categoria)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
         </div>
-        <div><label class="font-sans text-xs font-bold">Portada</label><input type="file" id="portada-file" accept="image/jpeg,image/png,image/webp" class="mt-2 w-full text-sm"><p class="mt-1 text-xs text-[#607480]">Imagen JPG, PNG o WEBP de máximo 5 MB.</p></div>
+        <div>
+          <label class="font-sans text-xs font-bold">Portada</label>
+          ${item.portadaUrl ? `<img src="${escapeHtml(item.portadaUrl)}" alt="Portada actual" class="mt-2 h-24 w-16 rounded-[8px] border border-[#E2E9EC] object-cover">` : ""}
+          <input type="file" id="portada-file" accept="image/jpeg,image/png,image/webp" class="mt-2 w-full text-sm">
+          <p class="mt-1 text-xs text-[#607480]">Imagen JPG, PNG o WEBP de máximo 5 MB, o pega un enlace abajo (el archivo tiene prioridad si eliges ambos).</p>
+          <input type="url" id="portada-url" placeholder="https://ejemplo.com/portada.jpg" value="${escapeHtml(item.portadaPath ? "" : (item.portadaUrl || ""))}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3">
+        </div>
         <div><label class="font-sans text-xs font-bold">Observaciones</label><textarea name="observaciones" rows="2" class="mt-2 w-full rounded-[9px] border border-[#BFD0D8] px-3 py-2">${escapeHtml(item.observaciones)}</textarea></div>
         <div class="border-t border-[#E2E9EC] pt-4">
           <div class="flex justify-between items-center">
@@ -1032,10 +1052,19 @@
             disponible: row.querySelector("[data-exemplar=disponible]").checked
           })).filter(exemplar => exemplar.codigo);
           const coverFile = document.querySelector("#portada-file")?.files[0];
+          const coverUrl = document.querySelector("#portada-url")?.value.trim();
           if (coverFile) {
             const uploaded = await uploadCover(coverFile);
             payload.portadaUrl = uploaded.portadaUrl;
             payload.portadaPath = uploaded.storagePath;
+          } else if (coverUrl) {
+            if (!/^https?:\/\//i.test(coverUrl)) throw new Error("El enlace de la portada debe comenzar con http:// o https://.");
+            const previousItem = itemId ? itemsByTipo.biblioteca.find(book => book.id === itemId) : null;
+            if (previousItem?.portadaPath) {
+              await deleteObject(ref(storage, previousItem.portadaPath)).catch(() => {});
+            }
+            payload.portadaUrl = coverUrl;
+            payload.portadaPath = "";
           }
         }
         if (itemId) {
