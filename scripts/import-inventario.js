@@ -9,14 +9,19 @@
  * Uso:
  *   cd scripts
  *   npm install
- *   node import-inventario.js --dry-run   (solo muestra un resumen, no escribe nada)
- *   node import-inventario.js             (escribe los documentos en Firestore)
+ *   node import-inventario.js --dry-run                       (solo muestra un resumen, no escribe nada)
+ *   node import-inventario.js                                  (escribe todo el Excel en Firestore)
+ *   node import-inventario.js --only=biblioteca --replace       (reemplaza solo los libros existentes)
+ *   node import-inventario.js --only=institucional,consumible  (importa solo esas hojas)
  */
 const path = require("path");
 const admin = require("firebase-admin");
 const XLSX = require("xlsx");
 
 const isDryRun = process.argv.includes("--dry-run");
+const shouldReplace = process.argv.includes("--replace");
+const onlyArg = process.argv.find(arg => arg.startsWith("--only="));
+const onlyTipos = onlyArg ? onlyArg.replace("--only=", "").split(",").map(value => value.trim()) : null;
 const excelPath = path.join(__dirname, "..", "data", "Plantilla_Inventario_AEMATEC.xlsx");
 const serviceAccountPath = path.join(__dirname, "serviceAccountKey.json");
 
@@ -28,7 +33,7 @@ function initAdmin() {
     } catch {
         credential = admin.credential.applicationDefault();
     }
-    admin.initializeApp({ credential });
+    admin.initializeApp({ credential, projectId: "biblioteca-aematec" });
     return admin.firestore();
 }
 
@@ -134,18 +139,34 @@ async function writeBatch(db, collectionName, items) {
     }
 }
 
+async function deleteExistingByTipo(db, tipo) {
+    const snapshot = await db.collection("inventario").where("tipo", "==", tipo).get();
+    const BATCH_LIMIT = 400;
+    const docs = snapshot.docs;
+    for (let start = 0; start < docs.length; start += BATCH_LIMIT) {
+        const batch = db.batch();
+        for (const document of docs.slice(start, start + BATCH_LIMIT)) batch.delete(document.ref);
+        await batch.commit();
+    }
+    return docs.length;
+}
+
 async function main() {
     const workbook = XLSX.readFile(excelPath);
-    const institucionales = buildInstitucionales(workbook);
-    const aematec = buildAematec(workbook);
-    const consumibles = buildConsumibles(workbook);
-    const biblioteca = buildBiblioteca(workbook);
+    const groups = {
+        institucional: buildInstitucionales(workbook),
+        aematec: buildAematec(workbook),
+        consumible: buildConsumibles(workbook),
+        biblioteca: buildBiblioteca(workbook)
+    };
+    const tiposToImport = onlyTipos || Object.keys(groups);
 
     console.log("Resumen de importación:");
-    console.log(`  Activos institucionales: ${institucionales.length}`);
-    console.log(`  Activos AEMATEC:         ${aematec.length}`);
-    console.log(`  Libros (agrupados):      ${biblioteca.length} (${biblioteca.reduce((sum, book) => sum + book.ejemplares.length, 0)} ejemplares)`);
-    console.log(`  Consumibles:             ${consumibles.length}`);
+    for (const tipo of tiposToImport) {
+        const items = groups[tipo] || [];
+        const detail = tipo === "biblioteca" ? ` (${items.reduce((sum, book) => sum + book.ejemplares.length, 0)} ejemplares)` : "";
+        console.log(`  ${tipo}: ${items.length}${detail}`);
+    }
 
     if (isDryRun) {
         console.log("\nModo --dry-run: no se escribió nada en Firestore.");
@@ -153,10 +174,13 @@ async function main() {
     }
 
     const db = initAdmin();
-    await writeBatch(db, "inventario", institucionales);
-    await writeBatch(db, "inventario", aematec);
-    await writeBatch(db, "inventario", consumibles);
-    await writeBatch(db, "inventario", biblioteca);
+    for (const tipo of tiposToImport) {
+        if (shouldReplace) {
+            const deleted = await deleteExistingByTipo(db, tipo);
+            console.log(`  ${tipo}: se eliminaron ${deleted} documento(s) existente(s).`);
+        }
+        await writeBatch(db, "inventario", groups[tipo] || []);
+    }
     console.log("\nImportación completada.");
 }
 

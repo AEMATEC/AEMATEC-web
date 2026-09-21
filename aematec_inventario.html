@@ -111,6 +111,11 @@
         gap: 1.25rem;
       }
 
+      .inv-search-row {
+        max-width: none !important;
+        align-items: stretch;
+      }
+
       #inv-tabs {
         flex-wrap: wrap;
       }
@@ -272,6 +277,62 @@
         grid-template-columns: 1fr 1fr;
       }
     }
+
+    .inv-search-row {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+    }
+
+    .inv-filter-trigger {
+      white-space: nowrap;
+    }
+
+    .catalog-filter-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 40;
+      display: none;
+      background: rgba(13, 43, 69, 0.48);
+      backdrop-filter: blur(6px);
+    }
+
+    .catalog-filter-backdrop.is-open {
+      display: block;
+    }
+
+    .catalog-filter-panel {
+      position: fixed;
+      inset: 1.5rem auto 1.5rem 50%;
+      z-index: 50;
+      display: none;
+      width: min(430px, calc(100vw - 2rem));
+      max-height: calc(100vh - 3rem);
+      overflow-y: auto;
+      transform: translateX(-50%);
+      box-shadow: 0 24px 70px rgba(13, 43, 69, 0.28);
+    }
+
+    .catalog-filter-panel.is-open {
+      display: block;
+    }
+
+    @media (max-width: 767px) {
+      .catalog-filter-panel {
+        inset: 1rem auto 1rem 50%;
+        max-height: calc(100vh - 2rem);
+      }
+
+      .inv-filter-trigger span {
+        display: none;
+      }
+
+      .inv-filter-trigger {
+        width: 3.5rem;
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+      }
+    }
   </style>
   <title>Inventario — AEMATEC</title>
 </head>
@@ -330,16 +391,67 @@
                 id="junta-logout-btn" type="button" class="font-bold text-white underline">Salir</button></div>
           </div>
         </div>
-        <form id="inv-search-form"
-          class="mt-8 h-[54px] bg-white rounded-[12px] flex items-center p-1.5 shadow-lg max-w-[560px]">
-          <i class="fa-solid fa-magnifying-glass text-[#00A6B8] ml-3"></i>
-          <input id="inv-search" class="flex-1 h-full outline-none px-4 text-base text-[#18384E]"
-            placeholder="Buscar por nombre, código o ubicación...">
-          <button type="submit"
-            class="h-[42px] px-6 bg-[#00C0C7] text-white font-sans font-bold text-sm rounded-[9px]">Buscar</button>
-        </form>
+        <div class="inv-search-row mt-8 max-w-[720px]">
+          <form id="inv-search-form"
+            class="h-[54px] bg-white rounded-[12px] flex items-center p-1.5 shadow-lg flex-1">
+            <i class="fa-solid fa-magnifying-glass text-[#00A6B8] ml-3"></i>
+            <input id="inv-search" class="flex-1 h-full outline-none px-4 text-base text-[#18384E]"
+              placeholder="Buscar por nombre, código o ubicación...">
+            <button type="submit"
+              class="h-[42px] px-6 bg-[#00C0C7] text-white font-sans font-bold text-sm rounded-[9px]">Buscar</button>
+          </form>
+          <button id="open-inv-filters" type="button"
+            class="inv-filter-trigger flex h-[54px] items-center gap-2 rounded-[12px] bg-white px-5 font-sans text-sm font-bold text-[#0D2B45]"
+            aria-label="Abrir filtros"><i class="fa-solid fa-sliders text-[#00A6B8]"></i><span>Filtros</span></button>
+        </div>
       </div>
     </section>
+
+    <div id="inv-filter-backdrop" class="catalog-filter-backdrop" aria-hidden="true"></div>
+    <aside id="inv-filter-panel" class="catalog-filter-panel bg-white border border-[#D7E2E7] rounded-[16px] p-6"
+      aria-label="Filtros de inventario">
+      <div class="flex justify-between items-center">
+        <h2 class="font-sans font-bold text-lg"><i class="fa-solid fa-sliders text-[#00A6B8] mr-2"></i>Filtros</h2>
+        <div class="flex items-center gap-4"><a id="clear-inv-filters" href="#"
+            class="font-sans text-[11px] font-bold text-[#008F9E]">Limpiar</a>
+          <button id="close-inv-filters" type="button"
+            class="flex h-9 w-9 items-center justify-center rounded-full bg-[#F0F4F6] text-[#5F7480]"
+            aria-label="Cerrar filtros"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+      </div>
+      <div id="filter-categoria-wrap" class="mt-7">
+        <p class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#556B78]">Categoría</p>
+        <select id="filter-categoria"
+          class="mt-4 w-full h-11 border border-[#CBD9DF] rounded-[9px] px-3 bg-white text-sm text-[#405968]">
+          <option value="">Todas las categorías</option>
+        </select>
+      </div>
+      <div id="filter-estado-wrap" class="mt-7 pt-6 border-t border-[#E2E9EC]">
+        <p class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#556B78]">Estado</p>
+        <select id="filter-estado"
+          class="mt-4 w-full h-11 border border-[#CBD9DF] rounded-[9px] px-3 bg-white text-sm text-[#405968]">
+          <option value="">Todos los estados</option>
+        </select>
+      </div>
+      <div id="filter-ubicacion-wrap" class="mt-7 pt-6 border-t border-[#E2E9EC]">
+        <p class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#556B78]">Ubicación</p>
+        <select id="filter-ubicacion"
+          class="mt-4 w-full h-11 border border-[#CBD9DF] rounded-[9px] px-3 bg-white text-sm text-[#405968]">
+          <option value="">Todas las ubicaciones</option>
+        </select>
+      </div>
+      <div id="filter-disponible-wrap" class="mt-7 pt-6 border-t border-[#E2E9EC]">
+        <label class="flex gap-3 items-center text-[15px] text-[#405968]"><input id="filter-disponible"
+            type="checkbox" class="accent-[#00AFC1] w-4 h-4"> Solo disponibles para préstamo</label>
+      </div>
+      <div id="filter-bajostock-wrap" class="mt-7 pt-6 border-t border-[#E2E9EC]">
+        <label class="flex gap-3 items-center text-[15px] text-[#405968]"><input id="filter-bajostock" type="checkbox"
+            class="accent-[#00AFC1] w-4 h-4"> Solo bajo stock mínimo</label>
+      </div>
+      <button id="apply-inv-filters" type="button"
+        class="w-full h-11 bg-[#0D2B45] text-white font-sans font-bold text-sm rounded-[9px] mt-7">Aplicar
+        filtros</button>
+    </aside>
 
     <section class="w-[1240px] mx-auto py-[42px]">
       <div id="inv-tabs" class="flex gap-3">
@@ -565,6 +677,12 @@
 
     const TIPO_LABELS = { institucional: "Activo institucional", aematec: "Activo AEMATEC", biblioteca: "Libro", consumible: "Consumible" };
     const TIPO_ICON = { institucional: "fa-building", aematec: "fa-toolbox", consumible: "fa-box-open" };
+    const FILTER_CONFIG = {
+      institucional: { categoria: false, estado: true, ubicacion: true, disponible: false, bajoStock: false },
+      aematec: { categoria: true, estado: true, ubicacion: true, disponible: false, bajoStock: false },
+      biblioteca: { categoria: true, estado: false, ubicacion: false, disponible: true, bajoStock: false },
+      consumible: { categoria: true, estado: false, ubicacion: true, disponible: false, bajoStock: true }
+    };
     const pageSize = 8;
 
     let itemsByTipo = { institucional: [], aematec: [], biblioteca: [], consumible: [] };
@@ -598,7 +716,39 @@
       Object.values(itemsByTipo).forEach(list => list.sort((a, b) =>
         (a.titulo || a.nombre || a.articulo || "").localeCompare(b.titulo || b.nombre || b.articulo || "", "es")
       ));
+      populateFilterOptions(activeTab);
       renderGrid();
+    }
+
+    function uniqueValues(list, field) {
+      return [...new Set(list.map(item => (item[field] || "").trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b, "es"));
+    }
+
+    function fillSelect(select, values, placeholder) {
+      const current = select.value;
+      select.innerHTML = `<option value="">${placeholder}</option>` + values.map(value => `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`).join("");
+      select.value = values.includes(current) ? current : "";
+    }
+
+    function populateFilterOptions(tipo) {
+      const config = FILTER_CONFIG[tipo];
+      const list = itemsByTipo[tipo] || [];
+      document.querySelector("#filter-categoria-wrap").hidden = !config.categoria;
+      document.querySelector("#filter-estado-wrap").hidden = !config.estado;
+      document.querySelector("#filter-ubicacion-wrap").hidden = !config.ubicacion;
+      document.querySelector("#filter-disponible-wrap").hidden = !config.disponible;
+      document.querySelector("#filter-bajostock-wrap").hidden = !config.bajoStock;
+      if (config.categoria) fillSelect(document.querySelector("#filter-categoria"), uniqueValues(list, "categoria"), "Todas las categorías");
+      if (config.estado) fillSelect(document.querySelector("#filter-estado"), uniqueValues(list, "estado"), "Todos los estados");
+      if (config.ubicacion) fillSelect(document.querySelector("#filter-ubicacion"), uniqueValues(list, "ubicacion"), "Todas las ubicaciones");
+    }
+
+    function resetFilters() {
+      document.querySelector("#filter-categoria").value = "";
+      document.querySelector("#filter-estado").value = "";
+      document.querySelector("#filter-ubicacion").value = "";
+      document.querySelector("#filter-disponible").checked = false;
+      document.querySelector("#filter-bajostock").checked = false;
     }
 
     function searchableText(item) {
@@ -613,13 +763,24 @@
       let list = itemsByTipo[activeTab] || [];
       if (searchValue) list = list.filter(item => searchableText(item).includes(searchValue));
 
+      const categoriaFilter = document.querySelector("#filter-categoria").value;
+      const estadoFilter = document.querySelector("#filter-estado").value;
+      const ubicacionFilter = document.querySelector("#filter-ubicacion").value;
+      const disponibleFilter = document.querySelector("#filter-disponible").checked;
+      const bajoStockFilter = document.querySelector("#filter-bajostock").checked;
+      if (categoriaFilter) list = list.filter(item => (item.categoria || "") === categoriaFilter);
+      if (estadoFilter) list = list.filter(item => (item.estado || "") === estadoFilter);
+      if (ubicacionFilter) list = list.filter(item => (item.ubicacion || "") === ubicacionFilter);
+      if (disponibleFilter) list = list.filter(item => (item.ejemplares || []).some(exemplar => exemplar.disponible));
+      if (bajoStockFilter) list = list.filter(item => Number(item.existenciaActual) <= Number(item.existenciaMinima));
+
       const totalPages = Math.max(1, Math.ceil(list.length / pageSize));
       page = Math.min(page, totalPages);
       const pageItems = list.slice((page - 1) * pageSize, page * pageSize);
 
       const grid = document.querySelector("#inv-grid");
       grid.className = activeTab === "biblioteca"
-        ? "mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+        ? "mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
         : "mt-6 grid grid-cols-1 gap-4";
 
       document.querySelector("#inv-count").textContent = `${list.length} ${list.length === 1 ? "resultado" : "resultados"}`;
@@ -697,6 +858,8 @@
         button.classList.add("is-active");
         activeTab = button.dataset.tipo;
         page = 1;
+        resetFilters();
+        populateFilterOptions(activeTab);
         renderGrid();
       });
     });
@@ -707,6 +870,34 @@
       renderGrid();
     });
     document.querySelector("#inv-search").addEventListener("input", () => { page = 1; renderGrid(); });
+
+    const invFilterPanel = document.querySelector("#inv-filter-panel");
+    const invFilterBackdrop = document.querySelector("#inv-filter-backdrop");
+    function openInvFilters() {
+      invFilterPanel.classList.add("is-open");
+      invFilterBackdrop.classList.add("is-open");
+      document.body.classList.add("overflow-hidden");
+      document.querySelector("#close-inv-filters").focus();
+    }
+    function closeInvFilters() {
+      invFilterPanel.classList.remove("is-open");
+      invFilterBackdrop.classList.remove("is-open");
+      document.body.classList.remove("overflow-hidden");
+    }
+    document.querySelector("#open-inv-filters").addEventListener("click", openInvFilters);
+    document.querySelector("#close-inv-filters").addEventListener("click", closeInvFilters);
+    invFilterBackdrop.addEventListener("click", closeInvFilters);
+    document.querySelector("#apply-inv-filters").addEventListener("click", () => {
+      page = 1;
+      closeInvFilters();
+      renderGrid();
+    });
+    document.querySelector("#clear-inv-filters").addEventListener("click", event => {
+      event.preventDefault();
+      resetFilters();
+      page = 1;
+      renderGrid();
+    });
 
     function fieldRow(label, value) {
       return `<div><dt>${escapeHtml(label)}</dt><dd>${value ?? "No indicado"}</dd></div>`;
@@ -1061,7 +1252,7 @@
             if (!/^https?:\/\//i.test(coverUrl)) throw new Error("El enlace de la portada debe comenzar con http:// o https://.");
             const previousItem = itemId ? itemsByTipo.biblioteca.find(book => book.id === itemId) : null;
             if (previousItem?.portadaPath) {
-              await deleteObject(ref(storage, previousItem.portadaPath)).catch(() => {});
+              await deleteObject(ref(storage, previousItem.portadaPath)).catch(() => { });
             }
             payload.portadaUrl = coverUrl;
             payload.portadaPath = "";
