@@ -699,7 +699,7 @@
       biblioteca: { categoria: true, estado: false, ubicacion: false, disponible: true, bajoStock: false },
       consumible: { categoria: true, estado: false, ubicacion: true, disponible: false, bajoStock: true }
     };
-    const pageSize = 8;
+    const PAGE_SIZE = { institucional: 8, aematec: 8, biblioteca: 16, consumible: 8 };
 
     let itemsByTipo = { institucional: [], aematec: [], biblioteca: [], consumible: [] };
     let activeTab = "institucional";
@@ -818,6 +818,7 @@
 
       list = sortItems(list);
 
+      const pageSize = PAGE_SIZE[activeTab] || 8;
       const totalPages = Math.max(1, Math.ceil(list.length / pageSize));
       page = Math.min(page, totalPages);
       const pageItems = list.slice((page - 1) * pageSize, page * pageSize);
@@ -883,15 +884,34 @@
       });
     }
 
+    function getPaginationRange(current, total) {
+      const delta = 2;
+      const pages = [];
+      for (let index = 1; index <= total; index += 1) {
+        if (index === 1 || index === total || (index >= current - delta && index <= current + delta)) pages.push(index);
+      }
+      const withDots = [];
+      let previous = 0;
+      for (const index of pages) {
+        if (previous && index - previous > 1) withDots.push("...");
+        withDots.push(index);
+        previous = index;
+      }
+      return withDots;
+    }
+
     function renderPagination(totalPages) {
       const pagination = document.querySelector("#inv-pagination");
       if (totalPages <= 1) { pagination.innerHTML = ""; return; }
-      let html = "";
-      for (let index = 1; index <= totalPages; index += 1) {
-        html += `<button type="button" data-page="${index}" class="w-10 h-10 rounded-[8px] ${index === page ? "bg-[#0D2B45] text-white" : "bg-white border border-[#CBD9DF]"} flex items-center justify-center">${index}</button>`;
-      }
+      const arrowClass = "w-10 h-10 rounded-[8px] border border-[#CBD9DF] bg-white flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed";
+      let html = `<button type="button" data-page="${page - 1}" ${page === 1 ? "disabled" : ""} class="${arrowClass}" aria-label="Página anterior"><i class="fa-solid fa-chevron-left text-xs"></i></button>`;
+      html += getPaginationRange(page, totalPages).map(entry => entry === "..."
+        ? `<span class="w-10 h-10 flex items-center justify-center text-[#7C8D97]">…</span>`
+        : `<button type="button" data-page="${entry}" class="w-10 h-10 rounded-[8px] ${entry === page ? "bg-[#0D2B45] text-white" : "bg-white border border-[#CBD9DF]"} flex items-center justify-center">${entry}</button>`
+      ).join("");
+      html += `<button type="button" data-page="${page + 1}" ${page === totalPages ? "disabled" : ""} class="${arrowClass}" aria-label="Página siguiente"><i class="fa-solid fa-chevron-right text-xs"></i></button>`;
       pagination.innerHTML = html;
-      pagination.querySelectorAll("[data-page]").forEach(button => {
+      pagination.querySelectorAll("[data-page]:not([disabled])").forEach(button => {
         button.addEventListener("click", () => { page = Number(button.dataset.page); renderGrid(); });
       });
     }
