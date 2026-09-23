@@ -1135,13 +1135,16 @@
       const password = document.querySelector("#junta-password").value;
       try {
         const credential = await signInWithEmailAndPassword(auth, email, password);
-        // Solo se acepta el inicio de sesión si el correo autenticado en Firebase es de Junta Directiva.
+        // Solo se acepta el inicio de sesión si el correo autenticado en Firebase es de Junta Directiva
+        // y, para cuentas autocreadas, si ya verificó su correo.
         const juntaDoc = await getDoc(doc(db, "junta", credential.user.email));
-        const authorized = ownerEmails.includes(credential.user.email) || juntaDoc.exists();
+        const authorized = ownerEmails.includes(credential.user.email) || (juntaDoc.exists() && credential.user.emailVerified);
         if (!authorized) {
           await signOut(auth);
           status.hidden = false;
-          status.textContent = "Este correo no pertenece a la Junta Directiva.";
+          status.textContent = juntaDoc.exists()
+            ? "Debes verificar tu correo antes de iniciar sesión. Revisa tu bandeja de entrada o crea tu contraseña de nuevo desde el Panel de Junta."
+            : "Este correo no pertenece a la Junta Directiva.";
           return;
         }
         hideModal(document.querySelector("#junta-login-modal"));
@@ -1159,7 +1162,7 @@
       if (user) {
         try {
           const juntaDoc = await getDoc(doc(db, "junta", user.email));
-          isJunta = ownerEmails.includes(user.email) || juntaDoc.exists();
+          isJunta = ownerEmails.includes(user.email) || (juntaDoc.exists() && user.emailVerified);
         } catch {
           isJunta = false;
         }

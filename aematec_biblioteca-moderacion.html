@@ -1,99 +1,232 @@
 <!doctype html>
 <html lang="es">
+
 <head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/svg+xml" href="assets/logo-aematec-compas.svg">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Source+Serif+4:wght@400;500;600&display=swap" rel="stylesheet">
-  <script>tailwind.config={theme:{extend:{fontFamily:{sans:['Montserrat','sans-serif'],serif:['Source Serif 4','serif']}}}}</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Source+Serif+4:wght@400;500;600&display=swap"
+    rel="stylesheet">
+  <script>tailwind.config = { theme: { extend: { fontFamily: { sans: ['Montserrat', 'sans-serif'], serif: ['Source Serif 4', 'serif'] } } } }</script>
   <script src="assets/firebase-config.js"></script>
   <style>
     @media (max-width: 767px) {
-      body { overflow-x: hidden; }
-      header > div { padding-left: 1rem; padding-right: 1rem; }
-      header > div > div { flex-direction: column; align-items: flex-end; gap: 0.5rem; }
-      main { padding: 2rem 1rem; }
-      #login-panel { padding: 1.25rem; }
-      #moderation-panel > div:first-child { align-items: flex-start; }
-      #moderator-form { flex-direction: column; }
-      #moderator-form input, #moderator-form button { width: 100%; min-width: 0; }
-      #moderator-list li { align-items: flex-start; flex-direction: column; }
-      #pending-list article { padding: 1.25rem; }
+      body {
+        overflow-x: hidden;
+      }
+
+      header>div {
+        padding-left: 1rem;
+        padding-right: 1rem;
+      }
+
+      header>div>div {
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 0.5rem;
+      }
+
+      main {
+        padding: 2rem 1rem;
+      }
+
+      #login-panel {
+        padding: 1.25rem;
+      }
+
+      #moderation-panel>div:first-child {
+        align-items: flex-start;
+      }
+
+      #moderator-form {
+        flex-direction: column;
+      }
+
+      #moderator-form input,
+      #moderator-form button {
+        width: 100%;
+        min-width: 0;
+      }
+
+      #moderator-list li {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      #pending-list article {
+        padding: 1.25rem;
+      }
     }
   </style>
   <title>Moderación — Biblioteca AEMATEC</title>
 </head>
-<body class="min-h-screen bg-[#F4F8FA] text-[#0D2B45] font-serif" style="background-image: radial-gradient(circle at 12% 18%, rgba(0, 175, 193, 0.13) 0, rgba(0, 175, 193, 0.13) 1.2px, transparent 1.8px), radial-gradient(circle at 84% 72%, rgba(13, 43, 69, 0.09) 0, rgba(13, 43, 69, 0.09) 1.2px, transparent 1.8px); background-size: 28px 28px, 36px 36px;">
+
+<body class="min-h-screen bg-[#F4F8FA] text-[#0D2B45] font-serif"
+  style="background-image: radial-gradient(circle at 12% 18%, rgba(0, 175, 193, 0.13) 0, rgba(0, 175, 193, 0.13) 1.2px, transparent 1.8px), radial-gradient(circle at 84% 72%, rgba(13, 43, 69, 0.09) 0, rgba(13, 43, 69, 0.09) 1.2px, transparent 1.8px); background-size: 28px 28px, 36px 36px;">
   <header class="border-b border-[#D8E3E9] bg-white">
     <div class="mx-auto flex max-w-[1100px] items-center justify-between px-6 py-5">
       <a href="index.html" class="flex items-center gap-4 font-sans text-lg font-bold" aria-label="Ir al inicio">
         <img src="assets/logo-aematec.svg" alt="Logo AEMATEC" class="h-12 w-auto">
         <span class="hidden border-l border-[#D8E3E9] pl-4 sm:inline">Biblioteca AEMATEC</span>
       </a>
-      <div class="flex items-center gap-5"><span class="font-sans text-xs font-semibold text-[#607480]">Panel de moderación</span><a href="aematec_biblioteca-home.html" class="font-sans text-xs font-bold text-[#008F9E] hover:text-[#00A6B8]"><i class="fa-solid fa-arrow-left mr-1"></i>Volver al inicio</a></div>
+      <div class="flex items-center gap-5"><span class="font-sans text-xs font-semibold text-[#607480]">Panel de
+          moderación</span><a href="aematec_biblioteca-home.html"
+          class="font-sans text-xs font-bold text-[#008F9E] hover:text-[#00A6B8]"><i
+            class="fa-solid fa-arrow-left mr-1"></i>Volver al inicio</a></div>
     </div>
   </header>
   <main class="mx-auto max-w-[1100px] px-6 py-10">
-    <section id="login-panel" class="mx-auto max-w-[430px] rounded-[18px] border border-[#D7E2E7] bg-white p-8 shadow-sm">
+    <section id="login-panel"
+      class="mx-auto max-w-[430px] rounded-[18px] border border-[#D7E2E7] bg-white p-8 shadow-sm">
       <h1 class="font-sans text-2xl font-bold">Acceso de moderador</h1>
       <p class="mt-2 text-[#607480]">Inicia sesión para revisar los materiales pendientes.</p>
       <form id="login-form" class="mt-6 space-y-4">
-        <div><label for="email" class="font-sans text-xs font-bold">Correo</label><input id="email" type="email" required autocomplete="email" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
-        <div><label for="password" class="font-sans text-xs font-bold">Contraseña</label><input id="password" type="password" required autocomplete="current-password" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
-        <button class="h-11 w-full rounded-[9px] bg-[#0D2B45] font-sans text-sm font-bold text-white">Iniciar sesión</button>
+        <div><label for="email" class="font-sans text-xs font-bold">Correo</label><input id="email" type="email"
+            required autocomplete="email" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+        <div><label for="password" class="font-sans text-xs font-bold">Contraseña</label><input id="password"
+            type="password" required autocomplete="current-password"
+            class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+        <button class="h-11 w-full rounded-[9px] bg-[#0D2B45] font-sans text-sm font-bold text-white">Iniciar
+          sesión</button>
         <p id="login-status" role="alert" class="text-sm text-[#C2413B]" hidden></p>
+      </form>
+      <div id="login-links" class="mt-4 flex justify-between font-sans text-xs font-bold">
+        <a href="#" id="show-signup-link" class="text-[#008F9E]">Primera vez, crear contraseña</a>
+        <a href="#" id="show-reset-link" class="text-[#607480]">¿Olvidaste tu contraseña?</a>
+      </div>
+
+      <form id="signup-form" class="mt-6 space-y-4" hidden>
+        <p class="text-sm text-[#607480]">Si tu correo ya fue registrado como moderador, crea aquí tu contraseña de
+          acceso.</p>
+        <div><label for="signup-email" class="font-sans text-xs font-bold">Correo</label><input id="signup-email"
+            type="email" required autocomplete="email"
+            class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+        <div><label for="signup-password" class="font-sans text-xs font-bold">Contraseña (mínimo 6
+            caracteres)</label><input id="signup-password" type="password" required minlength="6"
+            autocomplete="new-password" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+        <div><label for="signup-password-confirm" class="font-sans text-xs font-bold">Confirmar contraseña</label><input
+            id="signup-password-confirm" type="password" required minlength="6" autocomplete="new-password"
+            class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+        <button class="h-11 w-full rounded-[9px] bg-[#0D2B45] font-sans text-sm font-bold text-white">Crear
+          contraseña</button>
+        <p id="signup-status" role="status" class="text-sm" hidden></p>
+        <a href="#" id="back-to-login-from-signup"
+          class="block text-center font-sans text-xs font-bold text-[#607480]">Volver a iniciar sesión</a>
+      </form>
+
+      <form id="reset-form" class="mt-6 space-y-4" hidden>
+        <p class="text-sm text-[#607480]">Te enviaremos un enlace a tu correo para restablecer la contraseña.</p>
+        <div><label for="reset-email" class="font-sans text-xs font-bold">Correo</label><input id="reset-email"
+            type="email" required autocomplete="email"
+            class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+        <button class="h-11 w-full rounded-[9px] bg-[#0D2B45] font-sans text-sm font-bold text-white">Enviar
+          enlace</button>
+        <p id="reset-status" role="status" class="text-sm" hidden></p>
+        <a href="#" id="back-to-login-from-reset"
+          class="block text-center font-sans text-xs font-bold text-[#607480]">Volver a iniciar sesión</a>
       </form>
     </section>
     <section id="moderation-panel" hidden>
       <div class="flex flex-wrap items-end justify-between gap-4">
-        <div><p class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#00A6B8]">Revisión</p><h1 class="mt-2 font-sans text-3xl font-bold">Materiales pendientes</h1></div>
-        <button id="logout" type="button" class="rounded-[9px] border border-[#AFC2CB] bg-white px-5 py-3 font-sans text-xs font-bold">Cerrar sesión</button>
+        <div>
+          <p class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#00A6B8]">Revisión</p>
+          <h1 class="mt-2 font-sans text-3xl font-bold">Materiales pendientes</h1>
+        </div>
+        <button id="logout" type="button"
+          class="rounded-[9px] border border-[#AFC2CB] bg-white px-5 py-3 font-sans text-xs font-bold">Cerrar
+          sesión</button>
       </div>
       <p id="panel-status" role="status" class="mt-5 text-sm text-[#607480]"></p>
       <div id="pending-list" class="mt-6 space-y-4"></div>
       <section class="mt-10 rounded-[16px] border border-[#D7E2E7] bg-white p-6 shadow-sm">
         <h2 class="font-sans text-xl font-bold">Moderadores</h2>
-        <p class="mt-2 text-sm text-[#607480]">Agrega o quita correos autorizados. Cada persona también debe tener una cuenta habilitada en Firebase Authentication.</p>
+        <p class="mt-2 text-sm text-[#607480]">Agrega o quita correos autorizados. Cada persona también debe tener una
+          cuenta habilitada en Firebase Authentication.</p>
         <form id="moderator-form" class="mt-5 flex flex-wrap gap-3">
           <label for="moderator-email" class="sr-only">Correo del moderador</label>
-          <input id="moderator-email" type="email" required placeholder="correo@ejemplo.com" class="h-11 min-w-[260px] flex-1 rounded-[9px] border border-[#BFD0D8] px-3">
-          <button class="h-11 rounded-[9px] bg-[#0D2B45] px-5 font-sans text-xs font-bold text-white">Agregar moderador</button>
+          <input id="moderator-email" type="email" required placeholder="correo@ejemplo.com"
+            class="h-11 min-w-[260px] flex-1 rounded-[9px] border border-[#BFD0D8] px-3">
+          <button class="h-11 rounded-[9px] bg-[#0D2B45] px-5 font-sans text-xs font-bold text-white">Agregar
+            moderador</button>
         </form>
         <p id="moderator-status" role="status" class="mt-3 text-sm" hidden></p>
         <ul id="moderator-list" class="mt-5 divide-y divide-[#E2E9EC]"></ul>
       </section>
     </section>
   </main>
-  <div id="edit-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-[#0D2B45]/60 p-6 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="edit-modal-title">
+  <div id="edit-modal"
+    class="fixed inset-0 z-50 hidden items-center justify-center bg-[#0D2B45]/60 p-6 backdrop-blur-sm" role="dialog"
+    aria-modal="true" aria-labelledby="edit-modal-title">
     <article class="relative max-h-[90vh] w-full max-w-[650px] overflow-y-auto rounded-[20px] bg-white p-8 shadow-2xl">
-      <button id="edit-modal-close" type="button" class="absolute right-5 top-5 flex h-10 w-10 items-center justify-center rounded-full bg-[#F0F4F6] text-[#5F7480]" aria-label="Cerrar edición"><i class="fa-solid fa-xmark"></i></button>
+      <button id="edit-modal-close" type="button"
+        class="absolute right-5 top-5 flex h-10 w-10 items-center justify-center rounded-full bg-[#F0F4F6] text-[#5F7480]"
+        aria-label="Cerrar edición"><i class="fa-solid fa-xmark"></i></button>
       <p class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#00A6B8]">Editar recurso</p>
       <h2 id="edit-modal-title" class="mt-3 pr-12 font-sans text-2xl font-bold">Editar metadatos</h2>
       <p class="mt-2 text-sm text-[#607480]">El autor y el archivo original no se pueden modificar desde aquí.</p>
       <form id="edit-form" class="mt-6 space-y-4">
-        <div><label for="edit-title" class="font-sans text-xs font-bold">Título</label><input id="edit-title" required maxlength="120" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
-        <div><label for="edit-description" class="font-sans text-xs font-bold">Descripción</label><textarea id="edit-description" required maxlength="300" class="mt-2 h-24 w-full rounded-[9px] border border-[#BFD0D8] px-3 py-2 resize-none"></textarea></div>
-        <div id="edit-labels-wrap"><span class="font-sans text-xs font-bold">Etiquetas</span><div id="edit-labels" class="mt-2 grid grid-cols-2 gap-2 text-xs text-[#526A78]"></div></div>
+        <div><label for="edit-title" class="font-sans text-xs font-bold">Título</label><input id="edit-title" required
+            maxlength="120" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+        <div><label for="edit-description" class="font-sans text-xs font-bold">Descripción</label><textarea
+            id="edit-description" required maxlength="300"
+            class="mt-2 h-24 w-full rounded-[9px] border border-[#BFD0D8] px-3 py-2 resize-none"></textarea></div>
+        <div id="edit-labels-wrap"><span class="font-sans text-xs font-bold">Etiquetas</span>
+          <div id="edit-labels" class="mt-2 grid grid-cols-2 gap-2 text-xs text-[#526A78]"></div>
+        </div>
         <div id="edit-docentes-fields" class="grid grid-cols-2 gap-4 hidden">
-          <div><label for="edit-grade" class="font-sans text-xs font-bold">Grado</label><select id="edit-grade" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] bg-white px-3"><option value="">Seleccionar grado</option><option>Primero</option><option>Segundo</option><option>Tercero</option><option>Cuarto</option><option>Quinto</option><option>Sexto</option><option>Sétimo</option><option>Octavo</option><option>Noveno</option><option>Décimo</option><option>Undécimo</option><option>Duodécimo</option><option>Universitario</option><option>Para-universitario</option></select></div>
-          <div><label for="edit-materials" class="font-sans text-xs font-bold">Materiales</label><input id="edit-materials" maxlength="300" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
-          <label class="col-span-2 flex items-center gap-3 font-sans text-xs font-bold"><input id="edit-requires-internet" type="checkbox" class="h-4 w-4 accent-[#00AFC1]"> Requiere internet</label>
+          <div><label for="edit-grade" class="font-sans text-xs font-bold">Grado</label><select id="edit-grade"
+              class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] bg-white px-3">
+              <option value="">Seleccionar grado</option>
+              <option>Primero</option>
+              <option>Segundo</option>
+              <option>Tercero</option>
+              <option>Cuarto</option>
+              <option>Quinto</option>
+              <option>Sexto</option>
+              <option>Sétimo</option>
+              <option>Octavo</option>
+              <option>Noveno</option>
+              <option>Décimo</option>
+              <option>Undécimo</option>
+              <option>Duodécimo</option>
+              <option>Universitario</option>
+              <option>Para-universitario</option>
+            </select></div>
+          <div><label for="edit-materials" class="font-sans text-xs font-bold">Materiales</label><input
+              id="edit-materials" maxlength="300" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3">
+          </div>
+          <label class="col-span-2 flex items-center gap-3 font-sans text-xs font-bold"><input
+              id="edit-requires-internet" type="checkbox" class="h-4 w-4 accent-[#00AFC1]"> Requiere internet</label>
         </div>
         <div id="edit-academico-fields" class="grid grid-cols-2 gap-4 hidden">
-          <div><label for="edit-course" class="font-sans text-xs font-bold">Curso</label><input id="edit-course" maxlength="80" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
-          <div><label for="edit-course-code" class="font-sans text-xs font-bold">Código de curso</label><input id="edit-course-code" maxlength="20" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+          <div><label for="edit-course" class="font-sans text-xs font-bold">Curso</label><input id="edit-course"
+              maxlength="80" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+          <div><label for="edit-course-code" class="font-sans text-xs font-bold">Código de curso</label><input
+              id="edit-course-code" maxlength="20" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3">
+          </div>
         </div>
-        <div><label for="edit-explanation-url" class="font-sans text-xs font-bold">Enlace de explicación (opcional)</label><input id="edit-explanation-url" type="url" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+        <div><label for="edit-explanation-url" class="font-sans text-xs font-bold">Enlace de explicación
+            (opcional)</label><input id="edit-explanation-url" type="url"
+            class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
         <p id="edit-status" role="alert" class="text-sm" hidden></p>
-        <div class="flex justify-end gap-3 pt-2"><button type="button" id="edit-cancel" class="h-11 rounded-[9px] border border-[#AFC2CB] px-5 font-sans text-xs font-bold">Cancelar</button><button type="submit" class="h-11 rounded-[9px] bg-[#0D2B45] px-6 font-sans text-xs font-bold text-white">Guardar cambios</button></div>
+        <div class="flex justify-end gap-3 pt-2"><button type="button" id="edit-cancel"
+            class="h-11 rounded-[9px] border border-[#AFC2CB] px-5 font-sans text-xs font-bold">Cancelar</button><button
+            type="submit" class="h-11 rounded-[9px] bg-[#0D2B45] px-6 font-sans text-xs font-bold text-white">Guardar
+            cambios</button></div>
       </form>
     </article>
   </div>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { browserLocalPersistence, getAuth, onAuthStateChanged, setPersistence, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import {
+      browserLocalPersistence, getAuth, onAuthStateChanged, setPersistence, signInWithEmailAndPassword, signOut,
+      createUserWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import { getFirestore, collection, getDocs, getDoc, query, where, updateDoc, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
     import { getStorage, ref, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
@@ -108,7 +241,7 @@
     const moderationPanel = document.querySelector("#moderation-panel");
     const pendingList = document.querySelector("#pending-list");
     const panelStatus = document.querySelector("#panel-status");
-    const escapeHtml = value => String(value || "").replace(/[&<>"']/g, character => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#039;" }[character]));
+    const escapeHtml = value => String(value || "").replace(/[&<>"']/g, character => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[character]));
     const fileSize = bytes => bytes ? `${(bytes / 1024 / 1024).toFixed(2)} MB` : "Tamaño no indicado";
 
     const docentesLabels = ["Actividad inicial / Exploratorio", "Juego", "Cotidiano", "Guía didáctica", "Unidad didáctica", "Planeamiento", "Tarea", "Recurso tecnológico", "Movilización de Conocimientos", "Debate", "Discusión matemática", "Trabajo independiente", "Guía de Trabajo Autónomo"];
@@ -229,22 +362,84 @@
       }
     });
     document.querySelector("#logout").addEventListener("click", () => signOut(auth));
-    document.querySelector("#moderator-form").addEventListener("submit", async event => {
+
+    function showLoginMode(mode) {
+      document.querySelector("#login-form").hidden = mode !== "login";
+      document.querySelector("#login-links").hidden = mode !== "login";
+      document.querySelector("#signup-form").hidden = mode !== "signup";
+      document.querySelector("#reset-form").hidden = mode !== "reset";
+    }
+    document.querySelector("#show-signup-link").addEventListener("click", event => { event.preventDefault(); showLoginMode("signup"); });
+    document.querySelector("#show-reset-link").addEventListener("click", event => { event.preventDefault(); showLoginMode("reset"); });
+    document.querySelector("#back-to-login-from-signup").addEventListener("click", event => { event.preventDefault(); showLoginMode("login"); });
+    document.querySelector("#back-to-login-from-reset").addEventListener("click", event => { event.preventDefault(); showLoginMode("login"); });
+
+    document.querySelector("#signup-form").addEventListener("submit", async event => {
       event.preventDefault();
-      const status = document.querySelector("#moderator-status");
-      const email = document.querySelector("#moderator-email").value.trim().toLowerCase();
+      const status = document.querySelector("#signup-status");
+      status.hidden = true;
+      const email = document.querySelector("#signup-email").value.trim().toLowerCase();
+      const password = document.querySelector("#signup-password").value;
+      const confirmPassword = document.querySelector("#signup-password-confirm").value;
+      if (password !== confirmPassword) {
+        status.textContent = "Las contraseñas no coinciden.";
+        status.className = "text-sm text-[#C2413B]";
+        status.hidden = false;
+        return;
+      }
       try {
-        await setDoc(doc(db, "moderators", email), { email, addedAt: new Date().toISOString() });
-        event.target.reset();
-        await loadModerators();
-        status.textContent = "Moderador agregado.";
-        status.className = "mt-3 text-sm text-[#087F8C]";
+        const moderatorDocument = await getDoc(doc(db, "moderators", email));
+        if (!moderatorDocument.exists()) {
+          status.textContent = "Este correo no pertenece al equipo de moderación. Pide que te agreguen primero.";
+          status.className = "text-sm text-[#C2413B]";
+          status.hidden = false;
+          return;
+        }
+        const credential = await createUserWithEmailAndPassword(auth, email, password);
+        await sendEmailVerification(credential.user);
+        await signOut(auth);
+        document.querySelector("#signup-form").reset();
+        status.textContent = `Cuenta creada. Revisa ${email} y confirma el enlace de verificación antes de iniciar sesión.`;
+        status.className = "text-sm text-[#087F8C]";
         status.hidden = false;
       } catch (error) {
-        status.textContent = `No se pudo agregar el moderador: ${error.message}`;
-        status.className = "mt-3 text-sm text-[#C2413B]";
+        status.textContent = error.code === "auth/email-already-in-use"
+          ? "Ya existe una cuenta con este correo. Usa '¿Olvidaste tu contraseña?' si no la recuerdas."
+          : error.code === "auth/weak-password"
+            ? "La contraseña debe tener al menos 6 caracteres."
+            : `No se pudo crear la cuenta: ${error.message}`;
+        status.className = "text-sm text-[#C2413B]";
         status.hidden = false;
       }
+    });
+
+    document.querySelector("#reset-form").addEventListener("submit", async event => {
+      event.preventDefault();
+      const status = document.querySelector("#reset-status");
+      const email = document.querySelector("#reset-email").value.trim().toLowerCase();
+      try {
+        await sendPasswordResetEmail(auth, email);
+      } catch { /* Se ignora para no revelar si el correo tiene cuenta registrada. */ }
+      document.querySelector("#reset-form").reset();
+      status.textContent = "Si el correo tiene una cuenta registrada, recibirás un enlace para restablecer la contraseña.";
+      status.className = "text-sm text-[#087F8C]";
+      status.hidden = false;
+    });
+    event.preventDefault();
+    const status = document.querySelector("#moderator-status");
+    const email = document.querySelector("#moderator-email").value.trim().toLowerCase();
+    try {
+      await setDoc(doc(db, "moderators", email), { email, addedAt: new Date().toISOString() });
+      event.target.reset();
+      await loadModerators();
+      status.textContent = "Moderador agregado.";
+      status.className = "mt-3 text-sm text-[#087F8C]";
+      status.hidden = false;
+    } catch (error) {
+      status.textContent = `No se pudo agregar el moderador: ${error.message}`;
+      status.className = "mt-3 text-sm text-[#C2413B]";
+      status.hidden = false;
+    }
     });
 
     async function loadModerators() {
@@ -309,21 +504,25 @@
       let allowed = ownerEmails.includes(email);
       if (email && !allowed) {
         const moderatorDocument = await getDoc(doc(db, "moderators", email));
-        allowed = moderatorDocument.exists();
+        allowed = moderatorDocument.exists() && user.emailVerified;
       }
       loginPanel.hidden = allowed;
       moderationPanel.hidden = !allowed;
       if (allowed) {
+        showLoginMode("login");
         loadPending().catch(error => { panelStatus.textContent = `No se pudieron cargar los pendientes: ${error.message}`; });
         loadModerators().catch(error => { document.querySelector("#moderator-status").textContent = `No se pudieron cargar los moderadores: ${error.message}`; });
         const editId = new URLSearchParams(window.location.search).get("edit");
         if (editId) openEditFromId(editId).catch(error => { panelStatus.textContent = `No se pudo abrir el recurso: ${error.message}`; });
       } else if (user) {
-        document.querySelector("#login-status").textContent = "Esta cuenta no tiene permisos de moderador.";
+        document.querySelector("#login-status").textContent = user.emailVerified
+          ? "Esta cuenta no tiene permisos de moderador."
+          : "Debes verificar tu correo antes de iniciar sesión. Revisa tu bandeja de entrada.";
         document.querySelector("#login-status").hidden = false;
         await signOut(auth);
       }
     });
   </script>
 </body>
+
 </html>

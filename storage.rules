@@ -5,7 +5,8 @@ service firebase.storage {
       function isModerator() {
         return request.auth != null
           && (request.auth.token.email in ['angeloyeshuac@gmail.com', 'angcalderon@estudiantec.cr']
-            || firestore.exists(/databases/(default)/documents/moderators/$(request.auth.token.email)));
+            || (request.auth.token.email_verified == true
+              && firestore.exists(/databases/(default)/documents/moderators/$(request.auth.token.email))));
       }
 
       allow read: if true;
@@ -30,7 +31,8 @@ service firebase.storage {
       function isJunta() {
         return request.auth != null
           && (request.auth.token.email in ['angeloyeshuac@gmail.com', 'angcalderon@estudiantec.cr']
-            || firestore.exists(/databases/(default)/documents/junta/$(request.auth.token.email)));
+            || (request.auth.token.email_verified == true
+              && firestore.exists(/databases/(default)/documents/junta/$(request.auth.token.email))));
       }
 
       allow read: if true;

@@ -8,7 +8,8 @@ service cloud.firestore {
 
     function isModerator() {
       return isOwner()
-        || (request.auth != null && exists(/databases/$(database)/documents/moderators/$(request.auth.token.email)));
+        || (request.auth != null && request.auth.token.email_verified == true
+          && exists(/databases/$(database)/documents/moderators/$(request.auth.token.email)));
     }
 
     function isAsociado() {
@@ -18,7 +19,8 @@ service cloud.firestore {
 
     function isJunta() {
       return isOwner()
-        || (request.auth != null && exists(/databases/$(database)/documents/junta/$(request.auth.token.email)));
+        || (request.auth != null && request.auth.token.email_verified == true
+          && exists(/databases/$(database)/documents/junta/$(request.auth.token.email)));
     }
 
     function isFiscalia() {

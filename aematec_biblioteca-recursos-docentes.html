@@ -23,69 +23,268 @@
   <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
   <style>
     @media (max-width: 767px) {
-      body { width: 100% !important; max-width: 100%; overflow-x: hidden; }
-      [class~="w-[1240px]"] { width: auto !important; max-width: none; }
-      html, body { max-width: 100%; }
-      header > div, main > section > div:not(.catalog-filter-backdrop), footer > div { width: calc(100% - 2rem) !important; margin-left: auto; margin-right: auto; }
-      header { height: auto !important; padding: 1rem 0; }
-      header > div { display: grid !important; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 0.75rem; }
-      header > div > a { display: contents; }
-      header > div > a img { grid-column: 1; width: 92px; }
-      header > div > a > div { display: none; }
-      header > div > a > span { grid-column: 2; min-width: 0; overflow: hidden; font-size: 0.82rem; text-align: center; text-overflow: ellipsis; white-space: nowrap; }
-      #mobile-menu-toggle { display: flex; grid-column: 3; }
-      header nav { display: none !important; grid-column: 1 / -1; width: 100%; flex-direction: column; align-items: stretch; gap: 0.5rem !important; padding-top: 0.75rem; border-top: 1px solid #D8E3E9; }
-      header nav.is-open { display: flex !important; }
-      header nav a { width: 100%; padding: 0.7rem 0; font-size: 0.8rem; }
-      [data-design-id="docentes-intro-1978be"] > div { width: calc(100% - 2rem) !important; margin-left: auto; margin-right: auto; padding-top: 2.5rem; padding-bottom: 2rem; }
-      [data-design-id="docentes-intro-1978be"] h1 { font-size: 2.1rem; }
-      [data-design-id="docentes-intro-1978be"] form { height: auto; min-height: 54px; }
-      [data-design-id="docentes-intro-1978be"] form input { min-width: 0; }
-      [data-design-id="docentes-intro-1978be"] form button { padding-left: 1rem; padding-right: 1rem; }
-      .docentes-search-row { align-items: stretch; }
-      .docentes-filter-trigger { flex: 0 0 auto; }
-      .docentes-filter-trigger span { display: none; }
-      .docentes-filter-trigger { width: 3.5rem; padding-left: 0.75rem; padding-right: 0.75rem; }
-      [data-design-id="docentes-catalog-f48e50"] { display: block; width: auto !important; margin-left: 1rem; margin-right: 1rem; padding-top: 2rem; padding-bottom: 2rem; }
-      #docentes-resource-grid { grid-template-columns: 1fr; min-width: 0; }
-      #docentes-pagination { flex-wrap: wrap; }
-      #resource-modal { padding: 1rem; }
-      #resource-modal article { padding: 1.25rem; }
-      #resource-modal dl { grid-template-columns: 1fr; }
-      footer > div { flex-direction: column; align-items: flex-start; gap: 1rem; }
+      body {
+        width: 100% !important;
+        max-width: 100%;
+        overflow-x: hidden;
+      }
+
+      [class~="w-[1240px]"] {
+        width: auto !important;
+        max-width: none;
+      }
+
+      html,
+      body {
+        max-width: 100%;
+      }
+
+      header>div,
+      main>section>div:not(.catalog-filter-backdrop),
+      footer>div {
+        width: calc(100% - 2rem) !important;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      header {
+        height: auto !important;
+        padding: 1rem 0;
+      }
+
+      header>div {
+        display: grid !important;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      header>div>a {
+        display: contents;
+      }
+
+      header>div>a img {
+        grid-column: 1;
+        width: 92px;
+      }
+
+      header>div>a>div {
+        display: none;
+      }
+
+      header>div>a>span {
+        grid-column: 2;
+        min-width: 0;
+        overflow: hidden;
+        font-size: 0.82rem;
+        text-align: center;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      #mobile-menu-toggle {
+        display: flex;
+        grid-column: 3;
+      }
+
+      header nav {
+        display: none !important;
+        grid-column: 1 / -1;
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5rem !important;
+        padding-top: 0.75rem;
+        border-top: 1px solid #D8E3E9;
+      }
+
+      header nav.is-open {
+        display: flex !important;
+      }
+
+      header nav a {
+        width: 100%;
+        padding: 0.7rem 0;
+        font-size: 0.8rem;
+      }
+
+      [data-design-id="docentes-intro-1978be"]>div {
+        width: calc(100% - 2rem) !important;
+        margin-left: auto;
+        margin-right: auto;
+        padding-top: 2.5rem;
+        padding-bottom: 2rem;
+      }
+
+      [data-design-id="docentes-intro-1978be"] h1 {
+        font-size: 2.1rem;
+      }
+
+      [data-design-id="docentes-intro-1978be"] form {
+        height: auto;
+        min-height: 54px;
+      }
+
+      [data-design-id="docentes-intro-1978be"] form input {
+        min-width: 0;
+      }
+
+      [data-design-id="docentes-intro-1978be"] form button {
+        padding-left: 1rem;
+        padding-right: 1rem;
+      }
+
+      .docentes-search-row {
+        align-items: stretch;
+      }
+
+      .docentes-filter-trigger {
+        flex: 0 0 auto;
+      }
+
+      .docentes-filter-trigger span {
+        display: none;
+      }
+
+      .docentes-filter-trigger {
+        width: 3.5rem;
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+      }
+
+      [data-design-id="docentes-catalog-f48e50"] {
+        display: block;
+        width: auto !important;
+        margin-left: 1rem;
+        margin-right: 1rem;
+        padding-top: 2rem;
+        padding-bottom: 2rem;
+      }
+
+      #docentes-resource-grid {
+        grid-template-columns: 1fr;
+        min-width: 0;
+      }
+
+      #docentes-pagination {
+        flex-wrap: wrap;
+      }
+
+      #resource-modal {
+        padding: 1rem;
+      }
+
+      #resource-modal article {
+        padding: 1.25rem;
+      }
+
+      #resource-modal dl {
+        grid-template-columns: 1fr;
+      }
+
+      footer>div {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
     }
+
     @media (min-width: 768px) and (max-width: 1279px) {
-      body { width: 100% !important; max-width: 100%; overflow-x: hidden; }
-      [class~="w-[1240px]"] { width: auto !important; max-width: none; }
-      html, body { max-width: 100%; }
-      header > div, main > section > div:not(.catalog-filter-backdrop), footer > div { width: calc(100% - 4rem) !important; margin-left: auto; margin-right: auto; }
-      [data-design-id="docentes-catalog-f48e50"] { display: block; width: calc(100% - 4rem) !important; margin-left: auto; margin-right: auto; }
+      body {
+        width: 100% !important;
+        max-width: 100%;
+        overflow-x: hidden;
+      }
+
+      [class~="w-[1240px]"] {
+        width: auto !important;
+        max-width: none;
+      }
+
+      html,
+      body {
+        max-width: 100%;
+      }
+
+      header>div,
+      main>section>div:not(.catalog-filter-backdrop),
+      footer>div {
+        width: calc(100% - 4rem) !important;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      [data-design-id="docentes-catalog-f48e50"] {
+        display: block;
+        width: calc(100% - 4rem) !important;
+        margin-left: auto;
+        margin-right: auto;
+      }
     }
+
     @media (min-width: 768px) {
-      body[class~="w-[1440px]"] { width: 100% !important; max-width: 100%; overflow-x: hidden; }
-      [class~="w-[1240px]"] { width: min(1240px, calc(100% - clamp(2rem, 8vw, 12.5rem))) !important; max-width: none; }
-      [data-design-id="docentes-intro-1978be"] > div { padding-top: clamp(3rem, 4vw, 3.75rem); padding-bottom: clamp(2.5rem, 3vw, 3.25rem); }
-      [data-design-id="docentes-intro-1978be"] h1 { font-size: clamp(2.25rem, 3.2vw, 3rem); }
-      [data-design-id="docentes-catalog-f48e50"] { padding-top: clamp(2.5rem, 3.5vw, 3.75rem); padding-bottom: clamp(2.5rem, 3.5vw, 3.75rem); }
+      body[class~="w-[1440px]"] {
+        width: 100% !important;
+        max-width: 100%;
+        overflow-x: hidden;
+      }
+
+      [class~="w-[1240px]"] {
+        width: min(1240px, calc(100% - clamp(2rem, 8vw, 12.5rem))) !important;
+        max-width: none;
+      }
+
+      [data-design-id="docentes-intro-1978be"]>div {
+        padding-top: clamp(3rem, 4vw, 3.75rem);
+        padding-bottom: clamp(2.5rem, 3vw, 3.25rem);
+      }
+
+      [data-design-id="docentes-intro-1978be"] h1 {
+        font-size: clamp(2.25rem, 3.2vw, 3rem);
+      }
+
+      [data-design-id="docentes-catalog-f48e50"] {
+        padding-top: clamp(2.5rem, 3.5vw, 3.75rem);
+        padding-bottom: clamp(2.5rem, 3.5vw, 3.75rem);
+      }
     }
-    .docentes-search-row { display: flex; gap: 0.75rem; align-items: center; }
-    .docentes-search-row form { flex: 1 1 auto; min-width: 0; }
-    .docentes-filter-trigger { white-space: nowrap; }
+
+    .docentes-search-row {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+    }
+
+    .docentes-search-row form {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+
+    .docentes-filter-trigger {
+      white-space: nowrap;
+    }
+
     header nav a,
-    header > div > a {
+    header>div>a {
       transition: transform 180ms ease, color 180ms ease, background-color 180ms ease;
       transform-origin: center;
     }
+
     header nav a:hover,
     header nav a:focus-visible,
-    header > div > a:hover,
-    header > div > a:focus-visible {
+    header>div>a:hover,
+    header>div>a:focus-visible {
       transform: scale(1.04);
     }
+
     @media (prefers-reduced-motion: reduce) {
+
       header nav a,
-      header > div > a { transition: none; }
+      header>div>a {
+        transition: none;
+      }
     }
+
     .catalog-filter-backdrop {
       position: fixed;
       inset: 0;
@@ -94,7 +293,11 @@
       background: rgba(13, 43, 69, 0.48);
       backdrop-filter: blur(6px);
     }
-    .catalog-filter-backdrop.is-open { display: block; }
+
+    .catalog-filter-backdrop.is-open {
+      display: block;
+    }
+
     .catalog-filter-panel {
       position: fixed;
       inset: 1.5rem auto 1.5rem 50%;
@@ -106,24 +309,37 @@
       transform: translateX(-50%);
       box-shadow: 0 24px 70px rgba(13, 43, 69, 0.28);
     }
-    .catalog-filter-panel.is-open { display: block; }
+
+    .catalog-filter-panel.is-open {
+      display: block;
+    }
+
     @media (max-width: 767px) {
-      .catalog-filter-panel { inset: 1rem auto 1rem 50%; max-height: calc(100vh - 2rem); }
+      .catalog-filter-panel {
+        inset: 1rem auto 1rem 50%;
+        max-height: calc(100vh - 2rem);
+      }
     }
   </style>
   <title>Recursos docentes — Biblioteca AEMATEC</title>
 </head>
 
-<body class="w-[1440px] bg-[#F4F8FA] text-[#0D2B45] font-serif" style="background-image: radial-gradient(circle at 12% 18%, rgba(0, 175, 193, 0.13) 0, rgba(0, 175, 193, 0.13) 1.2px, transparent 1.8px), radial-gradient(circle at 84% 72%, rgba(13, 43, 69, 0.09) 0, rgba(13, 43, 69, 0.09) 1.2px, transparent 1.8px); background-size: 28px 28px, 36px 36px;">
+<body class="w-[1440px] bg-[#F4F8FA] text-[#0D2B45] font-serif"
+  style="background-image: radial-gradient(circle at 12% 18%, rgba(0, 175, 193, 0.13) 0, rgba(0, 175, 193, 0.13) 1.2px, transparent 1.8px), radial-gradient(circle at 84% 72%, rgba(13, 43, 69, 0.09) 0, rgba(13, 43, 69, 0.09) 1.2px, transparent 1.8px); background-size: 28px 28px, 36px 36px;">
   <header data-design-id="header-docentes-51af9c" class="h-[92px] bg-white border-b border-[#D8E3E9] flex items-center">
     <div class="w-[1240px] mx-auto flex items-center justify-between">
       <a href="index.html" class="flex items-center gap-5"><img src="assets/logo-aematec.svg" alt="Logo AEMATEC"
           class="w-[154px]">
         <div class="h-9 w-px bg-[#D8E3E9]"></div><span class="font-sans font-bold text-[18px]">Biblioteca AEMATEC</span>
       </a>
-      <button id="mobile-menu-toggle" type="button" class="hidden h-11 w-11 items-center justify-center rounded-[10px] border border-[#BFD0D8] text-[#0D2B45]" aria-expanded="false" aria-controls="primary-navigation" aria-label="Abrir menú"><i class="fa-solid fa-bars"></i></button>
-      <nav id="primary-navigation" data-design-id="nav-docentes-972d4a" class="flex items-center gap-8 font-sans text-[14px] font-semibold">
-        <a href="aematec_biblioteca-home.html" class="text-[#405769]">Inicio</a><a href="aematec_biblioteca-recursos-docentes.html"
+      <button id="mobile-menu-toggle" type="button"
+        class="hidden h-11 w-11 items-center justify-center rounded-[10px] border border-[#BFD0D8] text-[#0D2B45]"
+        aria-expanded="false" aria-controls="primary-navigation" aria-label="Abrir menú"><i
+          class="fa-solid fa-bars"></i></button>
+      <nav id="primary-navigation" data-design-id="nav-docentes-972d4a"
+        class="flex items-center gap-8 font-sans text-[14px] font-semibold">
+        <a href="aematec_biblioteca-home.html" class="text-[#405769]">Inicio</a><a
+          href="aematec_biblioteca-recursos-docentes.html"
           class="text-[#00A6B8] border-b-2 border-[#00B5C8] py-2">Recursos docentes</a><a
           href="aematec_biblioteca-recursos-academicos.html" class="text-[#405769]">Recursos académicos</a>
         <a data-design-id="upload-docentes-btn-261ce7" href="aematec_biblioteca-subir-material.html"
@@ -136,11 +352,18 @@
   <main data-design-id="main-docentes-cf81ad">
     <section data-design-id="docentes-intro-1978be" class="bg-[#075766] text-white">
       <div class="w-[1240px] mx-auto py-[50px] relative overflow-hidden">
-        <div aria-hidden="true" class="pointer-events-none absolute -right-[10px] top-[6px] rotate-[8deg] font-sans text-[58px] leading-none text-white/[0.09]"><span>2</span> <i class="fa-solid fa-carrot text-[48px]"></i> <span>+</span> <span>3</span> <i class="fa-solid fa-carrot text-[48px]"></i> <span>= ?</span> <i class="fa-solid fa-carrot text-[48px]"></i></div>
-        <div aria-hidden="true" class="pointer-events-none absolute bottom-[-32px] left-[390px] rotate-[-6deg] font-serif text-[74px] leading-none text-white/[0.08]">\( \displaystyle f(x)=x^2+2x+1 \)</div>
+        <div aria-hidden="true"
+          class="pointer-events-none absolute -right-[10px] top-[6px] rotate-[8deg] font-sans text-[58px] leading-none text-white/[0.09]">
+          <span>2</span> <i class="fa-solid fa-carrot text-[48px]"></i> <span>+</span> <span>3</span> <i
+            class="fa-solid fa-carrot text-[48px]"></i> <span>= ?</span> <i class="fa-solid fa-carrot text-[48px]"></i>
+        </div>
+        <div aria-hidden="true"
+          class="pointer-events-none absolute bottom-[-32px] left-[390px] rotate-[-6deg] font-serif text-[74px] leading-none text-white/[0.08]">
+          \( \displaystyle f(x)=x^2+2x+1 \)</div>
         <div class="flex justify-between items-end relative">
           <div>
-            <div class="font-sans text-xs font-semibold text-[#B8E2E5] mb-4"><a href="aematec_biblioteca-home.html">Inicio</a><i
+            <div class="font-sans text-xs font-semibold text-[#B8E2E5] mb-4"><a
+                href="aematec_biblioteca-home.html">Inicio</a><i
                 class="fa-solid fa-chevron-right text-[9px] mx-3"></i><span class="text-[#00A6B8]">Recursos
                 docentes</span></div>
             <h1 class="font-sans text-[42px] leading-tight font-bold tracking-[-0.035em]">Recursos docentes</h1>
@@ -149,7 +372,8 @@
           </div>
           <div
             class="w-[92px] h-[92px] rounded-[20px] bg-white/10 text-[#63E0E1] flex items-center justify-center text-[38px]">
-            <i class="fa-solid fa-chalkboard-user"></i></div>
+            <i class="fa-solid fa-chalkboard-user"></i>
+          </div>
         </div>
         <div class="docentes-search-row mt-9">
           <form id="docentes-search-form" data-design-id="docentes-search-form-81b7d0"
@@ -167,15 +391,19 @@
       </div>
     </section>
 
-    <section data-design-id="docentes-catalog-f48e50"
-      class="w-[1240px] mx-auto py-[42px]">
+    <section data-design-id="docentes-catalog-f48e50" class="w-[1240px] mx-auto py-[42px]">
       <div id="docentes-filter-backdrop" class="catalog-filter-backdrop" aria-hidden="true"></div>
       <aside id="docentes-filter-panel" data-design-id="filters-docentes-8fb743"
-        class="catalog-filter-panel bg-white border border-[#D7E2E7] rounded-[16px] p-6" aria-label="Filtros de recursos docentes">
+        class="catalog-filter-panel bg-white border border-[#D7E2E7] rounded-[16px] p-6"
+        aria-label="Filtros de recursos docentes">
         <div class="flex justify-between items-center">
-          <h2 class="font-sans font-bold text-lg"><i class="fa-solid fa-sliders text-[#00A6B8] mr-2"></i>Filtros</h2><div class="flex items-center gap-4"><a
-            id="clear-docentes-filters" href="#" class="font-sans text-[11px] font-bold text-[#008F9E]">Limpiar</a>
-            <button id="close-docentes-filters" type="button" class="flex h-9 w-9 items-center justify-center rounded-full bg-[#F0F4F6] text-[#5F7480]" aria-label="Cerrar filtros"><i class="fa-solid fa-xmark"></i></button></div>
+          <h2 class="font-sans font-bold text-lg"><i class="fa-solid fa-sliders text-[#00A6B8] mr-2"></i>Filtros</h2>
+          <div class="flex items-center gap-4"><a id="clear-docentes-filters" href="#"
+              class="font-sans text-[11px] font-bold text-[#008F9E]">Limpiar</a>
+            <button id="close-docentes-filters" type="button"
+              class="flex h-9 w-9 items-center justify-center rounded-full bg-[#F0F4F6] text-[#5F7480]"
+              aria-label="Cerrar filtros"><i class="fa-solid fa-xmark"></i></button>
+          </div>
         </div>
         <div class="mt-7">
           <p class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#556B78]">Tipo de recurso</p>
@@ -320,30 +548,67 @@
   </main>
   <footer data-design-id="footer-docentes-d61370" class="bg-[#0D2B45] text-white">
     <div class="w-[1240px] mx-auto py-8 flex justify-between items-center">
-      <div class="flex items-center gap-4"><img       src="assets/logo-aematec.svg"
-          class="w-[122px] brightness-0 invert" alt="AEMATEC"><span
-          class="text-sm text-[#B9CAD4] border-l border-white/20 pl-4">Biblioteca pública de recursos MATEC</span></div>
+      <div class="flex items-center gap-4"><img src="assets/logo-aematec.svg" class="w-[122px] brightness-0 invert"
+          alt="AEMATEC"><span class="text-sm text-[#B9CAD4] border-l border-white/20 pl-4">Biblioteca pública de
+          recursos MATEC</span></div>
       <p class="text-xs text-[#AFC1CC]">Hecho para aprender, creado para compartir.</p>
     </div>
   </footer>
-  <div id="resource-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-[#0D2B45]/60 p-6 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div id="resource-modal"
+    class="fixed inset-0 z-50 hidden items-center justify-center bg-[#0D2B45]/60 p-6 backdrop-blur-sm" role="dialog"
+    aria-modal="true" aria-labelledby="modal-title">
     <article class="relative max-h-[90vh] w-full max-w-[650px] overflow-y-auto rounded-[20px] bg-white p-8 shadow-2xl">
-      <button id="modal-close" type="button" class="absolute right-5 top-5 flex h-10 w-10 items-center justify-center rounded-full bg-[#F0F4F6] text-[#5F7480]" aria-label="Cerrar detalles"><i class="fa-solid fa-xmark"></i></button>
+      <button id="modal-close" type="button"
+        class="absolute right-5 top-5 flex h-10 w-10 items-center justify-center rounded-full bg-[#F0F4F6] text-[#5F7480]"
+        aria-label="Cerrar detalles"><i class="fa-solid fa-xmark"></i></button>
       <p class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#00A6B8]">Detalles del recurso</p>
       <h2 id="modal-title" class="mt-3 pr-12 font-sans text-[26px] font-bold"></h2>
       <p id="modal-description" class="mt-3 leading-7 text-[#607480]"></p>
       <dl class="mt-6 grid grid-cols-2 gap-4 border-y border-[#E2E9EC] py-5 text-sm">
-        <div><dt class="font-sans text-xs font-bold uppercase text-[#718590]">Tipo</dt><dd id="modal-type" class="mt-1 text-[#18384E]"></dd></div>
-        <div><dt class="font-sans text-xs font-bold uppercase text-[#718590]">Sección</dt><dd id="modal-section" class="mt-1 text-[#18384E]"></dd></div>
-        <div><dt class="font-sans text-xs font-bold uppercase text-[#718590]">Curso o nivel</dt><dd id="modal-course" class="mt-1 text-[#18384E]"></dd></div>
-        <div><dt class="font-sans text-xs font-bold uppercase text-[#718590]">Tema</dt><dd id="modal-topic" class="mt-1 text-[#18384E]"></dd></div>
-        <div><dt class="font-sans text-xs font-bold uppercase text-[#718590]">Autor o fuente</dt><dd id="modal-author" class="mt-1 text-[#18384E]"></dd></div>
-        <div><dt class="font-sans text-xs font-bold uppercase text-[#718590]">Materiales</dt><dd id="modal-materials" class="mt-1 text-[#18384E]"></dd></div>
-        <div><dt class="font-sans text-xs font-bold uppercase text-[#718590]">Requiere internet</dt><dd id="modal-internet" class="mt-1 text-[#18384E]"></dd></div>
-        <div><dt class="font-sans text-xs font-bold uppercase text-[#718590]">Archivo</dt><dd id="modal-file" class="mt-1 text-[#18384E]"></dd></div>
-        <div><dt class="font-sans text-xs font-bold uppercase text-[#718590]">Publicado</dt><dd id="modal-date" class="mt-1 text-[#18384E]"></dd></div>
+        <div>
+          <dt class="font-sans text-xs font-bold uppercase text-[#718590]">Tipo</dt>
+          <dd id="modal-type" class="mt-1 text-[#18384E]"></dd>
+        </div>
+        <div>
+          <dt class="font-sans text-xs font-bold uppercase text-[#718590]">Sección</dt>
+          <dd id="modal-section" class="mt-1 text-[#18384E]"></dd>
+        </div>
+        <div>
+          <dt class="font-sans text-xs font-bold uppercase text-[#718590]">Curso o nivel</dt>
+          <dd id="modal-course" class="mt-1 text-[#18384E]"></dd>
+        </div>
+        <div>
+          <dt class="font-sans text-xs font-bold uppercase text-[#718590]">Tema</dt>
+          <dd id="modal-topic" class="mt-1 text-[#18384E]"></dd>
+        </div>
+        <div>
+          <dt class="font-sans text-xs font-bold uppercase text-[#718590]">Autor o fuente</dt>
+          <dd id="modal-author" class="mt-1 text-[#18384E]"></dd>
+        </div>
+        <div>
+          <dt class="font-sans text-xs font-bold uppercase text-[#718590]">Materiales</dt>
+          <dd id="modal-materials" class="mt-1 text-[#18384E]"></dd>
+        </div>
+        <div>
+          <dt class="font-sans text-xs font-bold uppercase text-[#718590]">Requiere internet</dt>
+          <dd id="modal-internet" class="mt-1 text-[#18384E]"></dd>
+        </div>
+        <div>
+          <dt class="font-sans text-xs font-bold uppercase text-[#718590]">Archivo</dt>
+          <dd id="modal-file" class="mt-1 text-[#18384E]"></dd>
+        </div>
+        <div>
+          <dt class="font-sans text-xs font-bold uppercase text-[#718590]">Publicado</dt>
+          <dd id="modal-date" class="mt-1 text-[#18384E]"></dd>
+        </div>
       </dl>
-      <div class="mt-6 flex justify-end gap-3"><a id="modal-edit" href="#" class="hidden h-11 items-center rounded-[9px] border border-[#9DB6C1] px-5 font-sans text-xs font-bold"><i class="fa-solid fa-pen mr-2"></i>Editar (moderador)</a><a id="modal-open" target="_blank" rel="noopener" class="flex h-11 items-center rounded-[9px] border border-[#9DB6C1] px-5 font-sans text-xs font-bold"><i class="fa-regular fa-eye mr-2"></i>Abrir archivo</a><a id="modal-download" download class="flex h-11 items-center rounded-[9px] bg-[#00AFC1] px-5 font-sans text-xs font-bold text-white"><i class="fa-solid fa-download mr-2"></i>Descargar</a></div>
+      <div class="mt-6 flex justify-end gap-3"><a id="modal-edit" href="#"
+          class="hidden h-11 items-center rounded-[9px] border border-[#9DB6C1] px-5 font-sans text-xs font-bold"><i
+            class="fa-solid fa-pen mr-2"></i>Editar (moderador)</a><a id="modal-open" target="_blank" rel="noopener"
+          class="flex h-11 items-center rounded-[9px] border border-[#9DB6C1] px-5 font-sans text-xs font-bold"><i
+            class="fa-regular fa-eye mr-2"></i>Abrir archivo</a><a id="modal-download" download
+          class="flex h-11 items-center rounded-[9px] bg-[#00AFC1] px-5 font-sans text-xs font-bold text-white"><i
+            class="fa-solid fa-download mr-2"></i>Descargar</a></div>
     </article>
   </div>
   <script type="module">
@@ -507,7 +772,7 @@
         render();
         onAuthStateChanged(getAuth(app), async user => {
           const email = user?.email?.toLowerCase();
-          isModerator = Boolean(email) && (ownerEmails.includes(email) || (await getDoc(doc(db, "moderators", email))).exists());
+          isModerator = Boolean(email) && (ownerEmails.includes(email) || (Boolean(user.emailVerified) && (await getDoc(doc(db, "moderators", email))).exists()));
           render();
         });
       } catch (error) {

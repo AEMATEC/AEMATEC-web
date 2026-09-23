@@ -16,138 +16,263 @@
   <script src="assets/firebase-config.js"></script>
   <style>
     @media (max-width: 767px) {
-      body { overflow-x: hidden; }
-      header > div { padding-left: 1rem; padding-right: 1rem; }
-      main { padding: 2rem 1rem; }
-      #login-panel { padding: 1.25rem; }
-      .tabs-container { flex-direction: column; }
-      .tabs-container > button { width: 100%; border-bottom: none; border-right: 1px solid #D8E3E9; }
-      .tabs-container > button.active { border-right: 3px solid #00A6B8; border-bottom: none; }
-      .section-content { padding: 1.25rem; }
-      #section-form { flex-direction: column; }
-      #section-form input, #section-form button { width: 100%; min-width: 0; }
-      #section-list li { align-items: flex-start; flex-direction: column; gap: 0.75rem; }
+      body {
+        overflow-x: hidden;
+      }
+
+      header>div {
+        padding-left: 1rem;
+        padding-right: 1rem;
+      }
+
+      main {
+        padding: 2rem 1rem;
+      }
+
+      #login-panel {
+        padding: 1.25rem;
+      }
+
+      .tabs-container {
+        flex-direction: column;
+      }
+
+      .tabs-container>button {
+        width: 100%;
+        border-bottom: none;
+        border-right: 1px solid #D8E3E9;
+      }
+
+      .tabs-container>button.active {
+        border-right: 3px solid #00A6B8;
+        border-bottom: none;
+      }
+
+      .section-content {
+        padding: 1.25rem;
+      }
+
+      #section-form {
+        flex-direction: column;
+      }
+
+      #section-form input,
+      #section-form button {
+        width: 100%;
+        min-width: 0;
+      }
+
+      #section-list li {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
     }
   </style>
   <title>Panel de Junta Directiva — AEMATEC</title>
 </head>
 
-<body class="min-h-screen bg-[#F4F8FA] text-[#0D2B45] font-serif" style="background-image: radial-gradient(circle at 12% 18%, rgba(0, 175, 193, 0.13) 0, rgba(0, 175, 193, 0.13) 1.2px, transparent 1.8px), radial-gradient(circle at 84% 72%, rgba(13, 43, 69, 0.09) 0, rgba(13, 43, 69, 0.09) 1.2px, transparent 1.8px); background-size: 28px 28px, 36px 36px;">
+<body class="min-h-screen bg-[#F4F8FA] text-[#0D2B45] font-serif"
+  style="background-image: radial-gradient(circle at 12% 18%, rgba(0, 175, 193, 0.13) 0, rgba(0, 175, 193, 0.13) 1.2px, transparent 1.8px), radial-gradient(circle at 84% 72%, rgba(13, 43, 69, 0.09) 0, rgba(13, 43, 69, 0.09) 1.2px, transparent 1.8px); background-size: 28px 28px, 36px 36px;">
   <header class="border-b border-[#D8E3E9] bg-white">
     <div class="mx-auto flex max-w-[1100px] items-center justify-between px-6 py-5">
       <a href="index.html" class="flex items-center gap-4 font-sans text-lg font-bold" aria-label="Ir al inicio">
         <img src="assets/logo-aematec.svg" alt="Logo AEMATEC" class="h-12 w-auto">
         <span class="hidden border-l border-[#D8E3E9] pl-4 sm:inline">Panel de Junta</span>
       </a>
-      <div class="flex items-center gap-5"><span class="font-sans text-xs font-semibold text-[#607480]">Gestión de asociados</span><a href="index.html" class="font-sans text-xs font-bold text-[#008F9E] hover:text-[#00A6B8]"><i class="fa-solid fa-arrow-left mr-1"></i>Volver al inicio</a></div>
+      <div class="flex items-center gap-5"><span class="font-sans text-xs font-semibold text-[#607480]">Gestión de
+          asociados</span><a href="index.html"
+          class="font-sans text-xs font-bold text-[#008F9E] hover:text-[#00A6B8]"><i
+            class="fa-solid fa-arrow-left mr-1"></i>Volver al inicio</a></div>
     </div>
   </header>
 
   <main class="mx-auto max-w-[1100px] px-6 py-10">
-    <section id="login-panel" class="mx-auto max-w-[430px] rounded-[18px] border border-[#D7E2E7] bg-white p-8 shadow-sm">
+    <section id="login-panel"
+      class="mx-auto max-w-[430px] rounded-[18px] border border-[#D7E2E7] bg-white p-8 shadow-sm">
       <h1 class="font-sans text-2xl font-bold">Acceso Junta Directiva</h1>
       <p class="mt-2 text-[#607480]">Inicia sesión para administrar asociados, inventario y comunicaciones.</p>
       <form id="login-form" class="mt-6 space-y-4">
-        <div><label for="email" class="font-sans text-xs font-bold">Correo</label><input id="email" type="email" required autocomplete="email" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
-        <div><label for="password" class="font-sans text-xs font-bold">Contraseña</label><input id="password" type="password" required autocomplete="current-password" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
-        <button class="h-11 w-full rounded-[9px] bg-[#0D2B45] font-sans text-sm font-bold text-white">Iniciar sesión</button>
+        <div><label for="email" class="font-sans text-xs font-bold">Correo</label><input id="email" type="email"
+            required autocomplete="email" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+        <div><label for="password" class="font-sans text-xs font-bold">Contraseña</label><input id="password"
+            type="password" required autocomplete="current-password"
+            class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+        <button class="h-11 w-full rounded-[9px] bg-[#0D2B45] font-sans text-sm font-bold text-white">Iniciar
+          sesión</button>
         <p id="login-status" role="alert" class="text-sm text-[#C2413B]" hidden></p>
+      </form>
+      <div id="login-links" class="mt-4 flex justify-between font-sans text-xs font-bold">
+        <a href="#" id="show-signup-link" class="text-[#008F9E]">Primera vez, crear contraseña</a>
+        <a href="#" id="show-reset-link" class="text-[#607480]">¿Olvidaste tu contraseña?</a>
+      </div>
+
+      <form id="signup-form" class="mt-6 space-y-4" hidden>
+        <p class="text-sm text-[#607480]">Si tu correo ya fue registrado como Junta Directiva, crea aquí tu contraseña
+          de acceso.</p>
+        <div><label for="signup-email" class="font-sans text-xs font-bold">Correo</label><input id="signup-email"
+            type="email" required autocomplete="email"
+            class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+        <div><label for="signup-password" class="font-sans text-xs font-bold">Contraseña (mínimo 6
+            caracteres)</label><input id="signup-password" type="password" required minlength="6"
+            autocomplete="new-password" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+        <div><label for="signup-password-confirm" class="font-sans text-xs font-bold">Confirmar contraseña</label><input
+            id="signup-password-confirm" type="password" required minlength="6" autocomplete="new-password"
+            class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+        <button class="h-11 w-full rounded-[9px] bg-[#0D2B45] font-sans text-sm font-bold text-white">Crear
+          contraseña</button>
+        <p id="signup-status" role="status" class="text-sm" hidden></p>
+        <a href="#" id="back-to-login-from-signup"
+          class="block text-center font-sans text-xs font-bold text-[#607480]">Volver a iniciar sesión</a>
+      </form>
+
+      <form id="reset-form" class="mt-6 space-y-4" hidden>
+        <p class="text-sm text-[#607480]">Te enviaremos un enlace a tu correo para restablecer la contraseña.</p>
+        <div><label for="reset-email" class="font-sans text-xs font-bold">Correo</label><input id="reset-email"
+            type="email" required autocomplete="email"
+            class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+        <button class="h-11 w-full rounded-[9px] bg-[#0D2B45] font-sans text-sm font-bold text-white">Enviar
+          enlace</button>
+        <p id="reset-status" role="status" class="text-sm" hidden></p>
+        <a href="#" id="back-to-login-from-reset"
+          class="block text-center font-sans text-xs font-bold text-[#607480]">Volver a iniciar sesión</a>
       </form>
     </section>
 
     <section id="junta-panel" hidden>
       <div class="flex flex-wrap items-end justify-between gap-4 mb-8">
-        <div><p class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#00A6B8]">Administración</p><h1 class="mt-2 font-sans text-3xl font-bold">Gestión de asociados</h1></div>
-        <button id="logout" type="button" class="rounded-[9px] border border-[#AFC2CB] bg-white px-5 py-3 font-sans text-xs font-bold">Cerrar sesión</button>
+        <div>
+          <p class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#00A6B8]">Administración</p>
+          <h1 class="mt-2 font-sans text-3xl font-bold">Gestión de asociados</h1>
+        </div>
+        <button id="logout" type="button"
+          class="rounded-[9px] border border-[#AFC2CB] bg-white px-5 py-3 font-sans text-xs font-bold">Cerrar
+          sesión</button>
       </div>
 
       <div class="rounded-[16px] border border-[#D7E2E7] bg-white p-6 shadow-sm">
         <div class="tabs-container flex border-b border-[#D8E3E9]">
-          <button data-tab="padron" class="active tab-btn px-6 py-3 font-sans font-semibold text-sm border-b-2 border-[#00A6B8] text-[#00A6B8]"><i class="fa-solid fa-id-card mr-2"></i>Padrón de Asociados</button>
-          <button data-tab="junta" class="tab-btn px-6 py-3 font-sans font-semibold text-sm border-b-2 border-transparent text-[#607480] hover:text-[#00A6B8]"><i class="fa-solid fa-users mr-2"></i>Junta Directiva</button>
-          <button data-tab="fiscalia" class="tab-btn px-6 py-3 font-sans font-semibold text-sm border-b-2 border-transparent text-[#607480] hover:text-[#00A6B8]"><i class="fa-solid fa-scale-balanced mr-2"></i>Fiscalía</button>
-          <button data-tab="medios" class="tab-btn px-6 py-3 font-sans font-semibold text-sm border-b-2 border-transparent text-[#607480] hover:text-[#00A6B8]"><i class="fa-solid fa-megaphone mr-2"></i>Medios Oficiales</button>
+          <button data-tab="padron"
+            class="active tab-btn px-6 py-3 font-sans font-semibold text-sm border-b-2 border-[#00A6B8] text-[#00A6B8]"><i
+              class="fa-solid fa-id-card mr-2"></i>Padrón de Asociados</button>
+          <button data-tab="junta"
+            class="tab-btn px-6 py-3 font-sans font-semibold text-sm border-b-2 border-transparent text-[#607480] hover:text-[#00A6B8]"><i
+              class="fa-solid fa-users mr-2"></i>Junta Directiva</button>
+          <button data-tab="fiscalia"
+            class="tab-btn px-6 py-3 font-sans font-semibold text-sm border-b-2 border-transparent text-[#607480] hover:text-[#00A6B8]"><i
+              class="fa-solid fa-scale-balanced mr-2"></i>Fiscalía</button>
+          <button data-tab="medios"
+            class="tab-btn px-6 py-3 font-sans font-semibold text-sm border-b-2 border-transparent text-[#607480] hover:text-[#00A6B8]"><i
+              class="fa-solid fa-megaphone mr-2"></i>Medios Oficiales</button>
         </div>
 
         <div id="section-content" class="section-content py-6">
           <form id="section-form" class="flex flex-wrap gap-3 mb-5" style="display: none;">
             <label for="section-email" class="sr-only">Correo a agregar</label>
             <div class="relative flex-1">
-              <input id="section-email" type="text" required placeholder="correo1@estudiantec.cr; correo2@estudiantec.cr; ..." class="h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3">
-              <ul id="suggestions-list" class="hidden absolute z-10 w-full mt-1 border border-[#D8E3E9] rounded-[9px] bg-white shadow-md max-h-48 overflow-y-auto"></ul>
+              <input id="section-email" type="text" required
+                placeholder="correo1@estudiantec.cr; correo2@estudiantec.cr; ..."
+                class="h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3">
+              <ul id="suggestions-list"
+                class="hidden absolute z-10 w-full mt-1 border border-[#D8E3E9] rounded-[9px] bg-white shadow-md max-h-48 overflow-y-auto">
+              </ul>
             </div>
-            <button type="submit" class="h-11 rounded-[9px] bg-[#0D2B45] px-5 font-sans text-xs font-bold text-white">Agregar</button>
-            <button type="button" id="upload-csv-btn" data-tab-only="padron" class="h-11 rounded-[9px] border border-[#BFD0D8] px-5 font-sans text-xs font-bold hidden" id="csv-btn-visible">Cargar CSV</button>
+            <button type="submit"
+              class="h-11 rounded-[9px] bg-[#0D2B45] px-5 font-sans text-xs font-bold text-white">Agregar</button>
+            <button type="button" id="upload-csv-btn" data-tab-only="padron"
+              class="h-11 rounded-[9px] border border-[#BFD0D8] px-5 font-sans text-xs font-bold hidden"
+              id="csv-btn-visible">Cargar CSV</button>
           </form>
           <p id="section-status" role="status" class="text-sm" hidden></p>
           <ul id="section-list" class="mt-5 divide-y divide-[#E2E9EC]"></ul>
 
           <div id="medios-form" class="space-y-4" style="display: none;">
-            <div><label class="font-sans text-xs font-bold">Correo institucional</label><input id="medios-email" type="text" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3" placeholder="aematec@estudiantec.cr"></div>
-            <div><label class="font-sans text-xs font-bold">Teléfono fijo</label><input id="medios-phone" type="text" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3" placeholder="2550-2463"></div>
-            <div class="border-t border-[#D8E3E9] pt-4"><p class="font-sans text-xs font-bold mb-3">Medios de difusión</p>
-              <div><label class="font-sans text-xs font-bold">WhatsApp</label><input id="medios-whatsapp" type="text" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3" placeholder="https://chat.whatsapp.com/..."></div>
-              <div class="mt-3"><label class="font-sans text-xs font-bold">Instagram</label><input id="medios-instagram" type="text" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3" placeholder="https://www.instagram.com/aematec"></div>
-              <div class="mt-3"><label class="font-sans text-xs font-bold">Telegram</label><input id="medios-telegram" type="text" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3" placeholder="https://t.me/comunidadmatec"></div>
+            <div><label class="font-sans text-xs font-bold">Correo institucional</label><input id="medios-email"
+                type="text" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"
+                placeholder="aematec@estudiantec.cr"></div>
+            <div><label class="font-sans text-xs font-bold">Teléfono fijo</label><input id="medios-phone" type="text"
+                class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3" placeholder="2550-2463"></div>
+            <div class="border-t border-[#D8E3E9] pt-4">
+              <p class="font-sans text-xs font-bold mb-3">Medios de difusión</p>
+              <div><label class="font-sans text-xs font-bold">WhatsApp</label><input id="medios-whatsapp" type="text"
+                  class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"
+                  placeholder="https://chat.whatsapp.com/..."></div>
+              <div class="mt-3"><label class="font-sans text-xs font-bold">Instagram</label><input id="medios-instagram"
+                  type="text" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"
+                  placeholder="https://www.instagram.com/aematec"></div>
+              <div class="mt-3"><label class="font-sans text-xs font-bold">Telegram</label><input id="medios-telegram"
+                  type="text" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"
+                  placeholder="https://t.me/comunidadmatec"></div>
             </div>
-            <button type="button" id="medios-save" class="h-11 w-full rounded-[9px] bg-[#0D2B45] px-5 font-sans text-sm font-bold text-white mt-4">Guardar medios</button>
+            <button type="button" id="medios-save"
+              class="h-11 w-full rounded-[9px] bg-[#0D2B45] px-5 font-sans text-sm font-bold text-white mt-4">Guardar
+              medios</button>
             <p id="medios-status" role="status" class="text-sm" hidden></p>
           </div>
         </div>
       </div>
     </section>
-      <dialog id="upload-modal" class="rounded-[16px] border border-[#D7E2E7] bg-white shadow-lg backdrop:bg-black backdrop:bg-opacity-50 p-0">
-        <div class="p-6 max-w-[600px]">
-          <h2 class="font-sans text-xl font-bold">Cargar padrón desde CSV</h2>
-          <p class="mt-2 text-sm text-[#607480]">Sube un archivo CSV con una columna de correos. Se sincronizará el padrón actual: se agregan nuevos, se eliminan los no incluidos, y se mantienen los existentes.</p>
-          
-          <div class="mt-5">
-            <label for="csv-file" class="block font-sans text-xs font-bold mb-2">Archivo CSV</label>
-            <input id="csv-file" type="file" accept=".csv" class="w-full border border-[#BFD0D8] rounded-[9px] px-3 py-2">
-            <p class="mt-2 text-xs text-[#607480]">Formato: una fila por correo, o primer valor de cada fila si hay múltiples columnas (CSV estándar).</p>
-          </div>
+    <dialog id="upload-modal"
+      class="rounded-[16px] border border-[#D7E2E7] bg-white shadow-lg backdrop:bg-black backdrop:bg-opacity-50 p-0">
+      <div class="p-6 max-w-[600px]">
+        <h2 class="font-sans text-xl font-bold">Cargar padrón desde CSV</h2>
+        <p class="mt-2 text-sm text-[#607480]">Sube un archivo CSV con una columna de correos. Se sincronizará el padrón
+          actual: se agregan nuevos, se eliminan los no incluidos, y se mantienen los existentes.</p>
 
-          <div id="csv-preview" class="mt-5 hidden">
-            <h3 class="font-sans text-sm font-bold mb-3">Previsualización de cambios</h3>
-            <div class="space-y-3">
-              <div id="preview-add" class="hidden">
-                <p class="font-sans text-xs font-bold text-[#087F8C]">Agregar (<span id="count-add">0</span>):</p>
-                <ul id="list-add" class="mt-2 ml-3 space-y-1 text-xs text-[#5B6E7B]"></ul>
-              </div>
-              <div id="preview-remove" class="hidden">
-                <p class="font-sans text-xs font-bold text-[#C2413B]">Eliminar (<span id="count-remove">0</span>):</p>
-                <ul id="list-remove" class="mt-2 ml-3 space-y-1 text-xs text-[#5B6E7B]"></ul>
-              </div>
-              <div id="preview-keep" class="hidden">
-                <p class="font-sans text-xs font-bold text-[#405769]">Mantener (<span id="count-keep">0</span>):</p>
-                <p class="mt-2 text-xs text-[#5B6E7B]"><span id="count-keep-total">0</span> correos sin cambios</p>
-              </div>
+        <div class="mt-5">
+          <label for="csv-file" class="block font-sans text-xs font-bold mb-2">Archivo CSV</label>
+          <input id="csv-file" type="file" accept=".csv" class="w-full border border-[#BFD0D8] rounded-[9px] px-3 py-2">
+          <p class="mt-2 text-xs text-[#607480]">Formato: una fila por correo, o primer valor de cada fila si hay
+            múltiples columnas (CSV estándar).</p>
+        </div>
+
+        <div id="csv-preview" class="mt-5 hidden">
+          <h3 class="font-sans text-sm font-bold mb-3">Previsualización de cambios</h3>
+          <div class="space-y-3">
+            <div id="preview-add" class="hidden">
+              <p class="font-sans text-xs font-bold text-[#087F8C]">Agregar (<span id="count-add">0</span>):</p>
+              <ul id="list-add" class="mt-2 ml-3 space-y-1 text-xs text-[#5B6E7B]"></ul>
+            </div>
+            <div id="preview-remove" class="hidden">
+              <p class="font-sans text-xs font-bold text-[#C2413B]">Eliminar (<span id="count-remove">0</span>):</p>
+              <ul id="list-remove" class="mt-2 ml-3 space-y-1 text-xs text-[#5B6E7B]"></ul>
+            </div>
+            <div id="preview-keep" class="hidden">
+              <p class="font-sans text-xs font-bold text-[#405769]">Mantener (<span id="count-keep">0</span>):</p>
+              <p class="mt-2 text-xs text-[#5B6E7B]"><span id="count-keep-total">0</span> correos sin cambios</p>
             </div>
           </div>
-
-          <div class="mt-6 flex justify-end gap-3">
-            <button type="button" id="modal-cancel" class="px-4 py-2 rounded-[9px] border border-[#BFD0D8] font-sans text-sm font-bold">Cancelar</button>
-            <button type="button" id="modal-apply" disabled class="px-4 py-2 rounded-[9px] bg-[#0D2B45] text-white font-sans text-sm font-bold disabled:opacity-50">Sincronizar</button>
-          </div>
-          <p id="csv-status" role="status" class="mt-4 text-sm" hidden></p>
         </div>
-      </dialog>
+
+        <div class="mt-6 flex justify-end gap-3">
+          <button type="button" id="modal-cancel"
+            class="px-4 py-2 rounded-[9px] border border-[#BFD0D8] font-sans text-sm font-bold">Cancelar</button>
+          <button type="button" id="modal-apply" disabled
+            class="px-4 py-2 rounded-[9px] bg-[#0D2B45] text-white font-sans text-sm font-bold disabled:opacity-50">Sincronizar</button>
+        </div>
+        <p id="csv-status" role="status" class="mt-4 text-sm" hidden></p>
+      </div>
+    </dialog>
   </main>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { browserSessionPersistence, getAuth, onAuthStateChanged, setPersistence, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import {
+      browserSessionPersistence, getAuth, onAuthStateChanged, setPersistence, signInWithEmailAndPassword, signOut,
+      createUserWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const app = initializeApp(window.AEMATEC_FIREBASE_CONFIG);
     const auth = getAuth(app);
     const db = getFirestore(app);
     await setPersistence(auth, browserSessionPersistence);
+    const ownerEmails = ["angeloyeshuac@gmail.com", "angcalderon@estudiantec.cr"];
 
     const loginPanel = document.querySelector("#login-panel");
     const juntaPanel = document.querySelector("#junta-panel");
     const currentTab = { value: "padron" };
-    const escapeHtml = value => String(value || "").replace(/[&<>"']/g, character => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#039;" }[character]));
+    const escapeHtml = value => String(value || "").replace(/[&<>"']/g, character => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[character]));
 
     document.querySelector("#login-form").addEventListener("submit", async event => {
       event.preventDefault();
@@ -163,6 +288,69 @@
 
     document.querySelector("#logout").addEventListener("click", () => signOut(auth));
 
+    function showLoginMode(mode) {
+      document.querySelector("#login-form").hidden = mode !== "login";
+      document.querySelector("#login-links").hidden = mode !== "login";
+      document.querySelector("#signup-form").hidden = mode !== "signup";
+      document.querySelector("#reset-form").hidden = mode !== "reset";
+    }
+    document.querySelector("#show-signup-link").addEventListener("click", event => { event.preventDefault(); showLoginMode("signup"); });
+    document.querySelector("#show-reset-link").addEventListener("click", event => { event.preventDefault(); showLoginMode("reset"); });
+    document.querySelector("#back-to-login-from-signup").addEventListener("click", event => { event.preventDefault(); showLoginMode("login"); });
+    document.querySelector("#back-to-login-from-reset").addEventListener("click", event => { event.preventDefault(); showLoginMode("login"); });
+
+    document.querySelector("#signup-form").addEventListener("submit", async event => {
+      event.preventDefault();
+      const status = document.querySelector("#signup-status");
+      status.hidden = true;
+      const email = document.querySelector("#signup-email").value.trim().toLowerCase();
+      const password = document.querySelector("#signup-password").value;
+      const confirmPassword = document.querySelector("#signup-password-confirm").value;
+      if (password !== confirmPassword) {
+        status.textContent = "Las contraseñas no coinciden.";
+        status.className = "text-sm text-[#C2413B]";
+        status.hidden = false;
+        return;
+      }
+      try {
+        const juntaDocument = await getDoc(doc(db, "junta", email));
+        if (!juntaDocument.exists()) {
+          status.textContent = "Este correo no pertenece a la Junta Directiva. Pide que te agreguen primero.";
+          status.className = "text-sm text-[#C2413B]";
+          status.hidden = false;
+          return;
+        }
+        const credential = await createUserWithEmailAndPassword(auth, email, password);
+        await sendEmailVerification(credential.user);
+        await signOut(auth);
+        document.querySelector("#signup-form").reset();
+        status.textContent = `Cuenta creada. Revisa ${email} y confirma el enlace de verificación antes de iniciar sesión.`;
+        status.className = "text-sm text-[#087F8C]";
+        status.hidden = false;
+      } catch (error) {
+        status.textContent = error.code === "auth/email-already-in-use"
+          ? "Ya existe una cuenta con este correo. Usa '¿Olvidaste tu contraseña?' si no la recuerdas."
+          : error.code === "auth/weak-password"
+            ? "La contraseña debe tener al menos 6 caracteres."
+            : `No se pudo crear la cuenta: ${error.message}`;
+        status.className = "text-sm text-[#C2413B]";
+        status.hidden = false;
+      }
+    });
+
+    document.querySelector("#reset-form").addEventListener("submit", async event => {
+      event.preventDefault();
+      const status = document.querySelector("#reset-status");
+      const email = document.querySelector("#reset-email").value.trim().toLowerCase();
+      try {
+        await sendPasswordResetEmail(auth, email);
+      } catch { /* Se ignora para no revelar si el correo tiene cuenta registrada. */ }
+      document.querySelector("#reset-form").reset();
+      status.textContent = "Si el correo tiene una cuenta registrada, recibirás un enlace para restablecer la contraseña.";
+      status.className = "text-sm text-[#087F8C]";
+      status.hidden = false;
+    });
+
     document.querySelectorAll(".tab-btn").forEach(btn => btn.addEventListener("click", () => {
       currentTab.value = btn.dataset.tab;
       document.querySelectorAll(".tab-btn").forEach(b => {
@@ -171,12 +359,12 @@
       });
       btn.classList.add("active", "border-[#00A6B8]", "text-[#00A6B8]");
       btn.classList.remove("border-transparent", "text-[#607480]");
-      
+
       const csvBtn = document.querySelector("#upload-csv-btn");
       const sectionForm = document.querySelector("#section-form");
       const mediosForm = document.querySelector("#medios-form");
       const sectionList = document.querySelector("#section-list");
-      
+
       if (currentTab.value === "medios") {
         sectionForm.style.display = "none";
         mediosForm.style.display = "block";
@@ -207,12 +395,12 @@
       const status = document.querySelector("#section-status");
       const input = document.querySelector("#section-email").value.trim();
       if (!input) return;
-      
+
       const emails = input.split(";").map(e => e.trim().toLowerCase()).filter(e => e);
       if (!emails.length) return;
-      
+
       const results = { success: 0, failed: 0, errors: [] };
-      
+
       for (const email of emails) {
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
           results.failed++;
@@ -227,14 +415,14 @@
           results.errors.push(`${escapeHtml(email)}: ${error.message}`);
         }
       }
-      
+
       document.querySelector("#section-form").reset();
       await loadSection(currentTab.value);
-      
+
       let message = `✓ ${results.success} agregado(s)`;
       if (results.failed > 0) message += `, ${results.failed} error(es)`;
       if (results.errors.length > 0) message += `: ${results.errors.slice(0, 2).join("; ")}${results.errors.length > 2 ? "..." : ""}`;
-      
+
       status.textContent = message;
       status.className = results.failed === 0 ? "text-sm text-[#087F8C]" : "text-sm text-[#946316]";
       status.hidden = false;
@@ -243,33 +431,33 @@
 
     const suggestionsList = document.querySelector("#suggestions-list");
     const emailInput = document.querySelector("#section-email");
-    
+
     emailInput.addEventListener("input", () => {
       const value = emailInput.value.trim();
       if (!value || currentTab.value === "padron") {
         suggestionsList.classList.add("hidden");
         return;
       }
-      
+
       const lastEmail = value.split(";").pop().trim().toLowerCase();
       if (lastEmail.length < 2) {
         suggestionsList.classList.add("hidden");
         return;
       }
-      
+
       const matches = padronEmails.filter(e => e.toLowerCase().includes(lastEmail) && !value.includes(e)).slice(0, 8);
       if (matches.length === 0) {
         suggestionsList.classList.add("hidden");
         return;
       }
-      
+
       suggestionsList.innerHTML = matches.map(email => `
         <li class="px-3 py-2 hover:bg-[#F0F4F7] cursor-pointer text-sm" data-email="${escapeHtml(email)}">
           ${escapeHtml(email)}
         </li>
       `).join("");
       suggestionsList.classList.remove("hidden");
-      
+
       suggestionsList.querySelectorAll("li").forEach(item => {
         item.addEventListener("click", () => {
           const parts = value.split(";");
@@ -280,7 +468,7 @@
         });
       });
     });
-    
+
     emailInput.addEventListener("blur", () => {
       setTimeout(() => suggestionsList.classList.add("hidden"), 200);
     });
@@ -387,18 +575,11 @@
       }
     });
 
-    onAuthStateChanged(auth, async user => {
-      loginPanel.hidden = !!user;
-      juntaPanel.hidden = !user;
-      if (user) {
-        await loadSection("padron");
-      }
-
     // CSV upload handling
     const uploadModal = document.querySelector("#upload-modal");
     const uploadBtn = document.querySelector("#upload-csv-btn");
     const csvFileInput = document.querySelector("#csv-file");
-    
+
     uploadBtn.addEventListener("click", () => {
       uploadBtn.disabled = uploadBtn.dataset.tabOnly !== currentTab.value;
       if (uploadBtn.disabled) {
@@ -418,11 +599,11 @@
     csvFileInput.addEventListener("change", async () => {
       const file = csvFileInput.files[0];
       if (!file) return;
-      
+
       const text = await file.text();
       const lines = text.split(/\r?\n/).filter(l => l.trim());
       const csvEmails = new Set();
-      
+
       for (const line of lines) {
         const parts = line.split(/[,;]/).map(p => p.trim().toLowerCase());
         for (const part of parts) {
@@ -432,24 +613,24 @@
           }
         }
       }
-      
+
       if (csvEmails.size === 0) {
         document.querySelector("#csv-status").textContent = "No se encontraron correos válidos en el archivo.";
         document.querySelector("#csv-status").className = "text-sm text-[#C2413B]";
         document.querySelector("#csv-status").hidden = false;
         return;
       }
-      
+
       const snapshot = await getDocs(collection(db, currentTab.value));
       const currentEmails = new Set(snapshot.docs.map(d => d.id));
-      
+
       const toAdd = Array.from(csvEmails).filter(e => !currentEmails.has(e)).sort();
       const toRemove = Array.from(currentEmails).filter(e => !csvEmails.has(e)).sort();
       const toKeep = Array.from(csvEmails).filter(e => currentEmails.has(e)).length;
-      
+
       const preview = document.querySelector("#csv-preview");
       preview.classList.remove("hidden");
-      
+
       if (toAdd.length > 0) {
         document.querySelector("#preview-add").classList.remove("hidden");
         document.querySelector("#count-add").textContent = toAdd.length;
@@ -457,7 +638,7 @@
       } else {
         document.querySelector("#preview-add").classList.add("hidden");
       }
-      
+
       if (toRemove.length > 0) {
         document.querySelector("#preview-remove").classList.remove("hidden");
         document.querySelector("#count-remove").textContent = toRemove.length;
@@ -465,14 +646,14 @@
       } else {
         document.querySelector("#preview-remove").classList.add("hidden");
       }
-      
+
       if (toKeep > 0) {
         document.querySelector("#preview-keep").classList.remove("hidden");
         document.querySelector("#count-keep-total").textContent = toKeep;
       } else {
         document.querySelector("#preview-keep").classList.add("hidden");
       }
-      
+
       document.querySelector("#csv-status").hidden = true;
       document.querySelector("#modal-apply").disabled = false;
       document.querySelector("#modal-apply").dataset.toAdd = JSON.stringify(toAdd);
@@ -483,14 +664,14 @@
       const btn = document.querySelector("#modal-apply");
       const toAdd = JSON.parse(btn.dataset.toAdd || "[]");
       const toRemove = JSON.parse(btn.dataset.toRemove || "[]");
-      
+
       btn.disabled = true;
       const status = document.querySelector("#csv-status");
       status.hidden = false;
       status.textContent = "Sincronizando...";
-      
+
       let addedCount = 0, removedCount = 0, errors = [];
-      
+
       for (const email of toAdd) {
         try {
           await setDoc(doc(db, currentTab.value, email), { email, addedAt: new Date().toISOString() });
@@ -499,7 +680,7 @@
           errors.push(`${email}: ${error.message}`);
         }
       }
-      
+
       for (const email of toRemove) {
         try {
           await deleteDoc(doc(db, currentTab.value, email));
@@ -508,9 +689,9 @@
           errors.push(`${email}: ${error.message}`);
         }
       }
-      
+
       await loadSection(currentTab.value);
-      
+
       if (errors.length === 0) {
         status.textContent = `✓ Sincronización completa: +${addedCount} agregado(s), -${removedCount} eliminado(s).`;
         status.className = "text-sm text-[#087F8C]";
@@ -522,9 +703,29 @@
         status.textContent = `⚠ Completado con errores: +${addedCount}, -${removedCount}. Errores: ${errors.slice(0, 2).join("; ")}${errors.length > 2 ? "..." : ""}`;
         status.className = "text-sm text-[#946316]";
       }
-      
+
       btn.disabled = false;
     });
+
+    onAuthStateChanged(auth, async user => {
+      const email = user?.email?.toLowerCase();
+      let allowed = Boolean(email) && ownerEmails.includes(email);
+      if (email && !allowed) {
+        const juntaDocument = await getDoc(doc(db, "junta", email));
+        allowed = juntaDocument.exists() && user.emailVerified;
+      }
+      loginPanel.hidden = allowed;
+      juntaPanel.hidden = !allowed;
+      if (allowed) {
+        showLoginMode("login");
+        await loadSection("padron");
+      } else if (user) {
+        document.querySelector("#login-status").textContent = user.emailVerified
+          ? "Esta cuenta no tiene permisos de Junta Directiva."
+          : "Debes verificar tu correo antes de iniciar sesión. Revisa tu bandeja de entrada.";
+        document.querySelector("#login-status").hidden = false;
+        await signOut(auth);
+      }
     });
   </script>
 </body>
