@@ -1,16 +1,16 @@
 const { onDocumentCreated } = require("firebase-functions/v2/firestore");
 const { onSchedule } = require("firebase-functions/v2/scheduler");
-const { defineSecret, defineString } = require("firebase-functions/params");
+const { defineSecret } = require("firebase-functions/params");
 const logger = require("firebase-functions/logger");
 const admin = require("firebase-admin");
-const { Resend } = require("resend");
+const nodemailer = require("nodemailer");
 
 admin.initializeApp();
 
-const resendApiKey = defineSecret("RESEND_API_KEY");
-// El remitente debe pertenecer a un dominio verificado en Resend. Con el dominio de
-// prueba (onboarding@resend.dev) Resend solo entrega al correo dueño de la cuenta.
-const senderEmail = defineString("RESEND_FROM", { default: "AEMATEC <onboarding@resend.dev>" });
+// Los correos salen de la cuenta Gmail de la Junta. La contraseña es una "contraseña de
+// aplicación" de Google guardada en Secret Manager (ver README → Correos de notificación).
+const gmailAddress = "aeemac.tec@gmail.com";
+const gmailAppPassword = defineSecret("GMAIL_APP_PASSWORD");
 
 async function getModeratorEmails() {
   const snapshot = await admin.firestore().collection("moderators").get();
@@ -25,24 +25,26 @@ async function getJuntaEmails() {
 }
 
 async function sendEmail(subject, html, recipients) {
-  const resend = new Resend(resendApiKey.value());
   if (!recipients.length) {
     logger.warn("No hay destinatarios configurados; correo no enviado");
     return;
   }
-  const { error } = await resend.emails.send({
-    from: senderEmail.value(),
-    to: recipients,
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: { user: gmailAddress, pass: gmailAppPassword.value() }
+  });
+  // Los destinatarios van en copia oculta para no exponer los correos entre sí.
+  await transporter.sendMail({
+    from: `AEMATEC <${gmailAddress}>`,
+    to: gmailAddress,
+    bcc: recipients,
     subject,
     html
   });
-  if (error) {
-    throw new Error(`Resend rechazó el correo: ${error.message}`);
-  }
 }
 
 exports.notifyPendingResource = onDocumentCreated(
-  { document: "resources/{resourceId}", secrets: [resendApiKey] },
+  { document: "resources/{resourceId}", secrets: [gmailAppPassword] },
   async event => {
     const resource = event.data?.data();
     if (!resource || resource.status !== "pending") return;
@@ -60,7 +62,7 @@ exports.notifyPendingResource = onDocumentCreated(
 );
 
 exports.sendPendingSummary = onSchedule(
-  { schedule: "0 8 * * *", timeZone: "America/Costa_Rica", secrets: [resendApiKey] },
+  { schedule: "0 8 * * *", timeZone: "America/Costa_Rica", secrets: [gmailAppPassword] },
   async () => {
     const snapshot = await admin.firestore()
       .collection("resources")
@@ -78,7 +80,7 @@ exports.sendPendingSummary = onSchedule(
 );
 
 exports.notifyLoanRequest = onDocumentCreated(
-  { document: "prestamoSolicitudes/{solicitudId}", secrets: [resendApiKey] },
+  { document: "prestamoSolicitudes/{solicitudId}", secrets: [gmailAppPassword] },
   async event => {
     const solicitud = event.data?.data();
     if (!solicitud || solicitud.estado !== "pendiente") return;

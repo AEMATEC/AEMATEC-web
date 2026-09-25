@@ -10,6 +10,7 @@ afectan al sitio.
 | Fase | Contenido | Estado |
 |---|---|---|
 | 0 | Documentar: README, este plan, agente de `.github` | ✅ Hecha |
+| 0.5 | Publicación automática (GitHub Actions), pruebas de reglas, correos por Gmail, agente de mantenimiento (`CLAUDE.md` + skills) | ✅ Hecha (falta configurar los secretos) |
 | 1 | Correcciones urgentes (seguridad, datos personales, cumplimiento del RI) | ✅ Hecha (quedan pasos manuales, ver abajo) |
 | 2 | Base compartida: layout, navegación y módulos JS comunes | Pendiente |
 | 3 | Consolidar páginas y paneles | Pendiente |
@@ -37,7 +38,7 @@ afectan al sitio.
 
 | Problema | Corrección | Referencia |
 |---|---|---|
-| El remitente de Resend era el de prueba, que solo entrega al dueño de la cuenta | Ahora se configura con `RESEND_FROM`; falta verificar un dominio | — |
+| El remitente de Resend era el de prueba, que solo entrega al dueño de la cuenta | Se reemplazó Resend por la cuenta Gmail de la Junta (sin costo) | — |
 | La portada insertaba los medios con `innerHTML` sin escapar | Se asignan como atributos o texto, solo enlaces `https:` | — |
 | El panel aceptaba cualquier valor en los medios | Exige un correo `@estudiantec.cr` y enlaces `https://` | RI Art. 102 a |
 | La portada llamaba "Medio Oficial" a Instagram y al sitio | Medios Oficiales: correo, Telegram, WhatsApp y TECDigital. Instagram y el sitio son medios informativos | RI Art. 102 y 104 |
@@ -52,8 +53,8 @@ Estas correcciones se validaron con 10 pruebas de reglas en el emulador de Fires
 `config/junta_publica`, préstamos con y sin fecha, y Fiscalía verificada y sin verificar.
 
 ### Pasos manuales pendientes de la Fase 1
-1. **Verificar un dominio en Resend** y definir `RESEND_FROM` (ver el README).
-2. **Desplegar**: `firebase deploy --only firestore:rules,functions`.
+1. ~~Verificar un dominio en Resend~~: se usa Gmail. Crear la contraseña de aplicación (README → Correos de notificación).
+2. **Configurar la publicación automática** (README → Publicación automática). Las reglas ya se publicaron a mano; las Functions se publicarán con el flujo.
 3. **Entrar una vez al Panel de Junta** después del despliegue para generar `config/junta_publica`. Hasta
    entonces la página pública mostrará "Aún no se han registrado integrantes".
 4. ~~Confirmar el dominio~~: es `https://aematec.github.io/AEMATEC-web/`, que ya está incluido en `cors.json`.
@@ -104,7 +105,7 @@ Estos puntos condicionan el diseño y no deberían contradecirse:
 ## Fase 4: herramientas
 - Compilar Tailwind en lugar de usar el CDN.
 - Definir el hosting en `firebase.json` o documentar GitHub Pages con su dominio.
-- Pruebas de reglas con el emulador y chequeo de enlaces en CI.
+- Chequeo de enlaces rotos en CI (las pruebas de reglas ya existen).
 
 ## Fase 5: Trámites
 Solicitudes a la Junta, postulaciones y consultas confidenciales a Fiscalía, siguiendo los requisitos del
