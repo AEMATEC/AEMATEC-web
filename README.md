@@ -16,14 +16,13 @@ dependen de él citan el artículo correspondiente en el código y en [`docs/PLA
 |---|---|---|
 | Portada | `index.html` | Acceso a los servicios y Medios Oficiales (RI Art. 102). |
 | Repositorio | `repositorio.html`, `repositorio-docentes.html`, `repositorio-academicos.html`, `repositorio-subir.html` | Repositorio digital de materiales didácticos y académicos (RI Art. 4 f). Consulta pública; cualquiera puede proponer material, que queda pendiente de moderación. |
-| Moderación | `aematec_biblioteca-moderacion.html` | Aprobación, edición y rechazo de materiales. Gestión del equipo de moderación. |
 | Inventario | `inventario.html` | Consulta pública de bienes (RI Art. 118) y solicitudes de préstamo (RI Art. 120-123). Administración para la Junta. |
 | Junta Directiva | `junta-directiva.html` | Integrantes (solo nombre y puesto) y medios de contacto. |
-| Panel de Junta | `aematec_junta-panel.html` | Padrón, Junta, Fiscalía y Medios Oficiales. |
+| Panel de administración | `admin.html` | Un solo acceso. Cada cuenta ve lo de sus roles: **Asociación** (Padrón, Junta, Fiscalía, Medios) para Junta y Fiscalía, y **Moderación del Repositorio** (pendientes, edición, equipo de moderación). |
 | Trámites | `tramites.html` | Pendiente ("Próximamente"). Ver el plan. |
 
-> **Nota de nombres:** el repositorio digital de materiales se llama **Repositorio** (antes "Biblioteca";
-> sus archivos todavía se llaman `aematec_biblioteca-*.html`). **Biblioteca** es solo la colección física de
+> **Nota de nombres:** el repositorio digital de materiales se llama **Repositorio** (antes "Biblioteca").
+> Los archivos `aematec_*.html` que quedan son solo redirecciones a las páginas nuevas. **Biblioteca** es solo la colección física de
 > libros para préstamo del RI (Art. 128-129), que está en **Inventario → Biblioteca**.
 
 ## Roles y permisos
@@ -40,8 +39,14 @@ La interfaz solo oculta o muestra opciones.
 | Asociado | Correo en `padron/{email}` + correo verificado | Aún no se usa en ninguna página. |
 | Dueño | Correo escrito en el código (ver abajo) | Todo lo anterior. |
 
-Las cuentas se crean desde el login de Moderación o del Panel de Junta ("Crear cuenta"). Solo se permite
-si el correo ya fue agregado a la lista correspondiente, y hay que verificar el correo antes de entrar.
+Las cuentas se crean en `admin.html` ("Primera vez, crear contraseña") y hay que verificar el correo antes de
+entrar. Crear la cuenta no da acceso a nada: al iniciar sesión, el panel muestra solo las secciones de las listas
+en las que está el correo (Junta, Fiscalía, moderación).
+
+**Principio de acceso (decisión de la Junta, 2026-09):** el sitio es **público por defecto**. Nadie necesita
+iniciar sesión para ver o descargar recursos, ver el inventario o la Junta, proponer material o pedir un préstamo;
+el Repositorio docente es para cualquier docente, sea o no de MATEC. Solo se pide identificación en la acción
+que la necesita y en ese momento (por ejemplo, un trámite de persona Asociada en el futuro).
 
 **Correos de dueño.** Están en 4 lugares, que hay que actualizar juntos en el traspaso de administración
 (RI Art. 107): `assets/js/roles.js` (páginas), `firestore.rules`, `storage.rules` y `functions/index.js`

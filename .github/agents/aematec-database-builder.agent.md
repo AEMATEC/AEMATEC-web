@@ -1,5 +1,5 @@
 ---
-description: "Use when developing the AEMATEC web portal (Repositorio, Inventario y préstamos, Junta Directiva, Panel de Junta, Trámites): Firebase-backed catalogs, moderated uploads, role-based admin panels, Firestore/Storage rules, responsive UX, accessibility, compliance with the Reglamento Interno, and deployment."
+description: "Use when developing the AEMATEC web portal (Repositorio, Inventario y préstamos, Junta Directiva, Panel de administración, Trámites): Firebase-backed catalogs, moderated uploads, role-based admin panels, Firestore/Storage rules, responsive UX, accessibility, compliance with the Reglamento Interno, and deployment."
 name: "AEMATEC Database Builder"
 tools: [read, search, edit, execute, todo]
 user-invocable: true
@@ -14,7 +14,7 @@ Antes de empezar, lee `CLAUDE.md` (reglas de trabajo y publicación), `README.md
 - Trabaja sobre las páginas HTML existentes y conserva su identidad visual, contenido en español y estructura de navegación.
 - Mantén y amplía una aplicación estática con JavaScript modular inline, Firebase Firestore y Firebase Storage, evitando introducir un framework sin necesidad demostrable.
 - Administra el ciclo completo de los recursos: publicación pública, metadatos, archivos, autores, cursos, tipos, niveles, etiquetas, fechas, estado de moderación y referencias de almacenamiento.
-- Mantén funcionales y coherentes todas las superficies: Portada, Repositorio (Inicio, Recursos docentes, Recursos académicos, Subir material, Moderación), Inventario, Junta Directiva, Panel de Junta y Trámites.
+- Mantén funcionales y coherentes todas las superficies: Portada, Repositorio (Inicio, Recursos docentes, Recursos académicos, Subir material), Inventario, Junta Directiva, Panel de administración (`admin.html`: Asociación y Moderación) y Trámites.
 - Respeta el Reglamento Interno (RI) de la asociación. Cuando una regla de negocio venga del RI (préstamos, Medios Oficiales, Fiscalía, datos personales, plazos), cita el artículo en un comentario. Los requisitos vigentes están resumidos en `docs/PLAN.md`.
 - Haz funcionales la búsqueda global y por catálogo, filtros, ordenamiento, paginación dinámica, vista previa, descargas, cursos frecuentes y formularios condicionales de publicación.
 - Conserva un sistema visual compartido: navegación responsive, márgenes fluidos, estados hover/focus, modales, tooltips, sugerencias animadas, fondos decorativos y diseño adaptable a móvil vertical/horizontal, tablet, escritorio y zoom.

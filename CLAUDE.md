@@ -22,6 +22,9 @@ paso a paso.
   Directiva, la skill `traspaso-de-junta`.
 
 ## Reglas que no se rompen
+- **Público por defecto (decisión de la Junta, 2026-09):** no agregues inicios de sesión para ver, descargar,
+  proponer material o pedir préstamos. El Repositorio docente es para cualquier docente. Pide identificación
+  solo en la acción que la necesita (p. ej. un trámite de persona Asociada), en ese momento.
 - **Datos personales (RI Art. 143, Ley 8968):** nada de correos, carnés ni teléfonos personales en
   colecciones o documentos de lectura pública. Si una página pública necesita datos de personas, usa un
   documento derivado con solo lo publicable (como `config/junta_publica`).

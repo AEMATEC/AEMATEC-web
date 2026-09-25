@@ -8,7 +8,7 @@ description: Lista de pasos para el cambio de Junta Directiva de AEMATEC (RI Art
 El RI (Art. 107) exige entregar a la administración entrante las credenciales de los Medios Oficiales y
 de los repositorios. Guía a la persona por estos pasos, uno a la vez, y marca cuáles hiciste tú en un PR.
 
-## En el Panel de Junta (lo hace la Junta, no requiere código)
+## En `admin.html` → Asociación (lo hace la Junta, no requiere código)
 1. **Junta:** agregar los correos de la nueva Junta con nombre y puesto (Art. 24) y quitar los salientes.
    Cada integrante nuevo crea su cuenta desde "Crear cuenta" y verifica su correo.
 2. **Fiscalía:** lo ideal es que la persona Fiscal saliente registre a la entrante y se quite a sí misma. Si no lo
@@ -16,7 +16,7 @@ de los repositorios. Guía a la persona por estos pasos, uno a la vez, y marca c
 3. **Padrón:** recargar el CSV del padrón del periodo (Art. 6: la condición de Asociado sigue la matrícula).
 4. **Medios Oficiales:** confirmar que los enlaces sigan vigentes.
 
-## En Moderación
+## En `admin.html` → Moderación del Repositorio
 5. Revisar el equipo de moderación del Repositorio: agregar a quien corresponda y quitar accesos que ya no
    deban existir.
 
