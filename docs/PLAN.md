@@ -12,7 +12,7 @@ afectan al sitio.
 | 0 | Documentar: README, este plan, agente de `.github` | ✅ Hecha |
 | 0.5 | Publicación automática (GitHub Actions), pruebas de reglas, correos por Gmail, agente de mantenimiento (`CLAUDE.md` + skills) | ✅ Hecha (falta configurar los secretos) |
 | 1 | Correcciones urgentes (seguridad, datos personales, cumplimiento del RI) | ✅ Hecha (quedan pasos manuales, ver abajo) |
-| 2 | Base compartida: layout, navegación y módulos JS comunes | Pendiente |
+| 2 | Base compartida: layout, navegación y módulos JS comunes | En curso: 2a (encabezado y pie comunes) hecha; faltan 2b y 2c |
 | 3 | Consolidar páginas y paneles | Pendiente |
 | 4 | Herramientas: Tailwind compilado, hosting, pruebas de reglas en CI | Pendiente |
 | 5 | Trámites | Pendiente (requiere Fase 2) |
@@ -92,9 +92,12 @@ Estos puntos condicionan el diseño y no deberían contradecirse:
 - `assets/js/firebase.js`: un solo `initializeApp` que exporte `db`, `auth` y `storage`.
 - `assets/js/roles.js`: comprobaciones de rol y login, registro y recuperación reutilizables. Correos de
   dueño en un solo lugar, o en una colección `owners`.
-- `assets/js/layout.js` + `assets/css/site.css`: un encabezado global (Inicio · Biblioteca · Inventario ·
-  Junta · Trámites) con la sub-navegación de la Biblioteca como segundo nivel, más el footer y el menú móvil.
-- Pasar a un layout fluido y retirar el `w-[1440px]` y los `!important`.
+- ✅ **2a.** `assets/js/layout.js` + `assets/css/site.css`: un encabezado global (Inicio · Biblioteca ·
+  Inventario · Junta · Trámites) con la sub-navegación de la Biblioteca como segundo nivel, más el footer y
+  el menú móvil. Revisión automática de sintaxis de las páginas en cada PR (`tests/revisar-paginas.mjs`).
+- **2b.** `assets/js/firebase.js` y `assets/js/roles.js` (los dos puntos de arriba).
+- **2c.** Pasar a un layout fluido y retirar el `w-[1440px]` y los `!important`. Corrige los desbordes
+  horizontales en celular (Inventario, Junta Directiva, Recursos académicos) y el ícono estirado de Trámites.
 
 ## Fase 3: consolidar
 - Una sola página de recursos (`?seccion=docentes|academico`).

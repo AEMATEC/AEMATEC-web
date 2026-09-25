@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/svg+xml" href="assets/logo-aematec-compas.svg">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="assets/css/site.css">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,17 +20,7 @@
       body[class~="w-[1440px]"] { width: 100% !important; max-width: 100%; overflow-x: hidden; }
       [class~="w-[1240px]"] { width: auto !important; max-width: none; }
       html, body { max-width: 100%; }
-      header > div, main > section > div, footer > div { width: calc(100% - 2rem) !important; margin-left: auto; margin-right: auto; }
-      header { height: auto !important; padding: 1rem 0; }
-      header > div { position: relative; display: grid !important; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 0.75rem; padding-left: 0.25rem; padding-right: 0.25rem; }
-      header > div > a { display: contents; }
-      header > div > a img { grid-column: 1; width: 92px; }
-      header > div > a > div { display: none; }
-      header > div > a > span { grid-column: 2; min-width: 0; overflow: hidden; font-size: 0.82rem; text-align: center; text-overflow: ellipsis; white-space: nowrap; }
-      #mobile-menu-toggle { display: flex; grid-column: 3; margin-left: 0; }
-      header nav { display: none !important; grid-column: 1 / -1; width: 100%; flex-direction: column; align-items: stretch; gap: 0.5rem !important; padding-top: 0.75rem; border-top: 1px solid #D8E3E9; }
-      header nav.is-open { display: flex !important; }
-      header nav a { width: 100%; padding: 0.7rem 0; font-size: 0.8rem; }
+      main > section > div { width: calc(100% - 2rem) !important; margin-left: auto; margin-right: auto; }
       main > section:not([data-design-id="hero-section-aematec"]) { width: 100% !important; }
       main > section:not([data-design-id="hero-section-aematec"]) > div { width: calc(100% - 2rem) !important; margin-left: auto; margin-right: auto; }
       [data-design-id="hero-section-aematec"] > div { width: calc(100% - 2rem) !important; min-height: auto; margin-left: auto; margin-right: auto; padding: 3rem 0 2.5rem; }
@@ -37,14 +28,12 @@
       [data-design-id="hero-section-aematec"] p { max-width: 100%; font-size: 1rem; line-height: 1.7; }
       [data-design-id="modules-section"] .grid { grid-template-columns: 1fr; }
       [data-design-id="medios-section"] .grid { grid-template-columns: 1fr; }
-      footer > div { flex-direction: column; align-items: flex-start; gap: 1rem; }
-      footer .text-right { text-align: left; }
     }
     @media (min-width: 768px) and (max-width: 1279px) {
       body[class~="w-[1440px]"] { width: 100% !important; max-width: 100%; overflow-x: hidden; }
       [class~="w-[1240px]"] { width: auto !important; max-width: none; }
       html, body { max-width: 100%; }
-      header > div, main > section > div, footer > div { width: calc(100% - 4rem) !important; margin-left: auto; margin-right: auto; }
+      main > section > div { width: calc(100% - 4rem) !important; margin-left: auto; margin-right: auto; }
       main > section[class*="w-["] { width: calc(100% - 4rem) !important; margin-left: auto; margin-right: auto; }
     }
     @media (min-width: 768px) {
@@ -53,23 +42,10 @@
       [data-design-id="hero-section-aematec"] > div { padding-top: clamp(3rem, 5vw, 5.5rem); padding-bottom: clamp(3rem, 5vw, 5.5rem); }
       [data-design-id="hero-section-aematec"] h1 { font-size: clamp(2.25rem, 3.2vw, 4rem); }
     }
-    header nav a,
-    header > div > a {
-      transition: transform 180ms ease, color 180ms ease, background-color 180ms ease;
-      transform-origin: center;
-    }
-    header nav a:hover,
-    header nav a:focus-visible,
-    header > div > a:hover,
-    header > div > a:focus-visible {
-      transform: scale(1.04);
-    }
     .hero-video {
       object-position: center;
     }
     @media (prefers-reduced-motion: reduce) {
-      header nav a,
-      header > div > a,
       .hero-video { transition: none; }
       .hero-video { display: none; }
     }
@@ -78,28 +54,7 @@
 </head>
 
 <body class="w-[1440px] bg-[#F4F8FA] text-[#0D2B45] font-serif" style="background-image: radial-gradient(circle at 12% 18%, rgba(0, 175, 193, 0.13) 0, rgba(0, 175, 193, 0.13) 1.2px, transparent 1.8px), radial-gradient(circle at 84% 72%, rgba(13, 43, 69, 0.09) 0, rgba(13, 43, 69, 0.09) 1.2px, transparent 1.8px); background-size: 28px 28px, 36px 36px;">
-  <header data-design-id="header-aematec" class="h-[92px] bg-white border-b border-[#D8E3E9] flex items-center">
-    <div class="w-[1240px] mx-auto flex items-center justify-between">
-      <a href="index.html" class="flex items-center gap-5">
-        <img src="assets/logo-aematec.svg" alt="Logo AEMATEC" class="w-[154px] h-auto">
-        <div class="h-9 w-px bg-[#D8E3E9]"></div>
-        <span class="font-sans font-bold text-[18px] tracking-[-0.02em]">AEMATEC</span>
-      </a>
-      <button id="mobile-menu-toggle" type="button" class="hidden h-11 w-11 items-center justify-center rounded-[10px] border border-[#BFD0D8] text-[#0D2B45]" aria-expanded="false" aria-controls="primary-navigation" aria-label="Abrir menú">
-        <i class="fa-solid fa-bars"></i>
-      </button>
-      <nav id="primary-navigation" data-design-id="nav-aematec" class="flex items-center gap-8 font-sans text-[14px] font-semibold">
-        <a href="index.html" class="text-[#00A6B8] border-b-2 border-[#00B5C8] py-2">Inicio</a>
-        <a href="aematec_biblioteca-home.html" class="text-[#405769] hover:text-[#00A6B8]">Biblioteca</a>
-        <a href="aematec_inventario.html" class="text-[#405769] hover:text-[#00A6B8]">Inventario</a>
-        <a href="aematec_junta-directiva.html" class="text-[#405769] hover:text-[#00A6B8]">Junta Directiva</a>
-        <a href="aematec_tramites.html"
-          class="h-11 px-5 rounded-[10px] bg-[#0D2B45] text-white flex items-center gap-2 shadow-sm hover:bg-[#164563]">
-          <i class="fa-solid fa-file-signature text-[#39C7D5]"></i> Trámites
-        </a>
-      </nav>
-    </div>
-  </header>
+  <script src="assets/js/layout.js" data-part="header" data-active="inicio"></script>
 
   <main data-design-id="main-aematec">
     <section data-design-id="hero-section-aematec" class="bg-[#EAF5F7] border-b border-[#D5E5EA]">
@@ -191,26 +146,8 @@
     </section>
   </main>
 
-  <footer data-design-id="footer-main-8c24e1" class="bg-[#0D2B45] text-white">
-    <div class="w-[1240px] mx-auto py-9 flex items-center justify-between">
-      <div class="flex items-center gap-4"><img src="assets/logo-aematec.svg" alt="AEMATEC"
-          class="w-[125px] brightness-0 invert"><span
-          class="text-sm text-[#B9CAD4] border-l border-white/20 pl-4">Asociación de Estudiantes de Enseñanza de la Matemática con Entornos Tecnológicos</span></div>
-      <div class="text-right text-xs text-[#AFC1CC]">
-        <p>Asociación de Estudiantes de Enseñanza de la Matemática con Entornos Tecnológicos</p>
-        <p class="mt-1">Instituto Tecnológico de Costa Rica</p>
-      </div>
-    </div>
-  </footer>
+  <script src="assets/js/layout.js" data-part="footer"></script>
   <script>
-    const mobileMenuToggle = document.querySelector("#mobile-menu-toggle");
-    const primaryNavigation = document.querySelector("#primary-navigation");
-    mobileMenuToggle.addEventListener("click", () => {
-      const isOpen = primaryNavigation.classList.toggle("is-open");
-      mobileMenuToggle.setAttribute("aria-expanded", String(isOpen));
-      mobileMenuToggle.setAttribute("aria-label", isOpen ? "Cerrar menú" : "Abrir menú");
-      mobileMenuToggle.innerHTML = `<i class="fa-solid ${isOpen ? "fa-xmark" : "fa-bars"}"></i>`;
-    });
   </script>
 
   <script type="module">
