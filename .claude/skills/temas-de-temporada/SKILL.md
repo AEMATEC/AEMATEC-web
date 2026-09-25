@@ -32,6 +32,20 @@ description: Cómo agregar, cambiar o quitar temas de temporada del sitio AEMATE
 4. Revisa con `?tema=<id>` en computadora y celular, y ejecuta `node --test tests/temas.test.js`,
    `node tests/revisar-paginas.mjs` y `node tests/revisar-enlaces.mjs`.
 
+## Si cambia el diseño base del sitio
+Los temas se dibujan encima del diseño normal; sus colores son de cada celebración y no dependen de la paleta del
+sitio. Aun así, dependen de tres cosas del diseño base:
+- **El encabezado:** la franja es `html[data-tema] .site-header::after` (se dibuja sobre el borde inferior de
+  `.site-header`, que genera `assets/js/layout.js`). Si el encabezado cambia de clase, pasa a ser fijo o cambia de
+  forma, ajusta ese bloque.
+- **La línea del menú activo:** los temas cambian la variable `--aematec-teal-line` de `assets/css/site.css`. Si se
+  renombra, actualízala en la primera regla de `temas.css`.
+- **El aviso:** usa el azul del sitio (`#0D2B45`), fondo blanco y Montserrat. Si cambian los colores base o las
+  tipografías, ajusta `.tema-aviso` para que combine.
+
+Después de un rediseño, revisa con `?tema=semana-carrera` (franja más alta), `?tema=navidad` (animación) y
+`?tema=8m` (sutil), en computadora y celular.
+
 ## Reglas
 - Nada de animaciones para quien pidió "reducir movimiento" en su equipo, y siempre el botón "Detener animación".
 - Las animaciones no reciben clics ni tapan formularios; nada de sonidos ni ventanas que bloqueen.
