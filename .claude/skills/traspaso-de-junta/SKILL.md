@@ -22,10 +22,10 @@ de los repositorios. Guía a la persona por estos pasos, uno a la vez, y marca c
 
 ## Lo que requiere un PR (lo haces tú)
 6. **Correos de dueño.** Están en `assets/js/roles.js` (`OWNER_EMAILS`), en `isOwner()`/`isModerator()`/
-   `isJunta()` de `firestore.rules` y `storage.rules`, y como respaldo en `functions/index.js`. Confírmalo con
-   `grep -rn "angeloyeshuac\|angcalderon"` (o los correos vigentes), actualiza todos en el mismo PR y ajusta
+   `isJunta()` de `firestore.rules` y `storage.rules`, y como correo de respaldo (`CORREO_RESPALDO`) en
+   `functions/correo.js`. Confírmalo con `grep -rn "angeloyeshuac\|angcalderon"` (o los correos vigentes), actualiza todos en el mismo PR y ajusta
    `tests/reglas.test.js` si hace falta.
-7. Si cambia la cuenta de Gmail de la Junta, actualiza `gmailAddress` en `functions/index.js`.
+7. Si cambia la cuenta de Gmail de la Junta, actualiza `gmailAddress` en `functions/correo.js`.
 
 ## Cuentas y secretos (los hace la persona dueña de cada cuenta)
 8. **GitHub:** dar acceso al repositorio `AEMATEC/AEMATEC-web` a la nueva Junta y quitarlo a quien sale.
@@ -36,5 +36,13 @@ de los repositorios. Guía a la persona por estos pasos, uno a la vez, y marca c
     workflow** con "Volver a cargar GMAIL_APP_PASSWORD" marcado.
 11. **Cuenta de servicio de publicación:** si la clave pudo quedar en manos de alguien que sale, crear una
     clave nueva, reemplazar el secreto `FIREBASE_SERVICE_ACCOUNT` y borrar la clave vieja en Google Cloud.
+
+## Agente de IA para el mantenimiento
+12. Quien vaya a mantener el sitio necesita **su propia cuenta** del agente que use (nunca compartir contraseñas)
+    y acceso al repositorio en GitHub (paso 8). Las instrucciones están en `AGENTS.md` y sirven para Claude Code,
+    GitHub Copilot u otros agentes. Opción sin costo para estudiantes: el GitHub Student Developer Pack
+    (<https://education.github.com>) con el correo `@estudiantec.cr`; revisar sus condiciones vigentes.
+13. Si hay que instalar una aplicación del agente en la organización de GitHub (por ejemplo, la de Claude o
+    Copilot), la instala quien administra la organización `AEMATEC`, y quita las de quien ya no la use.
 
 Al terminar, deja un resumen de lo hecho y lo pendiente para el acta de entrega.

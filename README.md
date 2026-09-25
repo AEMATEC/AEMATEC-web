@@ -49,7 +49,7 @@ el Repositorio docente es para cualquier docente, sea o no de MATEC. Solo se pid
 que la necesita y en ese momento (por ejemplo, un trámite de persona Asociada en el futuro).
 
 **Correos de dueño.** Están en 4 lugares, que hay que actualizar juntos en el traspaso de administración
-(RI Art. 107): `assets/js/roles.js` (páginas), `firestore.rules`, `storage.rules` y `functions/index.js`
+(RI Art. 107): `assets/js/roles.js` (páginas), `firestore.rules`, `storage.rules` y `functions/correo.js` (correo de respaldo)
 (correo de respaldo para notificaciones). Las reglas no pueden leer archivos del sitio, por eso no es uno solo.
 
 **Código compartido de las páginas** (`assets/js/`):
@@ -193,10 +193,15 @@ PR; para correrlas a mano: `cd tests && npm install && npm test` (requiere Java)
 
 ## Agente de mantenimiento
 
-[`CLAUDE.md`](CLAUDE.md) y las skills en [`.claude/skills/`](.claude/skills) explican a Claude Code cómo
-está hecho el sitio, qué exige el Reglamento y cómo se publica. Cualquier integrante de la Junta puede abrir
-una sesión de Claude Code sobre este repositorio y pedir cambios en español. Para el cambio de Junta existe
-la skill `traspaso-de-junta`.
+[`AGENTS.md`](AGENTS.md) explica a cualquier agente de IA (Claude Code, GitHub Copilot, Codex, Cursor…) cómo
+está hecho el sitio, qué exige el Reglamento y cómo se publica. [`CLAUDE.md`](CLAUDE.md) lo incluye para
+Claude Code, y las guías paso a paso están en [`.claude/skills/`](.claude/skills) (publicar cambios y traspaso
+de Junta). Cualquier integrante de la Junta puede abrir una sesión de su agente sobre este repositorio y pedir
+cambios en español; el agente trabaja en una rama y abre un PR.
+
+Con cualquier agente, las revisiones automáticas de cada PR (pruebas de permisos y de Trámites, enlaces,
+estilos y sintaxis) avisan si algo se rompe antes del merge. Las reglas y los pasos se editan en `AGENTS.md`,
+no en `CLAUDE.md`.
 
 ## Importar el inventario
 

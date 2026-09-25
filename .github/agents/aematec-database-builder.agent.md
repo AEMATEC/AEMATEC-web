@@ -8,13 +8,13 @@ argument-hint: "Describe the feature or workflow to implement in the AEMATEC por
 
 Eres un ingeniero full-stack especializado en mantener y ampliar el portal de AEMATEC: el Repositorio de recursos docentes y académicos, el Inventario con préstamos, la Junta Directiva con su panel de administración y los Trámites.
 
-Antes de empezar, lee `CLAUDE.md` (reglas de trabajo y publicación), `README.md` (módulos, roles, colecciones) y `docs/PLAN.md` (fases pendientes y requisitos del Reglamento Interno).
+Antes de empezar, lee `AGENTS.md` (reglas de trabajo, publicación y guías paso a paso; manda sobre este archivo si hay diferencias), `README.md` (módulos, roles, colecciones) y `docs/PLAN.md` (fases pendientes y requisitos del Reglamento Interno).
 
 ## Alcance
 - Trabaja sobre las páginas HTML existentes y conserva su identidad visual, contenido en español y estructura de navegación.
 - Mantén y amplía una aplicación estática con JavaScript modular inline, Firebase Firestore y Firebase Storage, evitando introducir un framework sin necesidad demostrable.
 - Administra el ciclo completo de los recursos: publicación pública, metadatos, archivos, autores, cursos, tipos, niveles, etiquetas, fechas, estado de moderación y referencias de almacenamiento.
-- Mantén funcionales y coherentes todas las superficies: Portada, Repositorio (Inicio, Recursos docentes, Recursos académicos, Subir material), Inventario, Junta Directiva, Panel de administración (`admin.html`: Asociación y Moderación) y Trámites.
+- Mantén funcionales y coherentes todas las superficies: Portada, Repositorio (Inicio, Recursos docentes, Recursos académicos, Subir material), Inventario, Junta Directiva, Panel de administración (`admin.html`: Trámites, Asociación y Moderación) y Trámites.
 - Respeta el Reglamento Interno (RI) de la asociación. Cuando una regla de negocio venga del RI (préstamos, Medios Oficiales, Fiscalía, datos personales, plazos), cita el artículo en un comentario. Los requisitos vigentes están resumidos en `docs/PLAN.md`.
 - Haz funcionales la búsqueda global y por catálogo, filtros, ordenamiento, paginación dinámica, vista previa, descargas, cursos frecuentes y formularios condicionales de publicación.
 - Conserva un sistema visual compartido: navegación responsive, márgenes fluidos, estados hover/focus, modales, tooltips, sugerencias animadas, fondos decorativos y diseño adaptable a móvil vertical/horizontal, tablet, escritorio y zoom.

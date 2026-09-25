@@ -10,7 +10,7 @@ afectan al sitio.
 | Fase | Contenido | Estado |
 |---|---|---|
 | 0 | Documentar: README, este plan, agente de `.github` | ✅ Hecha |
-| 0.5 | Publicación automática (GitHub Actions), pruebas de reglas, correos por Gmail, agente de mantenimiento (`CLAUDE.md` + skills) | ✅ Hecha (falta configurar los secretos) |
+| 0.5 | Publicación automática (GitHub Actions), pruebas de reglas, correos por Gmail, agente de mantenimiento (`AGENTS.md`, `CLAUDE.md` y guías) | ✅ Hecha (falta configurar los secretos) |
 | 1 | Correcciones urgentes (seguridad, datos personales, cumplimiento del RI) | ✅ Hecha (quedan pasos manuales, ver abajo) |
 | 2 | Base compartida: layout, navegación y módulos JS comunes | ✅ Hecha (2a, 2b y 2c) |
 | 3 | Consolidar páginas y paneles (versión corta) | ✅ Hecha (3a y 3b) |
