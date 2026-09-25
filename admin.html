@@ -151,6 +151,34 @@
       </div>
       <nav id="admin-nav" class="mb-8 flex flex-wrap gap-2 font-sans text-xs font-bold" aria-label="Secciones del panel"></nav>
 
+      <section id="tramites" class="mb-12" hidden>
+        <p class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#00A6B8]">Trámites</p>
+        <h2 class="mt-2 font-sans text-2xl font-bold">Trámites recibidos</h2>
+        <p class="mt-2 text-sm text-[#607480]">Plazo de respuesta: 10 días hábiles (RI Art. 111). Los rechazos deben ir motivados;
+          la persona recibe por correo la motivación y cómo pedir reconsideración (Art. 82-83).</p>
+
+        <div id="tramites-junta" class="mt-6" hidden>
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <h3 class="font-sans text-lg font-bold">Para la Junta Directiva</h3>
+            <label class="font-sans text-xs font-bold">Mostrar
+              <select id="filtro-tramites" class="ml-2 h-9 rounded-[8px] border border-[#BFD0D8] bg-white px-2 text-sm">
+                <option value="abiertos">Abiertos</option>
+                <option value="resuelto">Resueltos</option>
+                <option value="rechazado">Rechazados</option>
+                <option value="todos">Todos</option>
+              </select></label>
+          </div>
+          <p id="estado-tramites" role="status" class="mt-3 text-sm text-[#607480]"></p>
+          <ul id="lista-tramites" class="mt-4 space-y-4"></ul>
+        </div>
+
+        <div id="casos-fiscalia" class="mt-10" hidden>
+          <h3 class="font-sans text-lg font-bold">Para la Fiscalía <span class="text-sm font-normal text-[#607480]">(la Junta no tiene acceso, RI Art. 42)</span></h3>
+          <p id="estado-casos" role="status" class="mt-3 text-sm text-[#607480]"></p>
+          <ul id="lista-casos" class="mt-4 space-y-4"></ul>
+        </div>
+      </section>
+
       <section id="asociacion" class="mb-12" hidden>
         <p class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#00A6B8]">Asociación</p>
         <h2 class="mt-2 mb-5 font-sans text-2xl font-bold">Padrón, Junta, Fiscalía y Medios</h2>

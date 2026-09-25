@@ -16,6 +16,7 @@ const db = admin.firestore();
 const enviar = fft.wrap(funciones.enviarTramite);
 const adherir = fft.wrap(funciones.adherirAgec);
 const seguimiento = fft.wrap(funciones.consultarSeguimiento);
+const alActualizarTramite = fft.wrap(funciones.alActualizarTramite);
 
 let contador = 0;
 const cuenta = (email, { verificado = true } = {}) => ({ uid: `uid-${++contador}`, token: { email, email_verified: verificado } });
@@ -131,5 +132,33 @@ describe("AGEC extraordinaria (RI Art. 13 c)", () => {
     await padron("p@estudiantec.cr");
     const { id } = await llamar(enviar, agec, cuenta("p@estudiantec.cr"));
     await rechaza(llamar(adherir, { id, nombre: "Ana" }, cuenta("p@estudiantec.cr")), "already-exists");
+  });
+});
+
+describe("Avisos cuando la Junta o la Fiscalía actualizan un trámite", () => {
+  const base = { tipo: "solicitud_junta", estado: "en_revision", respuestas: [], solicitante: { email: "ana@estudiantec.cr" } };
+  test("rechazo: incluye la motivación y los recursos del RI Art. 83", () => {
+    const aviso = util.avisoDeCambio(base, { ...base, estado: "rechazado", motivacionRechazo: "Falta un requisito <b>" });
+    assert.match(aviso.asunto, /rechazado/);
+    assert.match(aviso.html, /Falta un requisito &lt;b&gt;/, "la motivación va escapada");
+    assert.match(aviso.html, /5 días hábiles/);
+    assert.match(aviso.html, /apelar ante la AGEC/);
+  });
+  test("respuesta nueva y resolución generan aviso; sin cambios, no", () => {
+    const respondido = { ...base, respuestas: [{ texto: "Lo vemos en la sesión del lunes" }] };
+    assert.match(util.avisoDeCambio(base, respondido).asunto, /Nueva respuesta/);
+    assert.match(util.avisoDeCambio(respondido, { ...respondido, estado: "resuelto" }).asunto, /resuelto/);
+    assert.equal(util.avisoDeCambio(base, { ...base }), null);
+  });
+  test("al cambiar el estado de una AGEC se actualiza su versión pública", async () => {
+    await db.doc("agecPublicas/a1").set({ estado: "recibido" });
+    const antes = { ...base, tipo: "agec", estado: "recibido" };
+    const despues = { ...antes, estado: "resuelto", respuestas: [{ texto: "Convocada para el 3 de octubre" }] };
+    const cambio = fft.makeChange(
+      fft.firestore.makeDocumentSnapshot(antes, "tramites/a1"),
+      fft.firestore.makeDocumentSnapshot(despues, "tramites/a1")
+    );
+    await alActualizarTramite({ data: cambio, params: { id: "a1" } });
+    assert.equal((await db.doc("agecPublicas/a1").get()).data().estado, "resuelto");
   });
 });

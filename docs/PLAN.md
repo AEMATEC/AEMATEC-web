@@ -15,7 +15,7 @@ afectan al sitio.
 | 2 | Base compartida: layout, navegación y módulos JS comunes | ✅ Hecha (2a, 2b y 2c) |
 | 3 | Consolidar páginas y paneles (versión corta) | ✅ Hecha (3a y 3b) |
 | 4 | Herramientas: Tailwind compilado, hosting, pruebas de reglas en CI | Pendiente |
-| 5 | Trámites | En curso: T1 y T2 hechas; falta T3 (panel) |
+| 5 | Trámites | ✅ Hecha (T1, T2 y T3) |
 
 ## Diagnóstico (septiembre 2026)
 
@@ -154,8 +154,12 @@ Entregas:
   AGEC abiertas con adhesión, "Mis trámites" y seguimiento por código. Requiere activar "Vínculo del correo
   electrónico" en Firebase Authentication (README). Se corrigió en T1 el uso de `admin.firestore.FieldValue`, que no
   funcionaba en el emulador de Functions (ahora `firebase-admin/firestore`).
-- **T3.** Sección Trámites en `admin.html` (Junta y Fiscalía): estados, plazo visible, prórroga informada, rechazo
-  motivado con aviso por correo.
+- ✅ **T3.** Sección Trámites en `admin.html` (`assets/js/admin/tramites.js`): la Junta ve sus trámites con el plazo
+  (vencido, por vencer), marca "no está en el padrón", ve adhesiones de AGEC, responde, resuelve, registra prórroga
+  informada y rechaza **solo con motivación** (también exigido en `firestore.rules`). La Fiscalía ve sus casos y
+  responde; un dueño que no es la persona Fiscal no puede leerlos. Las funciones `alActualizarTramite` y
+  `alActualizarCasoFiscalia` avisan por correo a la persona (el rechazo incluye los recursos del Art. 83; los casos
+  anónimos no reciben correo) y mantienen al día el estado público de las AGEC.
 
 ## Otras decisiones de la Junta (2026-09)
 - **Ubicación de los bienes del inventario: pública.** El espacio de la asociación está en el campus (con control de
