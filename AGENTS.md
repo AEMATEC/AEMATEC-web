@@ -30,6 +30,8 @@ persona puede leerlas y seguirlas.
   [`.claude/skills/publicar-cambios/SKILL.md`](.claude/skills/publicar-cambios/SKILL.md).
 - **Traspaso a una nueva Junta Directiva** (cuentas, correos, padrón, Fiscalía, secretos):
   [`.claude/skills/traspaso-de-junta/SKILL.md`](.claude/skills/traspaso-de-junta/SKILL.md).
+- **Temas de temporada** (Navidad, Halloween, mes patrio, Semana de la Carrera…: agregar, cambiar o quitar):
+  [`.claude/skills/temas-de-temporada/SKILL.md`](.claude/skills/temas-de-temporada/SKILL.md).
 
 Si la guía menciona herramientas de GitHub de Claude (`mcp__github__…`), usa las equivalentes de tu agente o
 revisa la pestaña **Actions** del repositorio en GitHub.

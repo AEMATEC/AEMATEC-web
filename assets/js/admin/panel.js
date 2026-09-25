@@ -9,6 +9,7 @@ import {
 import { iniciarModeracion } from "./moderacion.js";
 import { iniciarAsociacion } from "./asociacion.js";
 import { iniciarTramites } from "./tramites.js";
+import { iniciarTema } from "./tema.js";
 
 const auth = getAuth(app);
 // Sesión solo mientras la pestaña esté abierta: el panel muestra datos personales (padrón).
@@ -90,6 +91,7 @@ document.querySelector("#reset-form").addEventListener("submit", async event => 
 const SECCIONES = [
   { id: "tramites", etiqueta: "Trámites", icono: "fa-file-signature" },
   { id: "asociacion", etiqueta: "Asociación", icono: "fa-users" },
+  { id: "tema", etiqueta: "Tema del sitio", icono: "fa-palette" },
   { id: "moderacion", etiqueta: "Moderación del Repositorio", icono: "fa-user-shield" }
 ];
 
@@ -104,7 +106,7 @@ onAuthStateChanged(auth, async user => {
     showLoginMode("login");
     const roles = [junta && "Junta Directiva", fiscalia && "Fiscalía", moderador && "Moderación"].filter(Boolean);
     document.querySelector("#admin-session").textContent = `${user.email} · ${roles.join(" · ")}`;
-    const visibles = { tramites: junta || fiscalia, asociacion: junta || fiscalia, moderacion: moderador };
+    const visibles = { tramites: junta || fiscalia, asociacion: junta || fiscalia, tema: junta, moderacion: moderador };
     for (const seccion of SECCIONES) document.querySelector(`#${seccion.id}`).hidden = !visibles[seccion.id];
     // Los accesos directos solo tienen sentido si la cuenta ve más de una sección.
     document.querySelector("#admin-nav").hidden = SECCIONES.filter(seccion => visibles[seccion.id]).length < 2;
@@ -115,6 +117,7 @@ onAuthStateChanged(auth, async user => {
       await iniciarAsociacion({ junta });
       iniciarTramites({ junta, fiscalia });
     }
+    if (junta) iniciarTema();
     if (moderador) {
       iniciarModeracion();
       if (new URLSearchParams(window.location.search).has("edit")) document.querySelector("#moderacion").scrollIntoView();

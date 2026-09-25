@@ -256,6 +256,27 @@
       </div>
       </section>
 
+      <section id="tema" class="mb-12" hidden>
+        <p class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#00A6B8]">Sitio</p>
+        <h2 class="mt-2 font-sans text-2xl font-bold">Tema del sitio</h2>
+        <p class="mt-2 text-sm text-[#607480]">Los temas de temporada se activan solos según la fecha. Aquí se pueden
+          apagar (por ejemplo, por duelo) o fijar uno, hasta una fecha si se indica. Quien pidió "reducir movimiento" en su
+          equipo nunca ve animaciones.</p>
+        <div class="mt-5 rounded-[16px] border border-[#D7E2E7] bg-white p-6 shadow-sm">
+          <p id="tema-actual" class="font-sans text-sm font-bold"></p>
+          <form id="tema-form" class="mt-4 flex flex-wrap items-end gap-3">
+            <label class="font-sans text-xs font-bold">Modo
+              <select id="tema-modo" class="mt-2 block h-11 min-w-[260px] rounded-[9px] border border-[#BFD0D8] bg-white px-3 text-sm"></select></label>
+            <label class="font-sans text-xs font-bold">Hasta (opcional)
+              <input id="tema-hasta" type="date" class="mt-2 block h-11 rounded-[9px] border border-[#BFD0D8] px-3 text-sm"></label>
+            <button class="h-11 rounded-[9px] bg-[#0D2B45] px-5 font-sans text-xs font-bold text-white">Guardar</button>
+          </form>
+          <p id="tema-estado" role="status" class="mt-3 text-sm" hidden></p>
+          <h3 class="mt-6 font-sans text-sm font-bold">Calendario de temas</h3>
+          <ul id="tema-lista" class="mt-2 divide-y divide-[#E2E9EC]"></ul>
+        </div>
+      </section>
+
       <section id="moderacion" hidden>
       <div class="flex flex-wrap items-end justify-between gap-4">
         <div>

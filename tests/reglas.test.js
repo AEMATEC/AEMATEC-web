@@ -70,6 +70,12 @@ describe("Junta Directiva (RI Art. 143)", () => {
     await assertSucceeds(getDoc(doc(anonimo().firestore(), "config", "junta_publica")));
     await assertFails(setDoc(doc(anonimo().firestore(), "config", "junta_publica"), { miembros: [] }));
   });
+  test("el tema del sitio (config/tema) lo leen todas las páginas y solo lo cambia la Junta", async () => {
+    await assertSucceeds(setDoc(doc(usuario(JUNTA).firestore(), "config", "tema"), { modo: "apagado", hasta: "" }));
+    await assertSucceeds(getDoc(doc(anonimo().firestore(), "config", "tema")));
+    await assertFails(setDoc(doc(anonimo().firestore(), "config", "tema"), { modo: "auto" }));
+    await assertFails(setDoc(doc(usuario(MODERADOR).firestore(), "config", "tema"), { modo: "auto" }));
+  });
 });
 
 describe("Padrón y Fiscalía", () => {

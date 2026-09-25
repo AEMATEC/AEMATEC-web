@@ -167,6 +167,19 @@ Entregas:
   `alActualizarCasoFiscalia` avisan por correo a la persona (el rechazo incluye los recursos del Art. 83; los casos
   anónimos no reciben correo) y mantienen al día el estado público de las AGEC.
 
+## Temas de temporada (2026-09)
+Pedido de la Junta: decorar el sitio en fechas especiales, sin tener que pedir un cambio cada vez.
+- Automático por fecha (hora de Costa Rica), con catálogo en `assets/js/temas.js` y colores en `assets/css/temas.css`.
+  Si coinciden dos temas, gana el más corto (el 14 de setiembre, Faroles gana a Mes patrio).
+- **Sutil** (franja y aviso): Año nuevo (1-7 ene, inicio del periodo de la Junta), 8 de marzo, mes del Orgullo
+  (junio), Día del Padre (tercer domingo de junio), Día de la Madre (15 ago), Día del Docente Costarricense (22 nov).
+- **Festivo** (además, animación corta): Semana de la Carrera (lunes a domingo de la semana del Día de π, «La
+  constante de Arquímedes», estilo griego), mes patrio (setiembre; 15 de setiembre, Independencia), noche de faroles
+  (14 set), Halloween (24-31 oct) y Navidad (diciembre).
+- La Junta puede apagar los temas o fijar uno (con fecha de fin) en `admin.html` → Tema del sitio (`config/tema`,
+  lectura pública, escritura solo Junta). Sin animaciones para quien pide "reducir movimiento".
+- Para agregar más: guía `.claude/skills/temas-de-temporada/SKILL.md`.
+
 ## Otras decisiones de la Junta (2026-09)
 - **Ubicación de los bienes del inventario: pública.** El espacio de la asociación está en el campus (con control de
   acceso) y saber dónde está cada bien facilita que las personas Asociadas lo usen (RI Art. 124).
