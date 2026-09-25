@@ -551,10 +551,11 @@
     </article>
   </div>
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { app } from "./assets/js/firebase.js";
+    import { escapeHtml } from "./assets/js/util.js";
+    import { tieneRol } from "./assets/js/roles.js";
     import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
     const filterPanel = document.querySelector("#academic-filter-panel");
     const filterBackdrop = document.querySelector("#academic-filter-backdrop");
     const openFilters = () => {
@@ -602,9 +603,7 @@
     let page = 1;
     const pageSize = 5;
     let isModerator = false;
-    const ownerEmails = ["angeloyeshuac@gmail.com", "angcalderon@estudiantec.cr"];
     search.value = new URLSearchParams(window.location.search).get("q") || "";
-    const escapeHtml = value => String(value || "").replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[char]));
     const courseLabel = code => courseNames[code] ? `${code} — ${courseNames[code]}` : code || "Curso no indicado";
     const iconFor = extension => extension === "pdf" ? "fa-file-pdf" : extension === "pptx" ? "fa-file-powerpoint" : extension === "docx" ? "fa-file-word" : extension === "ggb" ? "fa-shapes" : "fa-file-lines";
     const formatDate = timestamp => timestamp?.seconds ? new Date(timestamp.seconds * 1000).toLocaleDateString("es-CR") : "No indicada";
@@ -709,14 +708,12 @@
     }
     if (config?.projectId && config.projectId !== "REEMPLAZAR") {
       try {
-        const app = initializeApp(config);
         const db = getFirestore(app);
         const snapshot = await getDocs(query(collection(db, "resources"), where("published", "==", true)));
         resources = snapshot.docs.map(item => ({ id: item.id, ...item.data() })).filter(resource => resource.section === "academico");
         render();
         onAuthStateChanged(getAuth(app), async user => {
-          const email = user?.email?.toLowerCase();
-          isModerator = Boolean(email) && (ownerEmails.includes(email) || (Boolean(user.emailVerified) && (await getDoc(doc(db, "moderators", email))).exists()));
+          isModerator = await tieneRol(user, "moderators");
           render();
         });
       } catch (error) { count.textContent = "No se pudieron cargar los materiales"; list.innerHTML = `<p class="rounded-[15px] border border-[#D6E2E7] bg-white p-8 text-center text-[#C2413B]">Error al cargar la biblioteca: ${escapeHtml(error.message)}</p>`; }

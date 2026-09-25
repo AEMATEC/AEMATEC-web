@@ -245,23 +245,22 @@
   <script src="assets/js/layout.js" data-part="footer"></script>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { app } from "./assets/js/firebase.js";
+    import { escapeHtml, safeHttpsUrl } from "./assets/js/util.js";
+    import { tieneRol } from "./assets/js/roles.js";
     import {
       browserSessionPersistence, getAuth, onAuthStateChanged, setPersistence, signInWithEmailAndPassword, signOut,
       createUserWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    const app = initializeApp(window.AEMATEC_FIREBASE_CONFIG);
     const auth = getAuth(app);
     const db = getFirestore(app);
     await setPersistence(auth, browserSessionPersistence);
-    const ownerEmails = ["angeloyeshuac@gmail.com", "angcalderon@estudiantec.cr"];
 
     const loginPanel = document.querySelector("#login-panel");
     const juntaPanel = document.querySelector("#junta-panel");
     const currentTab = { value: "padron" };
-    const escapeHtml = value => String(value || "").replace(/[&<>"']/g, character => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[character]));
 
     document.querySelector("#login-form").addEventListener("submit", async event => {
       event.preventDefault();
@@ -560,14 +559,6 @@
       }
     }
 
-    const isHttpsUrl = value => {
-      try {
-        return new URL(value).protocol === "https:";
-      } catch {
-        return false;
-      }
-    };
-
     document.querySelector("#medios-save").addEventListener("click", async () => {
       const status = document.querySelector("#medios-status");
       const medios = {
@@ -581,7 +572,7 @@
       const errores = [];
       if (!/^[^\s@<>"']+@estudiantec\.cr$/.test(medios.email)) errores.push("el correo debe ser institucional (@estudiantec.cr)");
       for (const medio of ["whatsapp", "instagram", "telegram"]) {
-        if (!isHttpsUrl(medios[medio])) errores.push(`el enlace de ${medio} debe empezar con https://`);
+        if (!safeHttpsUrl(medios[medio])) errores.push(`el enlace de ${medio} debe empezar con https://`);
       }
       if (errores.length) {
         status.textContent = `No se guardó: ${errores.join("; ")}.`;
@@ -735,12 +726,7 @@
     });
 
     onAuthStateChanged(auth, async user => {
-      const email = user?.email?.toLowerCase();
-      let allowed = Boolean(email) && ownerEmails.includes(email);
-      if (email && !allowed) {
-        const juntaDocument = await getDoc(doc(db, "junta", email));
-        allowed = juntaDocument.exists() && user.emailVerified;
-      }
+      const allowed = await tieneRol(user, "junta");
       loginPanel.hidden = allowed;
       juntaPanel.hidden = !allowed;
       if (allowed) {

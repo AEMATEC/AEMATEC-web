@@ -459,8 +459,10 @@
     </article>
   </div>
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getFirestore, collection, getDocs, query, where, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { app } from "./assets/js/firebase.js";
+    import { escapeHtml } from "./assets/js/util.js";
+    import { tieneRol } from "./assets/js/roles.js";
+    import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     const filterPanel = document.querySelector("#docentes-filter-panel");
     const filterBackdrop = document.querySelector("#docentes-filter-backdrop");
@@ -492,11 +494,7 @@
     let resources = [];
     let page = 1;
     let isModerator = false;
-    const ownerEmails = ["angeloyeshuac@gmail.com", "angcalderon@estudiantec.cr"];
 
-    const escapeHtml = value => String(value || "").replace(/[&<>"']/g, character => ({
-      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
-    }[character]));
     const iconFor = extension => extension === "pdf" ? "fa-file-pdf" : extension === "pptx" ? "fa-file-powerpoint" : extension === "docx" ? "fa-file-word" : extension === "ggb" ? "fa-shapes" : "fa-file-lines";
     const formatSize = bytes => bytes ? `${(bytes / 1024 / 1024).toFixed(2)} MB` : "No indicado";
     const formatDate = timestamp => timestamp?.seconds ? new Date(timestamp.seconds * 1000).toLocaleDateString("es-CR") : "No indicada";
@@ -598,7 +596,6 @@
       count.textContent = "No se pudo conectar con la biblioteca";
     } else {
       try {
-        const app = initializeApp(config);
         const db = getFirestore(app);
         const resourcesQuery = query(
           collection(db, "resources"),
@@ -609,8 +606,7 @@
         resources = snapshot.docs.map(document => ({ id: document.id, ...document.data() }));
         render();
         onAuthStateChanged(getAuth(app), async user => {
-          const email = user?.email?.toLowerCase();
-          isModerator = Boolean(email) && (ownerEmails.includes(email) || (Boolean(user.emailVerified) && (await getDoc(doc(db, "moderators", email))).exists()));
+          isModerator = await tieneRol(user, "moderators");
           render();
         });
       } catch (error) {

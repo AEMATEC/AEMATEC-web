@@ -160,7 +160,7 @@
   document.addEventListener("keydown", event => {
     if (event.key === "Escape") document.querySelector("#close-upload").click();
   });
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { app } from "./assets/js/firebase.js";
   import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
   import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
@@ -354,7 +354,6 @@
     submit.disabled = true;
     submit.textContent = "Preparando...";
     try {
-      const app = initializeApp(config);
       const storage = getStorage(app);
       const db = getFirestore(app);
       const resourceId = crypto.randomUUID();

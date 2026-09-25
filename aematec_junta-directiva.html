@@ -97,22 +97,13 @@
   </script>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { app } from "./assets/js/firebase.js";
+    import { escapeHtml, safeHttpsUrl, safeEmail } from "./assets/js/util.js";
     import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    const app = initializeApp(window.AEMATEC_FIREBASE_CONFIG);
     const db = getFirestore(app);
 
     // Los valores vienen de Firestore (editables por la Junta): se validan antes de usarlos como enlaces.
-    const safeHttpsUrl = value => {
-      try {
-        const url = new URL(String(value || ""));
-        return url.protocol === "https:" ? url.href : null;
-      } catch {
-        return null;
-      }
-    };
-    const safeEmail = value => /^[^\s@<>"']+@[^\s@<>"']+\.[^\s@<>"']+$/.test(String(value || "")) ? String(value) : null;
 
     async function loadMedios() {
       try {
@@ -133,7 +124,6 @@
         console.error("No se pudieron cargar los medios desde Firestore, se mantienen los valores fijos:", error);
       }
     }
-    const escapeHtml = value => String(value || "").replace(/[&<>"']/g, character => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#039;" }[character]));
     // Orden de los puestos según el Reglamento Interno, Art. 24.
     const ORDEN_PUESTOS = [
       "Presidencia", "Vicepresidencia", "Secretaría General", "Secretaría de Asuntos Financieros",

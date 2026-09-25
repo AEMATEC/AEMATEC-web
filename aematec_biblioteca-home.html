@@ -358,12 +358,12 @@
     </article>
   </div>
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { app } from "./assets/js/firebase.js";
+    import { escapeHtml } from "./assets/js/util.js";
     import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const config = window.AEMATEC_FIREBASE_CONFIG;
     const recentGrid = document.querySelector("#recent-materials-grid");
-    const escapeHtml = value => String(value || "").replace(/[&<>"']/g, character => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#039;" }[character]));
     const iconFor = extension => extension === "pdf" ? "fa-file-pdf" : extension === "pptx" ? "fa-file-powerpoint" : extension === "docx" ? "fa-file-word" : extension === "ggb" ? "fa-shapes" : "fa-file-lines";
     const courseNames = { MA0101:"Matemática General", MA1102:"Cálculo Diferencial e Integral", MA1403:"Matemática Discreta", MA2104:"Cálculo Superior", EM1605:"Fundamentos de la matemática I", EM2603:"Cálculo y Análisis I", EM2604:"Geometría I", EM1608:"Didáctica del Álgebra y Funciones", EM5008:"Investigación educativa" };
     const globalResults = document.querySelector("#global-search-results");
@@ -521,7 +521,6 @@
     });
     if (config?.projectId && config.projectId !== "REEMPLAZAR") {
       try {
-        const app = initializeApp(config);
         const resourcesSnapshot = await getDocs(query(collection(getFirestore(app), "resources"), where("published", "==", true)));
         const resources = resourcesSnapshot.docs.map(item => ({ id: item.id, ...item.data() }))
           .sort((first, second) => (second.createdAt?.seconds || 0) - (first.createdAt?.seconds || 0));
