@@ -8,6 +8,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { iniciarModeracion } from "./moderacion.js";
 import { iniciarAsociacion } from "./asociacion.js";
+import { iniciarTramites } from "./tramites.js";
 
 const auth = getAuth(app);
 // Sesión solo mientras la pestaña esté abierta: el panel muestra datos personales (padrón).
@@ -87,6 +88,7 @@ document.querySelector("#reset-form").addEventListener("submit", async event => 
 });
 
 const SECCIONES = [
+  { id: "tramites", etiqueta: "Trámites", icono: "fa-file-signature" },
   { id: "asociacion", etiqueta: "Asociación", icono: "fa-users" },
   { id: "moderacion", etiqueta: "Moderación del Repositorio", icono: "fa-user-shield" }
 ];
@@ -102,14 +104,17 @@ onAuthStateChanged(auth, async user => {
     showLoginMode("login");
     const roles = [junta && "Junta Directiva", fiscalia && "Fiscalía", moderador && "Moderación"].filter(Boolean);
     document.querySelector("#admin-session").textContent = `${user.email} · ${roles.join(" · ")}`;
-    const visibles = { asociacion: junta || fiscalia, moderacion: moderador };
+    const visibles = { tramites: junta || fiscalia, asociacion: junta || fiscalia, moderacion: moderador };
     for (const seccion of SECCIONES) document.querySelector(`#${seccion.id}`).hidden = !visibles[seccion.id];
     // Los accesos directos solo tienen sentido si la cuenta ve más de una sección.
     document.querySelector("#admin-nav").hidden = SECCIONES.filter(seccion => visibles[seccion.id]).length < 2;
     document.querySelector("#admin-nav").innerHTML = SECCIONES.filter(seccion => visibles[seccion.id]).map(seccion =>
       `<a href="#${seccion.id}" class="flex items-center gap-2 rounded-full border border-[#BFD0D8] bg-white px-4 py-2 text-[#0D2B45] hover:border-[#00A6B8] hover:text-[#00A6B8]"><i class="fa-solid ${seccion.icono}"></i>${seccion.etiqueta}</a>`
     ).join("");
-    if (junta || fiscalia) await iniciarAsociacion({ junta });
+    if (junta || fiscalia) {
+      await iniciarAsociacion({ junta });
+      iniciarTramites({ junta, fiscalia });
+    }
     if (moderador) {
       iniciarModeracion();
       if (new URLSearchParams(window.location.search).has("edit")) document.querySelector("#moderacion").scrollIntoView();

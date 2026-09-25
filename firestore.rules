@@ -107,11 +107,14 @@ service cloud.firestore {
       allow read: if isJunta()
         || (request.auth != null && resource.data.solicitanteUid == request.auth.uid);
       allow create, delete: if false;
+      // La Junta cambia el estado, responde y registra prórrogas. RI Art. 82: todo rechazo debe quedar motivado.
       allow update: if isJunta()
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
           'estado', 'respuestas', 'prorrogaInformada', 'motivacionRechazo', 'actualizadoEn'
         ])
-        && request.resource.data.estado in ['recibido', 'en_revision', 'resuelto', 'rechazado'];
+        && request.resource.data.estado in ['recibido', 'en_revision', 'resuelto', 'rechazado']
+        && (request.resource.data.estado != 'rechazado'
+          || (request.resource.data.motivacionRechazo is string && request.resource.data.motivacionRechazo.size() >= 10));
 
       match /adhesiones/{email} {
         allow read: if isJunta();

@@ -163,6 +163,12 @@ describe("Trámites (los crea solo el servidor)", () => {
     await assertFails(updateDoc(doc(db, "tramites", "t1"), { solicitante: { email: "otro@estudiantec.cr" } }));
     await assertFails(updateDoc(doc(db, "tramites", "t1"), { estado: "inventado" }));
   });
+  test("RI Art. 82: la Junta no puede rechazar sin motivación", async () => {
+    const db = usuario(JUNTA).firestore();
+    await assertFails(updateDoc(doc(db, "tramites", "t1"), { estado: "rechazado" }));
+    await assertFails(updateDoc(doc(db, "tramites", "t1"), { estado: "rechazado", motivacionRechazo: "No." }));
+    await assertSucceeds(updateDoc(doc(db, "tramites", "t1"), { estado: "rechazado", motivacionRechazo: "No cumple el requisito del Art. 30." }));
+  });
   test("RI Art. 42: solo la Fiscalía lee los casos; ni la Junta ni un dueño", async () => {
     await assertSucceeds(getDoc(doc(usuario(FISCAL).firestore(), "fiscaliaCasos", "f1")));
     await assertFails(getDoc(doc(usuario(JUNTA).firestore(), "fiscaliaCasos", "f1")));

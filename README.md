@@ -18,7 +18,7 @@ dependen de él citan el artículo correspondiente en el código y en [`docs/PLA
 | Repositorio | `repositorio.html`, `repositorio-docentes.html`, `repositorio-academicos.html`, `repositorio-subir.html` | Repositorio digital de materiales didácticos y académicos (RI Art. 4 f). Consulta pública; cualquiera puede proponer material, que queda pendiente de moderación. |
 | Inventario | `inventario.html` | Consulta pública de bienes (RI Art. 118) y solicitudes de préstamo (RI Art. 120-123). Administración para la Junta. |
 | Junta Directiva | `junta-directiva.html` | Integrantes (solo nombre y puesto) y medios de contacto. |
-| Panel de administración | `admin.html` | Un solo acceso. Cada cuenta ve lo de sus roles: **Asociación** (Padrón, Junta, Fiscalía, Medios) para Junta y Fiscalía, y **Moderación del Repositorio** (pendientes, edición, equipo de moderación). |
+| Panel de administración | `admin.html` | Un solo acceso. Cada cuenta ve lo de sus roles: **Trámites** (la Junta los suyos; la Fiscalía sus casos), **Asociación** (Padrón, Junta, Fiscalía, Medios) para Junta y Fiscalía, y **Moderación del Repositorio** (pendientes, edición, equipo de moderación). |
 | Trámites | `tramites.html` | Solicitudes a la Junta, postulaciones, AGEC extraordinaria (con adhesiones) y consultas o denuncias a Fiscalía (anónimas o no). Se verifica el correo `@estudiantec.cr` con un enlace, sin contraseña. Incluye "Mis trámites" y seguimiento de casos anónimos por código. |
 
 > **Nota de nombres:** el repositorio digital de materiales se llama **Repositorio** (antes "Biblioteca").
@@ -89,6 +89,8 @@ integrante. Así la página pública no expone los correos (RI Art. 143).
 - `enviarTramite`, `adherirAgec`, `consultarSeguimiento` (`functions/tramites.js`): reciben los trámites.
   Verifican el correo `@estudiantec.cr`, consultan el padrón (si la persona no está, el trámite se acepta marcado
   para que la Junta decida) y avisan por correo. Las denuncias anónimas se consultan con un código privado.
+- `alActualizarTramite`, `alActualizarCasoFiscalia`: cuando la Junta o la Fiscalía responden, resuelven o rechazan,
+  avisan por correo a la persona (los casos anónimos no reciben correo).
 
 ### Correos de notificación
 

@@ -2,10 +2,11 @@
 // Los navegadores NO escriben trámites directamente (las reglas lo impiden): todo pasa por estas funciones,
 // que verifican el correo institucional, consultan el padrón y garantizan el anonimato de las denuncias.
 const { onCall, HttpsError } = require("firebase-functions/v2/https");
+const { onDocumentUpdated } = require("firebase-functions/v2/firestore");
 const logger = require("firebase-functions/logger");
 const { getFirestore, FieldValue, Timestamp } = require("firebase-admin/firestore");
 const { gmailAppPassword, correosDe, sendEmail, escapeHtml } = require("./correo");
-const { sumarDiasHabiles, generarCodigo, normalizarCodigo, hashCodigo } = require("./tramites-util");
+const { sumarDiasHabiles, generarCodigo, normalizarCodigo, hashCodigo, avisoDeCambio } = require("./tramites-util");
 
 const DOMINIO = "@estudiantec.cr";
 const MAX_TRAMITES_POR_DIA = 5;
@@ -237,3 +238,23 @@ exports.consultarSeguimiento = onCall(async request => {
   };
 });
 
+// Cuando la Junta actualiza un trámite: avisa a la persona (respuesta, resolución o rechazo motivado)
+// y mantiene al día el estado público de las solicitudes de AGEC.
+exports.alActualizarTramite = onDocumentUpdated({ document: "tramites/{id}", secrets: [gmailAppPassword] }, async event => {
+  const antes = event.data.before.data();
+  const despues = event.data.after.data();
+  if (despues.tipo === "agec" && antes.estado !== despues.estado) {
+    await db().collection("agecPublicas").doc(event.params.id).update({ estado: despues.estado });
+  }
+  const aviso = avisoDeCambio(antes, despues);
+  if (aviso) await notificar(aviso.asunto, aviso.html, [despues.solicitante.email]);
+});
+
+// Casos de Fiscalía: solo se avisa por correo en los identificados. Los anónimos se consultan con su código.
+exports.alActualizarCasoFiscalia = onDocumentUpdated({ document: "fiscaliaCasos/{id}", secrets: [gmailAppPassword] }, async event => {
+  const antes = event.data.before.data();
+  const despues = event.data.after.data();
+  if (despues.anonimo || !despues.remitente?.email) return;
+  const aviso = avisoDeCambio(antes, despues, { fiscalia: true });
+  if (aviso) await notificar(aviso.asunto, aviso.html, [despues.remitente.email]);
+});
