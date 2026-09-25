@@ -49,7 +49,7 @@ el Repositorio docente es para cualquier docente, sea o no de MATEC. Solo se pid
 que la necesita y en ese momento (por ejemplo, un trámite de persona Asociada en el futuro).
 
 **Correos de dueño.** Están en 4 lugares, que hay que actualizar juntos en el traspaso de administración
-(RI Art. 107): `assets/js/roles.js` (páginas), `firestore.rules`, `storage.rules` y `functions/correo.js` (correo de respaldo)
+(RI Art. 107): `assets/js/roles.js` (páginas), `firestore.rules`, `storage.rules` y `functions/correo.js`
 (correo de respaldo para notificaciones). Las reglas no pueden leer archivos del sitio, por eso no es uno solo.
 
 **Código compartido de las páginas** (`assets/js/`):
