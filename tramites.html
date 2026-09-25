@@ -14,7 +14,17 @@
     href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&display=swap"
     rel="stylesheet">
   <script>tailwind.config = { theme: { extend: { fontFamily: { sans: ['Montserrat', 'sans-serif'], serif: ['Source Serif 4', 'serif'] } } } }</script>
+  <script src="assets/firebase-config.js"></script>
   <style>
+    .tipo-tramite {
+      display: flex; gap: 1rem; align-items: flex-start; text-align: left;
+      padding: 1.25rem; border: 1px solid #D8E3E9; border-radius: 16px; background: #FFFFFF;
+    }
+    .tipo-tramite i { margin-top: 0.2rem; font-size: 1.35rem; color: #009CAD; width: 1.75rem; }
+    .tipo-tramite strong { display: block; font-family: Montserrat, sans-serif; font-size: 0.95rem; }
+    .tipo-tramite small { display: block; margin-top: 0.3rem; color: #5B6E7B; font-size: 0.85rem; line-height: 1.4; }
+    .tipo-tramite:hover, .tipo-tramite:focus-visible { border-color: #00B5C8; }
+    .tipo-tramite[aria-checked="true"] { border-color: #00A6B8; box-shadow: 0 0 0 2px #00A6B8 inset; background: #F0FBFC; }
   </style>
   <title>Trámites — AEMATEC</title>
 </head>
@@ -22,23 +32,109 @@
 <body class="min-h-screen bg-[#F4F8FA] text-[#0D2B45] font-serif" style="background-image: radial-gradient(circle at 12% 18%, rgba(0, 175, 193, 0.13) 0, rgba(0, 175, 193, 0.13) 1.2px, transparent 1.8px), radial-gradient(circle at 84% 72%, rgba(13, 43, 69, 0.09) 0, rgba(13, 43, 69, 0.09) 1.2px, transparent 1.8px); background-size: 28px 28px, 36px 36px;">
   <script src="assets/js/layout.js" data-part="header" data-active="tramites"></script>
 
-  <main data-design-id="main-aematec" class="flex-1">
-    <section class="site-container mx-auto py-[96px] text-center">
-      <div class="mx-auto flex h-[88px] w-[88px] items-center justify-center rounded-full bg-[#E6F8FA] text-[#009CAD] text-[34px]">
-        <i class="fa-solid fa-file-signature"></i>
+  <main class="site-container mx-auto py-12">
+    <section class="max-w-[760px]">
+      <p class="font-sans text-xs font-bold uppercase tracking-[0.18em] text-[#00A6B8]">Trámites</p>
+      <h1 class="mt-2 font-sans text-[34px] font-bold tracking-[-0.02em]">Trámites de la asociación</h1>
+      <p class="mt-4 text-[#5B6E7B] leading-7">Envía solicitudes a la Junta Directiva, postulaciones, solicitudes de AGEC
+        extraordinaria y consultas o denuncias a la Fiscalía. Son derechos de las personas Asociadas, por eso verificamos
+        tu correo <strong>@estudiantec.cr</strong> con un enlace. No necesitas contraseña.</p>
+    </section>
+
+    <!-- Paso 1: verificación del correo -->
+    <section id="paso-verificar" class="mt-8 max-w-[760px] rounded-[16px] border border-[#D7E2E7] bg-white p-6 shadow-sm" aria-labelledby="titulo-verificar">
+      <h2 id="titulo-verificar" class="font-sans text-lg font-bold"><span class="text-[#00A6B8]">1.</span> Verifica tu correo institucional</h2>
+      <form id="form-correo" class="mt-4 flex flex-wrap gap-3">
+        <label for="correo" class="sr-only">Correo institucional</label>
+        <input id="correo" type="email" required autocomplete="email" placeholder="tu.nombre@estudiantec.cr"
+          class="h-11 min-w-0 flex-1 rounded-[9px] border border-[#BFD0D8] px-3">
+        <button class="h-11 rounded-[9px] bg-[#0D2B45] px-5 font-sans text-xs font-bold text-white">Enviarme el enlace</button>
+      </form>
+      <p id="estado-correo" role="status" class="mt-3 text-sm text-[#607480]">Te enviaremos un enlace; ábrelo en este mismo dispositivo.</p>
+      <div id="correo-verificado" class="mt-4 flex flex-wrap items-center justify-between gap-3" hidden>
+        <p class="text-sm"><i class="fa-solid fa-circle-check mr-2 text-[#087F8C]"></i>Verificado como <strong id="correo-actual"></strong></p>
+        <button id="cambiar-correo" type="button" class="font-sans text-xs font-bold text-[#607480] underline">Usar otro correo</button>
       </div>
-      <p class="mt-7 font-sans text-xs font-bold uppercase tracking-[0.18em] text-[#00A6B8]">Próximamente</p>
-      <h1 class="mt-2 font-sans text-[34px] font-bold tracking-[-0.02em]">Trámites</h1>
-      <p class="mt-4 max-w-[560px] mx-auto text-[#5B6E7B] leading-7">Próximamente podrás enviar solicitudes a la Junta Directiva, postulaciones a comisiones o representación estudiantil, y consultas confidenciales a Fiscalía.</p>
-      <a href="index.html" class="mt-8 inline-flex items-center gap-2 font-sans text-sm font-bold text-[#008F9E] hover:text-[#00A6B8]">
-        <i class="fa-solid fa-arrow-left"></i> Volver al inicio
-      </a>
+    </section>
+
+    <!-- Paso 2: el trámite -->
+    <section class="mt-8" aria-labelledby="titulo-tipo">
+      <h2 id="titulo-tipo" class="font-sans text-lg font-bold"><span class="text-[#00A6B8]">2.</span> Elige el trámite</h2>
+      <div id="tipos" class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2" role="radiogroup" aria-label="Tipo de trámite">
+        <button type="button" data-tipo="solicitud_junta" role="radio" aria-checked="false" class="tipo-tramite">
+          <i class="fa-solid fa-users"></i><span><strong>Solicitud a la Junta Directiva</strong>
+          <small>Punto de agenda, asistir a una sesión, rendición de cuentas u otra (RI Art. 8).</small></span></button>
+        <button type="button" data-tipo="postulacion" role="radio" aria-checked="false" class="tipo-tramite">
+          <i class="fa-solid fa-hand"></i><span><strong>Postulación</strong>
+          <small>A una comisión o a una representación estudiantil (RI Art. 51 y 93).</small></span></button>
+        <button type="button" data-tipo="agec" role="radio" aria-checked="false" class="tipo-tramite">
+          <i class="fa-solid fa-people-group"></i><span><strong>AGEC extraordinaria</strong>
+          <small>Pedir una Asamblea con el apoyo del 10 % del padrón (RI Art. 13).</small></span></button>
+        <button type="button" data-tipo="fiscalia" role="radio" aria-checked="false" class="tipo-tramite">
+          <i class="fa-solid fa-scale-balanced"></i><span><strong>Consulta o denuncia a Fiscalía</strong>
+          <small>Solo la Fiscalía la lee. Puede ser anónima (RI Art. 42 y 45).</small></span></button>
+      </div>
+
+      <!-- AGEC abiertas -->
+      <div id="agec-abiertas" class="mt-6" hidden>
+        <h3 class="font-sans text-base font-bold">Solicitudes de AGEC abiertas</h3>
+        <p class="mt-1 text-sm text-[#607480]">Si ya hay una solicitud con el mismo motivo, adhiérete en lugar de crear otra.</p>
+        <ul id="lista-agec" class="mt-3 space-y-3"></ul>
+      </div>
+
+      <form id="form-tramite" class="mt-6 rounded-[16px] border border-[#D7E2E7] bg-white p-6 shadow-sm space-y-4" hidden novalidate>
+        <h3 id="titulo-form" class="font-sans text-lg font-bold"></h3>
+        <p id="aviso-form" class="rounded-[10px] bg-[#F1F6F8] px-4 py-3 text-sm text-[#506773]"></p>
+
+        <label id="campo-anonimo" class="flex items-start gap-3 text-sm" data-tipos="fiscalia">
+          <input id="anonimo" type="checkbox" class="mt-1 h-4 w-4 accent-[#00AFC1]">
+          <span><strong>Enviar de forma anónima.</strong> Verificamos que eres persona Asociada, pero el caso se guarda sin tu
+            correo ni tu nombre. Recibirás un código para seguirlo; si lo pierdes, no podremos recuperarlo.</span>
+        </label>
+        <div id="campo-nombre"><label for="nombre" class="font-sans text-xs font-bold">Nombre completo</label>
+          <input id="nombre" maxlength="120" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+        <div data-tipos="solicitud_junta postulacion fiscalia"><label for="subtipo" class="font-sans text-xs font-bold">Tipo</label>
+          <select id="subtipo" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] bg-white px-3"></select></div>
+        <div data-tipos="solicitud_junta fiscalia"><label for="asunto" class="font-sans text-xs font-bold">Asunto</label>
+          <input id="asunto" maxlength="120" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+        <div data-tipos="solicitud_junta fiscalia"><label for="detalle" class="font-sans text-xs font-bold">Detalle</label>
+          <textarea id="detalle" maxlength="4000" rows="6" class="mt-2 w-full rounded-[9px] border border-[#BFD0D8] px-3 py-2"></textarea></div>
+        <div data-tipos="postulacion"><label for="organo" class="font-sans text-xs font-bold">Comisión u órgano al que te postulas</label>
+          <input id="organo" maxlength="160" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+        <div data-tipos="postulacion"><label for="motivacion" class="font-sans text-xs font-bold">Motivación y propuestas</label>
+          <textarea id="motivacion" maxlength="2000" rows="6" class="mt-2 w-full rounded-[9px] border border-[#BFD0D8] px-3 py-2"></textarea></div>
+        <div data-tipos="agec"><label for="motivo" class="font-sans text-xs font-bold">Motivo de la Asamblea</label>
+          <textarea id="motivo" maxlength="2000" rows="4" class="mt-2 w-full rounded-[9px] border border-[#BFD0D8] px-3 py-2"></textarea></div>
+        <div data-tipos="agec"><label for="agenda" class="font-sans text-xs font-bold">Agenda propuesta</label>
+          <textarea id="agenda" maxlength="2000" rows="4" class="mt-2 w-full rounded-[9px] border border-[#BFD0D8] px-3 py-2"></textarea></div>
+
+        <p id="estado-envio" role="alert" class="text-sm" hidden></p>
+        <button id="boton-enviar" class="h-11 w-full rounded-[9px] bg-[#0D2B45] font-sans text-sm font-bold text-white disabled:opacity-50">Enviar trámite</button>
+      </form>
+
+      <div id="resultado" class="mt-6 rounded-[16px] border border-[#8ED5DD] bg-[#EAF9FA] p-6" role="status" hidden></div>
+    </section>
+
+    <!-- Mis trámites -->
+    <section id="mis-tramites" class="mt-12" aria-labelledby="titulo-mis" hidden>
+      <h2 id="titulo-mis" class="font-sans text-lg font-bold">Mis trámites</h2>
+      <ul id="lista-mis" class="mt-4 space-y-3"></ul>
+    </section>
+
+    <!-- Seguimiento anónimo -->
+    <section class="mt-12 max-w-[760px] rounded-[16px] border border-[#D7E2E7] bg-white p-6 shadow-sm" aria-labelledby="titulo-seguimiento">
+      <h2 id="titulo-seguimiento" class="font-sans text-lg font-bold">Seguimiento de un caso anónimo a Fiscalía</h2>
+      <form id="form-seguimiento" class="mt-4 flex flex-wrap gap-3">
+        <label for="codigo" class="sr-only">Código de seguimiento</label>
+        <input id="codigo" required placeholder="XXXX-XXXX-XXXX" autocomplete="off"
+          class="h-11 min-w-0 flex-1 rounded-[9px] border border-[#BFD0D8] px-3 font-sans uppercase tracking-[0.12em]">
+        <button class="h-11 rounded-[9px] border border-[#AFC2CB] bg-white px-5 font-sans text-xs font-bold">Consultar</button>
+      </form>
+      <div id="resultado-seguimiento" class="mt-4 text-sm" role="status" hidden></div>
     </section>
   </main>
-
   <script src="assets/js/layout.js" data-part="footer"></script>
-  <script>
-  </script>
+  <script type="module" src="assets/js/tramites.js"></script>
 </body>
 
 </html>
