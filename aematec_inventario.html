@@ -537,7 +537,9 @@
   </datalist>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { app } from "./assets/js/firebase.js";
+    import { escapeHtml } from "./assets/js/util.js";
+    import { tieneRol } from "./assets/js/roles.js";
     import {
       getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, getDoc, serverTimestamp
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -547,16 +549,10 @@
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
-    const config = window.AEMATEC_FIREBASE_CONFIG;
-    const app = initializeApp(config);
     const db = getFirestore(app);
     const auth = getAuth(app);
     const storage = getStorage(app);
-    const ownerEmails = ["angeloyeshuac@gmail.com", "angcalderon@estudiantec.cr"];
 
-    const escapeHtml = value => String(value ?? "").replace(/[&<>"']/g, character => ({
-      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
-    }[character]));
     const formatDate = timestamp => timestamp?.seconds ? new Date(timestamp.seconds * 1000).toLocaleDateString("es-CR") : "No indicada";
 
     const TIPO_LABELS = { institucional: "Activo institucional", aematec: "Activo AEMATEC", biblioteca: "Libro", consumible: "Consumible" };
@@ -973,9 +969,9 @@
         const credential = await signInWithEmailAndPassword(auth, email, password);
         // Solo se acepta el inicio de sesión si el correo autenticado en Firebase es de Junta Directiva
         // y, para cuentas autocreadas, si ya verificó su correo.
-        const juntaDoc = await getDoc(doc(db, "junta", credential.user.email));
-        const authorized = ownerEmails.includes(credential.user.email) || (juntaDoc.exists() && credential.user.emailVerified);
+        const authorized = await tieneRol(credential.user, "junta");
         if (!authorized) {
+          const juntaDoc = await getDoc(doc(db, "junta", credential.user.email.toLowerCase()));
           await signOut(auth);
           status.hidden = false;
           status.textContent = juntaDoc.exists()
@@ -994,15 +990,7 @@
     document.querySelector("#junta-logout-btn").addEventListener("click", () => signOut(auth));
 
     onAuthStateChanged(auth, async user => {
-      isJunta = false;
-      if (user) {
-        try {
-          const juntaDoc = await getDoc(doc(db, "junta", user.email));
-          isJunta = ownerEmails.includes(user.email) || (juntaDoc.exists() && user.emailVerified);
-        } catch {
-          isJunta = false;
-        }
-      }
+      isJunta = await tieneRol(user, "junta");
       document.querySelector("#junta-access-btn").hidden = !!user;
       document.querySelector("#junta-session-bar").hidden = !user;
       if (user) document.querySelector("#junta-session-email").textContent = user.email;

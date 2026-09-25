@@ -195,7 +195,9 @@
     </article>
   </div>
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { app } from "./assets/js/firebase.js";
+    import { escapeHtml } from "./assets/js/util.js";
+    import { esDueno, tieneRol } from "./assets/js/roles.js";
     import {
       browserLocalPersistence, getAuth, onAuthStateChanged, setPersistence, signInWithEmailAndPassword, signOut,
       createUserWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail
@@ -203,8 +205,6 @@
     import { getFirestore, collection, getDocs, getDoc, query, where, updateDoc, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
     import { getStorage, ref, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
-    const ownerEmails = ["angeloyeshuac@gmail.com", "angcalderon@estudiantec.cr"];
-    const app = initializeApp(window.AEMATEC_FIREBASE_CONFIG);
     const auth = getAuth(app);
     const db = getFirestore(app);
     const storage = getStorage(app);
@@ -214,7 +214,6 @@
     const moderationPanel = document.querySelector("#moderation-panel");
     const pendingList = document.querySelector("#pending-list");
     const panelStatus = document.querySelector("#panel-status");
-    const escapeHtml = value => String(value || "").replace(/[&<>"']/g, character => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[character]));
     const fileSize = bytes => bytes ? `${(bytes / 1024 / 1024).toFixed(2)} MB` : "Tamaño no indicado";
 
     const docentesLabels = ["Actividad inicial / Exploratorio", "Juego", "Cotidiano", "Guía didáctica", "Unidad didáctica", "Planeamiento", "Tarea", "Recurso tecnológico", "Movilización de Conocimientos", "Debate", "Discusión matemática", "Trabajo independiente", "Guía de Trabajo Autónomo"];
@@ -422,7 +421,7 @@
       const snapshot = await getDocs(collection(db, "moderators"));
       list.innerHTML = snapshot.docs.map(item => `<li class="flex items-center justify-between gap-4 py-3"><span class="font-sans text-sm">${escapeHtml(item.id)}</span><button type="button" data-remove-moderator="${escapeHtml(item.id)}" class="font-sans text-xs font-bold text-[#C2413B]">Quitar</button></li>`).join("");
       list.querySelectorAll("[data-remove-moderator]").forEach(button => button.addEventListener("click", async () => {
-        if (ownerEmails.includes(button.dataset.removeModerator)) {
+        if (esDueno(button.dataset.removeModerator)) {
           document.querySelector("#moderator-status").textContent = "No puedes quitar al administrador principal.";
           document.querySelector("#moderator-status").className = "mt-3 text-sm text-[#C2413B]";
           document.querySelector("#moderator-status").hidden = false;
@@ -475,12 +474,7 @@
     }
 
     onAuthStateChanged(auth, async user => {
-      const email = user?.email?.toLowerCase();
-      let allowed = ownerEmails.includes(email);
-      if (email && !allowed) {
-        const moderatorDocument = await getDoc(doc(db, "moderators", email));
-        allowed = moderatorDocument.exists() && user.emailVerified;
-      }
+      const allowed = await tieneRol(user, "moderators");
       loginPanel.hidden = allowed;
       moderationPanel.hidden = !allowed;
       if (allowed) {

@@ -38,6 +38,8 @@ paso a paso.
 - Si cambiaste Functions: `cd functions && npm install && node -e "require('./index.js')"`.
 - Si cambiaste páginas: `node tests/revisar-paginas.mjs` (también corre solo en cada PR) y prueba la
   página con `python3 -m http.server 5500`. Explica en el PR qué conviene revisar visualmente.
+- Para Firebase, roles y utilidades usa los módulos de `assets/js/` (`firebase.js`, `roles.js`, `util.js`)
+  en lugar de volver a escribir `initializeApp`, listas de correos o `escapeHtml` en la página.
 - El encabezado, el menú (y el sub-menú de la Biblioteca) y el pie son comunes: se editan solo en
   `assets/js/layout.js` y `assets/css/site.css`. Una página nueva los incluye con
   `<script src="assets/js/layout.js" data-part="header" data-active="…"></script>` y

@@ -43,9 +43,15 @@ La interfaz solo oculta o muestra opciones.
 Las cuentas se crean desde el login de Moderación o del Panel de Junta ("Crear cuenta"). Solo se permite
 si el correo ya fue agregado a la lista correspondiente, y hay que verificar el correo antes de entrar.
 
-**Correos de dueño escritos en el código.** Hoy están en `firestore.rules`, `storage.rules`,
-`functions/index.js` y en varias páginas (`ownerEmails`). En el traspaso de administración (RI Art. 107)
-hay que actualizarlos en todos esos lugares. El plan propone centralizarlos.
+**Correos de dueño.** Están en 4 lugares, que hay que actualizar juntos en el traspaso de administración
+(RI Art. 107): `assets/js/roles.js` (páginas), `firestore.rules`, `storage.rules` y `functions/index.js`
+(correo de respaldo para notificaciones). Las reglas no pueden leer archivos del sitio, por eso no es uno solo.
+
+**Código compartido de las páginas** (`assets/js/`):
+- `firebase.js`: conexión única con Firebase (`app`, `db`).
+- `roles.js`: correos de dueño y `tieneRol(user, "junta" | "moderators" | "fiscalia")`.
+- `util.js`: `escapeHtml`, `safeHttpsUrl`, `safeEmail`.
+- `layout.js`: encabezado, menú y pie de página.
 
 ## Datos (Firestore)
 

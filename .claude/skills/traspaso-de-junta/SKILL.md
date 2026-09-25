@@ -20,10 +20,10 @@ de los repositorios. Guía a la persona por estos pasos, uno a la vez, y marca c
    deban existir.
 
 ## Lo que requiere un PR (lo haces tú)
-6. **Correos de dueño.** Hoy están escritos en `firestore.rules`, `storage.rules`, `functions/index.js`
-   y en las páginas que definen `ownerEmails`. Busca con `grep -rn "ownerEmails\|isOwner\|angeloyeshuac"`,
-   actualiza todos los lugares en el mismo PR y ajusta `tests/reglas.test.js` si hace falta. Si la Fase 2 ya
-   centralizó estos correos, cámbialos solo ahí.
+6. **Correos de dueño.** Están en `assets/js/roles.js` (`OWNER_EMAILS`), en `isOwner()`/`isModerator()`/
+   `isJunta()` de `firestore.rules` y `storage.rules`, y como respaldo en `functions/index.js`. Confírmalo con
+   `grep -rn "angeloyeshuac\|angcalderon"` (o los correos vigentes), actualiza todos en el mismo PR y ajusta
+   `tests/reglas.test.js` si hace falta.
 7. Si cambia la cuenta de Gmail de la Junta, actualiza `gmailAddress` en `functions/index.js`.
 
 ## Cuentas y secretos (los hace la persona dueña de cada cuenta)
