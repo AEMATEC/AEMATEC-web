@@ -9,6 +9,8 @@ admin.initializeApp();
 
 // Los correos salen de la cuenta Gmail de la Junta. La contraseña es una "contraseña de
 // aplicación" de Google guardada en Secret Manager (ver README → Correos de notificación).
+// "aeemac" no es un error: la cuenta viene de cuando la carrera se llamaba EMAC (Enseñanza de la
+// Matemática Asistida por Computadora) y la asociación, AEEMAC. Es la cuenta vigente de la Junta.
 const gmailAddress = "aeemac.tec@gmail.com";
 const gmailAppPassword = defineSecret("GMAIL_APP_PASSWORD");
 
