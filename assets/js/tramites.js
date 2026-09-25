@@ -75,7 +75,7 @@ $("#form-correo").addEventListener("submit", async event => {
   try {
     await enviarEnlaceCorreo({ email, url: location.origin + location.pathname });
     guardarCorreo(email);
-    mensaje($("#estado-correo"), `Te enviamos un enlace a ${email} desde aeemac.tec@gmail.com. Ábrelo en este dispositivo para continuar. Puede tardar unos minutos; revisa también la carpeta de correo no deseado.`, "ok");
+    mensaje($("#estado-correo"), `Te enviamos un enlace a ${email} desde aeemac.tec@gmail.com. Ábrelo en este dispositivo para continuar. El correo del TEC puede tardar hasta 20 minutos en entregarlo: no hace falta pedir otro. Revisa también la carpeta de correo no deseado.`, "ok");
   } catch (error) {
     mensaje($("#estado-correo"), `No se pudo enviar el enlace: ${textoError(error)}`, "error");
   } finally {

@@ -14,7 +14,9 @@ const {
 
 const DOMINIO = "@estudiantec.cr";
 const MAX_TRAMITES_POR_DIA = 5;
-const ESPERA_ENLACE_SEGUNDOS = 60; // entre dos enlaces al mismo correo
+// Entre dos enlaces al mismo correo. El correo del TEC tarda hasta unos 20 minutos en entregarlos; pedir otro no
+// lo acelera, solo manda correos repetidos.
+const ESPERA_ENLACE_SEGUNDOS = 5 * 60;
 const MAX_ENLACES_POR_CORREO_DIA = 5;
 const MAX_ENLACES_POR_DIA = 300; // tope general: Gmail permite unos 500 correos al día en total
 const DIAS_HABILES_RESPUESTA = 10; // RI Art. 111
@@ -114,7 +116,7 @@ async function registrarEnlace(email) {
     const deHoy = correo?.fecha === hoy ? correo.cuenta : 0;
     const totalHoy = general?.fecha === hoy ? general.cuenta : 0;
     if (correo && ahoraMs - correo.ultimoMs < ESPERA_ENLACE_SEGUNDOS * 1000) {
-      throw new HttpsError("resource-exhausted", "Ya te enviamos un enlace hace menos de un minuto. Espera un momento y revisa tu correo.");
+      throw new HttpsError("resource-exhausted", "Ya te enviamos un enlace hace menos de 5 minutos. El correo puede tardar hasta 20 minutos en llegar: revisa tu bandeja y la carpeta de correo no deseado antes de pedir otro.");
     }
     if (deHoy >= MAX_ENLACES_POR_CORREO_DIA || totalHoy >= MAX_ENLACES_POR_DIA) {
       throw new HttpsError("resource-exhausted", "Se alcanzó el máximo de enlaces por hoy. Intenta mañana.");
