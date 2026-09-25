@@ -6,7 +6,7 @@
 //   <script src="assets/js/layout.js" data-part="footer"></script>
 //
 // data-active: inicio | repositorio | inventario | junta | tramites
-// data-sub (solo Repositorio): inicio | docentes | academicos | subir | moderacion
+// data-sub (solo Repositorio): inicio | docentes | academicos | subir
 // Para agregar o renombrar una página del menú, edita solo las listas de abajo.
 (() => {
   const script = document.currentScript;
@@ -29,7 +29,7 @@
         { id: "academicos", label: "Recursos académicos", href: "repositorio-academicos.html" },
         { spacer: true },
         { id: "subir", label: "Subir material", href: "repositorio-subir.html", icon: "fa-arrow-up-from-bracket", cta: true },
-        { id: "moderacion", label: "Moderación", href: "aematec_biblioteca-moderacion.html", icon: "fa-user-shield" }
+        { id: "moderacion", label: "Moderación", href: "admin.html#moderacion", icon: "fa-user-shield" }
       ]
     }
   };

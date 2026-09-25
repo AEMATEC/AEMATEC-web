@@ -13,7 +13,7 @@ afectan al sitio.
 | 0.5 | Publicación automática (GitHub Actions), pruebas de reglas, correos por Gmail, agente de mantenimiento (`CLAUDE.md` + skills) | ✅ Hecha (falta configurar los secretos) |
 | 1 | Correcciones urgentes (seguridad, datos personales, cumplimiento del RI) | ✅ Hecha (quedan pasos manuales, ver abajo) |
 | 2 | Base compartida: layout, navegación y módulos JS comunes | ✅ Hecha (2a, 2b y 2c) |
-| 3 | Consolidar páginas y paneles (versión corta) | En curso: 3a hecha; falta 3b |
+| 3 | Consolidar páginas y paneles (versión corta) | ✅ Hecha (3a y 3b) |
 | 4 | Herramientas: Tailwind compilado, hosting, pruebas de reglas en CI | Pendiente |
 | 5 | Trámites | Pendiente (requiere Fase 2) |
 
@@ -55,7 +55,7 @@ Estas correcciones se validaron con 10 pruebas de reglas en el emulador de Fires
 ### Pasos manuales pendientes de la Fase 1
 1. ~~Verificar un dominio en Resend~~: se usa Gmail. Crear la contraseña de aplicación (README → Correos de notificación).
 2. **Configurar la publicación automática** (README → Publicación automática). Las reglas ya se publicaron a mano; las Functions se publicarán con el flujo.
-3. **Entrar una vez al Panel de Junta** después del despliegue para generar `config/junta_publica`. Hasta
+3. **Entrar una vez al Panel de administración** (`admin.html`) después del despliegue para generar `config/junta_publica`. Hasta
    entonces la página pública mostrará "Aún no se han registrado integrantes".
 4. ~~Confirmar el dominio~~: es `https://aematec.github.io/AEMATEC-web/`, que ya está incluido en `cors.json`.
 
@@ -110,10 +110,17 @@ Estos puntos condicionan el diseño y no deberían contradecirse:
   `repositorio-academicos.html`, `repositorio-subir.html`, `inventario.html`, `junta-directiva.html`, `tramites.html`.
   Los nombres viejos quedan como páginas de redirección (conservan `?…` y `#…`) para no romper enlaces guardados.
   Se descartaron carpetas por módulo: obligarían a cambiar todas las rutas de `assets/` sin beneficio real.
-- **3b.** Un solo panel de administración (`admin.html`) con pestañas según el rol (Moderación, Padrón, Junta,
-  Fiscalía, Medios), que reemplaza a `aematec_biblioteca-moderacion.html` y `aematec_junta-panel.html`.
-- *Pendiente de decisión:* unir Recursos docentes y académicos en una sola página. Hoy tienen diseños distintos
-  (cuadrícula con filtros por nivel vs. lista con accesos por curso); unirlas exige elegir un diseño.
+- ✅ **3b.** Un solo panel de administración (`admin.html`, código en `assets/js/admin/`): un acceso, y cada cuenta
+  ve las secciones de sus roles (Asociación para Junta y Fiscalía; Moderación del Repositorio para moderación).
+  Reemplaza a `aematec_biblioteca-moderacion.html` y `aematec_junta-panel.html`, que quedan como redirecciones.
+  Se corrigió que un moderador nuevo no podía crear su contraseña (la revisión previa leía `moderators` sin
+  sesión, algo que las reglas no permiten).
+- *Decisión (2026-09):* Recursos docentes y académicos **siguen como páginas separadas** (públicos distintos y
+  diseños distintos).
+- *Decisión (2026-09), principio de acceso:* público por defecto; identificación solo en la acción que la
+  requiere. No se agrega un inicio de sesión general ("soy docente" no verifica nada y alejaría a docentes con
+  poca experiencia digital). Trámites pedirá verificar el correo `@estudiantec.cr` con un enlace (sin contraseña)
+  y revisará el padrón solo al enviar un trámite.
 - *Más adelante:* dividir la lógica del inventario en módulos.
 
 ## Fase 4: herramientas

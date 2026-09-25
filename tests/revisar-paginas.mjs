@@ -9,7 +9,7 @@ import { tmpdir } from "node:os";
 const tmp = mkdtempSync(join(tmpdir(), "aematec-"));
 const archivos = [
   ...readdirSync(".").filter(f => f.endsWith(".html")),
-  ...readdirSync("assets/js").filter(f => f.endsWith(".js")).map(f => `assets/js/${f}`)
+  ...readdirSync("assets/js", { recursive: true }).filter(f => f.endsWith(".js")).map(f => `assets/js/${f}`)
 ];
 let errores = 0;
 

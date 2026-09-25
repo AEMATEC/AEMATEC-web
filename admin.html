@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/svg+xml" href="assets/logo-aematec-compas.svg">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="assets/css/site.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&display=swap"
+    rel="stylesheet">
+  <script>tailwind.config = { theme: { extend: { fontFamily: { sans: ['Montserrat', 'sans-serif'], serif: ['Source Serif 4', 'serif'] } } } }</script>
+  <script src="assets/firebase-config.js"></script>
+  <style>
+    @media (max-width: 767px) {
+      main {
+        padding: 2rem 1rem;
+      }
+      #login-panel {
+        padding: 1.25rem;
+      }
+      .tabs-container {
+        flex-direction: column;
+      }
+      .tabs-container>button {
+        width: 100%;
+        border-bottom: none;
+        border-right: 1px solid #D8E3E9;
+      }
+      .tabs-container>button.active {
+        border-right: 3px solid #00A6B8;
+        border-bottom: none;
+      }
+      .section-content {
+        padding: 1.25rem;
+      }
+      #section-form {
+        flex-direction: column;
+      }
+      #section-form input,
+      #section-form button {
+        width: 100%;
+        min-width: 0;
+      }
+      #section-list li {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+    }
+  </style>
+  <style>
+    @media (max-width: 767px) {
+      main {
+        padding: 2rem 1rem;
+      }
+      #login-panel {
+        padding: 1.25rem;
+      }
+      #moderacion>div:first-child {
+        align-items: flex-start;
+      }
+      #moderator-form {
+        flex-direction: column;
+      }
+      #moderator-form input,
+      #moderator-form button {
+        width: 100%;
+        min-width: 0;
+      }
+      #moderator-list li {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+      #pending-list article {
+        padding: 1.25rem;
+      }
+    }
+  </style>
+  <title>Panel de administración — AEMATEC</title>
+</head>
+
+<body class="min-h-screen bg-[#F4F8FA] text-[#0D2B45] font-serif"
+  style="background-image: radial-gradient(circle at 12% 18%, rgba(0, 175, 193, 0.13) 0, rgba(0, 175, 193, 0.13) 1.2px, transparent 1.8px), radial-gradient(circle at 84% 72%, rgba(13, 43, 69, 0.09) 0, rgba(13, 43, 69, 0.09) 1.2px, transparent 1.8px); background-size: 28px 28px, 36px 36px;">
+  <script src="assets/js/layout.js" data-part="header" data-active=""></script>
+
+  <main class="mx-auto max-w-[1100px] px-6 py-10">
+    <section id="login-panel"
+      class="mx-auto max-w-[430px] rounded-[18px] border border-[#D7E2E7] bg-white p-8 shadow-sm">
+      <h1 class="font-sans text-2xl font-bold">Acceso de administración</h1>
+      <p class="mt-2 text-[#607480]">Para la Junta Directiva, la Fiscalía y el equipo de moderación del Repositorio.</p>
+      <form id="login-form" class="mt-6 space-y-4">
+        <div><label for="email" class="font-sans text-xs font-bold">Correo</label><input id="email" type="email"
+            required autocomplete="email" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+        <div><label for="password" class="font-sans text-xs font-bold">Contraseña</label><input id="password"
+            type="password" required autocomplete="current-password"
+            class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+        <button class="h-11 w-full rounded-[9px] bg-[#0D2B45] font-sans text-sm font-bold text-white">Iniciar
+          sesión</button>
+        <p id="login-status" role="alert" class="text-sm text-[#C2413B]" hidden></p>
+      </form>
+      <div id="login-links" class="mt-4 flex justify-between font-sans text-xs font-bold">
+        <a href="#" id="show-signup-link" class="text-[#008F9E]">Primera vez, crear contraseña</a>
+        <a href="#" id="show-reset-link" class="text-[#607480]">¿Olvidaste tu contraseña?</a>
+      </div>
+
+      <form id="signup-form" class="mt-6 space-y-4" hidden>
+        <p class="text-sm text-[#607480]">Si tu correo ya fue agregado a la Junta, la Fiscalía o la moderación, crea aquí tu contraseña.</p>
+        <div><label for="signup-email" class="font-sans text-xs font-bold">Correo</label><input id="signup-email"
+            type="email" required autocomplete="email"
+            class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+        <div><label for="signup-password" class="font-sans text-xs font-bold">Contraseña (mínimo 6
+            caracteres)</label><input id="signup-password" type="password" required minlength="6"
+            autocomplete="new-password" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+        <div><label for="signup-password-confirm" class="font-sans text-xs font-bold">Confirmar contraseña</label><input
+            id="signup-password-confirm" type="password" required minlength="6" autocomplete="new-password"
+            class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+        <button class="h-11 w-full rounded-[9px] bg-[#0D2B45] font-sans text-sm font-bold text-white">Crear
+          contraseña</button>
+        <p id="signup-status" role="status" class="text-sm" hidden></p>
+        <a href="#" id="back-to-login-from-signup"
+          class="block text-center font-sans text-xs font-bold text-[#607480]">Volver a iniciar sesión</a>
+      </form>
+
+      <form id="reset-form" class="mt-6 space-y-4" hidden>
+        <p class="text-sm text-[#607480]">Te enviaremos un enlace a tu correo para restablecer la contraseña.</p>
+        <div><label for="reset-email" class="font-sans text-xs font-bold">Correo</label><input id="reset-email"
+            type="email" required autocomplete="email"
+            class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+        <button class="h-11 w-full rounded-[9px] bg-[#0D2B45] font-sans text-sm font-bold text-white">Enviar
+          enlace</button>
+        <p id="reset-status" role="status" class="text-sm" hidden></p>
+        <a href="#" id="back-to-login-from-reset"
+          class="block text-center font-sans text-xs font-bold text-[#607480]">Volver a iniciar sesión</a>
+      </form>
+    </section>
+    <section id="admin-panel" hidden>
+      <div class="flex flex-wrap items-end justify-between gap-4 mb-6">
+        <div>
+          <p class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#00A6B8]">Administración</p>
+          <h1 class="mt-2 font-sans text-3xl font-bold">Panel de administración</h1>
+          <p id="admin-session" class="mt-2 text-sm text-[#607480]"></p>
+        </div>
+        <button id="logout" type="button"
+          class="rounded-[9px] border border-[#AFC2CB] bg-white px-5 py-3 font-sans text-xs font-bold">Cerrar
+          sesión</button>
+      </div>
+      <nav id="admin-nav" class="mb-8 flex flex-wrap gap-2 font-sans text-xs font-bold" aria-label="Secciones del panel"></nav>
+
+      <section id="asociacion" class="mb-12" hidden>
+        <p class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#00A6B8]">Asociación</p>
+        <h2 class="mt-2 mb-5 font-sans text-2xl font-bold">Padrón, Junta, Fiscalía y Medios</h2>
+        <div class="rounded-[16px] border border-[#D7E2E7] bg-white p-6 shadow-sm">
+        <div class="tabs-container flex border-b border-[#D8E3E9]">
+          <button data-tab="padron"
+            class="active tab-btn px-6 py-3 font-sans font-semibold text-sm border-b-2 border-[#00A6B8] text-[#00A6B8]"><i
+              class="fa-solid fa-id-card mr-2"></i>Padrón de Asociados</button>
+          <button data-tab="junta"
+            class="tab-btn px-6 py-3 font-sans font-semibold text-sm border-b-2 border-transparent text-[#607480] hover:text-[#00A6B8]"><i
+              class="fa-solid fa-users mr-2"></i>Junta Directiva</button>
+          <button data-tab="fiscalia"
+            class="tab-btn px-6 py-3 font-sans font-semibold text-sm border-b-2 border-transparent text-[#607480] hover:text-[#00A6B8]"><i
+              class="fa-solid fa-scale-balanced mr-2"></i>Fiscalía</button>
+          <button data-tab="medios"
+            class="tab-btn px-6 py-3 font-sans font-semibold text-sm border-b-2 border-transparent text-[#607480] hover:text-[#00A6B8]"><i
+              class="fa-solid fa-megaphone mr-2"></i>Medios Oficiales</button>
+        </div>
+
+        <div id="section-content" class="section-content py-6">
+          <form id="section-form" class="flex flex-wrap gap-3 mb-5" style="display: none;">
+            <label for="section-email" class="sr-only">Correo a agregar</label>
+            <div class="relative flex-1">
+              <input id="section-email" type="text" required
+                placeholder="correo1@estudiantec.cr; correo2@estudiantec.cr; ..."
+                class="h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3">
+              <ul id="suggestions-list"
+                class="hidden absolute z-10 w-full mt-1 border border-[#D8E3E9] rounded-[9px] bg-white shadow-md max-h-48 overflow-y-auto">
+              </ul>
+            </div>
+            <button type="submit"
+              class="h-11 rounded-[9px] bg-[#0D2B45] px-5 font-sans text-xs font-bold text-white">Agregar</button>
+            <button type="button" id="upload-csv-btn" data-tab-only="padron"
+              class="h-11 rounded-[9px] border border-[#BFD0D8] px-5 font-sans text-xs font-bold hidden"
+              id="csv-btn-visible">Cargar CSV</button>
+          </form>
+          <p id="section-status" role="status" class="text-sm" hidden></p>
+          <ul id="section-list" class="mt-5 divide-y divide-[#E2E9EC]"></ul>
+          <!-- Puestos de la Junta Directiva según el Reglamento Interno, Art. 24. -->
+          <datalist id="puestos-junta">
+            <option value="Presidencia"></option>
+            <option value="Vicepresidencia"></option>
+            <option value="Secretaría General"></option>
+            <option value="Secretaría de Asuntos Financieros"></option>
+            <option value="Secretaría de Asuntos Académicos"></option>
+            <option value="Secretaría de Deporte y Cultura"></option>
+            <option value="Secretaría de Redes y Comunicación"></option>
+            <option value="Vocalía 1"></option>
+            <option value="Vocalía 2"></option>
+          </datalist>
+
+          <div id="medios-form" class="space-y-4" style="display: none;">
+            <div><label class="font-sans text-xs font-bold">Correo institucional</label><input id="medios-email"
+                type="text" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"
+                placeholder="aematec@estudiantec.cr"></div>
+            <div><label class="font-sans text-xs font-bold">Teléfono fijo</label><input id="medios-phone" type="text"
+                class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3" placeholder="2550-2463"></div>
+            <div class="border-t border-[#D8E3E9] pt-4">
+              <p class="font-sans text-xs font-bold mb-3">Medios de difusión</p>
+              <div><label class="font-sans text-xs font-bold">WhatsApp</label><input id="medios-whatsapp" type="text"
+                  class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"
+                  placeholder="https://chat.whatsapp.com/..."></div>
+              <div class="mt-3"><label class="font-sans text-xs font-bold">Instagram</label><input id="medios-instagram"
+                  type="text" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"
+                  placeholder="https://www.instagram.com/aematec"></div>
+              <div class="mt-3"><label class="font-sans text-xs font-bold">Telegram</label><input id="medios-telegram"
+                  type="text" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"
+                  placeholder="https://t.me/comunidadmatec"></div>
+            </div>
+            <button type="button" id="medios-save"
+              class="h-11 w-full rounded-[9px] bg-[#0D2B45] px-5 font-sans text-sm font-bold text-white mt-4">Guardar
+              medios</button>
+            <p id="medios-status" role="status" class="text-sm" hidden></p>
+          </div>
+        </div>
+      </div>
+      </section>
+
+      <section id="moderacion" hidden>
+      <div class="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#00A6B8]">Repositorio</p>
+          <h2 class="mt-2 font-sans text-2xl font-bold">Materiales pendientes de revisión</h2>
+        </div>
+      </div>
+      <p id="panel-status" role="status" class="mt-5 text-sm text-[#607480]"></p>
+      <div id="pending-list" class="mt-6 space-y-4"></div>
+      <section class="mt-10 rounded-[16px] border border-[#D7E2E7] bg-white p-6 shadow-sm">
+        <h2 class="font-sans text-xl font-bold">Moderadores</h2>
+        <p class="mt-2 text-sm text-[#607480]">Agrega o quita correos autorizados. Cada persona también debe tener una
+          cuenta habilitada en Firebase Authentication.</p>
+        <form id="moderator-form" class="mt-5 flex flex-wrap gap-3">
+          <label for="moderator-email" class="sr-only">Correo del moderador</label>
+          <input id="moderator-email" type="email" required placeholder="correo@ejemplo.com"
+            class="h-11 min-w-[260px] flex-1 rounded-[9px] border border-[#BFD0D8] px-3">
+          <button class="h-11 rounded-[9px] bg-[#0D2B45] px-5 font-sans text-xs font-bold text-white">Agregar
+            moderador</button>
+        </form>
+        <p id="moderator-status" role="status" class="mt-3 text-sm" hidden></p>
+        <ul id="moderator-list" class="mt-5 divide-y divide-[#E2E9EC]"></ul>
+      </section>
+      </section>
+    </section>
+    <dialog id="upload-modal"
+      class="rounded-[16px] border border-[#D7E2E7] bg-white shadow-lg backdrop:bg-black backdrop:bg-opacity-50 p-0">
+      <div class="p-6 max-w-[600px]">
+        <h2 class="font-sans text-xl font-bold">Cargar padrón desde CSV</h2>
+        <p class="mt-2 text-sm text-[#607480]">Sube un archivo CSV con una columna de correos. Se sincronizará el padrón
+          actual: se agregan nuevos, se eliminan los no incluidos, y se mantienen los existentes.</p>
+
+        <div class="mt-5">
+          <label for="csv-file" class="block font-sans text-xs font-bold mb-2">Archivo CSV</label>
+          <input id="csv-file" type="file" accept=".csv" class="w-full border border-[#BFD0D8] rounded-[9px] px-3 py-2">
+          <p class="mt-2 text-xs text-[#607480]">Formato: una fila por correo, o primer valor de cada fila si hay
+            múltiples columnas (CSV estándar).</p>
+        </div>
+
+        <div id="csv-preview" class="mt-5 hidden">
+          <h3 class="font-sans text-sm font-bold mb-3">Previsualización de cambios</h3>
+          <div class="space-y-3">
+            <div id="preview-add" class="hidden">
+              <p class="font-sans text-xs font-bold text-[#087F8C]">Agregar (<span id="count-add">0</span>):</p>
+              <ul id="list-add" class="mt-2 ml-3 space-y-1 text-xs text-[#5B6E7B]"></ul>
+            </div>
+            <div id="preview-remove" class="hidden">
+              <p class="font-sans text-xs font-bold text-[#C2413B]">Eliminar (<span id="count-remove">0</span>):</p>
+              <ul id="list-remove" class="mt-2 ml-3 space-y-1 text-xs text-[#5B6E7B]"></ul>
+            </div>
+            <div id="preview-keep" class="hidden">
+              <p class="font-sans text-xs font-bold text-[#405769]">Mantener (<span id="count-keep">0</span>):</p>
+              <p class="mt-2 text-xs text-[#5B6E7B]"><span id="count-keep-total">0</span> correos sin cambios</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6 flex justify-end gap-3">
+          <button type="button" id="modal-cancel"
+            class="px-4 py-2 rounded-[9px] border border-[#BFD0D8] font-sans text-sm font-bold">Cancelar</button>
+          <button type="button" id="modal-apply" disabled
+            class="px-4 py-2 rounded-[9px] bg-[#0D2B45] text-white font-sans text-sm font-bold disabled:opacity-50">Sincronizar</button>
+        </div>
+        <p id="csv-status" role="status" class="mt-4 text-sm" hidden></p>
+      </div>
+    </dialog>
+  </main>
+  <script src="assets/js/layout.js" data-part="footer"></script>
+  <div id="edit-modal"
+    class="fixed inset-0 z-50 hidden items-center justify-center bg-[#0D2B45]/60 p-6 backdrop-blur-sm" role="dialog"
+    aria-modal="true" aria-labelledby="edit-modal-title">
+    <article class="relative max-h-[90vh] w-full max-w-[650px] overflow-y-auto rounded-[20px] bg-white p-8 shadow-2xl">
+      <button id="edit-modal-close" type="button"
+        class="absolute right-5 top-5 flex h-10 w-10 items-center justify-center rounded-full bg-[#F0F4F6] text-[#5F7480]"
+        aria-label="Cerrar edición"><i class="fa-solid fa-xmark"></i></button>
+      <p class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#00A6B8]">Editar recurso</p>
+      <h2 id="edit-modal-title" class="mt-3 pr-12 font-sans text-2xl font-bold">Editar metadatos</h2>
+      <p class="mt-2 text-sm text-[#607480]">El autor y el archivo original no se pueden modificar desde aquí.</p>
+      <form id="edit-form" class="mt-6 space-y-4">
+        <div><label for="edit-title" class="font-sans text-xs font-bold">Título</label><input id="edit-title" required
+            maxlength="120" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+        <div><label for="edit-description" class="font-sans text-xs font-bold">Descripción</label><textarea
+            id="edit-description" required maxlength="300"
+            class="mt-2 h-24 w-full rounded-[9px] border border-[#BFD0D8] px-3 py-2 resize-none"></textarea></div>
+        <div id="edit-labels-wrap"><span class="font-sans text-xs font-bold">Etiquetas</span>
+          <div id="edit-labels" class="mt-2 grid grid-cols-2 gap-2 text-xs text-[#526A78]"></div>
+        </div>
+        <div id="edit-docentes-fields" class="grid grid-cols-2 gap-4 hidden">
+          <div><label for="edit-grade" class="font-sans text-xs font-bold">Grado</label><select id="edit-grade"
+              class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] bg-white px-3">
+              <option value="">Seleccionar grado</option>
+              <option>Primero</option>
+              <option>Segundo</option>
+              <option>Tercero</option>
+              <option>Cuarto</option>
+              <option>Quinto</option>
+              <option>Sexto</option>
+              <option>Sétimo</option>
+              <option>Octavo</option>
+              <option>Noveno</option>
+              <option>Décimo</option>
+              <option>Undécimo</option>
+              <option>Duodécimo</option>
+              <option>Universitario</option>
+              <option>Para-universitario</option>
+            </select></div>
+          <div><label for="edit-materials" class="font-sans text-xs font-bold">Materiales</label><input
+              id="edit-materials" maxlength="300" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3">
+          </div>
+          <label class="col-span-2 flex items-center gap-3 font-sans text-xs font-bold"><input
+              id="edit-requires-internet" type="checkbox" class="h-4 w-4 accent-[#00AFC1]"> Requiere internet</label>
+        </div>
+        <div id="edit-academico-fields" class="grid grid-cols-2 gap-4 hidden">
+          <div><label for="edit-course" class="font-sans text-xs font-bold">Curso</label><input id="edit-course"
+              maxlength="80" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+          <div><label for="edit-course-code" class="font-sans text-xs font-bold">Código de curso</label><input
+              id="edit-course-code" maxlength="20" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3">
+          </div>
+        </div>
+        <div><label for="edit-explanation-url" class="font-sans text-xs font-bold">Enlace de explicación
+            (opcional)</label><input id="edit-explanation-url" type="url"
+            class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+        <p id="edit-status" role="alert" class="text-sm" hidden></p>
+        <div class="flex justify-end gap-3 pt-2"><button type="button" id="edit-cancel"
+            class="h-11 rounded-[9px] border border-[#AFC2CB] px-5 font-sans text-xs font-bold">Cancelar</button><button
+            type="submit" class="h-11 rounded-[9px] bg-[#0D2B45] px-6 font-sans text-xs font-bold text-white">Guardar
+            cambios</button></div>
+      </form>
+    </article>
+  </div>
+  <script type="module" src="assets/js/admin/panel.js"></script>
+</body>
+
+</html>
