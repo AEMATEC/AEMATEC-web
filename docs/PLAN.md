@@ -15,7 +15,7 @@ afectan al sitio.
 | 2 | Base compartida: layout, navegación y módulos JS comunes | ✅ Hecha (2a, 2b y 2c) |
 | 3 | Consolidar páginas y paneles (versión corta) | ✅ Hecha (3a y 3b) |
 | 4 | Herramientas: Tailwind compilado, hosting, pruebas de reglas en CI | Pendiente |
-| 5 | Trámites | Pendiente (requiere Fase 2) |
+| 5 | Trámites | En curso: T1 (base de datos, reglas y funciones) hecha; faltan T2 (página pública) y T3 (panel) |
 
 ## Diagnóstico (septiembre 2026)
 
@@ -129,5 +129,32 @@ Estos puntos condicionan el diseño y no deberían contradecirse:
 - Chequeo de enlaces rotos en CI (las pruebas de reglas ya existen).
 
 ## Fase 5: Trámites
-Solicitudes a la Junta, postulaciones y consultas confidenciales a Fiscalía, siguiendo los requisitos del
-RI de arriba.
+Diseño acordado con la Junta (2026-09):
+
+| Trámite | Lo recibe | RI |
+|---|---|---|
+| Solicitud a la Junta (punto de agenda, asistir a sesión, rendición de cuentas, otra) | Junta | Art. 8 f-h, 111 |
+| Postulación (comisión o representación estudiantil) | Junta | Art. 51 c, 92-93 |
+| Solicitud de AGEC extraordinaria, con adhesiones hasta el 10 % del padrón | Junta | Art. 13 c |
+| Consulta o denuncia a Fiscalía, anónima o identificada | Solo Fiscalía | Art. 42, 45 e |
+
+- Las mociones de sesión **no** entran: se manejan con un formulario por sesión.
+- Quien envía verifica su correo `@estudiantec.cr` con un enlace (sin contraseña) solo al enviar.
+- **Padrón atrasado:** si el correo no está en el padrón, el trámite se acepta marcado para que la Junta decida; en
+  una AGEC esas adhesiones se cuentan aparte y no suman al 10 % hasta que se confirmen.
+- **Denuncias anónimas:** se verifica que el correo sea institucional y se consulta el padrón, pero el caso se guarda
+  sin correo, nombre ni uid; el seguimiento es con un código privado (solo se guarda su hash).
+- Plazo de respuesta: 10 días hábiles (Art. 111), contados de lunes a viernes sin feriados (queda un día antes, nunca
+  después). Rechazos con motivación y aviso de recursos (Art. 82-83).
+
+Entregas:
+- ✅ **T1.** Colecciones, reglas y Cloud Functions (`enviarTramite`, `adherirAgec`, `consultarSeguimiento`), con pruebas
+  de reglas y de funciones (incluye una prueba que falla si una denuncia anónima guarda datos de la persona).
+- **T2.** Página pública `tramites.html`: formularios, verificación por enlace al correo, "mis trámites" y seguimiento
+  por código. Requiere activar "Vínculo del correo electrónico" en Firebase Authentication.
+- **T3.** Sección Trámites en `admin.html` (Junta y Fiscalía): estados, plazo visible, prórroga informada, rechazo
+  motivado con aviso por correo.
+
+## Otras decisiones de la Junta (2026-09)
+- **Ubicación de los bienes del inventario: pública.** El espacio de la asociación está en el campus (con control de
+  acceso) y saber dónde está cada bien facilita que las personas Asociadas lo usen (RI Art. 124).

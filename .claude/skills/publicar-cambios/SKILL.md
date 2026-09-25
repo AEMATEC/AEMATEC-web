@@ -31,6 +31,7 @@ de `main`. Explica el resultado en palabras simples.
 | `Falta el secreto GMAIL_APP_PASSWORD` | No está la contraseña de aplicación de Gmail | Guiar con README → "Correos de notificación" |
 | `PERMISSION_DENIED`, `does not have permission`, `iam.serviceAccounts.actAs` | A la cuenta de servicio le falta un rol | Decir el rol que nombra el error y cómo agregarlo en Google Cloud → IAM |
 | `Invalid login` / `Username and Password not accepted` (en los logs de Functions) | Se cambió o revocó la contraseña de aplicación | Crear una nueva, actualizar el secreto en GitHub y ejecutar el flujo a mano con "Volver a cargar GMAIL_APP_PASSWORD" |
+| `run.services.setIamPolicy`, `Permission denied` al publicar `enviarTramite`/`adherirAgec`/`consultarSeguimiento` | Las funciones que llama el navegador (onCall) necesitan permiso para hacerse públicas | Agregar el rol **Administrador de Cloud Run** (Cloud Run Admin) a la cuenta `github-publicar` en Google Cloud → IAM y volver a ejecutar el flujo |
 | Falla "Probar reglas" | Un cambio de reglas rompió un permiso esperado | Leer qué prueba falló y corregir la regla (o la prueba, si el cambio de permiso era intencional y está justificado) |
 
 Si el error no está en la tabla, lee el log completo, identifica el paso que falló y propone un arreglo

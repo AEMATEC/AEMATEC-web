@@ -1,49 +1,11 @@
 const { onDocumentCreated } = require("firebase-functions/v2/firestore");
 const { onSchedule } = require("firebase-functions/v2/scheduler");
-const { defineSecret } = require("firebase-functions/params");
 const logger = require("firebase-functions/logger");
 const admin = require("firebase-admin");
-const nodemailer = require("nodemailer");
 
 admin.initializeApp();
 
-// Los correos salen de la cuenta Gmail de la Junta. La contraseña es una "contraseña de
-// aplicación" de Google guardada en Secret Manager (ver README → Correos de notificación).
-// "aeemac" no es un error: la cuenta viene de cuando la carrera se llamaba EMAC (Enseñanza de la
-// Matemática Asistida por Computadora) y la asociación, AEEMAC. Es la cuenta vigente de la Junta.
-const gmailAddress = "aeemac.tec@gmail.com";
-const gmailAppPassword = defineSecret("GMAIL_APP_PASSWORD");
-
-async function getModeratorEmails() {
-  const snapshot = await admin.firestore().collection("moderators").get();
-  const emails = snapshot.docs.map(document => document.id);
-  return emails.length ? emails : ["angeloyeshuac@gmail.com"];
-}
-
-async function getJuntaEmails() {
-  const snapshot = await admin.firestore().collection("junta").get();
-  const emails = snapshot.docs.map(document => document.id);
-  return emails.length ? emails : ["angeloyeshuac@gmail.com"];
-}
-
-async function sendEmail(subject, html, recipients) {
-  if (!recipients.length) {
-    logger.warn("No hay destinatarios configurados; correo no enviado");
-    return;
-  }
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: { user: gmailAddress, pass: gmailAppPassword.value() }
-  });
-  // Los destinatarios van en copia oculta para no exponer los correos entre sí.
-  await transporter.sendMail({
-    from: `AEMATEC <${gmailAddress}>`,
-    to: gmailAddress,
-    bcc: recipients,
-    subject,
-    html
-  });
-}
+const { gmailAppPassword, correosDe, sendEmail, escapeHtml } = require("./correo");
 
 exports.notifyPendingResource = onDocumentCreated(
   { document: "resources/{resourceId}", secrets: [gmailAppPassword] },
@@ -57,7 +19,7 @@ exports.notifyPendingResource = onDocumentCreated(
        <li>Autor: ${escapeHtml(resource.author)}</li>
        <li>Tipo: ${escapeHtml(resource.type)}</li></ul>
        <p>Ingresa al panel de moderación para aprobarlo o rechazarlo.</p>`,
-      await getModeratorEmails()
+      await correosDe("moderators")
     );
     logger.info("Notificación enviada", { resourceId: event.params.resourceId });
   }
@@ -75,7 +37,7 @@ exports.sendPendingSummary = onSchedule(
       `${snapshot.size} material(es) pendiente(s) — Repositorio AEMATEC`,
       `<p>Hay <strong>${snapshot.size}</strong> material(es) pendiente(s) de revisión.</p>
        <p>Ingresa al panel de moderación para revisarlos.</p>`,
-      await getModeratorEmails()
+      await correosDe("moderators")
     );
     logger.info("Resumen diario enviado", { pending: snapshot.size });
   }
@@ -96,14 +58,10 @@ exports.notifyLoanRequest = onDocumentCreated(
          <li>Fecha prevista de devolución: ${escapeHtml(solicitud.fechaPrevista) || "No indicada"}</li>
        </ul>
        <p>El préstamo se coordina en físico. Ingresa al inventario para contactar al solicitante.</p>`,
-      await getJuntaEmails()
+      await correosDe("junta")
     );
     logger.info("Notificación de préstamo enviada", { solicitudId: event.params.solicitudId });
   }
 );
 
-function escapeHtml(value) {
-  return String(value || "").replace(/[&<>"']/g, character => ({
-    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
-  }[character]));
-}
+Object.assign(exports, require("./tramites"));
