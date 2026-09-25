@@ -179,12 +179,14 @@
           <h2 class="font-sans text-[30px] font-bold mt-2">Canales oficiales de comunicación</h2>
         </div>
         <div id="medios-grid" class="grid grid-cols-4 gap-5">
-          <a href="mailto:aematec@estudiantec.cr" class="rounded-[16px] border border-[#D8E3E9] bg-white p-6 hover:border-[#00B5C8] transition"><i class="fa-solid fa-envelope text-2xl text-[#00A6B8]"></i><h3 class="mt-4 font-sans font-bold">Correo institucional</h3><p class="mt-2 text-sm text-[#627683]">aematec@estudiantec.cr</p></a>
-          <a href="https://t.me/comunidadmatec" target="_blank" rel="noopener" class="rounded-[16px] border border-[#D8E3E9] bg-white p-6 hover:border-[#00B5C8] transition"><i class="fa-brands fa-telegram text-2xl text-[#486398]"></i><h3 class="mt-4 font-sans font-bold">Telegram</h3><p class="mt-2 text-sm text-[#627683]">Canal oficial</p></a>
-          <a href="https://chat.whatsapp.com/HyBk6tUHyf44MlURrVgiTi" target="_blank" rel="noopener" class="rounded-[16px] border border-[#D8E3E9] bg-white p-6 hover:border-[#00B5C8] transition"><i class="fa-brands fa-whatsapp text-2xl text-[#3B8F5B]"></i><h3 class="mt-4 font-sans font-bold">WhatsApp</h3><p class="mt-2 text-sm text-[#627683]">Grupo oficial</p></a>
-          <a href="https://www.instagram.com/aematec?stkn=enY1bDVmY3p1a3J4" target="_blank" rel="noopener" class="rounded-[16px] border border-[#D8E3E9] bg-white p-6 hover:border-[#00B5C8] transition"><i class="fa-brands fa-instagram text-2xl text-[#E1306C]"></i><h3 class="mt-4 font-sans font-bold">Instagram</h3><p class="mt-2 text-sm text-[#627683]">@aematec</p></a>
+          <a id="medio-email" href="mailto:aematec@estudiantec.cr" class="rounded-[16px] border border-[#D8E3E9] bg-white p-6 hover:border-[#00B5C8] transition"><i class="fa-solid fa-envelope text-2xl text-[#00A6B8]"></i><h3 class="mt-4 font-sans font-bold">Correo institucional</h3><p id="medio-email-text" class="mt-2 text-sm text-[#627683]">aematec@estudiantec.cr</p></a>
+          <a id="medio-telegram" href="https://t.me/comunidadmatec" target="_blank" rel="noopener" class="rounded-[16px] border border-[#D8E3E9] bg-white p-6 hover:border-[#00B5C8] transition"><i class="fa-brands fa-telegram text-2xl text-[#486398]"></i><h3 class="mt-4 font-sans font-bold">Telegram</h3><p class="mt-2 text-sm text-[#627683]">Comunidad oficial</p></a>
+          <a id="medio-whatsapp" href="https://chat.whatsapp.com/HyBk6tUHyf44MlURrVgiTi" target="_blank" rel="noopener" class="rounded-[16px] border border-[#D8E3E9] bg-white p-6 hover:border-[#00B5C8] transition"><i class="fa-brands fa-whatsapp text-2xl text-[#3B8F5B]"></i><h3 class="mt-4 font-sans font-bold">WhatsApp</h3><p class="mt-2 text-sm text-[#627683]">Comunidad oficial</p></a>
+          <div class="rounded-[16px] border border-[#D8E3E9] bg-white p-6"><i class="fa-solid fa-graduation-cap text-2xl text-[#0D2B45]"></i><h3 class="mt-4 font-sans font-bold">TECDigital</h3><p class="mt-2 text-sm text-[#627683]">Noticias del subgrupo Estudiantes EMA</p></div>
         </div>
-        <p class="mt-6 text-sm text-[#627683]">Este sitio también es un Medio Oficial de la asociación.</p>
+        <p class="mt-6 text-sm text-[#627683]">Las convocatorias, acuerdos y notificaciones se comunican por estos Medios Oficiales (Reglamento Interno, Art. 102). Este sitio y las redes sociales, como
+          <a id="medio-instagram" href="https://www.instagram.com/aematec?stkn=enY1bDVmY3p1a3J4" target="_blank" rel="noopener" class="font-semibold text-[#0C8190] hover:text-[#00A6B8]"><i class="fa-brands fa-instagram"></i> Instagram</a>,
+          son medios informativos y no sustituyen esas notificaciones (Art. 104).</p>
       </div>
     </section>
   </main>
@@ -218,25 +220,33 @@
     const app = initializeApp(window.AEMATEC_FIREBASE_CONFIG);
     const db = getFirestore(app);
 
+    // Los valores vienen de Firestore (editables por la Junta): se validan y se asignan como
+    // atributos/texto, nunca como HTML, para evitar inyección de código o enlaces javascript:.
+    const safeHttpsUrl = value => {
+      try {
+        const url = new URL(String(value || ""));
+        return url.protocol === "https:" ? url.href : null;
+      } catch {
+        return null;
+      }
+    };
+    const safeEmail = value => /^[^\s@<>"']+@[^\s@<>"']+\.[^\s@<>"']+$/.test(String(value || "")) ? String(value) : null;
+
     async function loadMedios() {
       try {
-        const doc_snap = await getDoc(doc(db, "config", "medios_oficiales"));
-        if (!doc_snap.exists()) return;
-        const data = doc_snap.data();
-        const grid = document.querySelector("#medios-grid");
+        const snapshot = await getDoc(doc(db, "config", "medios_oficiales"));
+        if (!snapshot.exists()) return;
+        const data = snapshot.data();
 
-        const email = data.email || "aematec@estudiantec.cr";
-        const phone = data.phone || "2550-2463";
-        const whatsapp = data.whatsapp || "https://chat.whatsapp.com/HyBk6tUHyf44MlURrVgiTi";
-        const instagram = data.instagram || "https://www.instagram.com/aematec?stkn=enY1bDVmY3p1a3J4";
-        const telegram = data.telegram || "https://t.me/comunidadmatec";
-
-        grid.innerHTML = `
-          <a href="mailto:${email}" class="rounded-[16px] border border-[#D8E3E9] bg-white p-6 hover:border-[#00B5C8] transition"><i class="fa-solid fa-envelope text-2xl text-[#00A6B8]"></i><h3 class="mt-4 font-sans font-bold">Correo institucional</h3><p class="mt-2 text-sm text-[#627683]">${email}</p></a>
-          <a href="${telegram}" target="_blank" rel="noopener" class="rounded-[16px] border border-[#D8E3E9] bg-white p-6 hover:border-[#00B5C8] transition"><i class="fa-brands fa-telegram text-2xl text-[#486398]"></i><h3 class="mt-4 font-sans font-bold">Telegram</h3><p class="mt-2 text-sm text-[#627683]">Canal oficial</p></a>
-          <a href="${whatsapp}" target="_blank" rel="noopener" class="rounded-[16px] border border-[#D8E3E9] bg-white p-6 hover:border-[#00B5C8] transition"><i class="fa-brands fa-whatsapp text-2xl text-[#3B8F5B]"></i><h3 class="mt-4 font-sans font-bold">WhatsApp</h3><p class="mt-2 text-sm text-[#627683]">Grupo oficial</p></a>
-          <a href="${instagram}" target="_blank" rel="noopener" class="rounded-[16px] border border-[#D8E3E9] bg-white p-6 hover:border-[#00B5C8] transition"><i class="fa-brands fa-instagram text-2xl text-[#E1306C]"></i><h3 class="mt-4 font-sans font-bold">Instagram</h3><p class="mt-2 text-sm text-[#627683]">@aematec</p></a>
-        `;
+        const email = safeEmail(data.email);
+        if (email) {
+          document.querySelector("#medio-email").href = `mailto:${email}`;
+          document.querySelector("#medio-email-text").textContent = email;
+        }
+        for (const medio of ["telegram", "whatsapp", "instagram"]) {
+          const url = safeHttpsUrl(data[medio]);
+          if (url) document.querySelector(`#medio-${medio}`).href = url;
+        }
       } catch (error) {
         console.error("No se pudieron cargar los medios desde Firestore, se mantienen los valores fijos:", error);
       }

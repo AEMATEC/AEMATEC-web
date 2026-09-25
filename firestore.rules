@@ -14,7 +14,8 @@ service cloud.firestore {
 
     function isAsociado() {
       return isOwner()
-        || (request.auth != null && exists(/databases/$(database)/documents/padron/$(request.auth.token.email)));
+        || (request.auth != null && request.auth.token.email_verified == true
+          && exists(/databases/$(database)/documents/padron/$(request.auth.token.email)));
     }
 
     function isJunta() {
@@ -25,7 +26,8 @@ service cloud.firestore {
 
     function isFiscalia() {
       return isOwner()
-        || (request.auth != null && exists(/databases/$(database)/documents/fiscalia/$(request.auth.token.email)));
+        || (request.auth != null && request.auth.token.email_verified == true
+          && exists(/databases/$(database)/documents/fiscalia/$(request.auth.token.email)));
     }
 
     match /moderators/{email} {
@@ -38,8 +40,12 @@ service cloud.firestore {
       allow read, create, update, delete: if isJunta();
     }
 
+    // Cualquiera puede consultar un correo puntual (lo usa el registro de cuentas de Junta),
+    // pero el listado completo con correos solo lo ve la Junta. La página pública lee
+    // config/junta_publica, que contiene únicamente nombre y puesto (RI Art. 143).
     match /junta/{email} {
-      allow read: if true;
+      allow get: if true;
+      allow list: if isJunta();
       allow create, update, delete: if isJunta();
     }
 
@@ -59,8 +65,10 @@ service cloud.firestore {
       allow create, update, delete: if isJunta();
     }
 
-    // Solicitudes de préstamo: cualquiera puede solicitar (el préstamo se concreta en físico),
-    // solo Junta puede leer/gestionar el listado de solicitudes.
+    // Solicitudes de préstamo: el formulario es abierto porque el préstamo se formaliza en
+    // físico con la firma del registro (RI Art. 120), donde la Junta verifica la condición de
+    // persona Asociada. Solo Junta puede leer/gestionar el listado de solicitudes.
+    // La fecha prevista de devolución es obligatoria (RI Art. 122).
     match /prestamoSolicitudes/{solicitudId} {
       allow read, update, delete: if isJunta();
       allow create: if request.resource.data.itemTipo in ['aematec', 'biblioteca']
@@ -73,7 +81,8 @@ service cloud.firestore {
         && request.resource.data.solicitanteCarne.size() <= 30
         && request.resource.data.solicitanteContacto is string && request.resource.data.solicitanteContacto.size() > 0
         && request.resource.data.solicitanteContacto.size() <= 160
-        && request.resource.data.fechaPrevista is string && request.resource.data.fechaPrevista.size() <= 20
+        && request.resource.data.fechaPrevista is string && request.resource.data.fechaPrevista.size() > 0
+        && request.resource.data.fechaPrevista.size() <= 20
         && request.resource.data.notas is string && request.resource.data.notas.size() <= 300
         && request.resource.data.estado == 'pendiente'
         && request.resource.data.keys().hasOnly([

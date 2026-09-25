@@ -562,8 +562,9 @@
         aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
       <p class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#00A6B8]">Solicitar préstamo</p>
       <h2 id="loan-modal-title" class="mt-2 font-sans text-xl font-bold pr-8"></h2>
-      <p class="mt-2 text-sm text-[#607480]">El préstamo se entrega en físico. La Junta Directiva recibirá tu solicitud
-        y te contactará para coordinar la entrega.</p>
+      <p class="mt-2 text-sm text-[#607480]">Los préstamos son para personas Asociadas. La Junta Directiva recibirá tu
+        solicitud y te contactará para coordinar la entrega, que se formaliza en físico con tu firma en el registro de
+        préstamos.</p>
       <form id="loan-form" class="mt-5 space-y-4">
         <div><label for="loan-nombre" class="font-sans text-xs font-bold">Nombre completo</label><input id="loan-nombre"
             type="text" required maxlength="120" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3">
@@ -574,12 +575,20 @@
         <div><label for="loan-contacto" class="font-sans text-xs font-bold">Correo o teléfono de contacto</label><input
             id="loan-contacto" type="text" required maxlength="160"
             class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
-        <div><label for="loan-fecha" class="font-sans text-xs font-bold">Fecha prevista de devolución
-            (opcional)</label><input id="loan-fecha" type="date"
+        <div><label for="loan-fecha" class="font-sans text-xs font-bold">Fecha prevista de devolución</label><input
+            id="loan-fecha" type="date" required
             class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
         <div><label for="loan-notas" class="font-sans text-xs font-bold">Notas (opcional)</label><textarea
             id="loan-notas" maxlength="300" rows="2"
             class="mt-2 w-full rounded-[9px] border border-[#BFD0D8] px-3 py-2"></textarea></div>
+        <div class="rounded-[10px] border border-[#DCE6EA] bg-[#F1F6F8] px-4 py-3 text-xs leading-5 text-[#506773]">
+          <p>Al recibir el bien serás responsable de su uso, custodia y devolución en condiciones equivalentes,
+            salvo el desgaste normal. En caso de pérdida o daño deberás reponerlo o repararlo, y los atrasos pueden
+            generar cargos administrativos o la restricción temporal de préstamos futuros (Reglamento Interno, Art.
+            121, 123 y 133).</p>
+          <label class="mt-2 flex items-start gap-2 font-semibold text-[#0D2B45]"><input id="loan-acepta"
+              type="checkbox" required class="mt-0.5"> Entiendo y acepto estas condiciones.</label>
+        </div>
         <button type="submit"
           class="h-11 w-full rounded-[9px] bg-[#0D2B45] font-sans text-sm font-bold text-white">Enviar
           solicitud</button>
@@ -1085,6 +1094,7 @@
       if (!currentItem) return;
       document.querySelector("#loan-modal-title").textContent = currentItem.tipo === "biblioteca" ? currentItem.titulo : (currentItem.nombre || currentItem.articulo);
       document.querySelector("#loan-form").reset();
+      document.querySelector("#loan-fecha").min = new Date().toLocaleDateString("en-CA");
       document.querySelector("#loan-status").hidden = true;
       showModal(document.querySelector("#loan-modal"));
     });
