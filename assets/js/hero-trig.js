@@ -9,16 +9,18 @@
 
   const NAVY = "#0D2B45";
   const CYAN = "#00A6B8";
-  const GRID = "rgba(13,43,69,0.10)";
+  const GRID = "rgba(13,43,69,0.08)";
   const T_DRAW = 3000, T_MOVE = 1200, T_TRACE = 4000, T_HOLD = 1200, T_CLEAR = 500;
 
+  // Todas dentro de la misma familia de azules/verdes del sitio (nada de colores muy vivos):
+  // es un fondo decorativo, no debe competir con el título.
   const FUNCS = [
-    { f: x => Math.sin(x), color: "#12a8ad" },
-    { f: x => Math.cos(x), color: "#f0643c" },
-    { f: x => Math.tan(x), color: "#6c5ce7" },
-    { f: x => 1 / Math.sin(x), color: "#d99a00" },
-    { f: x => 1 / Math.cos(x), color: "#16a34a" },
-    { f: x => Math.cos(x) / Math.sin(x), color: "#db2777" }
+    { f: x => Math.sin(x), color: "#3B8FA6" },
+    { f: x => Math.cos(x), color: "#43708F" },
+    { f: x => Math.tan(x), color: "#5B7FB0" },
+    { f: x => 1 / Math.sin(x), color: "#2F8F82" },
+    { f: x => 1 / Math.cos(x), color: "#4F7A9C" },
+    { f: x => Math.cos(x) / Math.sin(x), color: "#5A6FA0" }
   ];
 
   let W, H, R, cx, cy, XMAX, YMAX, park;
@@ -30,7 +32,7 @@
     canvas.width = W * dpr; canvas.height = H * dpr;
     canvas.style.width = `${W}px`; canvas.style.height = `${H}px`;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    R = Math.min(H * 0.22, W * 0.15);
+    R = Math.min(H * 0.17, W * 0.11);
     cx = W * (W < 640 ? 0.62 : 0.74);
     cy = H / 2;
     XMAX = (Math.max(cx, W - cx) - 8) / R;
@@ -103,7 +105,7 @@
 
   function drawCircle(end) {
     ctx.save();
-    ctx.strokeStyle = NAVY; ctx.lineWidth = 3; ctx.lineCap = "round";
+    ctx.strokeStyle = NAVY; ctx.lineWidth = 2; ctx.lineCap = "round";
     ctx.beginPath(); ctx.arc(cx, cy, R, 0, -end, true); ctx.stroke();
     ctx.restore();
   }
@@ -111,7 +113,7 @@
   function drawFunction(fn, p, alpha) {
     const x0 = -XMAX, x1 = -XMAX + 2 * XMAX * p;
     ctx.save(); ctx.globalAlpha = alpha;
-    ctx.strokeStyle = fn.color; ctx.lineWidth = 3.5;
+    ctx.strokeStyle = fn.color; ctx.lineWidth = 2.25;
     ctx.lineJoin = "round"; ctx.lineCap = "round";
     ctx.beginPath();
     const N = Math.ceil(W * 1.5 * p) + 2;
@@ -129,7 +131,7 @@
     ctx.stroke();
 
     const yNow = fn.f(x1);
-    if (p < 1 && isFinite(yNow) && Math.abs(yNow) <= YMAX) dot(P(x1, yNow), fn.color, 6);
+    if (p < 1 && isFinite(yNow) && Math.abs(yNow) <= YMAX) dot(P(x1, yNow), fn.color, 4);
 
     if (p >= 1) {
       for (let i = 0; i <= 2000; i++) {
@@ -137,8 +139,8 @@
         const ga = xa * xa + fn.f(xa) ** 2 - 1, gb = xb * xb + fn.f(xb) ** 2 - 1;
         if (isFinite(ga) && isFinite(gb) && Math.sign(ga) !== Math.sign(gb) && Math.abs(fn.f(xa) - fn.f(xb)) < 0.5) {
           const xm = (xa + xb) / 2;
-          dot(P(xm, fn.f(xm)), "#ffffff", 7);
-          dot(P(xm, fn.f(xm)), fn.color, 4.5);
+          dot(P(xm, fn.f(xm)), "#ffffff", 5);
+          dot(P(xm, fn.f(xm)), fn.color, 3);
         }
       }
     }
