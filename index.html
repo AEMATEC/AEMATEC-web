@@ -26,13 +26,7 @@
       [data-design-id="hero-section-aematec"] > div { padding-top: clamp(3rem, 5vw, 5.5rem); padding-bottom: clamp(3rem, 5vw, 5.5rem); }
       [data-design-id="hero-section-aematec"] h1 { font-size: clamp(2.25rem, 3.2vw, 4rem); }
     }
-    .hero-video {
-      object-position: center;
-    }
-    @media (prefers-reduced-motion: reduce) {
-      .hero-video { transition: none; }
-      .hero-video { display: none; }
-    }
+    #hero-trig { pointer-events: none; opacity: .38; }
   </style>
   <title>AEMATEC — Asociación de Estudiantes de Enseñanza de la Matemática con Entornos Tecnológicos</title>
 </head>
@@ -43,13 +37,10 @@
   <main data-design-id="main-aematec">
     <section data-design-id="hero-section-aematec" class="bg-[#EAF5F7] border-b border-[#D5E5EA]">
       <div class="relative isolate overflow-hidden">
-        <video class="hero-video absolute inset-0 h-full w-full object-cover" autoplay muted loop playsinline aria-hidden="true">
-          <source src="assets/hero-aematec.mp4" type="video/mp4">
-        </video>
-        <div class="absolute inset-0 bg-[#EAF5F7]/25 pointer-events-none"></div>
-        <div class="relative z-10 site-container mx-auto min-h-[420px] pt-[76px] pb-[64px] text-center">
-          <h1 class="font-sans text-[54px] leading-[1.08] tracking-[-0.04em] font-bold mt-0">Tu asociación,<br><span class="text-[#00A6B8]">a un clic de distancia.</span></h1>
-          <p class="mt-5 text-[19px] leading-8 text-[#526574] max-w-[730px] mx-auto">La Asociación de Estudiantes de Enseñanza de la Matemática con Entornos Tecnológicos representa, acompaña y conecta a la comunidad estudiantil de MATEC en el TEC.</p>
+        <canvas id="hero-trig" class="absolute inset-0 h-full w-full" aria-hidden="true"></canvas>
+        <div class="relative z-10 site-container mx-auto min-h-[420px] pt-[76px] pb-[64px] text-left">
+          <h1 class="font-sans text-[54px] leading-[1.08] tracking-[-0.04em] font-bold mt-0 max-w-[620px]">Tu asociación,<br><span class="text-[#00A6B8]">a un clic de distancia.</span></h1>
+          <p class="mt-5 text-[19px] leading-8 text-[#526574] max-w-[560px]">La Asociación de Estudiantes de Enseñanza de la Matemática con Entornos Tecnológicos representa, acompaña y conecta a la comunidad estudiantil de MATEC en el TEC.</p>
         </div>
       </div>
     </section>
@@ -131,8 +122,7 @@
   </main>
 
   <script src="assets/js/layout.js" data-part="footer"></script>
-  <script>
-  </script>
+  <script src="assets/js/hero-trig.js"></script>
 
   <script type="module">
     import { app } from "./assets/js/firebase.js";
