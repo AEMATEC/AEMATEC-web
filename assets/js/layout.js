@@ -99,6 +99,10 @@
     const temas = document.createElement("script");
     temas.src = "assets/js/temas.js";
     document.head.appendChild(temas);
+    // Botón flotante del Arcade AEMATEC: ver assets/js/arcade-launcher.js.
+    const arcade = document.createElement("script");
+    arcade.src = "assets/js/arcade-launcher.js";
+    document.head.appendChild(arcade);
   } else if (part === "footer") {
     script.insertAdjacentHTML("beforebegin", renderFooter());
   }
