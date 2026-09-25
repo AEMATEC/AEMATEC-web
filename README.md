@@ -139,7 +139,8 @@ secreta). Para probar reglas sin tocar producción, usa el emulador (`firebase e
 `tramites.html` verifica el correo con un enlace. El enlace lo envía la función `enviarEnlaceCorreo`
 (`functions/tramites.js`) desde el Gmail de la Junta, y lleva directo a `tramites.html`. No se usa el correo que
 envía Firebase (`noreply@biblioteca-aematec.firebaseapp.com`) porque el correo del TEC lo pone en cuarentena: no
-llega ni a la bandeja ni a spam. Límites: un enlace por minuto y 5 al día por correo, y 300 al día en total.
+llega ni a la bandeja ni a spam. El correo del TEC puede tardar hasta unos 20 minutos en entregarlo (lo revisa antes de entregarlo; no depende
+del sitio), y la página lo avisa. Límites: un enlace cada 5 minutos y 5 al día por correo, y 300 al día en total.
 
 En la consola de Firebase (proyecto `biblioteca-aematec`), una sola vez:
 1. **Authentication → Método de acceso → Correo electrónico/contraseña → activar "Vínculo del correo electrónico
