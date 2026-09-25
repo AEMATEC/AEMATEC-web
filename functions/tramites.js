@@ -1,15 +1,22 @@
 // Trámites de personas Asociadas (RI Título V, Cap. IV y Título II).
 // Los navegadores NO escriben trámites directamente (las reglas lo impiden): todo pasa por estas funciones,
 // que verifican el correo institucional, consultan el padrón y garantizan el anonimato de las denuncias.
+const crypto = require("node:crypto");
 const { onCall, HttpsError } = require("firebase-functions/v2/https");
 const { onDocumentUpdated } = require("firebase-functions/v2/firestore");
 const logger = require("firebase-functions/logger");
 const { getFirestore, FieldValue, Timestamp } = require("firebase-admin/firestore");
+const { getAuth } = require("firebase-admin/auth");
 const { gmailAppPassword, correosDe, sendEmail, escapeHtml } = require("./correo");
-const { sumarDiasHabiles, generarCodigo, normalizarCodigo, hashCodigo, avisoDeCambio } = require("./tramites-util");
+const {
+  sumarDiasHabiles, generarCodigo, normalizarCodigo, hashCodigo, avisoDeCambio, destinoDelEnlace, enlaceDirecto
+} = require("./tramites-util");
 
 const DOMINIO = "@estudiantec.cr";
 const MAX_TRAMITES_POR_DIA = 5;
+const ESPERA_ENLACE_SEGUNDOS = 60; // entre dos enlaces al mismo correo
+const MAX_ENLACES_POR_CORREO_DIA = 5;
+const MAX_ENLACES_POR_DIA = 300; // tope general: Gmail permite unos 500 correos al día en total
 const DIAS_HABILES_RESPUESTA = 10; // RI Art. 111
 const SITIO = "https://aematec.github.io/AEMATEC-web";
 
@@ -95,7 +102,59 @@ async function notificar(asunto, html, destinatarios) {
   }
 }
 
+// Límites del envío de enlaces: por correo (espera y máximo diario) y un tope general diario.
+// El correo se guarda como hash: `limites` es privada, pero no hace falta guardarlo tal cual (RI Art. 143).
+async function registrarEnlace(email) {
+  const hoy = new Date().toISOString().slice(0, 10);
+  const ahoraMs = Date.now();
+  const refCorreo = db().collection("limites").doc(`enlace_${crypto.createHash("sha256").update(email).digest("hex")}`);
+  const refGeneral = db().collection("limites").doc("enlaces_general");
+  await db().runTransaction(async tx => {
+    const [correo, general] = [(await tx.get(refCorreo)).data(), (await tx.get(refGeneral)).data()];
+    const deHoy = correo?.fecha === hoy ? correo.cuenta : 0;
+    const totalHoy = general?.fecha === hoy ? general.cuenta : 0;
+    if (correo && ahoraMs - correo.ultimoMs < ESPERA_ENLACE_SEGUNDOS * 1000) {
+      throw new HttpsError("resource-exhausted", "Ya te enviamos un enlace hace menos de un minuto. Espera un momento y revisa tu correo.");
+    }
+    if (deHoy >= MAX_ENLACES_POR_CORREO_DIA || totalHoy >= MAX_ENLACES_POR_DIA) {
+      throw new HttpsError("resource-exhausted", "Se alcanzó el máximo de enlaces por hoy. Intenta mañana.");
+    }
+    tx.set(refCorreo, { fecha: hoy, cuenta: deHoy + 1, ultimoMs: ahoraMs });
+    tx.set(refGeneral, { fecha: hoy, cuenta: totalHoy + 1 });
+  });
+}
+
 // ---------- Funciones ----------
+
+// Envía el enlace de verificación desde el Gmail de la Junta. Antes lo enviaba Firebase desde
+// noreply@biblioteca-aematec.firebaseapp.com y el correo del TEC lo ponía en cuarentena (no llegaba ni a spam).
+exports.enviarEnlaceCorreo = onCall({ secrets: [gmailAppPassword] }, async request => {
+  const email = texto(request.data?.email, 120, "correo").toLowerCase();
+  if (!/^[^\s@<>"']+@estudiantec\.cr$/.test(email)) {
+    throw new HttpsError("invalid-argument", `Usa tu correo institucional ${DOMINIO}.`);
+  }
+  await registrarEnlace(email);
+  const destino = destinoDelEnlace(request.data?.url);
+  const enlace = enlaceDirecto(await getAuth().generateSignInWithEmailLink(email, { url: destino, handleCodeInApp: true }), destino);
+  try {
+    await sendEmail(
+      "Tu enlace para verificar el correo — Trámites AEMATEC",
+      `<p>Hola:</p>
+       <p>Para verificar tu correo <strong>${escapeHtml(email)}</strong> en Trámites de la AEMATEC, abre este enlace en el mismo
+       dispositivo donde lo pediste:</p>
+       <p><a href="${escapeHtml(enlace)}" style="display:inline-block;background:#0D2B45;color:#fff;padding:10px 18px;border-radius:8px;text-decoration:none">Verificar mi correo</a></p>
+       <p>Si el botón no funciona, copia esta dirección en el navegador:<br>${escapeHtml(enlace)}</p>
+       <p>El enlace sirve una sola vez. Si no pediste este correo, ignóralo.</p>
+       <p>Asociación de Estudiantes de Enseñanza de la Matemática con Entornos Tecnológicos (AEMATEC)</p>`,
+      [email],
+      { text: `Para verificar tu correo ${email} en Trámites de la AEMATEC, abre este enlace en el mismo dispositivo donde lo pediste:\n\n${enlace}\n\nEl enlace sirve una sola vez. Si no pediste este correo, ignóralo.\n\nAEMATEC` }
+    );
+  } catch (error) {
+    logger.error("No se pudo enviar el enlace de verificación", { error: error.message });
+    throw new HttpsError("internal", "No se pudo enviar el correo. Intenta de nuevo en unos minutos.");
+  }
+  return { enviado: true };
+});
 
 exports.enviarTramite = onCall({ secrets: [gmailAppPassword] }, async request => {
   const { uid, email } = cuentaVerificada(request);

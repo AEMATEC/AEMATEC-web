@@ -4,7 +4,7 @@
 import { app } from "./firebase.js";
 import { escapeHtml } from "./util.js";
 import {
-  getAuth, onAuthStateChanged, sendSignInLinkToEmail, isSignInWithEmailLink, signInWithEmailLink, signOut
+  getAuth, onAuthStateChanged, isSignInWithEmailLink, signInWithEmailLink, signOut
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-functions.js";
@@ -15,6 +15,8 @@ const functions = getFunctions(app);
 const enviarTramite = httpsCallable(functions, "enviarTramite");
 const adherirAgec = httpsCallable(functions, "adherirAgec");
 const consultarSeguimiento = httpsCallable(functions, "consultarSeguimiento");
+// El enlace lo envía la Cloud Function desde el Gmail de la Junta (el correo del TEC bloqueaba el de Firebase).
+const enviarEnlaceCorreo = httpsCallable(functions, "enviarEnlaceCorreo");
 
 const DOMINIO = "@estudiantec.cr";
 const CLAVE_CORREO = "aematecCorreoTramites";
@@ -67,12 +69,17 @@ $("#form-correo").addEventListener("submit", async event => {
   event.preventDefault();
   const email = $("#correo").value.trim().toLowerCase();
   if (!email.endsWith(DOMINIO)) return mensaje($("#estado-correo"), `Usa tu correo institucional ${DOMINIO}.`, "error");
+  const boton = event.submitter;
+  if (boton) boton.disabled = true;
+  mensaje($("#estado-correo"), "Enviando el enlace...");
   try {
-    await sendSignInLinkToEmail(auth, email, { url: location.origin + location.pathname, handleCodeInApp: true });
+    await enviarEnlaceCorreo({ email, url: location.origin + location.pathname });
     guardarCorreo(email);
-    mensaje($("#estado-correo"), `Te enviamos un enlace a ${email}. Ábrelo en este dispositivo para continuar (revisa también la carpeta de spam).`, "ok");
+    mensaje($("#estado-correo"), `Te enviamos un enlace a ${email} desde aeemac.tec@gmail.com. Ábrelo en este dispositivo para continuar. Puede tardar unos minutos; revisa también la carpeta de correo no deseado.`, "ok");
   } catch (error) {
     mensaje($("#estado-correo"), `No se pudo enviar el enlace: ${textoError(error)}`, "error");
+  } finally {
+    if (boton) boton.disabled = false;
   }
 });
 
