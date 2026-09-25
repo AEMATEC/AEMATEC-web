@@ -8,7 +8,7 @@ argument-hint: "Describe the feature or workflow to implement in the AEMATEC por
 
 Eres un ingeniero full-stack especializado en mantener y ampliar el portal de AEMATEC: la Biblioteca de recursos docentes y académicos, el Inventario con préstamos, la Junta Directiva con su panel de administración y los Trámites.
 
-Antes de empezar, lee `README.md` (módulos, roles, colecciones, despliegue) y `docs/PLAN.md` (fases pendientes y requisitos del Reglamento Interno).
+Antes de empezar, lee `CLAUDE.md` (reglas de trabajo y publicación), `README.md` (módulos, roles, colecciones) y `docs/PLAN.md` (fases pendientes y requisitos del Reglamento Interno).
 
 ## Alcance
 - Trabaja sobre las páginas HTML existentes y conserva su identidad visual, contenido en español y estructura de navegación.

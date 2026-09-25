@@ -72,15 +72,19 @@ integrante. Así la página pública no expone los correos (RI Art. 143).
 - `sendPendingSummary`: resumen diario (8:00, hora de Costa Rica) de materiales pendientes.
 - `notifyLoanRequest`: avisa a la Junta de cada solicitud de préstamo.
 
-Los correos se envían con [Resend](https://resend.com). Configuración:
+### Correos de notificación
 
-```bash
-firebase functions:secrets:set RESEND_API_KEY
-# Remitente en un dominio verificado en Resend. Con el remitente de prueba
-# (onboarding@resend.dev) Resend SOLO entrega al dueño de la cuenta de Resend.
-echo 'RESEND_FROM="AEMATEC <notificaciones@tu-dominio-verificado>"' > functions/.env
-firebase deploy --only functions
-```
+Los correos salen de la cuenta Gmail de la Junta (`aeemac.tec@gmail.com`) usando una **contraseña de
+aplicación** de Google. Es una clave de 16 letras que solo sirve para enviar correos, no la contraseña
+normal. Los destinatarios van en copia oculta. Para crearla (una vez, o cuando cambie la Junta):
+
+1. Inicia sesión en esa cuenta y entra a <https://myaccount.google.com/security>.
+2. Activa la **Verificación en 2 pasos**, si no está activa (Google la exige para lo siguiente).
+3. Entra a <https://myaccount.google.com/apppasswords>, escribe el nombre "Sitio AEMATEC" y pulsa **Crear**.
+4. Copia la clave de 16 letras y guárdala en GitHub como secreto `GMAIL_APP_PASSWORD` (ver
+   "Publicación automática"). No la escribas en ningún archivo ni chat.
+
+Gmail permite unos 500 correos al día, de sobra para estas notificaciones.
 
 ## Desarrollo local
 
@@ -93,12 +97,51 @@ python3 -m http.server 5500   # y abre http://localhost:5500
 Las páginas usan el proyecto real de Firebase (`assets/firebase-config.js`, configuración pública, no
 secreta). Para probar reglas sin tocar producción, usa el emulador (`firebase emulators:start`).
 
-## Despliegue
+## Publicación
 
-- **Sitio (HTML):** el historial indica GitHub Pages; el `CNAME` se agregó y se quitó varias veces. Pendiente
-  de documentar el dominio definitivo.
-- **Reglas y funciones:** `firebase deploy --only firestore:rules,storage,functions`.
+- **Páginas HTML:** GitHub Pages las publica desde `main` en <https://aematec.github.io/AEMATEC-web/>.
+  Cada merge a `main` se ve en 1–2 minutos.
+- **Reglas y Cloud Functions:** las publica automáticamente el flujo
+  [`.github/workflows/firebase.yml`](.github/workflows/firebase.yml). En cada PR prueba las reglas y, al hacer
+  merge a `main`, las publica en Firebase junto con las Functions. **Ya no hay que copiar reglas en la consola.**
+  Para volver a publicar sin cambios: pestaña **Actions → Firebase → Run workflow**.
 - **CORS del bucket** (solo si cambian los dominios): `gsutil cors set cors.json gs://biblioteca-aematec.firebasestorage.app`.
+
+### Publicación automática: configuración (una sola vez)
+
+El flujo necesita dos secretos en GitHub: **Settings → Secrets and variables → Actions → New repository
+secret**. Mientras falten, el flujo no publica nada y avisa con una advertencia.
+
+**1. `FIREBASE_SERVICE_ACCOUNT`: una "cuenta de servicio" que le da permiso a GitHub para publicar.**
+1. Entra a <https://console.cloud.google.com/iam-admin/serviceaccounts?project=biblioteca-aematec>.
+2. **Crear cuenta de servicio** → nombre `github-publicar` → **Crear y continuar**.
+3. Agrega estos roles, uno por uno:
+   - **Editor**
+   - **Administrador de Cloud Functions** (Cloud Functions Admin)
+   - **Usuario de cuenta de servicio** (Service Account User)
+   - **Administrador de Secret Manager** (Secret Manager Admin)
+
+   Luego pulsa **Listo**.
+4. Abre la cuenta creada → pestaña **Claves** → **Agregar clave → Crear clave nueva → JSON**. Se descarga un archivo.
+5. En GitHub crea el secreto `FIREBASE_SERVICE_ACCOUNT` y pega **todo** el contenido de ese archivo.
+   Después borra el archivo de tu computadora.
+
+**2. `GMAIL_APP_PASSWORD`:** la contraseña de aplicación de "Correos de notificación".
+
+Con los dos secretos creados, ve a **Actions → Firebase → Run workflow** sobre `main`. Si el primer intento
+falla por un permiso, el registro dice qué rol falta; agrégalo en <https://console.cloud.google.com/iam-admin/iam?project=biblioteca-aematec>.
+
+### Pruebas de reglas
+
+`tests/reglas.test.js` prueba los permisos de Firestore y Storage en el emulador. Se ejecutan solas en cada
+PR; para correrlas a mano: `cd tests && npm install && npm test` (requiere Java).
+
+## Agente de mantenimiento
+
+[`CLAUDE.md`](CLAUDE.md) y las skills en [`.claude/skills/`](.claude/skills) explican a Claude Code cómo
+está hecho el sitio, qué exige el Reglamento y cómo se publica. Cualquier integrante de la Junta puede abrir
+una sesión de Claude Code sobre este repositorio y pedir cambios en español. Para el cambio de Junta existe
+la skill `traspaso-de-junta`.
 
 ## Importar el inventario
 

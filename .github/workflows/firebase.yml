@@ -1,0 +1,127 @@
+# Prueba y publica la parte de Firebase del sitio (reglas y Cloud Functions).
+# - En cada PR: prueba las reglas con el emulador.
+# - En cada merge a main: vuelve a probar y, si todo pasa, publica en Firebase.
+# - A mano (pestaña Actions → "Firebase" → Run workflow): vuelve a publicar todo.
+# Las páginas HTML no pasan por aquí: GitHub Pages las publica solo desde main.
+# Configuración única de secretos: ver README → "Publicación automática".
+name: Firebase
+
+on:
+  pull_request:
+    paths:
+      - firestore.rules
+      - storage.rules
+      - firebase.json
+      - functions/**
+      - tests/**
+      - .github/workflows/firebase.yml
+  push:
+    branches: [main]
+    paths:
+      - firestore.rules
+      - storage.rules
+      - firebase.json
+      - functions/**
+      - tests/**
+      - .github/workflows/firebase.yml
+  workflow_dispatch:
+    inputs:
+      actualizar_contrasena_gmail:
+        description: "Volver a cargar GMAIL_APP_PASSWORD en Firebase (solo si la cambiaron)"
+        type: boolean
+        default: false
+
+concurrency:
+  group: firebase-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  FIREBASE_PROJECT: biblioteca-aematec
+
+jobs:
+  probar-reglas:
+    name: Probar reglas
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: tests/package-lock.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - name: Instalar dependencias de pruebas
+        working-directory: tests
+        run: npm ci
+      - name: Ejecutar pruebas de reglas
+        working-directory: tests
+        run: npm test
+
+  publicar:
+    name: Publicar en Firebase
+    needs: probar-reglas
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    env:
+      FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+      GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+    steps:
+      - name: Verificar configuración
+        id: config
+        run: |
+          if [ -z "$FIREBASE_SERVICE_ACCOUNT" ]; then
+            echo "::warning::Falta el secreto FIREBASE_SERVICE_ACCOUNT. No se publicó nada. Ver README → Publicación automática."
+            echo "listo=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "listo=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.config.outputs.listo == 'true'
+      - uses: actions/setup-node@v4
+        if: steps.config.outputs.listo == 'true'
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: functions/package-lock.json
+
+      - name: Preparar credenciales
+        if: steps.config.outputs.listo == 'true'
+        run: |
+          printf '%s' "$FIREBASE_SERVICE_ACCOUNT" > "$RUNNER_TEMP/cuenta-servicio.json"
+          echo "GOOGLE_APPLICATION_CREDENTIALS=$RUNNER_TEMP/cuenta-servicio.json" >> "$GITHUB_ENV"
+          npm install -g firebase-tools@14
+
+      - name: Publicar reglas de Firestore y Storage
+        if: steps.config.outputs.listo == 'true'
+        run: firebase deploy --only firestore:rules,storage --project "$FIREBASE_PROJECT" --non-interactive
+
+      - name: Cargar la contraseña de Gmail en Firebase
+        if: steps.config.outputs.listo == 'true'
+        env:
+          FORZAR: ${{ inputs.actualizar_contrasena_gmail }}
+        run: |
+          if firebase functions:secrets:access GMAIL_APP_PASSWORD --project "$FIREBASE_PROJECT" > /dev/null 2>&1 && [ "$FORZAR" != "true" ]; then
+            echo "GMAIL_APP_PASSWORD ya está en Firebase."
+          elif [ -z "$GMAIL_APP_PASSWORD" ]; then
+            echo "::error::Falta el secreto GMAIL_APP_PASSWORD en GitHub. Ver README → Correos de notificación."
+            exit 1
+          else
+            printf '%s' "$GMAIL_APP_PASSWORD" | firebase functions:secrets:set GMAIL_APP_PASSWORD --data-file=- --project "$FIREBASE_PROJECT" --non-interactive
+          fi
+
+      - name: Instalar dependencias de Functions
+        if: steps.config.outputs.listo == 'true'
+        working-directory: functions
+        run: npm ci
+
+      - name: Publicar Cloud Functions
+        if: steps.config.outputs.listo == 'true'
+        run: firebase deploy --only functions --project "$FIREBASE_PROJECT" --non-interactive --force
+
+      - name: Borrar credenciales
+        if: always()
+        run: rm -f "$RUNNER_TEMP/cuenta-servicio.json"
