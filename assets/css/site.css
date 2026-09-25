@@ -1,0 +1,237 @@
+/* Estilos comunes del sitio AEMATEC: encabezado, sub-navegación y pie de página.
+   Los inserta assets/js/layout.js. Son CSS plano (no dependen de Tailwind). */
+
+:root {
+  --aematec-navy: #0D2B45;
+  --aematec-navy-hover: #164563;
+  --aematec-teal: #00A6B8;
+  --aematec-teal-line: #00B5C8;
+  --aematec-teal-light: #39C7D5;
+  --aematec-text-muted: #405769;
+  --aematec-border: #D8E3E9;
+  --aematec-footer-text: #B9CAD4;
+}
+
+.site-container {
+  width: min(1240px, calc(100% - 2rem));
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (min-width: 768px) {
+  .site-container { width: min(1240px, calc(100% - clamp(4rem, 8vw, 12.5rem))); }
+}
+
+/* ---------- Encabezado ---------- */
+.site-header {
+  background: #FFFFFF;
+  border-bottom: 1px solid var(--aematec-border);
+  font-family: Montserrat, sans-serif;
+}
+
+.site-header__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  min-height: 92px;
+}
+
+.site-brand {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  color: var(--aematec-navy);
+  text-decoration: none;
+}
+
+.site-brand img { width: 154px; height: auto; }
+.site-brand__divider { width: 1px; height: 2.25rem; background: var(--aematec-border); }
+.site-brand__name { font-size: 18px; font-weight: 700; letter-spacing: -0.02em; }
+
+.site-nav {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.site-nav a {
+  color: var(--aematec-text-muted);
+  text-decoration: none;
+  padding: 0.5rem 0;
+  border-bottom: 2px solid transparent;
+  transition: color 180ms ease, transform 180ms ease, background-color 180ms ease;
+}
+
+.site-nav a:hover,
+.site-nav a:focus-visible { color: var(--aematec-teal); }
+
+.site-nav a[aria-current="page"] {
+  color: var(--aematec-teal);
+  border-bottom-color: var(--aematec-teal-line);
+}
+
+.site-nav .site-nav__cta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  height: 2.75rem;
+  padding: 0 1.25rem;
+  border: 0;
+  border-radius: 10px;
+  background: var(--aematec-navy);
+  color: #FFFFFF;
+  box-shadow: 0 1px 2px rgba(13, 43, 69, 0.08);
+}
+
+.site-nav .site-nav__cta i { color: var(--aematec-teal-light); }
+.site-nav .site-nav__cta:hover,
+.site-nav .site-nav__cta:focus-visible,
+.site-nav .site-nav__cta[aria-current="page"] { background: var(--aematec-navy-hover); color: #FFFFFF; }
+
+.site-menu-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 1px solid #BFD0D8;
+  border-radius: 10px;
+  background: #FFFFFF;
+  color: var(--aematec-navy);
+  cursor: pointer;
+}
+
+/* ---------- Sub-navegación (Biblioteca) ---------- */
+.site-subnav {
+  background: #F7FAFB;
+  border-top: 1px solid #E6EEF2;
+}
+
+.site-subnav__bar {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  min-height: 52px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.site-subnav__bar::-webkit-scrollbar { display: none; }
+
+.site-subnav__title {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--aematec-teal);
+}
+
+.site-subnav a {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.35rem 0;
+  border-bottom: 2px solid transparent;
+  color: var(--aematec-text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.site-subnav a:hover,
+.site-subnav a:focus-visible { color: var(--aematec-teal); }
+.site-subnav a[aria-current="page"] { color: var(--aematec-teal); border-bottom-color: var(--aematec-teal-line); }
+
+.site-subnav__spacer { flex: 1 0 0.5rem; }
+
+.site-subnav .site-subnav__cta {
+  padding: 0.45rem 0.9rem;
+  border: 0;
+  border-radius: 8px;
+  background: var(--aematec-navy);
+  color: #FFFFFF;
+}
+
+.site-subnav .site-subnav__cta i { color: var(--aematec-teal-light); }
+.site-subnav .site-subnav__cta:hover,
+.site-subnav .site-subnav__cta:focus-visible,
+.site-subnav .site-subnav__cta[aria-current="page"] { background: var(--aematec-navy-hover); color: #FFFFFF; }
+
+/* ---------- Pie de página ---------- */
+.site-footer {
+  background: var(--aematec-navy);
+  color: #FFFFFF;
+}
+
+.site-footer__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 2.25rem 0;
+}
+
+.site-footer__brand { display: flex; align-items: center; gap: 1rem; }
+.site-footer__brand img { width: 125px; filter: brightness(0) invert(1); }
+.site-footer__brand span {
+  padding-left: 1rem;
+  border-left: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--aematec-footer-text);
+  font-size: 14px;
+}
+
+.site-footer__meta { color: #AFC1CC; font-size: 12px; text-align: right; }
+.site-footer__meta p { margin: 0; }
+.site-footer__meta p + p { margin-top: 0.25rem; }
+
+/* ---------- Celular ---------- */
+@media (max-width: 767px) {
+  .site-header__bar {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 0.75rem;
+    min-height: 0;
+    padding: 1rem 0;
+  }
+
+  .site-brand { display: contents; }
+  .site-brand img { grid-column: 1; width: 92px; }
+  .site-brand__divider { display: none; }
+  .site-brand__name { grid-column: 2; font-size: 0.82rem; text-align: center; }
+
+  .site-menu-toggle { display: flex; grid-column: 3; }
+
+  .site-nav {
+    display: none;
+    grid-column: 1 / -1;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--aematec-border);
+  }
+
+  .site-nav.is-open { display: flex; }
+  .site-nav a { padding: 0.7rem 0; font-size: 0.85rem; }
+  .site-nav a[aria-current="page"] { border-bottom-color: transparent; }
+  .site-nav .site-nav__cta { justify-content: center; }
+
+  .site-subnav__bar { flex-wrap: wrap; gap: 0.35rem 1.1rem; padding: 0.65rem 0; overflow: visible; }
+  .site-subnav__title { flex-basis: 100%; }
+  .site-subnav__spacer { display: none; }
+
+  .site-footer__bar { flex-direction: column; align-items: flex-start; gap: 1rem; }
+  .site-footer__brand { flex-direction: column; align-items: flex-start; }
+  .site-footer__brand span { padding-left: 0; border-left: 0; }
+  .site-footer__meta { text-align: left; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-nav a { transition: none; }
+}

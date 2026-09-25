@@ -1,0 +1,30 @@
+# Revisa el JavaScript de las páginas en cada PR y en cada cambio a main.
+# Un error de sintaxis deja sin funcionar la página completa, así que se detecta antes del merge.
+name: Páginas
+
+on:
+  pull_request:
+    paths:
+      - "*.html"
+      - assets/js/**
+      - tests/revisar-paginas.mjs
+      - .github/workflows/paginas.yml
+  push:
+    branches: [main]
+    paths:
+      - "*.html"
+      - assets/js/**
+      - tests/revisar-paginas.mjs
+      - .github/workflows/paginas.yml
+
+jobs:
+  revisar-javascript:
+    name: Revisar JavaScript de las páginas
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Revisar sintaxis
+        run: node tests/revisar-paginas.mjs

@@ -3,20 +3,13 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/svg+xml" href="assets/logo-aematec-compas.svg">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"><script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="assets/css/site.css"><script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&display=swap" rel="stylesheet">
   <script src="assets/firebase-config.js"></script>
   <script>tailwind.config={theme:{extend:{fontFamily:{sans:['Montserrat','sans-serif'],serif:['Source Serif 4','serif']}}}}</script>  <style>
     @media (max-width: 767px) {
       body.w-\[1440px\] { width: 100% !important; overflow-x: hidden; }
-      header > div { width: calc(100% - 2rem) !important; margin-left: auto; margin-right: auto; }
-      footer > div { width: calc(100% - 2rem) !important; margin-left: auto; margin-right: auto; flex-direction: column; align-items: flex-start; gap: 1rem; }
-      header { height: auto !important; padding: 1rem 0; }
-      header nav { flex-wrap: wrap; justify-content: center; gap: 0.75rem 1rem !important; }
-      header nav a { font-size: 0.75rem; }
-      header > div > a { gap: 0.75rem; }
-      header > div > a img { width: 105px; }
-      header > div > a > span { font-size: 0.9rem; }
       [data-design-id="background-content-0d3e64"] > div { width: calc(100% - 2rem) !important; margin-left: auto; margin-right: auto; }
       [data-design-id="background-content-0d3e64"] .grid { grid-template-columns: 1fr; }
       [data-design-id="upload-dialog-section-c3f81a"] { padding: 1rem; }
@@ -32,7 +25,7 @@
     }
     @media (min-width: 768px) and (max-width: 1279px) {
       body.w-\[1440px\] { width: 100% !important; overflow-x: hidden; }
-      header > div, footer > div, [data-design-id="background-content-0d3e64"] > div { width: calc(100% - 4rem) !important; margin-left: auto; margin-right: auto; }
+      [data-design-id="background-content-0d3e64"] > div { width: calc(100% - 4rem) !important; margin-left: auto; margin-right: auto; }
     }
     .upload-backdrop { position: absolute; inset: 0; background: rgba(13, 43, 69, 0.55); backdrop-filter: blur(8px); }
     .upload-dialog-section { min-height: 100%; align-items: flex-start; }
@@ -40,28 +33,6 @@
       body.w-\[1440px\] { width: 100% !important; max-width: 100%; overflow-x: hidden; }
       [class~="w-[1240px]"] { width: min(1240px, calc(100% - clamp(2rem, 8vw, 12.5rem))) !important; max-width: none; }
       [data-design-id="upload-dialog-card-d6e09b"] { width: min(820px, 100%); }
-    }
-    header nav a,
-    header > div > a {
-      transition: transform 180ms ease, color 180ms ease, background-color 180ms ease;
-      transform-origin: center;
-    }
-    header nav a:hover,
-    header nav a:focus-visible,
-    header > div > a:hover,
-    header > div > a:focus-visible {
-      transform: scale(1.04);
-    }
-    .upload-nav-current {
-      display: inline-flex;
-      align-items: center;
-      height: 2.75rem;
-      padding: 0 1.25rem;
-      border: 1px solid #8ED5DD;
-      border-radius: 0.625rem;
-      background: #EAF9FA;
-      color: #087F8C;
-      font-weight: 700;
     }
     .course-field { position: relative; }
     .course-suggestions {
@@ -136,8 +107,6 @@
       white-space: nowrap;
     }
     @media (prefers-reduced-motion: reduce) {
-      header nav a,
-      header > div > a,
       .course-suggestions,
       .course-suggestion { transition: none; }
     }
@@ -145,7 +114,7 @@
   <title>Subir material — Biblioteca AEMATEC</title>
 </head>
 <body class="w-[1440px] bg-[#F4F8FA] text-[#0D2B45] font-serif" style="background-image: radial-gradient(circle at 12% 18%, rgba(0, 175, 193, 0.13) 0, rgba(0, 175, 193, 0.13) 1.2px, transparent 1.8px), radial-gradient(circle at 84% 72%, rgba(13, 43, 69, 0.09) 0, rgba(13, 43, 69, 0.09) 1.2px, transparent 1.8px); background-size: 28px 28px, 36px 36px;">
-  <header data-design-id="header-upload-bg-cab731" class="h-[92px] bg-white border-b border-[#D8E3E9] flex items-center opacity-90"><div class="w-[1240px] mx-auto flex items-center justify-between"><a href="index.html" class="flex items-center gap-5"><img src="assets/logo-aematec.svg" alt="Logo AEMATEC" class="w-[154px]"><div class="h-9 w-px bg-[#D8E3E9]"></div><span class="font-sans font-bold text-[18px]">Biblioteca AEMATEC</span></a><nav data-design-id="nav-upload-bg-643df1" class="flex items-center gap-8 font-sans text-[14px] font-semibold"><a href="aematec_biblioteca-home.html">Inicio</a><a href="aematec_biblioteca-recursos-docentes.html">Recursos docentes</a><a href="aematec_biblioteca-recursos-academicos.html">Recursos académicos</a><span class="upload-nav-current" aria-current="page"><i class="fa-solid fa-arrow-up-from-bracket mr-2"></i>Subir material</span></nav></div></header>
+  <script src="assets/js/layout.js" data-part="header" data-active="biblioteca" data-sub="subir"></script>
   <main data-design-id="main-upload-modal-8fd69e" class="relative min-h-[900px]">
     <section data-design-id="background-content-0d3e64" class="absolute inset-0 opacity-35 pointer-events-none"><div class="w-[1240px] mx-auto py-12"><h1 class="font-sans text-[42px] font-bold">Materiales recientes</h1><div class="grid grid-cols-3 gap-6 mt-8"><div class="h-56 bg-white border border-[#CBD9DF] rounded-[16px]"></div><div class="h-56 bg-white border border-[#CBD9DF] rounded-[16px]"></div><div class="h-56 bg-white border border-[#CBD9DF] rounded-[16px]"></div></div></div></section>
     <div class="upload-backdrop" aria-hidden="true"></div>
@@ -179,12 +148,7 @@
       </article>
     </section>
   </main>
-  <footer data-design-id="footer-upload-4e6b8a" class="bg-[#0D2B45] text-white">
-    <div class="w-[1240px] mx-auto py-8 flex justify-between items-center">
-      <div class="flex items-center gap-4"><img src="assets/logo-aematec.svg" class="w-[122px] brightness-0 invert" alt="AEMATEC"><span class="text-sm text-[#B9CAD4] border-l border-white/20 pl-4">Biblioteca pública de recursos MATEC</span></div>
-      <p class="text-xs text-[#AFC1CC]">Hecho para aprender, creado para compartir.</p>
-    </div>
-  </footer>
+  <script src="assets/js/layout.js" data-part="footer"></script>
 <script type="module">
   document.querySelector("#close-upload").addEventListener("click", () => {
     if (window.history.length > 1) {

@@ -36,8 +36,12 @@ paso a paso.
 - Si cambiaste reglas: agrega o ajusta casos en `tests/reglas.test.js` y ejecuta
   `cd tests && npm install && npm test` (necesita Java). Todas las pruebas deben pasar.
 - Si cambiaste Functions: `cd functions && npm install && node -e "require('./index.js')"`.
-- Si cambiaste páginas: revisa la sintaxis del JavaScript y prueba la página con
-  `python3 -m http.server 5500`. Explica en el PR qué conviene revisar visualmente.
+- Si cambiaste páginas: `node tests/revisar-paginas.mjs` (también corre solo en cada PR) y prueba la
+  página con `python3 -m http.server 5500`. Explica en el PR qué conviene revisar visualmente.
+- El encabezado, el menú (y el sub-menú de la Biblioteca) y el pie son comunes: se editan solo en
+  `assets/js/layout.js` y `assets/css/site.css`. Una página nueva los incluye con
+  `<script src="assets/js/layout.js" data-part="header" data-active="…"></script>` y
+  `<script src="assets/js/layout.js" data-part="footer"></script>`.
 
 ## Estilo del código
 Sitio estático: HTML + Tailwind por CDN + JavaScript modular en línea, con el SDK de Firebase 10.12.2

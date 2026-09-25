@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/svg+xml" href="assets/logo-aematec-compas.svg">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="assets/css/site.css">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -28,86 +29,19 @@
         max-width: 100%;
         overflow-x: hidden;
       }
-
       [class~="w-[1240px]"] {
         width: auto !important;
         max-width: none;
       }
-
       html,
       body {
         max-width: 100%;
       }
-
-      header>div,
-      main>section>div:not(.catalog-filter-backdrop),
-      footer>div {
+      main>section>div:not(.catalog-filter-backdrop) {
         width: calc(100% - 2rem) !important;
         margin-left: auto;
         margin-right: auto;
       }
-
-      header {
-        height: auto !important;
-        padding: 1rem 0;
-      }
-
-      header>div {
-        display: grid !important;
-        grid-template-columns: auto minmax(0, 1fr) auto;
-        align-items: center;
-        gap: 0.75rem;
-      }
-
-      header>div>a {
-        display: contents;
-      }
-
-      header>div>a img {
-        grid-column: 1;
-        width: 92px;
-      }
-
-      header>div>a>div {
-        display: none;
-      }
-
-      header>div>a>span {
-        grid-column: 2;
-        min-width: 0;
-        overflow: hidden;
-        font-size: 0.82rem;
-        text-align: center;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-
-      #mobile-menu-toggle {
-        display: flex;
-        grid-column: 3;
-      }
-
-      header nav {
-        display: none !important;
-        grid-column: 1 / -1;
-        width: 100%;
-        flex-direction: column;
-        align-items: stretch;
-        gap: 0.5rem !important;
-        padding-top: 0.75rem;
-        border-top: 1px solid #D8E3E9;
-      }
-
-      header nav.is-open {
-        display: flex !important;
-      }
-
-      header nav a {
-        width: 100%;
-        padding: 0.7rem 0;
-        font-size: 0.8rem;
-      }
-
       [data-design-id="docentes-intro-1978be"]>div {
         width: calc(100% - 2rem) !important;
         margin-left: auto;
@@ -115,43 +49,34 @@
         padding-top: 2.5rem;
         padding-bottom: 2rem;
       }
-
       [data-design-id="docentes-intro-1978be"] h1 {
         font-size: 2.1rem;
       }
-
       [data-design-id="docentes-intro-1978be"] form {
         height: auto;
         min-height: 54px;
       }
-
       [data-design-id="docentes-intro-1978be"] form input {
         min-width: 0;
       }
-
       [data-design-id="docentes-intro-1978be"] form button {
         padding-left: 1rem;
         padding-right: 1rem;
       }
-
       .docentes-search-row {
         align-items: stretch;
       }
-
       .docentes-filter-trigger {
         flex: 0 0 auto;
       }
-
       .docentes-filter-trigger span {
         display: none;
       }
-
       .docentes-filter-trigger {
         width: 3.5rem;
         padding-left: 0.75rem;
         padding-right: 0.75rem;
       }
-
       [data-design-id="docentes-catalog-f48e50"] {
         display: block;
         width: auto !important;
@@ -160,60 +85,42 @@
         padding-top: 2rem;
         padding-bottom: 2rem;
       }
-
       #docentes-resource-grid {
         grid-template-columns: 1fr;
         min-width: 0;
       }
-
       #docentes-pagination {
         flex-wrap: wrap;
       }
-
       #resource-modal {
         padding: 1rem;
       }
-
       #resource-modal article {
         padding: 1.25rem;
       }
-
       #resource-modal dl {
         grid-template-columns: 1fr;
       }
-
-      footer>div {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1rem;
-      }
     }
-
     @media (min-width: 768px) and (max-width: 1279px) {
       body {
         width: 100% !important;
         max-width: 100%;
         overflow-x: hidden;
       }
-
       [class~="w-[1240px]"] {
         width: auto !important;
         max-width: none;
       }
-
       html,
       body {
         max-width: 100%;
       }
-
-      header>div,
-      main>section>div:not(.catalog-filter-backdrop),
-      footer>div {
+      main>section>div:not(.catalog-filter-backdrop) {
         width: calc(100% - 4rem) !important;
         margin-left: auto;
         margin-right: auto;
       }
-
       [data-design-id="docentes-catalog-f48e50"] {
         display: block;
         width: calc(100% - 4rem) !important;
@@ -221,70 +128,42 @@
         margin-right: auto;
       }
     }
-
     @media (min-width: 768px) {
       body[class~="w-[1440px]"] {
         width: 100% !important;
         max-width: 100%;
         overflow-x: hidden;
       }
-
       [class~="w-[1240px]"] {
         width: min(1240px, calc(100% - clamp(2rem, 8vw, 12.5rem))) !important;
         max-width: none;
       }
-
       [data-design-id="docentes-intro-1978be"]>div {
         padding-top: clamp(3rem, 4vw, 3.75rem);
         padding-bottom: clamp(2.5rem, 3vw, 3.25rem);
       }
-
       [data-design-id="docentes-intro-1978be"] h1 {
         font-size: clamp(2.25rem, 3.2vw, 3rem);
       }
-
       [data-design-id="docentes-catalog-f48e50"] {
         padding-top: clamp(2.5rem, 3.5vw, 3.75rem);
         padding-bottom: clamp(2.5rem, 3.5vw, 3.75rem);
       }
     }
-
     .docentes-search-row {
       display: flex;
       gap: 0.75rem;
       align-items: center;
     }
-
     .docentes-search-row form {
       flex: 1 1 auto;
       min-width: 0;
     }
-
     .docentes-filter-trigger {
       white-space: nowrap;
     }
-
-    header nav a,
-    header>div>a {
-      transition: transform 180ms ease, color 180ms ease, background-color 180ms ease;
-      transform-origin: center;
-    }
-
-    header nav a:hover,
-    header nav a:focus-visible,
-    header>div>a:hover,
-    header>div>a:focus-visible {
-      transform: scale(1.04);
-    }
-
     @media (prefers-reduced-motion: reduce) {
-
-      header nav a,
-      header>div>a {
-        transition: none;
-      }
     }
-
     .catalog-filter-backdrop {
       position: fixed;
       inset: 0;
@@ -293,11 +172,9 @@
       background: rgba(13, 43, 69, 0.48);
       backdrop-filter: blur(6px);
     }
-
     .catalog-filter-backdrop.is-open {
       display: block;
     }
-
     .catalog-filter-panel {
       position: fixed;
       inset: 1.5rem auto 1.5rem 50%;
@@ -309,11 +186,9 @@
       transform: translateX(-50%);
       box-shadow: 0 24px 70px rgba(13, 43, 69, 0.28);
     }
-
     .catalog-filter-panel.is-open {
       display: block;
     }
-
     @media (max-width: 767px) {
       .catalog-filter-panel {
         inset: 1rem auto 1rem 50%;
@@ -326,28 +201,7 @@
 
 <body class="w-[1440px] bg-[#F4F8FA] text-[#0D2B45] font-serif"
   style="background-image: radial-gradient(circle at 12% 18%, rgba(0, 175, 193, 0.13) 0, rgba(0, 175, 193, 0.13) 1.2px, transparent 1.8px), radial-gradient(circle at 84% 72%, rgba(13, 43, 69, 0.09) 0, rgba(13, 43, 69, 0.09) 1.2px, transparent 1.8px); background-size: 28px 28px, 36px 36px;">
-  <header data-design-id="header-docentes-51af9c" class="h-[92px] bg-white border-b border-[#D8E3E9] flex items-center">
-    <div class="w-[1240px] mx-auto flex items-center justify-between">
-      <a href="index.html" class="flex items-center gap-5"><img src="assets/logo-aematec.svg" alt="Logo AEMATEC"
-          class="w-[154px]">
-        <div class="h-9 w-px bg-[#D8E3E9]"></div><span class="font-sans font-bold text-[18px]">Biblioteca AEMATEC</span>
-      </a>
-      <button id="mobile-menu-toggle" type="button"
-        class="hidden h-11 w-11 items-center justify-center rounded-[10px] border border-[#BFD0D8] text-[#0D2B45]"
-        aria-expanded="false" aria-controls="primary-navigation" aria-label="Abrir menú"><i
-          class="fa-solid fa-bars"></i></button>
-      <nav id="primary-navigation" data-design-id="nav-docentes-972d4a"
-        class="flex items-center gap-8 font-sans text-[14px] font-semibold">
-        <a href="aematec_biblioteca-home.html" class="text-[#405769]">Inicio</a><a
-          href="aematec_biblioteca-recursos-docentes.html"
-          class="text-[#00A6B8] border-b-2 border-[#00B5C8] py-2">Recursos docentes</a><a
-          href="aematec_biblioteca-recursos-academicos.html" class="text-[#405769]">Recursos académicos</a>
-        <a data-design-id="upload-docentes-btn-261ce7" href="aematec_biblioteca-subir-material.html"
-          class="h-11 px-5 rounded-[10px] bg-[#0D2B45] text-white flex items-center gap-2"><i
-            class="fa-solid fa-arrow-up-from-bracket text-[#39C7D5]"></i> Subir material</a>
-      </nav>
-    </div>
-  </header>
+  <script src="assets/js/layout.js" data-part="header" data-active="biblioteca" data-sub="docentes"></script>
 
   <main data-design-id="main-docentes-cf81ad">
     <section data-design-id="docentes-intro-1978be" class="bg-[#075766] text-white">
@@ -546,14 +400,7 @@
       </div>
     </section>
   </main>
-  <footer data-design-id="footer-docentes-d61370" class="bg-[#0D2B45] text-white">
-    <div class="w-[1240px] mx-auto py-8 flex justify-between items-center">
-      <div class="flex items-center gap-4"><img src="assets/logo-aematec.svg" class="w-[122px] brightness-0 invert"
-          alt="AEMATEC"><span class="text-sm text-[#B9CAD4] border-l border-white/20 pl-4">Biblioteca pública de
-          recursos MATEC</span></div>
-      <p class="text-xs text-[#AFC1CC]">Hecho para aprender, creado para compartir.</p>
-    </div>
-  </footer>
+  <script src="assets/js/layout.js" data-part="footer"></script>
   <div id="resource-modal"
     class="fixed inset-0 z-50 hidden items-center justify-center bg-[#0D2B45]/60 p-6 backdrop-blur-sm" role="dialog"
     aria-modal="true" aria-labelledby="modal-title">
@@ -615,15 +462,6 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getFirestore, collection, getDocs, query, where, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-    const mobileMenuToggle = document.querySelector("#mobile-menu-toggle");
-    const primaryNavigation = document.querySelector("#primary-navigation");
-    mobileMenuToggle.addEventListener("click", () => {
-      const isOpen = primaryNavigation.classList.toggle("is-open");
-      mobileMenuToggle.setAttribute("aria-expanded", String(isOpen));
-      mobileMenuToggle.setAttribute("aria-label", isOpen ? "Cerrar menú" : "Abrir menú");
-      mobileMenuToggle.innerHTML = `<i class="fa-solid ${isOpen ? "fa-xmark" : "fa-bars"}"></i>`;
-    });
     const filterPanel = document.querySelector("#docentes-filter-panel");
     const filterBackdrop = document.querySelector("#docentes-filter-backdrop");
     const openFilters = () => {

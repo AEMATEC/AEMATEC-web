@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/svg+xml" href="assets/logo-aematec-compas.svg">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="assets/css/site.css">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,45 +20,27 @@
       body {
         overflow-x: hidden;
       }
-
-      header>div {
-        padding-left: 1rem;
-        padding-right: 1rem;
-      }
-
-      header>div>div {
-        flex-direction: column;
-        align-items: flex-end;
-        gap: 0.5rem;
-      }
-
       main {
         padding: 2rem 1rem;
       }
-
       #login-panel {
         padding: 1.25rem;
       }
-
       #moderation-panel>div:first-child {
         align-items: flex-start;
       }
-
       #moderator-form {
         flex-direction: column;
       }
-
       #moderator-form input,
       #moderator-form button {
         width: 100%;
         min-width: 0;
       }
-
       #moderator-list li {
         align-items: flex-start;
         flex-direction: column;
       }
-
       #pending-list article {
         padding: 1.25rem;
       }
@@ -68,18 +51,7 @@
 
 <body class="min-h-screen bg-[#F4F8FA] text-[#0D2B45] font-serif"
   style="background-image: radial-gradient(circle at 12% 18%, rgba(0, 175, 193, 0.13) 0, rgba(0, 175, 193, 0.13) 1.2px, transparent 1.8px), radial-gradient(circle at 84% 72%, rgba(13, 43, 69, 0.09) 0, rgba(13, 43, 69, 0.09) 1.2px, transparent 1.8px); background-size: 28px 28px, 36px 36px;">
-  <header class="border-b border-[#D8E3E9] bg-white">
-    <div class="mx-auto flex max-w-[1100px] items-center justify-between px-6 py-5">
-      <a href="index.html" class="flex items-center gap-4 font-sans text-lg font-bold" aria-label="Ir al inicio">
-        <img src="assets/logo-aematec.svg" alt="Logo AEMATEC" class="h-12 w-auto">
-        <span class="hidden border-l border-[#D8E3E9] pl-4 sm:inline">Biblioteca AEMATEC</span>
-      </a>
-      <div class="flex items-center gap-5"><span class="font-sans text-xs font-semibold text-[#607480]">Panel de
-          moderación</span><a href="aematec_biblioteca-home.html"
-          class="font-sans text-xs font-bold text-[#008F9E] hover:text-[#00A6B8]"><i
-            class="fa-solid fa-arrow-left mr-1"></i>Volver al inicio</a></div>
-    </div>
-  </header>
+  <script src="assets/js/layout.js" data-part="header" data-active="biblioteca" data-sub="moderacion"></script>
   <main class="mx-auto max-w-[1100px] px-6 py-10">
     <section id="login-panel"
       class="mx-auto max-w-[430px] rounded-[18px] border border-[#D7E2E7] bg-white p-8 shadow-sm">
@@ -159,6 +131,7 @@
       </section>
     </section>
   </main>
+  <script src="assets/js/layout.js" data-part="footer"></script>
   <div id="edit-modal"
     class="fixed inset-0 z-50 hidden items-center justify-center bg-[#0D2B45]/60 p-6 backdrop-blur-sm" role="dialog"
     aria-modal="true" aria-labelledby="edit-modal-title">

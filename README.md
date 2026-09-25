@@ -94,6 +94,9 @@ No hay paso de compilación. Sirve la carpeta con cualquier servidor estático:
 python3 -m http.server 5500   # y abre http://localhost:5500
 ```
 
+**Encabezado, menú y pie de página** son comunes a todo el sitio: se editan solo en
+[`assets/js/layout.js`](assets/js/layout.js) (enlaces) y [`assets/css/site.css`](assets/css/site.css) (estilos).
+
 Las páginas usan el proyecto real de Firebase (`assets/firebase-config.js`, configuración pública, no
 secreta). Para probar reglas sin tocar producción, usa el emulador (`firebase emulators:start`).
 
