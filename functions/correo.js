@@ -20,7 +20,8 @@ async function correosDe(coleccion, { respaldo = true } = {}) {
   return emails.length || !respaldo ? emails : [CORREO_RESPALDO];
 }
 
-async function sendEmail(subject, html, recipients) {
+// `text` es la versión en texto plano (opcional); ayuda a que los filtros de correo no lo marquen como spam.
+async function sendEmail(subject, html, recipients, { text } = {}) {
   if (!recipients.length) {
     logger.warn("No hay destinatarios configurados; correo no enviado", { subject });
     return;
@@ -34,13 +35,16 @@ async function sendEmail(subject, html, recipients) {
     service: "gmail",
     auth: { user: gmailAddress, pass: gmailAppPassword.value() }
   });
-  // Los destinatarios van en copia oculta para no exponer los correos entre sí.
+  // Con varios destinatarios van en copia oculta para no exponer los correos entre sí. Con uno solo va en "Para":
+  // un correo que llega solo en copia oculta tiene más probabilidad de terminar en cuarentena (Microsoft 365 del TEC).
+  const unico = recipients.length === 1;
   await transporter.sendMail({
     from: `AEMATEC <${gmailAddress}>`,
-    to: gmailAddress,
-    bcc: recipients,
+    to: unico ? recipients[0] : gmailAddress,
+    bcc: unico ? undefined : recipients,
     subject,
-    html
+    html,
+    text
   });
 }
 

@@ -87,6 +87,7 @@ integrante. Así la página pública no expone los correos (RI Art. 143).
 - `notifyPendingResource`: avisa a los moderadores cuando llega material nuevo.
 - `sendPendingSummary`: resumen diario (8:00, hora de Costa Rica) de materiales pendientes.
 - `notifyLoanRequest`: avisa a la Junta de cada solicitud de préstamo.
+- `enviarEnlaceCorreo` (`functions/tramites.js`): envía el enlace para verificar el correo `@estudiantec.cr`.
 - `enviarTramite`, `adherirAgec`, `consultarSeguimiento` (`functions/tramites.js`): reciben los trámites.
   Verifican el correo `@estudiantec.cr`, consultan el padrón (si la persona no está, el trámite se acepta marcado
   para que la Junta decida) y avisan por correo. Las denuncias anónimas se consultan con un código privado.
@@ -135,11 +136,18 @@ secreta). Para probar reglas sin tocar producción, usa el emulador (`firebase e
 
 ### Acceso por enlace al correo (Trámites) — configuración única en Firebase
 
-`tramites.html` verifica el correo con un enlace. En la consola de Firebase (proyecto `biblioteca-aematec`):
+`tramites.html` verifica el correo con un enlace. El enlace lo envía la función `enviarEnlaceCorreo`
+(`functions/tramites.js`) desde el Gmail de la Junta, y lleva directo a `tramites.html`. No se usa el correo que
+envía Firebase (`noreply@biblioteca-aematec.firebaseapp.com`) porque el correo del TEC lo pone en cuarentena: no
+llega ni a la bandeja ni a spam. Límites: un enlace por minuto y 5 al día por correo, y 300 al día en total.
+
+En la consola de Firebase (proyecto `biblioteca-aematec`), una sola vez:
 1. **Authentication → Método de acceso → Correo electrónico/contraseña → activar "Vínculo del correo electrónico
    (acceso sin contraseña)"** y guardar.
 2. **Authentication → Configuración → Dominios autorizados:** confirmar que está `aematec.github.io`.
-3. (Opcional) **Authentication → Plantillas → idioma: español**, para que el correo del enlace llegue en español.
+
+Si aun así el enlace no llega a un correo `@estudiantec.cr`, pide a soporte del TEC que revise la cuarentena de
+Microsoft 365 y que acepte los correos de `aeemac.tec@gmail.com`.
 
 ### Probar las funciones localmente
 

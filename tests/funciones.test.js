@@ -16,6 +16,7 @@ const db = admin.firestore();
 const enviar = fft.wrap(funciones.enviarTramite);
 const adherir = fft.wrap(funciones.adherirAgec);
 const seguimiento = fft.wrap(funciones.consultarSeguimiento);
+const enviarEnlace = fft.wrap(funciones.enviarEnlaceCorreo);
 const alActualizarTramite = fft.wrap(funciones.alActualizarTramite);
 
 let contador = 0;
@@ -45,6 +46,26 @@ describe("Utilidades", () => {
     const codigo = util.generarCodigo();
     assert.match(codigo, /^[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/);
     assert.equal(util.hashCodigo(codigo), util.hashCodigo(codigo.toLowerCase().replaceAll("-", "")));
+  });
+});
+
+describe("Enlace de verificación del correo", () => {
+  test("solo a correos @estudiantec.cr", async () => {
+    await rechaza(llamar(enviarEnlace, { email: "ana@gmail.com" }), "invalid-argument");
+    await rechaza(llamar(enviarEnlace, { email: "ana@estudiantec.cr.malo.com" }), "invalid-argument");
+    assert.deepEqual(await llamar(enviarEnlace, { email: "Ana@estudiantec.cr" }), { enviado: true });
+  });
+  test("hay que esperar antes de pedir otro enlace al mismo correo", async () => {
+    await llamar(enviarEnlace, { email: "ana@estudiantec.cr" });
+    await rechaza(llamar(enviarEnlace, { email: "ana@estudiantec.cr" }), "resource-exhausted");
+    await llamar(enviarEnlace, { email: "otra@estudiantec.cr" });
+  });
+  test("el enlace lleva directo a tramites.html y nunca a otro sitio", () => {
+    const generado = "https://biblioteca-aematec.firebaseapp.com/__/auth/action?apiKey=K&mode=signIn&oobCode=ABC&continueUrl=x&lang=es";
+    const destino = util.destinoDelEnlace("https://sitio-falso.com/tramites.html");
+    assert.equal(destino, "https://aematec.github.io/AEMATEC-web/tramites.html");
+    assert.equal(util.destinoDelEnlace("http://localhost:5500/tramites.html"), "http://localhost:5500/tramites.html");
+    assert.equal(util.enlaceDirecto(generado, destino), `${destino}?apiKey=K&oobCode=ABC&mode=signIn&lang=es`);
   });
 });
 

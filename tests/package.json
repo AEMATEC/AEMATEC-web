@@ -4,7 +4,7 @@
   "description": "Pruebas de las reglas de Firestore y Storage con el emulador de Firebase.",
   "type": "module",
   "scripts": {
-    "test": "firebase emulators:exec --only firestore,storage --project demo-aematec \"node --test\""
+    "test": "firebase emulators:exec --only auth,firestore,storage --project demo-aematec \"node --test\""
   },
   "devDependencies": {
     "@firebase/rules-unit-testing": "^5.0.2",

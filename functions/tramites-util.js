@@ -65,4 +65,31 @@ function avisoDeCambio(antes, despues, { fiscalia = false } = {}) {
   return null;
 }
 
-module.exports = { sumarDiasHabiles, generarCodigo, normalizarCodigo, hashCodigo, avisoDeCambio };
+// Página a la que vuelve el enlace de verificación: la de producción o la de pruebas locales. Cualquier otra
+// dirección se ignora, para que nadie pueda usar el correo de la AEMATEC para enviar enlaces a otro sitio.
+function destinoDelEnlace(url) {
+  const produccion = `${SITIO}/tramites.html`;
+  try {
+    const destino = new URL(String(url || ""));
+    const local = destino.protocol === "http:" && ["localhost", "127.0.0.1"].includes(destino.hostname);
+    return local && destino.pathname.endsWith("/tramites.html") ? `${destino.origin}${destino.pathname}` : produccion;
+  } catch {
+    return produccion;
+  }
+}
+
+// Convierte el enlace que genera Firebase (que pasa por biblioteca-aematec.firebaseapp.com) en uno que lleva directo
+// a tramites.html con el mismo código. El correo del TEC suele poner en cuarentena los correos con enlaces a
+// *.firebaseapp.com; así el correo solo enlaza al sitio de la AEMATEC. La página completa el acceso con
+// signInWithEmailLink, que solo necesita apiKey, oobCode y mode.
+function enlaceDirecto(generado, destino) {
+  const origen = new URL(generado).searchParams;
+  const enlace = new URL(destino);
+  for (const clave of ["apiKey", "oobCode", "mode", "lang"]) {
+    if (origen.has(clave)) enlace.searchParams.set(clave, origen.get(clave));
+  }
+  if (!enlace.searchParams.get("oobCode")) throw new Error("El enlace generado no trae código.");
+  return enlace.toString();
+}
+
+module.exports = { sumarDiasHabiles, generarCodigo, normalizarCodigo, hashCodigo, avisoDeCambio, destinoDelEnlace, enlaceDirecto };
