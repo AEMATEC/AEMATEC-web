@@ -3,7 +3,7 @@
 // que verifican el correo institucional, consultan el padrón y garantizan el anonimato de las denuncias.
 const { onCall, HttpsError } = require("firebase-functions/v2/https");
 const logger = require("firebase-functions/logger");
-const admin = require("firebase-admin");
+const { getFirestore, FieldValue, Timestamp } = require("firebase-admin/firestore");
 const { gmailAppPassword, correosDe, sendEmail, escapeHtml } = require("./correo");
 const { sumarDiasHabiles, generarCodigo, normalizarCodigo, hashCodigo } = require("./tramites-util");
 
@@ -35,8 +35,8 @@ const TIPOS = {
   }
 };
 
-const db = () => admin.firestore();
-const ahora = () => admin.firestore.FieldValue.serverTimestamp();
+const db = () => getFirestore();
+const ahora = () => FieldValue.serverTimestamp();
 
 // ---------- Validación ----------
 
@@ -134,7 +134,7 @@ exports.enviarTramite = onCall({ secrets: [gmailAppPassword] }, async request =>
     tipo, subtipo, datos: limpios,
     solicitante: { email, nombre }, solicitanteUid: uid, enPadron,
     estado: "recibido", prorrogaInformada: false, respuestas: [],
-    plazoRespuesta: tipo === "agec" ? null : admin.firestore.Timestamp.fromDate(sumarDiasHabiles(creado, DIAS_HABILES_RESPUESTA)),
+    plazoRespuesta: tipo === "agec" ? null : Timestamp.fromDate(sumarDiasHabiles(creado, DIAS_HABILES_RESPUESTA)),
     createdAt: ahora(), actualizadoEn: ahora()
   };
   const ref = db().collection("tramites").doc();
@@ -187,7 +187,7 @@ async function revisarUmbralAgec(id) {
   const alcanzadoAhora = await db().runTransaction(async tx => {
     const actual = (await tx.get(ref)).data();
     if (!actual || actual.alcanzado || actual.adhesionesPadron < actual.umbral) return false;
-    const plazo = admin.firestore.Timestamp.fromDate(sumarDiasHabiles(new Date(), DIAS_HABILES_RESPUESTA));
+    const plazo = Timestamp.fromDate(sumarDiasHabiles(new Date(), DIAS_HABILES_RESPUESTA));
     tx.update(ref, { alcanzado: true, plazoRespuesta: plazo, actualizadoEn: ahora() });
     tx.update(db().collection("agecPublicas").doc(id), { alcanzado: true });
     return true;
@@ -216,8 +216,8 @@ exports.adherirAgec = onCall({ secrets: [gmailAppPassword] }, async request => {
     if ((await tx.get(adhesion)).exists) throw new HttpsError("already-exists", "Ya te habías adherido a esta solicitud.");
     const campo = enPadron ? "adhesionesPadron" : "adhesionesSinPadron";
     tx.set(adhesion, { email, nombre, enPadron, createdAt: ahora() });
-    tx.update(ref, { [campo]: admin.firestore.FieldValue.increment(1), actualizadoEn: ahora() });
-    tx.update(db().collection("agecPublicas").doc(id), { [campo]: admin.firestore.FieldValue.increment(1) });
+    tx.update(ref, { [campo]: FieldValue.increment(1), actualizadoEn: ahora() });
+    tx.update(db().collection("agecPublicas").doc(id), { [campo]: FieldValue.increment(1) });
   });
   await revisarUmbralAgec(id);
   return { enPadron };

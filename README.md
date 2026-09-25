@@ -19,7 +19,7 @@ dependen de él citan el artículo correspondiente en el código y en [`docs/PLA
 | Inventario | `inventario.html` | Consulta pública de bienes (RI Art. 118) y solicitudes de préstamo (RI Art. 120-123). Administración para la Junta. |
 | Junta Directiva | `junta-directiva.html` | Integrantes (solo nombre y puesto) y medios de contacto. |
 | Panel de administración | `admin.html` | Un solo acceso. Cada cuenta ve lo de sus roles: **Asociación** (Padrón, Junta, Fiscalía, Medios) para Junta y Fiscalía, y **Moderación del Repositorio** (pendientes, edición, equipo de moderación). |
-| Trámites | `tramites.html` | Pendiente ("Próximamente"). Ver el plan. |
+| Trámites | `tramites.html` | Solicitudes a la Junta, postulaciones, AGEC extraordinaria (con adhesiones) y consultas o denuncias a Fiscalía (anónimas o no). Se verifica el correo `@estudiantec.cr` con un enlace, sin contraseña. Incluye "Mis trámites" y seguimiento de casos anónimos por código. |
 
 > **Nota de nombres:** el repositorio digital de materiales se llama **Repositorio** (antes "Biblioteca").
 > Los archivos `aematec_*.html` que quedan son solo redirecciones a las páginas nuevas. **Biblioteca** es solo la colección física de
@@ -117,6 +117,20 @@ python3 -m http.server 5500   # y abre http://localhost:5500
 
 Las páginas usan el proyecto real de Firebase (`assets/firebase-config.js`, configuración pública, no
 secreta). Para probar reglas sin tocar producción, usa el emulador (`firebase emulators:start`).
+
+### Acceso por enlace al correo (Trámites) — configuración única en Firebase
+
+`tramites.html` verifica el correo con un enlace. En la consola de Firebase (proyecto `biblioteca-aematec`):
+1. **Authentication → Método de acceso → Correo electrónico/contraseña → activar "Vínculo del correo electrónico
+   (acceso sin contraseña)"** y guardar.
+2. **Authentication → Configuración → Dominios autorizados:** confirmar que está `aematec.github.io`.
+3. (Opcional) **Authentication → Plantillas → idioma: español**, para que el correo del enlace llegue en español.
+
+### Probar las funciones localmente
+
+Para correr las Functions en el emulador hacen falta dos archivos que **no** se suben al repositorio:
+`functions/.env.local` con `AEMATEC_SIN_CORREO=1` (no envía correos) y `functions/.secret.local` con
+`GMAIL_APP_PASSWORD=cualquier-valor`. Luego: `cd tests && npx firebase emulators:start --only auth,firestore,functions`.
 
 ## Publicación
 

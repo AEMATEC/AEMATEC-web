@@ -1,7 +1,7 @@
 // Envío de correos de notificación desde la cuenta Gmail de la Junta.
 const { defineSecret } = require("firebase-functions/params");
 const logger = require("firebase-functions/logger");
-const admin = require("firebase-admin");
+const { getFirestore } = require("firebase-admin/firestore");
 const nodemailer = require("nodemailer");
 
 // La contraseña es una "contraseña de aplicación" de Google guardada en Secret Manager
@@ -15,7 +15,7 @@ const gmailAppPassword = defineSecret("GMAIL_APP_PASSWORD");
 const CORREO_RESPALDO = "angeloyeshuac@gmail.com";
 
 async function correosDe(coleccion, { respaldo = true } = {}) {
-  const snapshot = await admin.firestore().collection(coleccion).get();
+  const snapshot = await getFirestore().collection(coleccion).get();
   const emails = snapshot.docs.map(document => document.id);
   return emails.length || !respaldo ? emails : [CORREO_RESPALDO];
 }

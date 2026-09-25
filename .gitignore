@@ -6,3 +6,6 @@ scripts/serviceAccountKey.json
 *serviceAccountKey*.json
 *.log
 .DS_Store
+
+# Secretos locales del emulador de Functions
+functions/.secret.local

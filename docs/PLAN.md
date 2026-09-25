@@ -15,7 +15,7 @@ afectan al sitio.
 | 2 | Base compartida: layout, navegación y módulos JS comunes | ✅ Hecha (2a, 2b y 2c) |
 | 3 | Consolidar páginas y paneles (versión corta) | ✅ Hecha (3a y 3b) |
 | 4 | Herramientas: Tailwind compilado, hosting, pruebas de reglas en CI | Pendiente |
-| 5 | Trámites | En curso: T1 (base de datos, reglas y funciones) hecha; faltan T2 (página pública) y T3 (panel) |
+| 5 | Trámites | En curso: T1 y T2 hechas; falta T3 (panel) |
 
 ## Diagnóstico (septiembre 2026)
 
@@ -150,8 +150,10 @@ Diseño acordado con la Junta (2026-09):
 Entregas:
 - ✅ **T1.** Colecciones, reglas y Cloud Functions (`enviarTramite`, `adherirAgec`, `consultarSeguimiento`), con pruebas
   de reglas y de funciones (incluye una prueba que falla si una denuncia anónima guarda datos de la persona).
-- **T2.** Página pública `tramites.html`: formularios, verificación por enlace al correo, "mis trámites" y seguimiento
-  por código. Requiere activar "Vínculo del correo electrónico" en Firebase Authentication.
+- ✅ **T2.** Página pública `tramites.html` (`assets/js/tramites.js`): formularios, verificación por enlace al correo,
+  AGEC abiertas con adhesión, "Mis trámites" y seguimiento por código. Requiere activar "Vínculo del correo
+  electrónico" en Firebase Authentication (README). Se corrigió en T1 el uso de `admin.firestore.FieldValue`, que no
+  funcionaba en el emulador de Functions (ahora `firebase-admin/firestore`).
 - **T3.** Sección Trámites en `admin.html` (Junta y Fiscalía): estados, plazo visible, prórroga informada, rechazo
   motivado con aviso por correo.
 
