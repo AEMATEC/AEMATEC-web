@@ -13,7 +13,7 @@ afectan al sitio.
 | 0.5 | Publicación automática (GitHub Actions), pruebas de reglas, correos por Gmail, agente de mantenimiento (`CLAUDE.md` + skills) | ✅ Hecha (falta configurar los secretos) |
 | 1 | Correcciones urgentes (seguridad, datos personales, cumplimiento del RI) | ✅ Hecha (quedan pasos manuales, ver abajo) |
 | 2 | Base compartida: layout, navegación y módulos JS comunes | ✅ Hecha (2a, 2b y 2c) |
-| 3 | Consolidar páginas y paneles | Pendiente |
+| 3 | Consolidar páginas y paneles (versión corta) | En curso: 3a hecha; falta 3b |
 | 4 | Herramientas: Tailwind compilado, hosting, pruebas de reglas en CI | Pendiente |
 | 5 | Trámites | Pendiente (requiere Fase 2) |
 
@@ -32,7 +32,7 @@ afectan al sitio.
   (`w-[1440px]`) con `!important`.
 - Recursos docentes y Recursos académicos son casi la misma página.
 - Los correos de los dueños están escritos a mano en unos 8 archivos.
-- `aematec_inventario.html` tiene más de 1.500 líneas.
+- `inventario.html` tiene más de 1.500 líneas.
 
 ## Fase 1: qué se corrigió
 
@@ -105,11 +105,16 @@ Estos puntos condicionan el diseño y no deberían contradecirse:
   `!important` que forzaban anchos. Sin desbordes horizontales de 320 a 1600 px. `[hidden]` siempre oculta
   (la barra de sesión de Junta en Inventario se veía sin iniciar sesión).
 
-## Fase 3: consolidar
-- Una sola página de recursos (`?seccion=docentes|academico`).
-- Un solo panel de administración con pestañas según el rol.
-- Dividir la lógica del inventario en módulos.
-- Carpetas por módulo, con redirecciones desde las URLs viejas.
+## Fase 3: consolidar (versión corta acordada)
+- ✅ **3a.** Nombres de archivo sin el prefijo `aematec_`: `repositorio.html`, `repositorio-docentes.html`,
+  `repositorio-academicos.html`, `repositorio-subir.html`, `inventario.html`, `junta-directiva.html`, `tramites.html`.
+  Los nombres viejos quedan como páginas de redirección (conservan `?…` y `#…`) para no romper enlaces guardados.
+  Se descartaron carpetas por módulo: obligarían a cambiar todas las rutas de `assets/` sin beneficio real.
+- **3b.** Un solo panel de administración (`admin.html`) con pestañas según el rol (Moderación, Padrón, Junta,
+  Fiscalía, Medios), que reemplaza a `aematec_biblioteca-moderacion.html` y `aematec_junta-panel.html`.
+- *Pendiente de decisión:* unir Recursos docentes y académicos en una sola página. Hoy tienen diseños distintos
+  (cuadrícula con filtros por nivel vs. lista con accesos por curso); unirlas exige elegir un diseño.
+- *Más adelante:* dividir la lógica del inventario en módulos.
 
 ## Fase 4: herramientas
 - Compilar Tailwind en lugar de usar el CDN.

@@ -15,12 +15,12 @@ dependen de él citan el artículo correspondiente en el código y en [`docs/PLA
 | Módulo | Páginas | Qué hace |
 |---|---|---|
 | Portada | `index.html` | Acceso a los servicios y Medios Oficiales (RI Art. 102). |
-| Repositorio | `aematec_biblioteca-home.html`, `aematec_biblioteca-recursos-docentes.html`, `aematec_biblioteca-recursos-academicos.html`, `aematec_biblioteca-subir-material.html` | Repositorio digital de materiales didácticos y académicos (RI Art. 4 f). Consulta pública; cualquiera puede proponer material, que queda pendiente de moderación. |
+| Repositorio | `repositorio.html`, `repositorio-docentes.html`, `repositorio-academicos.html`, `repositorio-subir.html` | Repositorio digital de materiales didácticos y académicos (RI Art. 4 f). Consulta pública; cualquiera puede proponer material, que queda pendiente de moderación. |
 | Moderación | `aematec_biblioteca-moderacion.html` | Aprobación, edición y rechazo de materiales. Gestión del equipo de moderación. |
-| Inventario | `aematec_inventario.html` | Consulta pública de bienes (RI Art. 118) y solicitudes de préstamo (RI Art. 120-123). Administración para la Junta. |
-| Junta Directiva | `aematec_junta-directiva.html` | Integrantes (solo nombre y puesto) y medios de contacto. |
+| Inventario | `inventario.html` | Consulta pública de bienes (RI Art. 118) y solicitudes de préstamo (RI Art. 120-123). Administración para la Junta. |
+| Junta Directiva | `junta-directiva.html` | Integrantes (solo nombre y puesto) y medios de contacto. |
 | Panel de Junta | `aematec_junta-panel.html` | Padrón, Junta, Fiscalía y Medios Oficiales. |
-| Trámites | `aematec_tramites.html` | Pendiente ("Próximamente"). Ver el plan. |
+| Trámites | `tramites.html` | Pendiente ("Próximamente"). Ver el plan. |
 
 > **Nota de nombres:** el repositorio digital de materiales se llama **Repositorio** (antes "Biblioteca";
 > sus archivos todavía se llaman `aematec_biblioteca-*.html`). **Biblioteca** es solo la colección física de

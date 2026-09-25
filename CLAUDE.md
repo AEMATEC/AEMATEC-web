@@ -48,6 +48,11 @@ paso a paso.
   `<script src="assets/js/layout.js" data-part="header" data-active="…"></script>` y
   `<script src="assets/js/layout.js" data-part="footer"></script>`.
 
+## Archivos de páginas
+- Las páginas usan nombres cortos (`repositorio*.html`, `inventario.html`, `junta-directiva.html`, `tramites.html`).
+- Los archivos `aematec_*.html` que solo contienen una redirección existen para no romper enlaces viejos: no
+  les agregues contenido. Si renombras una página, deja una redirección igual en el nombre anterior.
+
 ## Estilo del código
 Sitio estático: HTML + Tailwind por CDN + JavaScript modular en línea, con el SDK de Firebase 10.12.2
 desde `gstatic`. Imita el código que rodea al cambio. No introduzcas frameworks ni pasos de compilación

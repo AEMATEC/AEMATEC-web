@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/svg+xml" href="assets/logo-aematec-compas.svg">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="assets/css/site.css"><script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&display=swap" rel="stylesheet">
+  <script src="assets/firebase-config.js"></script>
+  <script>tailwind.config={theme:{extend:{fontFamily:{sans:['Montserrat','sans-serif'],serif:['Source Serif 4','serif']}}}}</script>  <style>
+    @media (max-width: 767px) {
+      [data-design-id="background-content-0d3e64"] .grid { grid-template-columns: 1fr; }
+      [data-design-id="upload-dialog-section-c3f81a"] { padding: 1rem; }
+      [data-design-id="upload-dialog-card-d6e09b"] { width: 100%; }
+      [data-design-id="upload-dialog-header-0b615a"] { padding: 1.25rem; align-items: flex-start; }
+      [data-design-id="upload-dialog-header-0b615a"] h1 { font-size: 1.25rem; }
+      #upload-material-form { padding: 1.25rem; }
+      #upload-material-form > div:first-child { grid-template-columns: 1fr; }
+      #upload-material-form > div:first-child > .col-span-2 { grid-column: span 1; }
+      [data-design-id="upload-form-footer-8f639e"] { align-items: stretch; flex-direction: column; gap: 1rem; }
+      [data-design-id="upload-form-footer-8f639e"] > div { width: 100%; }
+      [data-design-id="upload-form-footer-8f639e"] a, [data-design-id="upload-form-footer-8f639e"] button { flex: 1; justify-content: center; }
+    }
+    .upload-backdrop { position: absolute; inset: 0; background: rgba(13, 43, 69, 0.55); backdrop-filter: blur(8px); }
+    .upload-dialog-section { min-height: 100%; align-items: flex-start; }
+    @media (min-width: 768px) {
+      [data-design-id="upload-dialog-card-d6e09b"] { width: min(820px, 100%); }
+    }
+    .course-field { position: relative; }
+    .course-suggestions {
+      position: absolute;
+      z-index: 10;
+      top: calc(100% + 0.55rem);
+      left: 0;
+      right: 0;
+      padding: 0.45rem;
+      border: 1px solid rgba(57, 199, 213, 0.45);
+      border-radius: 0.8rem;
+      background: #FFFFFF;
+      box-shadow: 0 14px 30px rgba(13, 43, 69, 0.16);
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-0.35rem) scale(0.98);
+      transform-origin: top center;
+      transition: opacity 180ms ease, transform 180ms ease;
+    }
+    .course-suggestions::before {
+      content: "";
+      position: absolute;
+      top: -0.35rem;
+      left: 2rem;
+      width: 0.7rem;
+      height: 0.7rem;
+      border-top: 1px solid rgba(57, 199, 213, 0.45);
+      border-left: 1px solid rgba(57, 199, 213, 0.45);
+      background: #FFFFFF;
+      transform: rotate(45deg);
+    }
+    .course-suggestions.is-visible {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0) scale(1);
+    }
+    .course-suggestion {
+      position: relative;
+      display: flex;
+      width: 100%;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.65rem 0.75rem;
+      border-radius: 0.55rem;
+      color: #0D2B45;
+      text-align: left;
+      transition: background-color 180ms ease, transform 180ms ease;
+    }
+    .course-suggestion:hover,
+    .course-suggestion:focus-visible {
+      background: #F0FBFC;
+      outline: none;
+      transform: translateX(0.15rem);
+    }
+    .course-suggestion-code {
+      flex: 0 0 auto;
+      padding: 0.3rem 0.5rem;
+      border-radius: 9999px;
+      background: #0D2B45;
+      color: #FFFFFF;
+      font-family: Montserrat, sans-serif;
+      font-size: 0.68rem;
+      font-weight: 700;
+    }
+    .course-suggestion-name {
+      min-width: 0;
+      overflow: hidden;
+      color: #496575;
+      font-size: 0.78rem;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .course-suggestions,
+      .course-suggestion { transition: none; }
+    }
+  </style>
+  <title>Subir material — Repositorio AEMATEC</title>
+</head>
+<body class="bg-[#F4F8FA] text-[#0D2B45] font-serif" style="background-image: radial-gradient(circle at 12% 18%, rgba(0, 175, 193, 0.13) 0, rgba(0, 175, 193, 0.13) 1.2px, transparent 1.8px), radial-gradient(circle at 84% 72%, rgba(13, 43, 69, 0.09) 0, rgba(13, 43, 69, 0.09) 1.2px, transparent 1.8px); background-size: 28px 28px, 36px 36px;">
+  <script src="assets/js/layout.js" data-part="header" data-active="repositorio" data-sub="subir"></script>
+  <main data-design-id="main-upload-modal-8fd69e" class="relative min-h-[900px]">
+    <section data-design-id="background-content-0d3e64" class="absolute inset-0 opacity-35 pointer-events-none"><div class="site-container mx-auto py-12"><h1 class="font-sans text-[42px] font-bold">Materiales recientes</h1><div class="grid grid-cols-3 gap-6 mt-8"><div class="h-56 bg-white border border-[#CBD9DF] rounded-[16px]"></div><div class="h-56 bg-white border border-[#CBD9DF] rounded-[16px]"></div><div class="h-56 bg-white border border-[#CBD9DF] rounded-[16px]"></div></div></div></section>
+    <div class="upload-backdrop" aria-hidden="true"></div>
+    <section data-design-id="upload-dialog-section-c3f81a" class="upload-dialog-section relative py-9 flex justify-center">
+      <article data-design-id="upload-dialog-card-d6e09b" class="w-full max-w-[820px] bg-white rounded-[20px] shadow-[0_28px_80px_rgba(0,0,0,0.30)] overflow-hidden">
+        <header data-design-id="upload-dialog-header-0b615a" class="px-9 py-6 border-b border-[#DFE7EA] flex items-center justify-between"><div class="flex items-center gap-4"><div class="w-12 h-12 rounded-[12px] bg-[#E1F7F9] text-[#00A6B8] flex items-center justify-center text-xl"><i class="fa-solid fa-cloud-arrow-up"></i></div><div><h1 class="font-sans font-bold text-[25px] tracking-[-0.02em]">Subir material</h1><p class="text-sm text-[#687C88] mt-1">Comparte un recurso con la comunidad MATEC.</p></div></div><button id="close-upload" data-design-id="close-upload-btn-ae3f24" type="button" class="w-10 h-10 rounded-full bg-[#F0F4F6] text-[#5F7480]" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button></header>
+        <form id="upload-material-form" data-design-id="upload-material-form-e8cd2f" class="px-9 py-7" novalidate>
+          <div class="grid grid-cols-2 gap-x-5 gap-y-5">
+            <div class="col-span-2"><label for="title" class="font-sans font-bold text-xs text-[#385367]">Título del material <span class="text-[#C2413B]">*</span></label><input id="title" name="title" required maxlength="120" class="mt-2 w-full h-11 border border-[#BFD0D8] rounded-[9px] px-4" placeholder="Ej. Guía de funciones trigonométricas"></div>
+            <div class="col-span-2"><label for="description" class="font-sans font-bold text-xs text-[#385367]">Descripción <span class="text-[#C2413B]">*</span></label><textarea id="description" name="description" required maxlength="300" class="mt-2 w-full h-[86px] border border-[#BFD0D8] rounded-[9px] px-4 py-3 outline-none resize-none" placeholder="Describe brevemente el contenido y cómo puede utilizarse..."></textarea><p id="description-count" class="text-right text-[11px] text-[#8798A1] mt-1">0 / 300 caracteres</p></div>
+            <div><label for="author" class="font-sans font-bold text-xs text-[#385367]">Autor o fuente original <span class="text-[#C2413B]">*</span></label><input id="author" name="author" required maxlength="120" class="mt-2 w-full h-11 border border-[#BFD0D8] rounded-[9px] px-4" placeholder="Nombre para citar correctamente"></div>
+            <div><span class="font-sans font-bold text-xs text-[#385367]">Tipo de recurso <span class="text-[#C2413B]">*</span></span><div class="mt-2 grid grid-cols-2 gap-2"><label class="h-11 border border-[#C8D6DC] rounded-[9px] flex items-center justify-center gap-2 font-sans text-xs font-bold text-[#526A78]"><input type="radio" name="section" value="docentes" required class="accent-[#00AFC1]"> Docente</label><label class="h-11 border border-[#C8D6DC] rounded-[9px] flex items-center justify-center gap-2 font-sans text-xs font-bold text-[#526A78]"><input type="radio" name="section" value="academico" class="accent-[#00AFC1]"> Académico</label></div></div>
+            <div id="specific-fields" class="col-span-2 hidden border-t border-[#E0E8EC] pt-6">
+              <div id="docentes-fields" class="hidden grid grid-cols-2 gap-x-5 gap-y-5">
+                <div><label for="grade" class="font-sans font-bold text-xs text-[#385367]">Grado <span class="text-[#C2413B]">*</span></label><select id="grade" name="grade" class="mt-2 w-full h-11 border border-[#BFD0D8] rounded-[9px] px-3 bg-white"><option value="">Seleccionar grado</option><option>Primero</option><option>Segundo</option><option>Tercero</option><option>Cuarto</option><option>Quinto</option><option>Sexto</option><option>Sétimo</option><option>Octavo</option><option>Noveno</option><option>Décimo</option><option>Undécimo</option><option>Duodécimo</option><option>Universitario</option><option>Para-universitario</option></select></div>
+                <div><span class="font-sans font-bold text-xs text-[#385367]">Etiquetas <span class="text-[#C2413B]">*</span></span><div class="mt-2 grid grid-cols-2 gap-2 text-xs text-[#526A78]"><label><input data-label="Actividad inicial / Exploratorio" type="checkbox" class="accent-[#00AFC1]"> Actividad inicial / Exploratorio</label><label><input data-label="Juego" type="checkbox" class="accent-[#00AFC1]"> Juego</label><label><input data-label="Cotidiano" type="checkbox" class="accent-[#00AFC1]"> Cotidiano</label><label><input data-label="Guía didáctica" type="checkbox" class="accent-[#00AFC1]"> Guía didáctica</label><label><input data-label="Unidad didáctica" type="checkbox" class="accent-[#00AFC1]"> Unidad didáctica</label><label><input data-label="Planeamiento" type="checkbox" class="accent-[#00AFC1]"> Planeamiento</label><label><input data-label="Tarea" type="checkbox" class="accent-[#00AFC1]"> Tarea</label><label><input data-label="Recurso tecnológico" type="checkbox" class="accent-[#00AFC1]"> Recurso tecnológico</label><label><input data-label="Movilización de Conocimientos" type="checkbox" class="accent-[#00AFC1]"> Movilización de Conocimientos</label><label><input data-label="Debate" type="checkbox" class="accent-[#00AFC1]"> Debate</label><label><input data-label="Discusión matemática" type="checkbox" class="accent-[#00AFC1]"> Discusión matemática</label><label><input data-label="Trabajo independiente" type="checkbox" class="accent-[#00AFC1]"> Trabajo independiente</label><label><input data-label="Guía de Trabajo Autónomo" type="checkbox" class="accent-[#00AFC1]"> Guía de Trabajo Autónomo</label></div></div>
+                <div><label for="materials" class="font-sans font-bold text-xs text-[#385367]">Materiales</label><input id="materials" name="materials" maxlength="300" class="mt-2 w-full h-11 border border-[#BFD0D8] rounded-[9px] px-4" placeholder="Ej. Regla, hojas blancas y marcadores"></div>
+                <label class="flex items-center gap-3 self-end h-11 font-sans text-xs font-bold text-[#385367]"><input id="requires-internet" name="requiresInternet" type="checkbox" class="h-4 w-4 accent-[#00AFC1]"> Requiere internet</label>
+              </div>
+              <div id="academico-fields" class="hidden grid grid-cols-2 gap-x-5 gap-y-5">
+                <div class="col-span-2 course-field"><label for="course" class="font-sans font-bold text-xs text-[#385367]">Curso <span class="text-[#C2413B]">*</span></label><input id="course" name="course" maxlength="80" autocomplete="off" aria-autocomplete="list" aria-controls="course-suggestions" class="mt-2 w-full h-11 border border-[#BFD0D8] rounded-[9px] px-4" placeholder="Escribe el nombre o código del curso"><div id="course-suggestions" class="course-suggestions" role="listbox" aria-label="Cursos sugeridos"></div></div>
+                <div class="col-span-2"><span class="font-sans font-bold text-xs text-[#385367]">Etiquetas <span class="text-[#C2413B">*</span></span><div class="mt-2 grid grid-cols-2 gap-2 text-xs text-[#526A78]"><label><input data-label="Solución" type="checkbox" class="accent-[#00AFC1]"> Solución</label><label><input data-label="Prueba escrita" type="checkbox" class="accent-[#00AFC1]"> Prueba escrita</label><label><input data-label="Quiz" type="checkbox" class="accent-[#00AFC1]"> Quiz</label><label><input data-label="Reposición" type="checkbox" class="accent-[#00AFC1]"> Reposición</label><label><input data-label="Investigación" type="checkbox" class="accent-[#00AFC1]"> Investigación</label><label><input data-label="Apuntes" type="checkbox" class="accent-[#00AFC1]"> Apuntes</label><label><input data-label="Resumen" type="checkbox" class="accent-[#00AFC1]"> Resumen</label></div></div>
+              </div>
+              <div class="col-span-2 mt-5 border-t border-[#E0E8EC] pt-5"><label for="explanation-url" class="font-sans font-bold text-xs text-[#385367]">Explicación o guía del recurso <span class="font-normal text-[#718590]">(opcional)</span></label><input id="explanation-url" type="url" class="mt-2 w-full h-11 border border-[#BFD0D8] rounded-[9px] px-4" placeholder="Enlace a una explicación o guía de uso"><label for="explanation-file" class="mt-3 block text-xs text-[#607480]">O adjunta un documento (máximo 25 MB)<input id="explanation-file" type="file" accept=".pdf,.docx,.pptx,.xlsx,.zip,.ggb" class="mt-2 block w-full text-sm"></label></div>
+            </div>
+            <div id="main-file-field" class="col-span-2 hidden"><label for="file" class="font-sans font-bold text-xs text-[#385367]">Archivo principal <span id="file-required-mark" class="text-[#C2413B]">*</span></label><label id="file-dropzone" for="file" class="mt-2 h-[112px] border-2 border-dashed border-[#93C9D0] bg-[#F4FBFC] rounded-[12px] flex flex-col items-center justify-center text-center cursor-pointer"><i class="fa-solid fa-arrow-up-from-bracket text-[#00A6B8] text-xl"></i><p id="file-label" class="font-sans text-sm font-bold mt-2">Arrastra tu archivo aquí o <span class="text-[#008F9E] underline">selecciónalo</span></p><p class="text-[11px] text-[#748792] mt-1">PDF, DOCX, PPTX, XLSX, ZIP o GGB · Máximo 25 MB</p></label><input id="file" name="file" type="file" accept=".pdf,.docx,.pptx,.xlsx,.zip,.ggb" class="sr-only"><input id="resource-url" type="url" class="mt-3 w-full h-11 border border-[#BFD0D8] rounded-[9px] px-4" placeholder="Para recurso tecnológico, también puedes pegar un enlace https://..."></div>
+          </div>
+          <div class="mt-5 bg-[#F1F6F8] border border-[#DCE6EA] rounded-[10px] px-4 py-3 flex gap-3 text-sm text-[#506773]"><i class="fa-solid fa-circle-info text-[#00A6B8] mt-1"></i><p>Al compartir, confirmas que tienes permiso para publicar el material y que la autoría o fuente indicada es correcta.</p></div>
+          <p id="upload-status" role="status" aria-live="polite" class="mt-4 text-sm" hidden></p><footer data-design-id="upload-form-footer-8f639e" class="mt-6 pt-5 border-t border-[#E0E8EC] flex justify-between items-center"><p class="text-xs text-[#718590]"><i class="fa-solid fa-earth-americas mr-2 text-[#00A6B8]"></i>El material será visible públicamente.</p><div class="flex gap-3"><a href="repositorio-docentes.html" data-design-id="cancel-upload-btn-381fb3" class="h-11 px-6 border border-[#AFC2CB] rounded-[9px] flex items-center rounded-[9px] font-sans text-xs font-bold text-[#425D6C]">Cancelar</a><button data-design-id="submit-upload-btn-a817e0" type="submit" class="h-11 px-7 bg-[#00AFC1] text-white rounded-[9px] font-sans text-xs font-bold shadow-sm"><i class="fa-solid fa-cloud-arrow-up mr-2"></i>Publicar material</button></div></footer>
+        </form>
+      </article>
+    </section>
+  </main>
+  <script src="assets/js/layout.js" data-part="footer"></script>
+<script type="module">
+  document.querySelector("#close-upload").addEventListener("click", () => {
+    if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      window.location.href = "index.html";
+    }
+  });
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape") document.querySelector("#close-upload").click();
+  });
+  import { app } from "./assets/js/firebase.js";
+  import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
+  const config = window.AEMATEC_FIREBASE_CONFIG;
+  const form = document.querySelector("#upload-material-form");
+  const fileInput = document.querySelector("#file");
+  const dropzone = document.querySelector("#file-dropzone");
+  const fileLabel = document.querySelector("#file-label");
+  const status = document.querySelector("#upload-status");
+  const description = document.querySelector("#description");
+  const submit = form.querySelector('button[type="submit"]');
+  const allowedExtensions = new Set(["pdf", "docx", "pptx", "xlsx", "zip", "ggb"]);
+  const maxSize = 25 * 1024 * 1024;
+  const specificFields = document.querySelector("#specific-fields");
+  const docentesFields = document.querySelector("#docentes-fields");
+  const academicoFields = document.querySelector("#academico-fields");
+  const mainFileField = document.querySelector("#main-file-field");
+  const resourceUrl = document.querySelector("#resource-url");
+  const fileRequiredMark = document.querySelector("#file-required-mark");
+  const grade = document.querySelector("#grade");
+  const course = document.querySelector("#course");
+  const materials = document.querySelector("#materials");
+  const sectionInputs = [...document.querySelectorAll('input[name="section"]')];
+  const courseCatalog = [
+    ["Introducción a la pedagogía", "EM1401"], ["Teorías Psicopedagógicas del aprendizaje", "EM1404"],
+    ["Fundamentos de la matemática I", "EM1605"], ["Matemática Discreta", "MA1403"],
+    ["Tecnologías Digitales aplicadas a la matemática educativa I", "EM1600"],
+    ["Fundamentos de la matemática II", "EM1606"], ["Aprendizaje y didáctica de la matemática", "EM2408"],
+    ["Geometría I", "EM2604"], ["Didáctica del Álgebra y Funciones", "EM1608"],
+    ["Geometría II", "EM2606"], ["Psicología del Desarrollo", "EM3407"],
+    ["Álgebra Lineal", "EM3607"], ["Didáctica de la Geometría", "EM1607"],
+    ["Cálculo y Análisis I", "EM2603"], ["Elementos de análisis de datos y probabilidad", "EM2608"],
+    ["Atención a la diversidad en la enseñanza y el aprendizaje de la Matemática", "EM3048"],
+    ["Didáctica de la probabilidad y estadística", "EM1609"],
+    ["Tecnologías digitales aplicadas a la matemática educativa II", "EM1610"],
+    ["Cálculo y Análisis II", "EM2607"], ["Electivo I", "EM3001"],
+    ["Evaluación del aprendizaje", "EM3408"], ["Práctica docente", "EM3409"],
+    ["Cálculo y Análisis III", "EM3608"], ["Electivo II", "EM3610"],
+    ["Geometría Analítica", "EM1611"], ["Álgebra", "EM4609"],
+    ["Ecuaciones diferenciales", "EM4610"], ["Tecnologías digitales aplicadas a la matemática educativa III", "EM1613"],
+    ["Estadística Inferencial", "EM1614"], ["Electivo III", "EM4001"],
+    ["Métodos numéricos", "EM4612"], ["Historia de las matemáticas", "EM5001"],
+    ["Didáctica de las matemáticas I", "EM5002"], ["Taller I: Algoritmos y programación", "EM5003"],
+    ["Introducción al análisis funcional", "EM5004"], ["Teoría de números", "EM5005"],
+    ["Didáctica de la matemática II", "EM5006"], ["Taller II: Multimedios en la matemática", "EM5007"],
+    ["Investigación educativa", "EM5008"], ["Trabajo final de graduación", "EM5009"],
+    ["Matemática General", "MA0101"], ["Cálculo Diferencial e Integral", "MA1102"],
+    ["Cálculo y Álgebra Lineal", "MA1103"], ["Cálculo Superior", "MA2104"],
+    ["Ecuaciones diferenciales", "MA2105"]
+  ];
+  const courseSuggestions = document.querySelector("#course-suggestions");
+
+  function normalizeCourseText(value) {
+    return value.toLocaleLowerCase("es").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  }
+
+  function hideCourseSuggestions() {
+    courseSuggestions.classList.remove("is-visible");
+    course.setAttribute("aria-expanded", "false");
+  }
+
+  function renderCourseSuggestions() {
+    const query = normalizeCourseText(course.value.trim());
+    courseSuggestions.replaceChildren();
+    if (!query) {
+      hideCourseSuggestions();
+      return;
+    }
+    const matches = courseCatalog
+      .filter(([name, code]) => normalizeCourseText(name).includes(query) || code.toLocaleLowerCase().includes(query))
+      .slice(0, 5);
+    if (!matches.length) {
+      hideCourseSuggestions();
+      return;
+    }
+    matches.forEach(([name, code]) => {
+      const option = document.createElement("button");
+      option.type = "button";
+      option.className = "course-suggestion";
+      option.setAttribute("role", "option");
+      option.dataset.courseName = name;
+      option.innerHTML = `<span class="course-suggestion-name">${name}</span><span class="course-suggestion-code">${code}</span>`;
+      courseSuggestions.append(option);
+    });
+    courseSuggestions.classList.add("is-visible");
+    course.setAttribute("aria-expanded", "true");
+  }
+
+  course.addEventListener("input", renderCourseSuggestions);
+  course.addEventListener("focus", renderCourseSuggestions);
+  course.addEventListener("keydown", event => {
+    if (event.key === "Escape") hideCourseSuggestions();
+  });
+  course.addEventListener("blur", () => window.setTimeout(hideCourseSuggestions, 120));
+  courseSuggestions.addEventListener("mousedown", event => event.preventDefault());
+  courseSuggestions.addEventListener("click", event => {
+    const option = event.target.closest(".course-suggestion");
+    if (!option) return;
+    course.value = option.dataset.courseName;
+    hideCourseSuggestions();
+  });
+
+  function updateSectionFields() {
+    const section = sectionInputs.find(input => input.checked)?.value || "";
+    const isDocente = section === "docentes";
+    const isAcademico = section === "academico";
+    specificFields.classList.toggle("hidden", !section);
+    docentesFields.classList.toggle("hidden", !isDocente);
+    academicoFields.classList.toggle("hidden", !isAcademico);
+    mainFileField.classList.toggle("hidden", !section);
+    if (!isAcademico) hideCourseSuggestions();
+    grade.required = isDocente;
+    course.required = isAcademico;
+    fileInput.required = isDocente;
+    fileRequiredMark.classList.toggle("hidden", !isDocente);
+    [docentesFields, academicoFields].forEach(group => {
+      const active = !group.classList.contains("hidden");
+      const inputs = [...group.querySelectorAll("[data-label]")];
+      const hasSelection = inputs.some(input => input.checked);
+      inputs.forEach(input => { input.required = active && !hasSelection; });
+    });
+  }
+  sectionInputs.forEach(input => input.addEventListener("change", updateSectionFields));
+  document.querySelectorAll("[data-label]").forEach(input => input.addEventListener("change", updateSectionFields));
+  updateSectionFields();
+
+  description.addEventListener("input", () => {
+    document.querySelector("#description-count").textContent = `${description.value.length} / 300 caracteres`;
+  });
+  fileInput.addEventListener("change", () => {
+    fileLabel.textContent = fileInput.files[0]?.name || "Arrastra tu archivo aquí o selecciónalo";
+  });
+  dropzone.addEventListener("dragover", event => {
+    event.preventDefault();
+    dropzone.classList.add("border-[#00AFC1]");
+  });
+  dropzone.addEventListener("dragleave", () => dropzone.classList.remove("border-[#00AFC1]"));
+  dropzone.addEventListener("drop", event => {
+    event.preventDefault();
+    dropzone.classList.remove("border-[#00AFC1]");
+    if (event.dataTransfer.files.length) {
+      fileInput.files = event.dataTransfer.files;
+      fileInput.dispatchEvent(new Event("change"));
+    }
+  });
+
+  function showStatus(message, error = false) {
+    status.hidden = false;
+    status.textContent = message;
+    status.className = `mt-4 text-sm ${error ? "text-[#C2413B]" : "text-[#087F8C]"}`;
+  }
+
+  async function uploadOptionalFile(file, resourceId, section, label, storage) {
+    if (!file) return null;
+    const extension = file.name.split(".").pop()?.toLowerCase();
+    if (!extension || !allowedExtensions.has(extension) || file.size > maxSize) {
+      throw new Error(`El archivo de ${label} debe ser válido y pesar máximo 25 MB.`);
+    }
+    const storagePath = `recursos/${section}/${resourceId}-${label}.${extension}`;
+    const upload = uploadBytesResumable(ref(storage, storagePath), file, { contentType: file.type || "application/octet-stream" });
+    await new Promise((resolve, reject) => upload.on("state_changed", snapshot => {
+      showStatus(`Subiendo ${label}: ${Math.round(snapshot.bytesTransferred / snapshot.totalBytes * 100)}%`);
+    }, reject, resolve));
+    return { storagePath, fileUrl: await getDownloadURL(upload.snapshot.ref), extension, size: file.size };
+  }
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const section = sectionInputs.find(input => input.checked)?.value;
+    const labels = [...document.querySelectorAll(`[data-label]:checked`)].map(input => input.dataset.label);
+    const file = fileInput.files[0];
+    const extension = file?.name.split(".").pop()?.toLowerCase();
+    if (!section || !labels.length || !form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+    const resourceLink = resourceUrl.value.trim();
+    const isTechnology = labels.includes("Recurso tecnológico");
+    if ((!file && !isTechnology) || (isTechnology && !file && !resourceLink) || (file && (!extension || !allowedExtensions.has(extension) || file.size > maxSize))) {
+      showStatus("Selecciona un archivo PDF, DOCX, PPTX, XLSX, ZIP o GGB de máximo 25 MB.", true);
+      return;
+    }
+    if (resourceLink && !/^https?:\/\//i.test(resourceLink)) {
+      showStatus("El enlace del recurso debe comenzar con http:// o https://.", true);
+      return;
+    }
+    if (!config?.apiKey || config.apiKey === "REEMPLAZAR") {
+      showStatus("El repositorio aún no está conectado a Firebase. Configura assets/firebase-config.js.", true);
+      return;
+    }
+    submit.disabled = true;
+    submit.textContent = "Preparando...";
+    try {
+      const storage = getStorage(app);
+      const db = getFirestore(app);
+      const resourceId = crypto.randomUUID();
+      let storagePath = "";
+      let fileUrl = resourceLink;
+      if (file) {
+        storagePath = `recursos/${section}/${resourceId}.${extension}`;
+        const upload = uploadBytesResumable(ref(storage, storagePath), file, { contentType: file.type || "application/octet-stream" });
+        showStatus("Conectando con Firebase...");
+        await new Promise((resolve, reject) => {
+          upload.on("state_changed", snapshot => {
+            showStatus(`Subiendo archivo: ${Math.round(snapshot.bytesTransferred / snapshot.totalBytes * 100)}%`);
+          }, error => {
+            reject(new Error(`Firebase rechazó la subida (${error.code}): ${error.message}`));
+          }, resolve);
+        });
+        fileUrl = await getDownloadURL(upload.snapshot.ref);
+      }
+      const explanation = await uploadOptionalFile(document.querySelector("#explanation-file").files[0], resourceId, section, "explicacion", storage);
+      const selectedGrade = grade.value;
+      const educationalCycle = section === "docentes" ? (
+        ["Primero", "Segundo", "Tercero"].includes(selectedGrade) ? "Primer ciclo" :
+        ["Cuarto", "Quinto", "Sexto"].includes(selectedGrade) ? "Segundo ciclo" :
+        ["Sétimo", "Octavo", "Noveno"].includes(selectedGrade) ? "Tercer ciclo" :
+        ["Décimo", "Undécimo", "Duodécimo"].includes(selectedGrade) ? "Ciclo diversificado" :
+        selectedGrade
+      ) : "";
+      const typeMap = {
+        "Actividad inicial / Exploratorio": "Actividad", Cotidiano: "Actividad", Tarea: "Actividad",
+        Juego: "Juego", "Guía didáctica": "Guía didáctica", "Unidad didáctica": "Planeamiento",
+        Planeamiento: "Planeamiento", "Recurso tecnológico": "Recurso digital",
+        "Movilización de Conocimientos": "Actividad", Debate: "Actividad",
+        "Discusión matemática": "Actividad", "Trabajo independiente": "Actividad",
+        "Guía de Trabajo Autónomo": "Guía didáctica",
+        Solución: "Solución", "Prueba escrita": "Examen", Quiz: "Examen",
+        Reposición: "Examen", Investigación: "Apuntes", Apuntes: "Apuntes", Resumen: "Apuntes"
+      };
+      const explanationUrl = document.querySelector("#explanation-url").value.trim();
+      if (explanationUrl && !/^https?:\/\//i.test(explanationUrl)) throw new Error("El enlace de explicación debe comenzar con http:// o https://.");
+      await addDoc(collection(db, "resources"), {
+        title: form.title.value.trim(), description: form.description.value.trim(),
+        section, type: typeMap[labels[0]], labels, grade: selectedGrade,
+        educationalCycle, course: course.value.trim(),
+        courseCode: courseCatalog.find(([name]) => normalizeCourseText(name) === normalizeCourseText(course.value.trim()))?.[1]
+          || courseCatalog.find(([, code]) => code.toLocaleLowerCase() === course.value.trim().toLocaleLowerCase())?.[1]
+          || "",
+        author: form.author.value.trim(), materials: materials?.value.trim() || "",
+        requiresInternet: form.requiresInternet.checked, explanationUrl,
+        explanation, extension: extension || "", size: file?.size || 0, storagePath, fileUrl,
+        status: "pending", published: false, createdAt: serverTimestamp()
+      });
+      form.reset();
+      hideCourseSuggestions();
+      fileLabel.textContent = "Arrastra tu archivo aquí o selecciónalo";
+      showStatus("Material enviado correctamente. Quedará disponible después de la revisión de un moderador.");
+    } catch (error) {
+      showStatus(`No se pudo publicar el material: ${error.message}`, true);
+    } finally {
+      submit.disabled = false;
+      submit.innerHTML = '<i class="fa-solid fa-cloud-arrow-up mr-2"></i>Publicar material';
+    }
+  });
+</script>
+</body></html>
