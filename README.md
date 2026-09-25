@@ -71,6 +71,10 @@ que la necesita y en ese momento (por ejemplo, un trámite de persona Asociada e
 | `moderators` | Correos de moderación | Moderadores |
 | `config/medios_oficiales` | Correo, teléfono y enlaces de WhatsApp, Telegram e Instagram | Pública |
 | `config/junta_publica` | Solo nombre y puesto de la Junta, generado por el Panel | Pública |
+| `tramites` (+ `adhesiones`) | Solicitudes a la Junta, postulaciones y solicitudes de AGEC. **Solo los crean las Functions** | Junta y quien lo envió |
+| `agecPublicas` | Avance de cada solicitud de AGEC (sin nombres ni correos) | Pública |
+| `fiscaliaCasos` | Consultas y denuncias a Fiscalía; las anónimas no guardan nada que identifique a la persona | **Solo Fiscalía** (ni Junta ni dueños) y quien envió un caso identificado |
+| `limites` | Límite diario de trámites por cuenta | Nadie (solo Functions) |
 
 `config/junta_publica` se regenera cada vez que la Junta entra al panel o agrega, edita o quita a un
 integrante. Así la página pública no expone los correos (RI Art. 143).
@@ -82,6 +86,9 @@ integrante. Así la página pública no expone los correos (RI Art. 143).
 - `notifyPendingResource`: avisa a los moderadores cuando llega material nuevo.
 - `sendPendingSummary`: resumen diario (8:00, hora de Costa Rica) de materiales pendientes.
 - `notifyLoanRequest`: avisa a la Junta de cada solicitud de préstamo.
+- `enviarTramite`, `adherirAgec`, `consultarSeguimiento` (`functions/tramites.js`): reciben los trámites.
+  Verifican el correo `@estudiantec.cr`, consultan el padrón (si la persona no está, el trámite se acepta marcado
+  para que la Junta decida) y avisan por correo. Las denuncias anónimas se consultan con un código privado.
 
 ### Correos de notificación
 

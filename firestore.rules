@@ -24,6 +24,12 @@ service cloud.firestore {
           && exists(/databases/$(database)/documents/junta/$(request.auth.token.email)));
     }
 
+    // Persona Fiscal registrada, sin el acceso de dueño (RI Art. 42: independencia de la Fiscalía).
+    function esPersonaFiscal() {
+      return request.auth != null && request.auth.token.email_verified == true
+        && exists(/databases/$(database)/documents/fiscalia/$(request.auth.token.email));
+    }
+
     function isFiscalia() {
       return isOwner()
         || (request.auth != null && request.auth.token.email_verified == true
@@ -92,6 +98,48 @@ service cloud.firestore {
           'itemId', 'itemTipo', 'itemNombre', 'itemCodigo', 'solicitanteNombre',
           'solicitanteCarne', 'solicitanteContacto', 'fechaPrevista', 'notas', 'estado', 'createdAt'
         ]);
+    }
+
+    // ---------- Trámites (RI Título V, Cap. IV) ----------
+    // Nadie los crea desde el navegador: los crean las Cloud Functions (functions/tramites.js), que verifican
+    // el correo institucional y el padrón. Aquí solo se define quién los lee y qué puede cambiar la Junta.
+    match /tramites/{tramiteId} {
+      allow read: if isJunta()
+        || (request.auth != null && resource.data.solicitanteUid == request.auth.uid);
+      allow create, delete: if false;
+      allow update: if isJunta()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'estado', 'respuestas', 'prorrogaInformada', 'motivacionRechazo', 'actualizadoEn'
+        ])
+        && request.resource.data.estado in ['recibido', 'en_revision', 'resuelto', 'rechazado'];
+
+      match /adhesiones/{email} {
+        allow read: if isJunta();
+        allow write: if false;
+      }
+    }
+
+    // Avance público de las solicitudes de AGEC extraordinaria (sin nombres ni correos).
+    match /agecPublicas/{tramiteId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Consultas y denuncias a Fiscalía. RI Art. 42: solo la Fiscalía las lee; la Junta NO, y los dueños del
+    // sitio tampoco (por eso no se usa isFiscalia(), que incluye a los dueños). Quien envió un caso
+    // identificado puede ver el suyo; los anónimos se consultan con el código de seguimiento (función).
+    match /fiscaliaCasos/{casoId} {
+      allow read: if esPersonaFiscal()
+        || (request.auth != null && resource.data.remitenteUid == request.auth.uid);
+      allow create, delete: if false;
+      allow update: if esPersonaFiscal()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['estado', 'respuestas', 'actualizadoEn'])
+        && request.resource.data.estado in ['recibido', 'en_revision', 'resuelto'];
+    }
+
+    // Límite diario de trámites por cuenta; solo lo usan las funciones.
+    match /limites/{uid} {
+      allow read, write: if false;
     }
 
     match /resources/{resourceId} {

@@ -135,6 +135,55 @@ describe("Biblioteca: recursos y moderación", () => {
   });
 });
 
+describe("Trámites (los crea solo el servidor)", () => {
+  const DUENO = "angeloyeshuac@gmail.com";
+  beforeEach(async () => {
+    await env.withSecurityRulesDisabled(async context => {
+      const db = context.firestore();
+      await setDoc(doc(db, "tramites", "t1"), { tipo: "solicitud_junta", solicitanteUid: "uid-ana", solicitante: { email: "ana@estudiantec.cr" }, estado: "recibido", respuestas: [] });
+      await setDoc(doc(db, "fiscaliaCasos", "f1"), { subtipo: "denuncia", anonimo: true, remitenteUid: null, estado: "recibido", respuestas: [] });
+      await setDoc(doc(db, "fiscaliaCasos", "f2"), { subtipo: "consulta", anonimo: false, remitenteUid: "uid-luis", estado: "recibido", respuestas: [] });
+      await setDoc(doc(db, "agecPublicas", "a1"), { motivo: "M", umbral: 2 });
+    });
+  });
+  const cuentaUid = (uid, email) => env.authenticatedContext(uid, { email, email_verified: true }).firestore();
+
+  test("nadie crea trámites ni casos desde el navegador, ni siquiera la Junta", async () => {
+    await assertFails(setDoc(doc(usuario(JUNTA).firestore(), "tramites", "x"), { tipo: "solicitud_junta" }));
+    await assertFails(setDoc(doc(anonimo().firestore(), "fiscaliaCasos", "x"), { subtipo: "denuncia" }));
+  });
+  test("la Junta y quien lo envió leen el trámite; otra persona no", async () => {
+    await assertSucceeds(getDoc(doc(usuario(JUNTA).firestore(), "tramites", "t1")));
+    await assertSucceeds(getDoc(doc(cuentaUid("uid-ana", "ana@estudiantec.cr"), "tramites", "t1")));
+    await assertFails(getDoc(doc(cuentaUid("uid-otro", "otro@estudiantec.cr"), "tramites", "t1")));
+  });
+  test("la Junta cambia el estado y responde, pero no puede alterar al solicitante", async () => {
+    const db = usuario(JUNTA).firestore();
+    await assertSucceeds(updateDoc(doc(db, "tramites", "t1"), { estado: "en_revision" }));
+    await assertFails(updateDoc(doc(db, "tramites", "t1"), { solicitante: { email: "otro@estudiantec.cr" } }));
+    await assertFails(updateDoc(doc(db, "tramites", "t1"), { estado: "inventado" }));
+  });
+  test("RI Art. 42: solo la Fiscalía lee los casos; ni la Junta ni un dueño", async () => {
+    await assertSucceeds(getDoc(doc(usuario(FISCAL).firestore(), "fiscaliaCasos", "f1")));
+    await assertFails(getDoc(doc(usuario(JUNTA).firestore(), "fiscaliaCasos", "f1")));
+    await assertFails(getDoc(doc(usuario(DUENO).firestore(), "fiscaliaCasos", "f1")));
+    await assertFails(getDocs(collection(usuario(JUNTA).firestore(), "fiscaliaCasos")));
+  });
+  test("quien envió un caso identificado lo puede ver; el anónimo no queda ligado a nadie", async () => {
+    await assertSucceeds(getDoc(doc(cuentaUid("uid-luis", "luis@estudiantec.cr"), "fiscaliaCasos", "f2")));
+    await assertFails(getDoc(doc(cuentaUid("uid-luis", "luis@estudiantec.cr"), "fiscaliaCasos", "f1")));
+  });
+  test("la Fiscalía actualiza el estado de un caso; la Junta no", async () => {
+    await assertSucceeds(updateDoc(doc(usuario(FISCAL).firestore(), "fiscaliaCasos", "f1"), { estado: "en_revision" }));
+    await assertFails(updateDoc(doc(usuario(JUNTA).firestore(), "fiscaliaCasos", "f1"), { estado: "resuelto" }));
+  });
+  test("el avance de una AGEC es público pero de solo lectura; los límites son privados", async () => {
+    await assertSucceeds(getDoc(doc(anonimo().firestore(), "agecPublicas", "a1")));
+    await assertFails(setDoc(doc(usuario(JUNTA).firestore(), "agecPublicas", "a1"), { umbral: 1 }));
+    await assertFails(getDoc(doc(usuario(JUNTA).firestore(), "limites", "cualquiera")));
+  });
+});
+
 describe("Storage", () => {
   const pdf = new Uint8Array([37, 80, 68, 70]);
   test("se puede subir un PDF de material con nombre válido", async () => {

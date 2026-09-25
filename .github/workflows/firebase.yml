@@ -1,5 +1,5 @@
 # Prueba y publica la parte de Firebase del sitio (reglas y Cloud Functions).
-# - En cada PR: prueba las reglas con el emulador.
+# - En cada PR: prueba las reglas y las funciones de Trámites con el emulador.
 # - En cada merge a main: vuelve a probar y, si todo pasa, publica en Firebase.
 # - A mano (pestaña Actions → "Firebase" → Run workflow): vuelve a publicar todo.
 # Las páginas HTML no pasan por aquí: GitHub Pages las publica solo desde main.
@@ -48,7 +48,9 @@ jobs:
         with:
           node-version: 20
           cache: npm
-          cache-dependency-path: tests/package-lock.json
+          cache-dependency-path: |
+            tests/package-lock.json
+            functions/package-lock.json
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -56,7 +58,10 @@ jobs:
       - name: Instalar dependencias de pruebas
         working-directory: tests
         run: npm ci
-      - name: Ejecutar pruebas de reglas
+      - name: Instalar dependencias de Functions (las usan las pruebas de funciones)
+        working-directory: functions
+        run: npm ci
+      - name: Ejecutar pruebas de reglas y de funciones
         working-directory: tests
         run: npm test
 

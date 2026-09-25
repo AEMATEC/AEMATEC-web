@@ -38,8 +38,15 @@ paso a paso.
 - Todo dato de Firestore que se muestre en una página se escapa (`escapeHtml`) o se asigna con
   `textContent`. Los enlaces que vienen de datos se validan como `https:`.
 
+## Trámites
+- Los trámites **solo los crean las Cloud Functions** (`functions/tramites.js`); las reglas impiden crearlos desde el
+  navegador. Si agregas un tipo de trámite, hazlo en `TIPOS` de ese archivo y agrega su prueba.
+- Una denuncia anónima a Fiscalía **nunca** guarda correo, nombre ni uid. La prueba "una denuncia anónima no guarda
+  nada que identifique a la persona" (`tests/funciones.test.js`) debe seguir pasando.
+
 ## Validar antes de abrir el PR
-- Si cambiaste reglas: agrega o ajusta casos en `tests/reglas.test.js` y ejecuta
+- Si cambiaste reglas o Functions: agrega o ajusta casos en `tests/reglas.test.js` o `tests/funciones.test.js`
+  (necesita `npm install` también en `functions/`) y ejecuta
   `cd tests && npm install && npm test` (necesita Java). Todas las pruebas deben pasar.
 - Si cambiaste Functions: `cd functions && npm install && node -e "require('./index.js')"`.
 - Si cambiaste páginas: `node tests/revisar-paginas.mjs` (también corre solo en cada PR) y prueba la
