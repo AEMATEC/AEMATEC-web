@@ -12,7 +12,7 @@ afectan al sitio.
 | 0 | Documentar: README, este plan, agente de `.github` | ✅ Hecha |
 | 0.5 | Publicación automática (GitHub Actions), pruebas de reglas, correos por Gmail, agente de mantenimiento (`CLAUDE.md` + skills) | ✅ Hecha (falta configurar los secretos) |
 | 1 | Correcciones urgentes (seguridad, datos personales, cumplimiento del RI) | ✅ Hecha (quedan pasos manuales, ver abajo) |
-| 2 | Base compartida: layout, navegación y módulos JS comunes | En curso: 2a y 2b hechas; falta 2c |
+| 2 | Base compartida: layout, navegación y módulos JS comunes | ✅ Hecha (2a, 2b y 2c) |
 | 3 | Consolidar páginas y paneles | Pendiente |
 | 4 | Herramientas: Tailwind compilado, hosting, pruebas de reglas en CI | Pendiente |
 | 5 | Trámites | Pendiente (requiere Fase 2) |
@@ -98,8 +98,9 @@ Estos puntos condicionan el diseño y no deberían contradecirse:
 - ✅ **2b.** `assets/js/firebase.js` (conexión única), `assets/js/roles.js` (correos de dueño en un solo lugar
   para las páginas y `tieneRol`) y `assets/js/util.js` (`escapeHtml`, validación de enlaces). Las reglas y las
   Functions siguen teniendo su propia copia de los correos de dueño (no pueden leer archivos del sitio).
-- **2c.** Pasar a un layout fluido y retirar el `w-[1440px]` y los `!important`. Corrige los desbordes
-  horizontales en celular (Inventario, Junta Directiva, Recursos académicos) y el ícono estirado de Trámites.
+- ✅ **2c.** Diseño fluido: sin `w-[1440px]`; los contenedores usan `site-container` y se quitaron los
+  `!important` que forzaban anchos. Sin desbordes horizontales de 320 a 1600 px. `[hidden]` siempre oculta
+  (la barra de sesión de Junta en Inventario se veía sin iniciar sesión).
 
 ## Fase 3: consolidar
 - Una sola página de recursos (`?seccion=docentes|academico`).

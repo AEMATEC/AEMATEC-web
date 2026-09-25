@@ -24,28 +24,7 @@
   <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
   <style>
     @media (max-width: 767px) {
-      body {
-        width: 100% !important;
-        max-width: 100%;
-        overflow-x: hidden;
-      }
-      [class~="w-[1240px]"] {
-        width: auto !important;
-        max-width: none;
-      }
-      html,
-      body {
-        max-width: 100%;
-      }
-      main>section>div:not(.catalog-filter-backdrop) {
-        width: calc(100% - 2rem) !important;
-        margin-left: auto;
-        margin-right: auto;
-      }
       [data-design-id="docentes-intro-1978be"]>div {
-        width: calc(100% - 2rem) !important;
-        margin-left: auto;
-        margin-right: auto;
         padding-top: 2.5rem;
         padding-bottom: 2rem;
       }
@@ -79,7 +58,6 @@
       }
       [data-design-id="docentes-catalog-f48e50"] {
         display: block;
-        width: auto !important;
         margin-left: 1rem;
         margin-right: 1rem;
         padding-top: 2rem;
@@ -103,41 +81,11 @@
       }
     }
     @media (min-width: 768px) and (max-width: 1279px) {
-      body {
-        width: 100% !important;
-        max-width: 100%;
-        overflow-x: hidden;
-      }
-      [class~="w-[1240px]"] {
-        width: auto !important;
-        max-width: none;
-      }
-      html,
-      body {
-        max-width: 100%;
-      }
-      main>section>div:not(.catalog-filter-backdrop) {
-        width: calc(100% - 4rem) !important;
-        margin-left: auto;
-        margin-right: auto;
-      }
       [data-design-id="docentes-catalog-f48e50"] {
         display: block;
-        width: calc(100% - 4rem) !important;
-        margin-left: auto;
-        margin-right: auto;
       }
     }
     @media (min-width: 768px) {
-      body[class~="w-[1440px]"] {
-        width: 100% !important;
-        max-width: 100%;
-        overflow-x: hidden;
-      }
-      [class~="w-[1240px]"] {
-        width: min(1240px, calc(100% - clamp(2rem, 8vw, 12.5rem))) !important;
-        max-width: none;
-      }
       [data-design-id="docentes-intro-1978be"]>div {
         padding-top: clamp(3rem, 4vw, 3.75rem);
         padding-bottom: clamp(2.5rem, 3vw, 3.25rem);
@@ -161,8 +109,6 @@
     }
     .docentes-filter-trigger {
       white-space: nowrap;
-    }
-    @media (prefers-reduced-motion: reduce) {
     }
     .catalog-filter-backdrop {
       position: fixed;
@@ -199,13 +145,13 @@
   <title>Recursos docentes — Biblioteca AEMATEC</title>
 </head>
 
-<body class="w-[1440px] bg-[#F4F8FA] text-[#0D2B45] font-serif"
+<body class="bg-[#F4F8FA] text-[#0D2B45] font-serif"
   style="background-image: radial-gradient(circle at 12% 18%, rgba(0, 175, 193, 0.13) 0, rgba(0, 175, 193, 0.13) 1.2px, transparent 1.8px), radial-gradient(circle at 84% 72%, rgba(13, 43, 69, 0.09) 0, rgba(13, 43, 69, 0.09) 1.2px, transparent 1.8px); background-size: 28px 28px, 36px 36px;">
   <script src="assets/js/layout.js" data-part="header" data-active="biblioteca" data-sub="docentes"></script>
 
   <main data-design-id="main-docentes-cf81ad">
     <section data-design-id="docentes-intro-1978be" class="bg-[#075766] text-white">
-      <div class="w-[1240px] mx-auto py-[50px] relative overflow-hidden">
+      <div class="site-container mx-auto py-[50px] relative overflow-hidden">
         <div aria-hidden="true"
           class="pointer-events-none absolute -right-[10px] top-[6px] rotate-[8deg] font-sans text-[58px] leading-none text-white/[0.09]">
           <span>2</span> <i class="fa-solid fa-carrot text-[48px]"></i> <span>+</span> <span>3</span> <i
@@ -245,7 +191,7 @@
       </div>
     </section>
 
-    <section data-design-id="docentes-catalog-f48e50" class="w-[1240px] mx-auto py-[42px]">
+    <section data-design-id="docentes-catalog-f48e50" class="site-container mx-auto py-[42px]">
       <div id="docentes-filter-backdrop" class="catalog-filter-backdrop" aria-hidden="true"></div>
       <aside id="docentes-filter-panel" data-design-id="filters-docentes-8fb743"
         class="catalog-filter-panel bg-white border border-[#D7E2E7] rounded-[16px] p-6"
@@ -554,7 +500,7 @@
         grid.innerHTML = '<p class="col-span-1 bg-white border border-[#D6E2E7] rounded-[16px] p-8 text-center text-[#607480]">No encontramos materiales con esos filtros.</p>';
       } else {
         grid.innerHTML = visible.map(resource => `<article class="bg-white border border-[#D6E2E7] rounded-[16px] p-6 hover:border-[#8ED5DD]">
-          <div class="flex justify-between"><span class="font-sans text-[11px] font-bold bg-[#DFF6F8] text-[#087F8C] px-3 py-1.5 rounded-full">${escapeHtml((resource.type || "RECURSO").toUpperCase())}</span><span class="text-xs text-[#7C8D97]"><i class="${resource.extension === "ggb" ? "fa-solid" : "fa-regular"} ${iconFor(resource.extension)} mr-1"></i>${escapeHtml((resource.extension || "").toUpperCase())}</span></div>
+          <div class="flex justify-between"><span class="font-sans text-[11px] font-bold bg-[#DFF6F8] text-[#087F8C] px-3 py-1.5 rounded-full">${escapeHtml((resource.type || "RECURSO").toUpperCase())}</span><span class="text-xs text-[#7C8D97]"><i class="${resource.extension ==="ggb" ? "fa-solid" : "fa-regular"} ${iconFor(resource.extension)} mr-1"></i>${escapeHtml((resource.extension || "").toUpperCase())}</span></div>
           <h3 class="font-sans font-bold text-[19px] mt-5">${escapeHtml(resource.title)}</h3><p class="text-sm text-[#607480] mt-3 leading-6">${escapeHtml(resource.description)}</p>
           <div class="mt-5 grid grid-cols-2 gap-3 text-xs text-[#627783]"><span><i class="fa-solid fa-graduation-cap w-5 text-[#00A6B8]"></i>${escapeHtml(resource.course || "Nivel no indicado")}</span><span><i class="fa-solid fa-shapes w-5 text-[#00A6B8]"></i>${escapeHtml(resource.topic || "Matemática")}</span></div>
           <p class="mt-5 pt-4 border-t border-[#E4EAED] text-xs text-[#6F818C]">Por <strong class="text-[#405968]">${escapeHtml(resource.author)}</strong></p>
@@ -567,7 +513,7 @@
         const pages = totalPages <= 3 ? Array.from({ length: totalPages }, (_, index) => index + 1) : [1, 2, totalPages];
         pages.forEach((pageNumber, index) => {
           if (index && pageNumber - pages[index - 1] > 1) pageButtons.push('<span class="px-1 text-[#7A8C96]">...</span>');
-          pageButtons.push(`<button type="button" data-page="${pageNumber}" class="w-10 h-10 rounded-[8px] ${page === pageNumber ? "bg-[#0D2B45] text-white" : "bg-white border border-[#CBD9DF]"}">${pageNumber}</button>`);
+          pageButtons.push(`<button type="button" data-page="${pageNumber}" class="w-10 h-10 rounded-[8px] ${page === pageNumber ?"bg-[#0D2B45] text-white" : "bg-white border border-[#CBD9DF]"}">${pageNumber}</button>`);
         });
         pageButtons.push(`<button type="button" data-page="${Math.min(totalPages, page + 1)}" aria-label="Página siguiente" class="w-10 h-10 border border-[#CBD9DF] rounded-[8px] bg-white flex items-center justify-center"><i class="fa-solid fa-chevron-right text-xs"></i></button>`);
       }

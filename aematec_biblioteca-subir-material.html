@@ -9,8 +9,6 @@
   <script src="assets/firebase-config.js"></script>
   <script>tailwind.config={theme:{extend:{fontFamily:{sans:['Montserrat','sans-serif'],serif:['Source Serif 4','serif']}}}}</script>  <style>
     @media (max-width: 767px) {
-      body.w-\[1440px\] { width: 100% !important; overflow-x: hidden; }
-      [data-design-id="background-content-0d3e64"] > div { width: calc(100% - 2rem) !important; margin-left: auto; margin-right: auto; }
       [data-design-id="background-content-0d3e64"] .grid { grid-template-columns: 1fr; }
       [data-design-id="upload-dialog-section-c3f81a"] { padding: 1rem; }
       [data-design-id="upload-dialog-card-d6e09b"] { width: 100%; }
@@ -23,15 +21,9 @@
       [data-design-id="upload-form-footer-8f639e"] > div { width: 100%; }
       [data-design-id="upload-form-footer-8f639e"] a, [data-design-id="upload-form-footer-8f639e"] button { flex: 1; justify-content: center; }
     }
-    @media (min-width: 768px) and (max-width: 1279px) {
-      body.w-\[1440px\] { width: 100% !important; overflow-x: hidden; }
-      [data-design-id="background-content-0d3e64"] > div { width: calc(100% - 4rem) !important; margin-left: auto; margin-right: auto; }
-    }
     .upload-backdrop { position: absolute; inset: 0; background: rgba(13, 43, 69, 0.55); backdrop-filter: blur(8px); }
     .upload-dialog-section { min-height: 100%; align-items: flex-start; }
     @media (min-width: 768px) {
-      body.w-\[1440px\] { width: 100% !important; max-width: 100%; overflow-x: hidden; }
-      [class~="w-[1240px]"] { width: min(1240px, calc(100% - clamp(2rem, 8vw, 12.5rem))) !important; max-width: none; }
       [data-design-id="upload-dialog-card-d6e09b"] { width: min(820px, 100%); }
     }
     .course-field { position: relative; }
@@ -113,13 +105,13 @@
   </style>
   <title>Subir material — Biblioteca AEMATEC</title>
 </head>
-<body class="w-[1440px] bg-[#F4F8FA] text-[#0D2B45] font-serif" style="background-image: radial-gradient(circle at 12% 18%, rgba(0, 175, 193, 0.13) 0, rgba(0, 175, 193, 0.13) 1.2px, transparent 1.8px), radial-gradient(circle at 84% 72%, rgba(13, 43, 69, 0.09) 0, rgba(13, 43, 69, 0.09) 1.2px, transparent 1.8px); background-size: 28px 28px, 36px 36px;">
+<body class="bg-[#F4F8FA] text-[#0D2B45] font-serif" style="background-image: radial-gradient(circle at 12% 18%, rgba(0, 175, 193, 0.13) 0, rgba(0, 175, 193, 0.13) 1.2px, transparent 1.8px), radial-gradient(circle at 84% 72%, rgba(13, 43, 69, 0.09) 0, rgba(13, 43, 69, 0.09) 1.2px, transparent 1.8px); background-size: 28px 28px, 36px 36px;">
   <script src="assets/js/layout.js" data-part="header" data-active="biblioteca" data-sub="subir"></script>
   <main data-design-id="main-upload-modal-8fd69e" class="relative min-h-[900px]">
-    <section data-design-id="background-content-0d3e64" class="absolute inset-0 opacity-35 pointer-events-none"><div class="w-[1240px] mx-auto py-12"><h1 class="font-sans text-[42px] font-bold">Materiales recientes</h1><div class="grid grid-cols-3 gap-6 mt-8"><div class="h-56 bg-white border border-[#CBD9DF] rounded-[16px]"></div><div class="h-56 bg-white border border-[#CBD9DF] rounded-[16px]"></div><div class="h-56 bg-white border border-[#CBD9DF] rounded-[16px]"></div></div></div></section>
+    <section data-design-id="background-content-0d3e64" class="absolute inset-0 opacity-35 pointer-events-none"><div class="site-container mx-auto py-12"><h1 class="font-sans text-[42px] font-bold">Materiales recientes</h1><div class="grid grid-cols-3 gap-6 mt-8"><div class="h-56 bg-white border border-[#CBD9DF] rounded-[16px]"></div><div class="h-56 bg-white border border-[#CBD9DF] rounded-[16px]"></div><div class="h-56 bg-white border border-[#CBD9DF] rounded-[16px]"></div></div></div></section>
     <div class="upload-backdrop" aria-hidden="true"></div>
     <section data-design-id="upload-dialog-section-c3f81a" class="upload-dialog-section relative py-9 flex justify-center">
-      <article data-design-id="upload-dialog-card-d6e09b" class="w-[820px] bg-white rounded-[20px] shadow-[0_28px_80px_rgba(0,0,0,0.30)] overflow-hidden">
+      <article data-design-id="upload-dialog-card-d6e09b" class="w-full max-w-[820px] bg-white rounded-[20px] shadow-[0_28px_80px_rgba(0,0,0,0.30)] overflow-hidden">
         <header data-design-id="upload-dialog-header-0b615a" class="px-9 py-6 border-b border-[#DFE7EA] flex items-center justify-between"><div class="flex items-center gap-4"><div class="w-12 h-12 rounded-[12px] bg-[#E1F7F9] text-[#00A6B8] flex items-center justify-center text-xl"><i class="fa-solid fa-cloud-arrow-up"></i></div><div><h1 class="font-sans font-bold text-[25px] tracking-[-0.02em]">Subir material</h1><p class="text-sm text-[#687C88] mt-1">Comparte un recurso con la comunidad MATEC.</p></div></div><button id="close-upload" data-design-id="close-upload-btn-ae3f24" type="button" class="w-10 h-10 rounded-full bg-[#F0F4F6] text-[#5F7480]" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button></header>
         <form id="upload-material-form" data-design-id="upload-material-form-e8cd2f" class="px-9 py-7" novalidate>
           <div class="grid grid-cols-2 gap-x-5 gap-y-5">

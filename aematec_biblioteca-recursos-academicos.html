@@ -24,28 +24,7 @@
   <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
   <style>
     @media (max-width: 767px) {
-      body {
-        width: 100% !important;
-        max-width: 100%;
-        overflow-x: hidden;
-      }
-      [class~="w-[1240px]"] {
-        width: auto !important;
-        max-width: none;
-      }
-      html,
-      body {
-        max-width: 100%;
-      }
-      main>section>div:not(.catalog-filter-backdrop) {
-        width: calc(100% - 2rem) !important;
-        margin-left: auto;
-        margin-right: auto;
-      }
       [data-design-id="academicos-intro-e4b790"]>div {
-        width: calc(100% - 2rem) !important;
-        margin-left: auto;
-        margin-right: auto;
         padding-top: 2.5rem;
         padding-bottom: 2rem;
       }
@@ -81,9 +60,6 @@
       }
       [data-design-id="academicos-catalog-45a8fc"] {
         display: block;
-        width: calc(100% - 2rem) !important;
-        margin-left: auto;
-        margin-right: auto;
         padding-top: 2rem;
         padding-bottom: 2rem;
       }
@@ -103,41 +79,11 @@
       }
     }
     @media (min-width: 768px) and (max-width: 1279px) {
-      body {
-        width: 100% !important;
-        max-width: 100%;
-        overflow-x: hidden;
-      }
-      [class~="w-[1240px]"] {
-        width: auto !important;
-        max-width: none;
-      }
-      html,
-      body {
-        max-width: 100%;
-      }
-      main>section>div:not(.catalog-filter-backdrop) {
-        width: calc(100% - 4rem) !important;
-        margin-left: auto;
-        margin-right: auto;
-      }
       [data-design-id="academicos-catalog-45a8fc"] {
         display: block;
-        width: calc(100% - 4rem) !important;
-        margin-left: auto;
-        margin-right: auto;
       }
     }
     @media (min-width: 768px) {
-      body[class~="w-[1440px]"] {
-        width: 100% !important;
-        max-width: 100%;
-        overflow-x: hidden;
-      }
-      [class~="w-[1240px]"] {
-        width: min(1240px, calc(100% - clamp(2rem, 8vw, 12.5rem))) !important;
-        max-width: none;
-      }
       [data-design-id="academicos-intro-e4b790"]>div {
         padding-top: clamp(3rem, 4vw, 3.75rem);
         padding-bottom: clamp(2.5rem, 3vw, 3.25rem);
@@ -180,6 +126,10 @@
     .course-shortcut.is-selected {
       background: #0D2B45;
       color: white;
+    }
+    /* Los globos de ayuda de los cursos no deben ensanchar la página en pantallas angostas. */
+    [data-design-id="course-shortcuts-f2a711"] {
+      overflow-x: clip;
     }
     .course-shortcut {
       position: relative;
@@ -292,12 +242,12 @@
   <title>Recursos académicos — Biblioteca AEMATEC</title>
 </head>
 
-<body class="w-[1440px] bg-[#F4F8FA] text-[#0D2B45] font-serif"
+<body class="bg-[#F4F8FA] text-[#0D2B45] font-serif"
   style="background-image: radial-gradient(circle at 12% 18%, rgba(0, 175, 193, 0.13) 0, rgba(0, 175, 193, 0.13) 1.2px, transparent 1.8px), radial-gradient(circle at 84% 72%, rgba(13, 43, 69, 0.09) 0, rgba(13, 43, 69, 0.09) 1.2px, transparent 1.8px); background-size: 28px 28px, 36px 36px;">
   <script src="assets/js/layout.js" data-part="header" data-active="biblioteca" data-sub="academicos"></script>
   <main data-design-id="main-academicos-a917d3">
     <section data-design-id="academicos-intro-e4b790" class="bg-[#0D2B45] text-white">
-      <div class="w-[1240px] mx-auto py-[50px] relative overflow-hidden">
+      <div class="site-container mx-auto py-[50px] relative overflow-hidden">
         <div aria-hidden="true"
           class="pointer-events-none absolute left-[235px] top-[18px] rotate-[-7deg] font-serif text-[56px] leading-none text-white/[0.08]">
           \( \displaystyle \int_0^1 \frac{sex}{x}\,dx \)</div>
@@ -332,7 +282,7 @@
       </div>
     </section>
     <section data-design-id="course-shortcuts-f2a711" class="bg-white border-b border-[#DCE6EA]">
-      <div class="w-[1240px] mx-auto flex flex-wrap items-center gap-3 py-5"><span
+      <div class="site-container mx-auto flex flex-wrap items-center gap-3 py-5"><span
           class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#697D89] mr-2">Cursos frecuentes</span><a
           data-course="MA1403" data-course-name="Matemática Discreta" href="#"
           class="course-shortcut font-sans text-xs font-bold bg-[#EDF3F5] text-[#0D2B45] px-4 py-2 rounded-full">MA1403</a><a
@@ -354,7 +304,7 @@
         <div id="course-legend-list" class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3"></div>
       </div>
     </section>
-    <section data-design-id="academicos-catalog-45a8fc" class="w-[1240px] mx-auto py-[42px]">
+    <section data-design-id="academicos-catalog-45a8fc" class="site-container mx-auto py-[42px]">
       <div id="academic-filter-backdrop" class="catalog-filter-backdrop" aria-hidden="true"></div>
       <aside id="academic-filter-panel" data-design-id="filters-academicos-41df88"
         class="catalog-filter-panel bg-white border border-[#D7E2E7] rounded-[16px] p-6"
@@ -648,7 +598,7 @@
       count.textContent = `${filtered.length} ${filtered.length === 1 ? "material" : "materiales"}`;
       summary.textContent = queryText ? `para “${search.value.trim()}”` : "disponibles";
       list.innerHTML = visible.length ? visible.map(resource => `<article class="bg-white border border-[#D6E2E7] rounded-[15px] p-5 flex items-center gap-5">
-        <div class="w-[62px] h-[72px] rounded-[11px] bg-[#EDF2FA] text-[#486398] flex items-center justify-center text-2xl"><i class="${resource.extension === "ggb" ? "fa-solid" : "fa-regular"} ${iconFor(resource.extension)}"></i></div>
+        <div class="w-[62px] h-[72px] rounded-[11px] bg-[#EDF2FA] text-[#486398] flex items-center justify-center text-2xl"><i class="${resource.extension ==="ggb" ? "fa-solid" : "fa-regular"} ${iconFor(resource.extension)}"></i></div>
         <div class="flex-1"><div class="flex items-center gap-3"><span class="font-sans text-[10px] font-bold bg-[#E9EEF9] text-[#3B568D] px-2.5 py-1 rounded-full">${escapeHtml((resource.type || "RECURSO").toUpperCase())}</span><span title="${escapeHtml(courseNames[resource.course] || "")}" class="font-sans text-[11px] font-bold text-[#008F9E]">${escapeHtml(resource.course || "Sin curso")}</span></div>
         <h3 class="font-sans font-bold text-[18px] mt-2">${escapeHtml(resource.title)}</h3><p class="text-sm text-[#687B86] mt-1">${escapeHtml(resource.description)}</p><p class="text-xs text-[#7A8C96] mt-2">Por <strong class="text-[#4A606D]">${escapeHtml(resource.author)}</strong> · ${escapeHtml(courseLabel(resource.course))}</p></div>
         <div class="flex gap-2">${isModerator ? `<a href="aematec_biblioteca-moderacion.html?edit=${escapeHtml(resource.id)}" class="flex h-11 w-11 items-center justify-center rounded-[8px] border border-[#9DB6C1] text-[#38566A]" title="Editar (moderador)"><i class="fa-solid fa-pen"></i></a>` : ""}<button type="button" data-view-academic="${escapeHtml(resource.id)}" class="flex h-11 w-11 items-center justify-center rounded-[8px] border border-[#A9BEC7] text-[#38566A]" aria-label="Ver detalles"><i class="fa-regular fa-eye"></i></button><a href="${escapeHtml(resource.fileUrl)}" download class="h-11 rounded-[8px] bg-[#00AFC1] px-5 font-sans text-xs font-bold text-white flex items-center"><i class="fa-solid fa-download mr-2"></i>Descargar</a></div></article>`).join("") : '<p class="rounded-[15px] border border-[#D6E2E7] bg-white p-8 text-center text-[#607480]">No encontramos materiales con esos filtros.</p>';
@@ -659,7 +609,7 @@
         const pages = totalPages <= 3 ? Array.from({ length: totalPages }, (_, index) => index + 1) : [1, 2, totalPages];
         pages.forEach((pageNumber, index) => {
           if (index && pageNumber - pages[index - 1] > 1) pageButtons.push('<span class="px-1 text-[#7A8C96]">...</span>');
-          pageButtons.push(`<button type="button" data-page="${pageNumber}" class="w-10 h-10 rounded-[8px] ${page === pageNumber ? "bg-[#0D2B45] text-white" : "bg-white border border-[#CBD9DF]"}">${pageNumber}</button>`);
+          pageButtons.push(`<button type="button" data-page="${pageNumber}" class="w-10 h-10 rounded-[8px] ${page === pageNumber ?"bg-[#0D2B45] text-white" : "bg-white border border-[#CBD9DF]"}">${pageNumber}</button>`);
         });
         pageButtons.push(`<button type="button" data-page="${Math.min(totalPages, page + 1)}" aria-label="Página siguiente" class="w-10 h-10 border border-[#CBD9DF] rounded-[8px] bg-white flex items-center justify-center"><i class="fa-solid fa-chevron-right text-xs"></i></button>`);
       }
@@ -692,7 +642,7 @@
     document.querySelector("#course-legend-list").innerHTML = renderCourseGroup("Cursos de la carrera (EM)", sortedCourses.filter(([code]) => code.startsWith("EM"))) + renderCourseGroup("Cursos de servicio (MA)", sortedCourses.filter(([code]) => code.startsWith("MA")));
     const updateLegendButton = isOpen => {
       legendButton.classList.toggle("is-selected", isOpen);
-      legendButton.innerHTML = `${isOpen ? "Ocultar" : "Ver"} leyenda de cursos <i id="course-legend-icon" class="fa-solid ${isOpen ? "fa-chevron-up" : "fa-chevron-right"} ml-1 text-[9px]"></i>`;
+      legendButton.innerHTML = `${isOpen ? "Ocultar" : "Ver"} leyenda de cursos <i id="course-legend-icon" class="fa-solid ${isOpen ?"fa-chevron-up" : "fa-chevron-right"} ml-1 text-[9px]"></i>`;
     };
     legendButton.addEventListener("click", () => {
       const isOpen = !legend.classList.contains("hidden");

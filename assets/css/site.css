@@ -12,6 +12,10 @@
   --aematec-footer-text: #B9CAD4;
 }
 
+/* El atributo `hidden` siempre oculta, aunque el elemento tenga clases como `flex` de Tailwind
+   (sin esto, por ejemplo, la barra de sesión de la Junta en Inventario se veía sin haber iniciado sesión). */
+[hidden] { display: none !important; }
+
 .site-container {
   width: min(1240px, calc(100% - 2rem));
   margin-left: auto;

@@ -15,33 +15,15 @@
     rel="stylesheet">
   <script>tailwind.config = { theme: { extend: { fontFamily: { sans: ['Montserrat', 'sans-serif'], serif: ['Source Serif 4', 'serif'] } } } }</script>
   <style>
-    @media (max-width: 767px) {
-      body[class~="w-[1440px]"] { width: 100% !important; max-width: 100%; overflow-x: hidden; }
-      [class~="w-[1240px]"] { width: auto !important; max-width: none; }
-      html, body { max-width: 100%; }
-      main > section > div { width: calc(100% - 2rem) !important; margin-left: auto; margin-right: auto; }
-    }
-    @media (min-width: 768px) and (max-width: 1279px) {
-      body[class~="w-[1440px]"] { width: 100% !important; max-width: 100%; overflow-x: hidden; }
-      [class~="w-[1240px]"] { width: auto !important; max-width: none; }
-      html, body { max-width: 100%; }
-      main > section > div { width: calc(100% - 4rem) !important; margin-left: auto; margin-right: auto; }
-    }
-    @media (min-width: 768px) {
-      body[class~="w-[1440px]"] { width: 100% !important; max-width: 100%; overflow-x: hidden; }
-      [class~="w-[1240px]"] { width: min(1240px, calc(100% - clamp(2rem, 8vw, 12.5rem))) !important; max-width: none; }
-    }
-    @media (prefers-reduced-motion: reduce) {
-    }
   </style>
   <title>Trámites — AEMATEC</title>
 </head>
 
-<body class="w-[1440px] min-h-screen bg-[#F4F8FA] text-[#0D2B45] font-serif" style="background-image: radial-gradient(circle at 12% 18%, rgba(0, 175, 193, 0.13) 0, rgba(0, 175, 193, 0.13) 1.2px, transparent 1.8px), radial-gradient(circle at 84% 72%, rgba(13, 43, 69, 0.09) 0, rgba(13, 43, 69, 0.09) 1.2px, transparent 1.8px); background-size: 28px 28px, 36px 36px;">
+<body class="min-h-screen bg-[#F4F8FA] text-[#0D2B45] font-serif" style="background-image: radial-gradient(circle at 12% 18%, rgba(0, 175, 193, 0.13) 0, rgba(0, 175, 193, 0.13) 1.2px, transparent 1.8px), radial-gradient(circle at 84% 72%, rgba(13, 43, 69, 0.09) 0, rgba(13, 43, 69, 0.09) 1.2px, transparent 1.8px); background-size: 28px 28px, 36px 36px;">
   <script src="assets/js/layout.js" data-part="header" data-active="tramites"></script>
 
   <main data-design-id="main-aematec" class="flex-1">
-    <section class="w-[1240px] mx-auto py-[96px] text-center">
+    <section class="site-container mx-auto py-[96px] text-center">
       <div class="mx-auto flex h-[88px] w-[88px] items-center justify-center rounded-full bg-[#E6F8FA] text-[#009CAD] text-[34px]">
         <i class="fa-solid fa-file-signature"></i>
       </div>
