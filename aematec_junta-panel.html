@@ -185,6 +185,18 @@
           </form>
           <p id="section-status" role="status" class="text-sm" hidden></p>
           <ul id="section-list" class="mt-5 divide-y divide-[#E2E9EC]"></ul>
+          <!-- Puestos de la Junta Directiva según el Reglamento Interno, Art. 24. -->
+          <datalist id="puestos-junta">
+            <option value="Presidencia"></option>
+            <option value="Vicepresidencia"></option>
+            <option value="Secretaría General"></option>
+            <option value="Secretaría de Asuntos Financieros"></option>
+            <option value="Secretaría de Asuntos Académicos"></option>
+            <option value="Secretaría de Deporte y Cultura"></option>
+            <option value="Secretaría de Redes y Comunicación"></option>
+            <option value="Vocalía 1"></option>
+            <option value="Vocalía 2"></option>
+          </datalist>
 
           <div id="medios-form" class="space-y-4" style="display: none;">
             <div><label class="font-sans text-xs font-bold">Correo institucional</label><input id="medios-email"
@@ -408,7 +420,7 @@
           continue;
         }
         try {
-          await setDoc(doc(db, currentTab.value, email), { email, addedAt: new Date().toISOString() });
+          await setDoc(doc(db, currentTab.value, email), { email, addedAt: new Date().toISOString() }, { merge: true });
           results.success++;
         } catch (error) {
           results.failed++;
@@ -417,6 +429,7 @@
       }
 
       document.querySelector("#section-form").reset();
+      if (currentTab.value === "junta") await syncJuntaPublica();
       await loadSection(currentTab.value);
 
       let message = `✓ ${results.success} agregado(s)`;
@@ -473,6 +486,21 @@
       setTimeout(() => suggestionsList.classList.add("hidden"), 200);
     });
 
+    // La página pública de Junta Directiva lee config/junta_publica, que solo contiene nombre y
+    // puesto. Los correos de la colección "junta" no se publican (RI Art. 143).
+    async function syncJuntaPublica() {
+      try {
+        const snapshot = await getDocs(collection(db, "junta"));
+        const miembros = snapshot.docs.map(item => ({
+          nombre: String(item.data().nombre || "").trim(),
+          puesto: String(item.data().puesto || "").trim()
+        }));
+        await setDoc(doc(db, "config", "junta_publica"), { miembros, updatedAt: new Date().toISOString() });
+      } catch (error) {
+        console.error("No se pudo publicar la lista pública de la Junta:", error);
+      }
+    }
+
     async function loadSection(section) {
       const list = document.querySelector("#section-list");
       try {
@@ -489,7 +517,7 @@
               <li class="flex flex-wrap items-center justify-between gap-3 py-4" data-row="${escapeHtml(item.id)}">
                 <span class="font-sans text-sm font-semibold w-full sm:w-auto sm:min-w-[220px]">${escapeHtml(item.id)}</span>
                 <input type="text" data-field="nombre" placeholder="Nombre completo" value="${escapeHtml(data.nombre)}" class="h-9 flex-1 min-w-[160px] rounded-[8px] border border-[#BFD0D8] px-2 text-sm">
-                <input type="text" data-field="puesto" placeholder="Puesto (ej. Presidencia)" value="${escapeHtml(data.puesto)}" class="h-9 flex-1 min-w-[160px] rounded-[8px] border border-[#BFD0D8] px-2 text-sm">
+                <input type="text" data-field="puesto" list="puestos-junta" placeholder="Puesto (ej. Presidencia)" value="${escapeHtml(data.puesto)}" class="h-9 flex-1 min-w-[160px] rounded-[8px] border border-[#BFD0D8] px-2 text-sm">
                 <button type="button" data-save-item="${escapeHtml(item.id)}" class="font-sans text-xs font-bold text-[#087F8C]">Guardar</button>
                 <button type="button" data-remove-item="${escapeHtml(item.id)}" class="font-sans text-xs font-bold text-[#C2413B]">Quitar</button>
               </li>
@@ -503,6 +531,7 @@
             const puesto = row.querySelector('[data-field="puesto"]').value.trim();
             try {
               await setDoc(doc(db, "junta", email), { email, nombre, puesto }, { merge: true });
+              await syncJuntaPublica();
               document.querySelector("#section-status").textContent = `✓ Datos de ${email} guardados.`;
               document.querySelector("#section-status").className = "text-sm text-[#087F8C]";
               document.querySelector("#section-status").hidden = false;
@@ -526,6 +555,7 @@
           if (!confirm(`¿Quitar ${button.dataset.removeItem} de ${section}?`)) return;
           try {
             await deleteDoc(doc(db, section, button.dataset.removeItem));
+            if (section === "junta") await syncJuntaPublica();
             await loadSection(section);
           } catch (error) {
             document.querySelector("#section-status").textContent = `Error al quitar: ${error.message}`;
@@ -553,17 +583,37 @@
       }
     }
 
+    const isHttpsUrl = value => {
+      try {
+        return new URL(value).protocol === "https:";
+      } catch {
+        return false;
+      }
+    };
+
     document.querySelector("#medios-save").addEventListener("click", async () => {
       const status = document.querySelector("#medios-status");
+      const medios = {
+        email: document.querySelector("#medios-email").value.trim().toLowerCase(),
+        phone: document.querySelector("#medios-phone").value.trim(),
+        whatsapp: document.querySelector("#medios-whatsapp").value.trim(),
+        instagram: document.querySelector("#medios-instagram").value.trim(),
+        telegram: document.querySelector("#medios-telegram").value.trim()
+      };
+      // RI Art. 102: el correo oficial es el institucional (@estudiantec.cr).
+      const errores = [];
+      if (!/^[^\s@<>"']+@estudiantec\.cr$/.test(medios.email)) errores.push("el correo debe ser institucional (@estudiantec.cr)");
+      for (const medio of ["whatsapp", "instagram", "telegram"]) {
+        if (!isHttpsUrl(medios[medio])) errores.push(`el enlace de ${medio} debe empezar con https://`);
+      }
+      if (errores.length) {
+        status.textContent = `No se guardó: ${errores.join("; ")}.`;
+        status.className = "text-sm text-[#C2413B]";
+        status.hidden = false;
+        return;
+      }
       try {
-        await setDoc(doc(db, "config", "medios_oficiales"), {
-          email: document.querySelector("#medios-email").value.trim(),
-          phone: document.querySelector("#medios-phone").value.trim(),
-          whatsapp: document.querySelector("#medios-whatsapp").value.trim(),
-          instagram: document.querySelector("#medios-instagram").value.trim(),
-          telegram: document.querySelector("#medios-telegram").value.trim(),
-          updatedAt: new Date().toISOString()
-        });
+        await setDoc(doc(db, "config", "medios_oficiales"), { ...medios, updatedAt: new Date().toISOString() });
         status.textContent = "✓ Medios oficiales guardados.";
         status.className = "text-sm text-[#087F8C]";
         status.hidden = false;
@@ -674,7 +724,7 @@
 
       for (const email of toAdd) {
         try {
-          await setDoc(doc(db, currentTab.value, email), { email, addedAt: new Date().toISOString() });
+          await setDoc(doc(db, currentTab.value, email), { email, addedAt: new Date().toISOString() }, { merge: true });
           addedCount++;
         } catch (error) {
           errors.push(`${email}: ${error.message}`);
@@ -719,6 +769,7 @@
       if (allowed) {
         showLoginMode("login");
         await loadSection("padron");
+        await syncJuntaPublica();
       } else if (user) {
         document.querySelector("#login-status").textContent = user.emailVerified
           ? "Esta cuenta no tiene permisos de Junta Directiva."

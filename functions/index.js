@@ -1,6 +1,6 @@
 const { onDocumentCreated } = require("firebase-functions/v2/firestore");
 const { onSchedule } = require("firebase-functions/v2/scheduler");
-const { defineSecret } = require("firebase-functions/params");
+const { defineSecret, defineString } = require("firebase-functions/params");
 const logger = require("firebase-functions/logger");
 const admin = require("firebase-admin");
 const { Resend } = require("resend");
@@ -8,7 +8,9 @@ const { Resend } = require("resend");
 admin.initializeApp();
 
 const resendApiKey = defineSecret("RESEND_API_KEY");
-const senderEmail = "AEMATEC <onboarding@resend.dev>";
+// El remitente debe pertenecer a un dominio verificado en Resend. Con el dominio de
+// prueba (onboarding@resend.dev) Resend solo entrega al correo dueño de la cuenta.
+const senderEmail = defineString("RESEND_FROM", { default: "AEMATEC <onboarding@resend.dev>" });
 
 async function getModeratorEmails() {
   const snapshot = await admin.firestore().collection("moderators").get();
@@ -29,7 +31,7 @@ async function sendEmail(subject, html, recipients) {
     return;
   }
   const { error } = await resend.emails.send({
-    from: senderEmail,
+    from: senderEmail.value(),
     to: recipients,
     subject,
     html
