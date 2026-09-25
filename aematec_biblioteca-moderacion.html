@@ -425,21 +425,23 @@
       status.className = "text-sm text-[#087F8C]";
       status.hidden = false;
     });
-    event.preventDefault();
-    const status = document.querySelector("#moderator-status");
-    const email = document.querySelector("#moderator-email").value.trim().toLowerCase();
-    try {
-      await setDoc(doc(db, "moderators", email), { email, addedAt: new Date().toISOString() });
-      event.target.reset();
-      await loadModerators();
-      status.textContent = "Moderador agregado.";
-      status.className = "mt-3 text-sm text-[#087F8C]";
-      status.hidden = false;
-    } catch (error) {
-      status.textContent = `No se pudo agregar el moderador: ${error.message}`;
-      status.className = "mt-3 text-sm text-[#C2413B]";
-      status.hidden = false;
-    }
+
+    document.querySelector("#moderator-form").addEventListener("submit", async event => {
+      event.preventDefault();
+      const status = document.querySelector("#moderator-status");
+      const email = document.querySelector("#moderator-email").value.trim().toLowerCase();
+      try {
+        await setDoc(doc(db, "moderators", email), { email, addedAt: new Date().toISOString() });
+        event.target.reset();
+        await loadModerators();
+        status.textContent = "Moderador agregado.";
+        status.className = "mt-3 text-sm text-[#087F8C]";
+        status.hidden = false;
+      } catch (error) {
+        status.textContent = `No se pudo agregar el moderador: ${error.message}`;
+        status.className = "mt-3 text-sm text-[#C2413B]";
+        status.hidden = false;
+      }
     });
 
     async function loadModerators() {
