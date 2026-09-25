@@ -1,0 +1,203 @@
+/* Temas de temporada. Los activa assets/js/temas.js poniendo data-tema y data-tema-estilo en <html>.
+   CSS plano (no depende de Tailwind). Cada tema define:
+   --tema-acento  color del aviso y de la línea del menú activo
+   --tema-cinta   fondo de la franja bajo el encabezado (color, degradado o dibujo) */
+
+html[data-tema] { --tema-alto: 4px; --aematec-teal-line: var(--tema-acento); }
+html[data-tema-estilo="festivo"] { --tema-alto: 8px; }
+
+/* ---------- Franja bajo el encabezado (no mueve el contenido: se dibuja sobre el borde) ---------- */
+html[data-tema] .site-header { position: relative; }
+html[data-tema] .site-header::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--tema-alto);
+  background: var(--tema-cinta);
+  pointer-events: none;
+}
+
+/* ---------- Aviso breve (abajo a la izquierda, se cierra solo) ---------- */
+.tema-aviso {
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  max-width: min(440px, calc(100% - 32px));
+  padding: 0.7rem 0.75rem 0.7rem 0.9rem;
+  border: 1px solid #D8E3E9;
+  border-left: 5px solid var(--tema-acento);
+  border-radius: 12px;
+  background: #FFFFFF;
+  box-shadow: 0 10px 30px rgba(13, 43, 69, 0.16);
+  color: #0D2B45;
+  font-family: Montserrat, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+  animation: tema-aparecer 300ms ease-out;
+}
+.tema-aviso__icono { flex-shrink: 0; font-size: 1.15rem; color: var(--tema-acento); }
+.tema-aviso__icono--texto { font-family: "Source Serif 4", serif; font-size: 1.6rem; font-weight: 600; line-height: 1; }
+.tema-aviso__texto { margin: 0; flex: 1; }
+.tema-aviso__acciones { display: flex; align-items: center; gap: 0.25rem; flex-shrink: 0; }
+.tema-aviso__detener {
+  border: 0;
+  background: none;
+  padding: 0.35rem 0.4rem;
+  color: #405769;
+  font: inherit;
+  font-size: 12px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.tema-aviso__cerrar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: #405769;
+  cursor: pointer;
+}
+.tema-aviso__cerrar:hover, .tema-aviso__detener:hover { color: #0D2B45; background: #F1F5F7; }
+
+@keyframes tema-aparecer { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+
+/* ---------- Animación de los temas festivos ---------- */
+.tema-particulas {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  overflow: hidden;
+  pointer-events: none;
+}
+.tema-particula {
+  position: absolute;
+  top: 0;
+  display: block;
+  opacity: 0.7;
+  font-size: calc(var(--tamano, 1) * 1.1rem);
+  animation-timing-function: linear;
+  animation-iteration-count: 1;
+  animation-fill-mode: both;
+}
+.tema-particulas--caer .tema-particula { animation-name: tema-caer; }
+.tema-particulas--subir .tema-particula { animation-name: tema-subir; }
+
+@keyframes tema-caer {
+  from { transform: translate(0, -12vh) rotate(0deg); }
+  to { transform: translate(var(--vaiven, 0), 112vh) rotate(300deg); }
+}
+@keyframes tema-subir {
+  0% { transform: translate(0, 112vh) rotate(-6deg); }
+  50% { transform: translate(calc(var(--vaiven, 0) / 2), 50vh) rotate(6deg); }
+  100% { transform: translate(var(--vaiven, 0), -12vh) rotate(-6deg); }
+}
+
+/* Confeti (mes patrio) */
+.tema-particula--confeti { width: calc(var(--tamano) * 8px); height: calc(var(--tamano) * 12px); border-radius: 2px; }
+/* Faroles (14 de setiembre) */
+.tema-particula--farol {
+  width: calc(var(--tamano) * 14px);
+  height: calc(var(--tamano) * 20px);
+  border-radius: 45% 45% 40% 40%;
+  opacity: 0.85;
+}
+.tema-particula--farol::before {
+  content: "";
+  position: absolute;
+  top: -5px;
+  left: 50%;
+  width: 60%;
+  height: 4px;
+  transform: translateX(-50%);
+  border-radius: 2px;
+  background: #5B4630;
+}
+/* Texto (Semana de la Carrera: π) */
+.tema-particula--texto { font-family: "Source Serif 4", serif; font-weight: 600; font-size: calc(var(--tamano) * 1.5rem); opacity: 0.5; }
+
+/* ---------- Cada tema ---------- */
+html[data-tema="anio-nuevo"] {
+  --tema-acento: #B8901F;
+  --tema-cinta: linear-gradient(90deg, #0D2B45, #C9A227, #F4D06F, #C9A227, #0D2B45);
+}
+html[data-tema="8m"] {
+  --tema-acento: #7B2D8E;
+  --tema-cinta: linear-gradient(90deg, #5B1F6E, #9B59B6, #5B1F6E);
+}
+html[data-tema="semana-carrera"] {
+  /* Estilo griego antiguo: greca (meandro) dorada sobre azul, por «La constante de Arquímedes». */
+  --tema-acento: #B8901F;
+  --tema-alto: 12px;
+  --tema-cinta: #0D2B45 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'%3E%3Cpath d='M0 19H19V1H3V15H15V5H7V11H11' fill='none' stroke='%23D4AF37' stroke-width='2'/%3E%3C/svg%3E") repeat-x center / 12px 12px;
+}
+html[data-tema="semana-carrera"] .tema-aviso { border-top: 4px solid #0D2B45; }
+html[data-tema="semana-carrera"] .tema-particula[data-variante="0"] { color: #B8901F; }
+html[data-tema="semana-carrera"] .tema-particula[data-variante="1"] { color: #0D2B45; }
+html[data-tema="semana-carrera"] .tema-particula[data-variante="2"] { color: #B5523B; }
+
+html[data-tema="orgullo"] {
+  --tema-acento: #7B2D8E;
+  --tema-cinta: linear-gradient(90deg, #E40303 0 16.66%, #FF8C00 0 33.33%, #FFED00 0 50%, #008026 0 66.66%, #004DFF 0 83.33%, #750787 0);
+}
+html[data-tema="dia-padre"] {
+  --tema-acento: #0B6E99;
+  --tema-cinta: linear-gradient(90deg, #0D2B45, #0B6E99, #00A6B8, #0B6E99, #0D2B45);
+}
+html[data-tema="dia-madre"] {
+  --tema-acento: #B0336B;
+  --tema-cinta: linear-gradient(90deg, #B0336B, #F29BBE, #B0336B);
+}
+html[data-tema="mes-patrio"], html[data-tema="faroles"] {
+  /* Bandera de Costa Rica: azul, blanco, rojo (doble), blanco, azul. */
+  --tema-acento: #002B7F;
+  --tema-alto: 12px;
+  --tema-cinta: linear-gradient(180deg, #002B7F 0 16.66%, #FFFFFF 0 33.33%, #CE1126 0 66.66%, #FFFFFF 0 83.33%, #002B7F 0);
+}
+html[data-tema="mes-patrio"] .tema-particula[data-variante="0"] { background: #002B7F; }
+html[data-tema="mes-patrio"] .tema-particula[data-variante="1"] { background: #FFFFFF; box-shadow: 0 0 0 1px #C9D3DB; }
+html[data-tema="mes-patrio"] .tema-particula[data-variante="2"] { background: #CE1126; }
+html[data-tema="faroles"] { --tema-acento: #C77700; }
+html[data-tema="faroles"] .tema-particula[data-variante="0"] { background: radial-gradient(circle at 50% 45%, #FFF3C4, #F5A623); box-shadow: 0 0 16px 5px rgba(245, 166, 35, 0.45); }
+html[data-tema="faroles"] .tema-particula[data-variante="1"] { background: radial-gradient(circle at 50% 45%, #FFD9D9, #D93A3A); box-shadow: 0 0 16px 5px rgba(217, 58, 58, 0.4); }
+html[data-tema="faroles"] .tema-particula[data-variante="2"] { background: radial-gradient(circle at 50% 45%, #D9E6FF, #2F5FD0); box-shadow: 0 0 16px 5px rgba(47, 95, 208, 0.4); }
+
+html[data-tema="halloween"] {
+  --tema-acento: #D8661B;
+  --tema-cinta: repeating-linear-gradient(135deg, #1F1A24 0 10px, #F28C28 10px 20px);
+}
+html[data-tema="halloween"] .tema-particula[data-variante="0"] { color: #E8772E; }
+html[data-tema="halloween"] .tema-particula[data-variante="1"] { color: #4A4A55; }
+html[data-tema="halloween"] .tema-particula[data-variante="2"] { color: #6B3FA0; }
+
+html[data-tema="dia-docente"] {
+  --tema-acento: #087F8C;
+  --tema-cinta: linear-gradient(90deg, #0D2B45, #00A6B8, #39C7D5, #00A6B8, #0D2B45);
+}
+html[data-tema="navidad"] {
+  --tema-acento: #B3202A;
+  --tema-cinta: repeating-linear-gradient(90deg, #B3202A 0 18px, #F4F4F4 18px 22px, #1E7B4B 22px 40px, #F4F4F4 40px 44px);
+}
+html[data-tema="navidad"] .tema-particula[data-variante="0"] { color: #8FC3DF; }
+html[data-tema="navidad"] .tema-particula[data-variante="1"] { color: #B7D8EA; }
+html[data-tema="navidad"] .tema-particula[data-variante="2"] { color: #E0B83A; }
+
+/* Quien pidió "reducir movimiento" en su equipo no ve animaciones (temas.js tampoco las crea). */
+@media (prefers-reduced-motion: reduce) {
+  .tema-particulas { display: none; }
+  .tema-aviso { animation: none; }
+}
+
+@media (max-width: 767px) {
+  .tema-aviso { left: 12px; right: 12px; bottom: 12px; max-width: none; }
+}

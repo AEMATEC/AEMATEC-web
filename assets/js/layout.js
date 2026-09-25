@@ -95,6 +95,10 @@
       toggle.setAttribute("aria-label", isOpen ? "Cerrar menú" : "Abrir menú");
       toggle.innerHTML = `<i class="fa-solid ${isOpen ? "fa-xmark" : "fa-bars"}"></i>`;
     });
+    // Temas de temporada (Navidad, mes patrio, Semana de la Carrera…): ver assets/js/temas.js.
+    const temas = document.createElement("script");
+    temas.src = "assets/js/temas.js";
+    document.head.appendChild(temas);
   } else if (part === "footer") {
     script.insertAdjacentHTML("beforebegin", renderFooter());
   }

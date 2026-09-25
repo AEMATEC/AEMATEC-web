@@ -19,6 +19,7 @@ dependen de él citan el artículo correspondiente en el código y en [`docs/PLA
 | Inventario | `inventario.html` | Consulta pública de bienes (RI Art. 118) y solicitudes de préstamo (RI Art. 120-123). Administración para la Junta. |
 | Junta Directiva | `junta-directiva.html` | Integrantes (solo nombre y puesto) y medios de contacto. |
 | Panel de administración | `admin.html` | Un solo acceso. Cada cuenta ve lo de sus roles: **Trámites** (la Junta los suyos; la Fiscalía sus casos), **Asociación** (Padrón, Junta, Fiscalía, Medios) para Junta y Fiscalía, y **Moderación del Repositorio** (pendientes, edición, equipo de moderación). |
+| Temas de temporada | todas (`assets/js/temas.js`, `assets/css/temas.css`) | Decoración automática por fecha: sutil en celebraciones de un día (8M, Día de la Madre…) y festiva en épocas (Navidad, Halloween, mes patrio, Semana de la Carrera). La Junta puede apagarla o fijar un tema en `admin.html` → Tema del sitio (`config/tema`). Vista previa: `?tema=<id>`. |
 | Trámites | `tramites.html` | Solicitudes a la Junta, postulaciones, AGEC extraordinaria (con adhesiones) y consultas o denuncias a Fiscalía (anónimas o no). Se verifica el correo `@estudiantec.cr` con un enlace, sin contraseña. Incluye "Mis trámites" y seguimiento de casos anónimos por código. |
 
 > **Nota de nombres:** el repositorio digital de materiales se llama **Repositorio** (antes "Biblioteca").

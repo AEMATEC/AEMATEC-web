@@ -1,5 +1,5 @@
 # Revisa las páginas en cada PR (antes del merge) y en cada cambio a main:
-# - JavaScript sin errores de sintaxis (uno solo deja sin funcionar la página completa).
+# - JavaScript sin errores de sintaxis (uno solo deja sin funcionar la página completa) y fechas de los temas.
 # - Enlaces internos que apunten a archivos y secciones que existen.
 # - Estilos compilados (assets/css/tailwind.css) al día con las clases que usan las páginas.
 name: Páginas
@@ -14,6 +14,7 @@ on:
       - package-lock.json
       - tests/revisar-paginas.mjs
       - tests/revisar-enlaces.mjs
+      - tests/temas.test.js
       - .github/workflows/paginas.yml
   push:
     branches: [main]
@@ -25,6 +26,7 @@ on:
       - package-lock.json
       - tests/revisar-paginas.mjs
       - tests/revisar-enlaces.mjs
+      - tests/temas.test.js
       - .github/workflows/paginas.yml
 
 jobs:
@@ -38,6 +40,8 @@ jobs:
           node-version: 20
       - name: Revisar sintaxis
         run: node tests/revisar-paginas.mjs
+      - name: Probar las fechas de los temas de temporada
+        run: node --test tests/temas.test.js
 
   revisar-enlaces:
     name: Revisar enlaces internos
