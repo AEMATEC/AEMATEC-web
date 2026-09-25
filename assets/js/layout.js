@@ -14,21 +14,21 @@
 
   const MENU = [
     { id: "inicio", label: "Inicio", href: "index.html" },
-    { id: "repositorio", label: "Repositorio", href: "aematec_biblioteca-home.html" },
-    { id: "inventario", label: "Inventario", href: "aematec_inventario.html" },
-    { id: "junta", label: "Junta Directiva", href: "aematec_junta-directiva.html" },
-    { id: "tramites", label: "Trámites", href: "aematec_tramites.html", icon: "fa-file-signature", cta: true }
+    { id: "repositorio", label: "Repositorio", href: "repositorio.html" },
+    { id: "inventario", label: "Inventario", href: "inventario.html" },
+    { id: "junta", label: "Junta Directiva", href: "junta-directiva.html" },
+    { id: "tramites", label: "Trámites", href: "tramites.html", icon: "fa-file-signature", cta: true }
   ];
 
   const SUBMENUS = {
     repositorio: {
       title: "Repositorio",
       items: [
-        { id: "inicio", label: "Inicio", href: "aematec_biblioteca-home.html" },
-        { id: "docentes", label: "Recursos docentes", href: "aematec_biblioteca-recursos-docentes.html" },
-        { id: "academicos", label: "Recursos académicos", href: "aematec_biblioteca-recursos-academicos.html" },
+        { id: "inicio", label: "Inicio", href: "repositorio.html" },
+        { id: "docentes", label: "Recursos docentes", href: "repositorio-docentes.html" },
+        { id: "academicos", label: "Recursos académicos", href: "repositorio-academicos.html" },
         { spacer: true },
-        { id: "subir", label: "Subir material", href: "aematec_biblioteca-subir-material.html", icon: "fa-arrow-up-from-bracket", cta: true },
+        { id: "subir", label: "Subir material", href: "repositorio-subir.html", icon: "fa-arrow-up-from-bracket", cta: true },
         { id: "moderacion", label: "Moderación", href: "aematec_biblioteca-moderacion.html", icon: "fa-user-shield" }
       ]
     }
