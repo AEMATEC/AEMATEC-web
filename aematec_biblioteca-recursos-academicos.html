@@ -239,12 +239,12 @@
       }
     }
   </style>
-  <title>Recursos académicos — Biblioteca AEMATEC</title>
+  <title>Recursos académicos — Repositorio AEMATEC</title>
 </head>
 
 <body class="bg-[#F4F8FA] text-[#0D2B45] font-serif"
   style="background-image: radial-gradient(circle at 12% 18%, rgba(0, 175, 193, 0.13) 0, rgba(0, 175, 193, 0.13) 1.2px, transparent 1.8px), radial-gradient(circle at 84% 72%, rgba(13, 43, 69, 0.09) 0, rgba(13, 43, 69, 0.09) 1.2px, transparent 1.8px); background-size: 28px 28px, 36px 36px;">
-  <script src="assets/js/layout.js" data-part="header" data-active="biblioteca" data-sub="academicos"></script>
+  <script src="assets/js/layout.js" data-part="header" data-active="repositorio" data-sub="academicos"></script>
   <main data-design-id="main-academicos-a917d3">
     <section data-design-id="academicos-intro-e4b790" class="bg-[#0D2B45] text-white">
       <div class="site-container mx-auto py-[50px] relative overflow-hidden">
@@ -667,7 +667,7 @@
           render();
         });
       } catch (error) { count.textContent = "No se pudieron cargar los materiales"; list.innerHTML = `<p class="rounded-[15px] border border-[#D6E2E7] bg-white p-8 text-center text-[#C2413B]">Error al cargar la biblioteca: ${escapeHtml(error.message)}</p>`; }
-    } else { count.textContent = "No se pudo conectar con la biblioteca"; }
+    } else { count.textContent = "No se pudo conectar con el repositorio"; }
   </script>
 </body>
 

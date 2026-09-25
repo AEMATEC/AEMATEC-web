@@ -11,12 +11,13 @@ de los repositorios. Guía a la persona por estos pasos, uno a la vez, y marca c
 ## En el Panel de Junta (lo hace la Junta, no requiere código)
 1. **Junta:** agregar los correos de la nueva Junta con nombre y puesto (Art. 24) y quitar los salientes.
    Cada integrante nuevo crea su cuenta desde "Crear cuenta" y verifica su correo.
-2. **Fiscalía:** registrar a la nueva persona Fiscal y quitar a la anterior.
+2. **Fiscalía:** lo ideal es que la persona Fiscal saliente registre a la entrante y se quite a sí misma. Si no lo
+   hizo, la Junta puede hacerlo desde el panel.
 3. **Padrón:** recargar el CSV del padrón del periodo (Art. 6: la condición de Asociado sigue la matrícula).
 4. **Medios Oficiales:** confirmar que los enlaces sigan vigentes.
 
 ## En Moderación
-5. Revisar el equipo de moderación de la Biblioteca: agregar a quien corresponda y quitar accesos que ya no
+5. Revisar el equipo de moderación del Repositorio: agregar a quien corresponda y quitar accesos que ya no
    deban existir.
 
 ## Lo que requiere un PR (lo haces tú)

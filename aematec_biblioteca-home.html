@@ -128,11 +128,11 @@
       .hero-video { display: none; }
     }
   </style>
-  <title>Biblioteca AEMATEC</title>
+  <title>Repositorio AEMATEC</title>
 </head>
 
 <body class="bg-[#F4F8FA] text-[#0D2B45] font-serif" style="background-image: radial-gradient(circle at 12% 18%, rgba(0, 175, 193, 0.13) 0, rgba(0, 175, 193, 0.13) 1.2px, transparent 1.8px), radial-gradient(circle at 84% 72%, rgba(13, 43, 69, 0.09) 0, rgba(13, 43, 69, 0.09) 1.2px, transparent 1.8px); background-size: 28px 28px, 36px 36px;">
-  <script src="assets/js/layout.js" data-part="header" data-active="biblioteca" data-sub="inicio"></script>
+  <script src="assets/js/layout.js" data-part="header" data-active="repositorio" data-sub="inicio"></script>
 
   <main data-design-id="main-home-3e718d">
     <section data-design-id="hero-section-16a5bf" class="bg-[#EAF5F7] border-b border-[#D5E5EA]">
@@ -177,7 +177,7 @@
     <section data-design-id="quick-access-section-0d64a7" class="site-container mx-auto py-[62px]">
       <div class="flex items-end justify-between mb-7">
         <div>
-          <p class="font-sans text-xs font-bold uppercase tracking-[0.18em] text-[#00A6B8]">Explora la biblioteca</p>
+          <p class="font-sans text-xs font-bold uppercase tracking-[0.18em] text-[#00A6B8]">Explora el repositorio</p>
           <h2 class="font-sans text-[30px] font-bold tracking-[-0.02em] mt-2">¿Qué estás buscando?</h2>
         </div>
         <span class="text-[#647986] text-sm">Acceso público · Sin registro</span>
@@ -416,7 +416,7 @@
         globalSearchPagination.innerHTML = "";
         return;
       }
-      globalSearchStatus.textContent = `${resources.length} ${resources.length === 1 ? "recurso encontrado" : "recursos encontrados"} en la biblioteca.`;
+      globalSearchStatus.textContent = `${resources.length} ${resources.length === 1 ? "recurso encontrado" : "recursos encontrados"} en el repositorio.`;
       const totalPages = Math.max(1, Math.ceil(resources.length / globalSearchPageSize));
       globalSearchPage = Math.min(globalSearchPage, totalPages);
       const visible = resources.slice((globalSearchPage - 1) * globalSearchPageSize, globalSearchPage * globalSearchPageSize);
@@ -424,7 +424,7 @@
         const isAcademic = resource.section === "academico" || resource.section === "academicos";
         const sectionLabel = isAcademic ? "Recurso académico" : "Recurso docente";
         const sectionClass = isAcademic ? "bg-[#E9EEF9] text-[#3B568D]" : "bg-[#DFF6F8] text-[#087F8C]";
-        const metadata = resource.course ? `${courseNames[resource.course] || resource.course}` : (resource.level || "Biblioteca AEMATEC");
+        const metadata = resource.course ? `${courseNames[resource.course] || resource.course}` : (resource.level || "Repositorio AEMATEC");
         return `<article class="bg-[#F8FBFC] border border-[#D6E2E7] rounded-[15px] p-5 flex items-center gap-5">
           <div class="w-[52px] h-[60px] rounded-[11px] ${isAcademic ?"bg-[#EDF2FA] text-[#486398]" : "bg-[#E6F8FA] text-[#009CAD]"} flex items-center justify-center text-xl"><i class="fa-regular ${iconFor(resource.extension)}"></i></div>
           <div class="flex-1 min-w-0">

@@ -51,7 +51,7 @@ exports.notifyPendingResource = onDocumentCreated(
     const resource = event.data?.data();
     if (!resource || resource.status !== "pending") return;
     await sendEmail(
-      "Nuevo material pendiente de revisión — Biblioteca AEMATEC",
+      "Nuevo material pendiente de revisión — Repositorio AEMATEC",
       `<p>Hay un nuevo material pendiente de revisión:</p>
        <ul><li><strong>${escapeHtml(resource.title)}</strong></li>
        <li>Autor: ${escapeHtml(resource.author)}</li>
@@ -72,7 +72,7 @@ exports.sendPendingSummary = onSchedule(
       .get();
     if (snapshot.empty) return;
     await sendEmail(
-      `${snapshot.size} material(es) pendiente(s) — Biblioteca AEMATEC`,
+      `${snapshot.size} material(es) pendiente(s) — Repositorio AEMATEC`,
       `<p>Hay <strong>${snapshot.size}</strong> material(es) pendiente(s) de revisión.</p>
        <p>Ingresa al panel de moderación para revisarlos.</p>`,
       await getModeratorEmails()

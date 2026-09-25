@@ -73,8 +73,11 @@ Estos puntos condicionan el diseño y no deberían contradecirse:
 - **Asociados (Art. 6).** Es la matrícula activa en MATEC y "se actualiza automáticamente". El padrón debe
   poder recargarse cada periodo (ya existe la carga por CSV).
 - **Fiscalía (Art. 42, 45 e).** Es **independiente de la Junta** y recibe las denuncias de las personas
-  Asociadas. En Trámites, la Junta **no debe poder leer** las consultas a Fiscalía. Además, hoy la Junta
-  administra la lista `fiscalia`: conviene que la asigne un Dueño o la propia Fiscalía, no la Junta.
+  Asociadas. En Trámites, la Junta **no debe poder leer** las consultas a Fiscalía.
+  *Decisión (2026-09):* la lista `fiscalia` la edita la persona Fiscal saliente **y también la Junta**, para no dejar
+  el cargo sin acceso si la Fiscalía olvida el traspaso. Es una excepción práctica y deliberada al Art. 42.
+- **Nombres (Art. 128-129).** *Decisión (2026-09):* el repositorio digital se llama **Repositorio**; "Biblioteca"
+  queda solo para los libros físicos del Inventario.
 - **Solicitudes a la Junta (Art. 8 f-h, 83, 111).** Deben responderse en 10 días hábiles. Los rechazos se
   notifican en 3 días hábiles con su motivación y los recursos disponibles (5 días hábiles). Trámites
   debería registrar las fechas, mostrar el plazo y generar la notificación.
@@ -92,8 +95,8 @@ Estos puntos condicionan el diseño y no deberían contradecirse:
 - `assets/js/firebase.js`: un solo `initializeApp` que exporte `db`, `auth` y `storage`.
 - `assets/js/roles.js`: comprobaciones de rol y login, registro y recuperación reutilizables. Correos de
   dueño en un solo lugar, o en una colección `owners`.
-- ✅ **2a.** `assets/js/layout.js` + `assets/css/site.css`: un encabezado global (Inicio · Biblioteca ·
-  Inventario · Junta · Trámites) con la sub-navegación de la Biblioteca como segundo nivel, más el footer y
+- ✅ **2a.** `assets/js/layout.js` + `assets/css/site.css`: un encabezado global (Inicio · Repositorio ·
+  Inventario · Junta · Trámites) con la sub-navegación del Repositorio como segundo nivel, más el footer y
   el menú móvil. Revisión automática de sintaxis de las páginas en cada PR (`tests/revisar-paginas.mjs`).
 - ✅ **2b.** `assets/js/firebase.js` (conexión única), `assets/js/roles.js` (correos de dueño en un solo lugar
   para las páginas y `tieneRol`) y `assets/js/util.js` (`escapeHtml`, validación de enlaces). Las reglas y las

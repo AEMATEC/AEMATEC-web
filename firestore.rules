@@ -49,9 +49,12 @@ service cloud.firestore {
       allow create, update, delete: if isJunta();
     }
 
+    // RI Art. 42: Fiscalía es independiente de la Junta, así que la persona Fiscal saliente registra a la
+    // entrante. Por decisión de la Junta (2026-09) la Junta también puede hacerlo, para que el cargo no quede
+    // sin acceso si la Fiscalía saliente olvida el traspaso.
     match /fiscalia/{email} {
       allow read: if isJunta() || isFiscalia();
-      allow create, update, delete: if isJunta();
+      allow create, update, delete: if isJunta() || isFiscalia();
     }
 
     match /config/{document=**} {

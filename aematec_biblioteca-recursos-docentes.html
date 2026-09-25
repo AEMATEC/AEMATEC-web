@@ -142,12 +142,12 @@
       }
     }
   </style>
-  <title>Recursos docentes — Biblioteca AEMATEC</title>
+  <title>Recursos docentes — Repositorio AEMATEC</title>
 </head>
 
 <body class="bg-[#F4F8FA] text-[#0D2B45] font-serif"
   style="background-image: radial-gradient(circle at 12% 18%, rgba(0, 175, 193, 0.13) 0, rgba(0, 175, 193, 0.13) 1.2px, transparent 1.8px), radial-gradient(circle at 84% 72%, rgba(13, 43, 69, 0.09) 0, rgba(13, 43, 69, 0.09) 1.2px, transparent 1.8px); background-size: 28px 28px, 36px 36px;">
-  <script src="assets/js/layout.js" data-part="header" data-active="biblioteca" data-sub="docentes"></script>
+  <script src="assets/js/layout.js" data-part="header" data-active="repositorio" data-sub="docentes"></script>
 
   <main data-design-id="main-docentes-cf81ad">
     <section data-design-id="docentes-intro-1978be" class="bg-[#075766] text-white">
@@ -539,7 +539,7 @@
     document.addEventListener("keydown", event => { if (event.key === "Escape" && filterPanel.classList.contains("is-open")) closeFilters(); });
 
     if (!config?.projectId || config.projectId === "REEMPLAZAR") {
-      count.textContent = "No se pudo conectar con la biblioteca";
+      count.textContent = "No se pudo conectar con el repositorio";
     } else {
       try {
         const db = getFirestore(app);
@@ -557,7 +557,7 @@
         });
       } catch (error) {
         count.textContent = "No se pudieron cargar los materiales";
-        grid.innerHTML = `<p class="col-span-1 bg-white border border-[#D6E2E7] rounded-[16px] p-8 text-center text-[#C2413B]">Error al cargar la biblioteca: ${escapeHtml(error.message)}</p>`;
+        grid.innerHTML = `<p class="col-span-1 bg-white border border-[#D6E2E7] rounded-[16px] p-8 text-center text-[#C2413B]">Error al cargar el repositorio: ${escapeHtml(error.message)}</p>`;
       }
     }
   </script>
