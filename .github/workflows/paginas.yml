@@ -1,20 +1,30 @@
-# Revisa el JavaScript de las páginas en cada PR y en cada cambio a main.
-# Un error de sintaxis deja sin funcionar la página completa, así que se detecta antes del merge.
+# Revisa las páginas en cada PR (antes del merge) y en cada cambio a main:
+# - JavaScript sin errores de sintaxis (uno solo deja sin funcionar la página completa).
+# - Enlaces internos que apunten a archivos y secciones que existen.
+# - Estilos compilados (assets/css/tailwind.css) al día con las clases que usan las páginas.
 name: Páginas
 
 on:
   pull_request:
     paths:
       - "*.html"
-      - assets/js/**
+      - assets/**
+      - tailwind.config.js
+      - package.json
+      - package-lock.json
       - tests/revisar-paginas.mjs
+      - tests/revisar-enlaces.mjs
       - .github/workflows/paginas.yml
   push:
     branches: [main]
     paths:
       - "*.html"
-      - assets/js/**
+      - assets/**
+      - tailwind.config.js
+      - package.json
+      - package-lock.json
       - tests/revisar-paginas.mjs
+      - tests/revisar-enlaces.mjs
       - .github/workflows/paginas.yml
 
 jobs:
@@ -28,3 +38,32 @@ jobs:
           node-version: 20
       - name: Revisar sintaxis
         run: node tests/revisar-paginas.mjs
+
+  revisar-enlaces:
+    name: Revisar enlaces internos
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Revisar enlaces
+        run: node tests/revisar-enlaces.mjs
+
+  revisar-estilos:
+    name: Revisar estilos compilados
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Compilar Tailwind
+        run: npm ci && npm run css
+      - name: Comparar con assets/css/tailwind.css
+        run: |
+          if ! git diff --quiet -- assets/css/tailwind.css; then
+            echo "::error file=assets/css/tailwind.css::Los estilos no están al día con las clases de las páginas. Ejecuta 'npm install && npm run css' y sube assets/css/tailwind.css (o pídeselo al agente)."
+            exit 1
+          fi
+          echo "assets/css/tailwind.css está al día."

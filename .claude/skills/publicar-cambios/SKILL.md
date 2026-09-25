@@ -9,6 +9,9 @@ description: Cómo se publican los cambios del sitio AEMATEC (páginas, reglas d
 1. Trabajas en una rama y abres un PR contra `main`.
 2. Si el PR toca reglas, Functions, `firebase.json` o `tests/`, el flujo **Firebase** ejecuta el job
    "Probar reglas". Si falla, arréglalo antes de pedir el merge.
+   Si el PR toca páginas o `assets/`, el flujo **Páginas** revisa la sintaxis del JavaScript, los enlaces
+   internos y que `assets/css/tailwind.css` esté al día. Si falla "Revisar estilos compilados", ejecuta
+   `npm install && npm run css` y sube `assets/css/tailwind.css` en la misma rama.
 3. La persona hace merge del PR.
 4. GitHub Pages publica las páginas en <https://aematec.github.io/AEMATEC-web/> (tarda 1–2 minutos).
 5. Si el merge tocó la parte de Firebase, el job "Publicar en Firebase" publica:

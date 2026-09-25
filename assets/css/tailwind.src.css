@@ -1,0 +1,4 @@
+/* Fuente de assets/css/tailwind.css. No edites tailwind.css a mano: se genera con `npm run css`. */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

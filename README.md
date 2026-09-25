@@ -4,7 +4,7 @@ Sitio de la **Asociación de Estudiantes de la carrera Enseñanza de la Matemát
 Tecnológicos (AEMATEC)** del Instituto Tecnológico de Costa Rica.
 
 El proyecto empezó como la Biblioteca de recursos y hoy es el portal de la asociación. Es un sitio
-estático (HTML + Tailwind por CDN + JavaScript modular) que usa **Firebase** como backend:
+estático (HTML + Tailwind compilado + JavaScript modular) que usa **Firebase** como backend:
 Authentication, Firestore, Storage y Cloud Functions (proyecto `biblioteca-aematec`).
 
 La norma que rige la asociación es su **Reglamento Interno (RI)**. Las decisiones del sitio que
@@ -108,11 +108,23 @@ Gmail permite unos 500 correos al día, de sobra para estas notificaciones.
 
 ## Desarrollo local
 
-No hay paso de compilación. Sirve la carpeta con cualquier servidor estático:
+Sirve la carpeta con cualquier servidor estático:
 
 ```bash
 python3 -m http.server 5500   # y abre http://localhost:5500
 ```
+
+**Estilos (Tailwind).** Las páginas cargan [`assets/css/tailwind.css`](assets/css/tailwind.css), que se genera a
+partir de las clases que aparecen en `*.html` y `assets/js/**/*.js` (configuración en
+[`tailwind.config.js`](tailwind.config.js)). Si agregas o cambias clases de Tailwind, regenera el archivo y súbelo
+junto con el cambio:
+
+```bash
+npm install     # solo la primera vez
+npm run css     # actualiza assets/css/tailwind.css
+```
+
+Si se olvida, el flujo **Páginas** lo detecta en el PR. No edites `tailwind.css` a mano.
 
 **Encabezado, menú y pie de página** son comunes a todo el sitio: se editan solo en
 [`assets/js/layout.js`](assets/js/layout.js) (enlaces) y [`assets/css/site.css`](assets/css/site.css) (estilos).
@@ -137,7 +149,13 @@ Para correr las Functions en el emulador hacen falta dos archivos que **no** se 
 ## Publicación
 
 - **Páginas HTML:** GitHub Pages las publica desde `main` en <https://aematec.github.io/AEMATEC-web/>.
-  Cada merge a `main` se ve en 1–2 minutos.
+  Cada merge a `main` se ve en 1–2 minutos. El hosting es solo GitHub Pages (Firebase Hosting no se usa) y, por
+  decisión de la Junta (2026-09), sin dominio propio: no hay costo. Si algún día se compra un dominio, se
+  configura en **Settings → Pages → Custom domain** y se agrega en Firebase → Authentication → Dominios autorizados
+  y en `cors.json`.
+- **Revisión de páginas:** el flujo [`.github/workflows/paginas.yml`](.github/workflows/paginas.yml) revisa en cada
+  PR la sintaxis del JavaScript (`tests/revisar-paginas.mjs`), los enlaces internos (`tests/revisar-enlaces.mjs`) y
+  que `assets/css/tailwind.css` esté al día.
 - **Reglas y Cloud Functions:** las publica automáticamente el flujo
   [`.github/workflows/firebase.yml`](.github/workflows/firebase.yml). En cada PR prueba las reglas y, al hacer
   merge a `main`, las publica en Firebase junto con las Functions. **Ya no hay que copiar reglas en la consola.**

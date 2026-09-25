@@ -1,0 +1,11 @@
+{
+  "name": "aematec-web",
+  "private": true,
+  "description": "Herramientas del sitio: compila los estilos de Tailwind en assets/css/tailwind.css.",
+  "scripts": {
+    "css": "tailwindcss -i assets/css/tailwind.src.css -o assets/css/tailwind.css --minify"
+  },
+  "devDependencies": {
+    "tailwindcss": "3.4.19"
+  }
+}

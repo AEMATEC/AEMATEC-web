@@ -49,14 +49,18 @@ paso a paso.
   (necesita `npm install` también en `functions/`) y ejecuta
   `cd tests && npm install && npm test` (necesita Java). Todas las pruebas deben pasar.
 - Si cambiaste Functions: `cd functions && npm install && node -e "require('./index.js')"`.
-- Si cambiaste páginas: `node tests/revisar-paginas.mjs` (también corre solo en cada PR) y prueba la
+- Si cambiaste páginas: `node tests/revisar-paginas.mjs` y `node tests/revisar-enlaces.mjs` (también corren solos en
+  cada PR). Si agregaste o cambiaste clases de Tailwind (en HTML o en `assets/js`), ejecuta `npm install && npm run css`
+  y sube `assets/css/tailwind.css`; nunca lo edites a mano. Prueba la
   página con `python3 -m http.server 5500`. Explica en el PR qué conviene revisar visualmente.
 - Para Firebase, roles y utilidades usa los módulos de `assets/js/` (`firebase.js`, `roles.js`, `util.js`)
   en lugar de volver a escribir `initializeApp`, listas de correos o `escapeHtml` en la página.
 - El encabezado, el menú (y el sub-menú del Repositorio) y el pie son comunes: se editan solo en
   `assets/js/layout.js` y `assets/css/site.css`. Una página nueva los incluye con
   `<script src="assets/js/layout.js" data-part="header" data-active="…"></script>` y
-  `<script src="assets/js/layout.js" data-part="footer"></script>`.
+  `<script src="assets/js/layout.js" data-part="footer"></script>`, y en el `<head>` carga
+  `<link rel="stylesheet" href="assets/css/site.css">` seguido de `<link rel="stylesheet" href="assets/css/tailwind.css">`
+  (no uses el CDN de Tailwind).
 
 ## Archivos de páginas
 - Las páginas usan nombres cortos (`repositorio*.html`, `inventario.html`, `junta-directiva.html`, `tramites.html`).
@@ -64,6 +68,6 @@ paso a paso.
   les agregues contenido. Si renombras una página, deja una redirección igual en el nombre anterior.
 
 ## Estilo del código
-Sitio estático: HTML + Tailwind por CDN + JavaScript modular en línea, con el SDK de Firebase 10.12.2
-desde `gstatic`. Imita el código que rodea al cambio. No introduzcas frameworks ni pasos de compilación
-sin que lo pida el plan (Fase 4).
+Sitio estático: HTML + Tailwind compilado (`assets/css/tailwind.css`, ver `tailwind.config.js`) + JavaScript modular en línea, con el SDK de Firebase 10.12.2
+desde `gstatic`. Imita el código que rodea al cambio. El único paso de compilación es `npm run css`
+(Tailwind). No introduzcas frameworks ni otros pasos de compilación.
