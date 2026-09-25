@@ -56,7 +56,7 @@ Estas correcciones se validaron con 10 pruebas de reglas en el emulador de Fires
 2. **Desplegar**: `firebase deploy --only firestore:rules,functions`.
 3. **Entrar una vez al Panel de Junta** después del despliegue para generar `config/junta_publica`. Hasta
    entonces la página pública mostrará "Aún no se han registrado integrantes".
-4. Si el dominio no es GitHub Pages ni `aematec.com`, ajustar `cors.json` y aplicarlo con `gsutil`.
+4. ~~Confirmar el dominio~~: es `https://aematec.github.io/AEMATEC-web/`, que ya está incluido en `cors.json`.
 
 ## Requisitos del Reglamento Interno para las próximas fases
 

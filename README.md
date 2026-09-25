@@ -95,8 +95,8 @@ secreta). Para probar reglas sin tocar producción, usa el emulador (`firebase e
 
 ## Despliegue
 
-- **Sitio (HTML):** el historial indica GitHub Pages; el `CNAME` se agregó y se quitó varias veces. Pendiente
-  de documentar el dominio definitivo.
+- **Sitio (HTML):** GitHub Pages desde la rama `main`: <https://aematec.github.io/AEMATEC-web/>. Cada merge a
+  `main` publica los cambios de las páginas automáticamente.
 - **Reglas y funciones:** `firebase deploy --only firestore:rules,storage,functions`.
 - **CORS del bucket** (solo si cambian los dominios): `gsutil cors set cors.json gs://biblioteca-aematec.firebasestorage.app`.
 
