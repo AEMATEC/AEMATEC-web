@@ -14,7 +14,7 @@ afectan al sitio.
 | 1 | Correcciones urgentes (seguridad, datos personales, cumplimiento del RI) | ✅ Hecha (quedan pasos manuales, ver abajo) |
 | 2 | Base compartida: layout, navegación y módulos JS comunes | ✅ Hecha (2a, 2b y 2c) |
 | 3 | Consolidar páginas y paneles (versión corta) | ✅ Hecha (3a y 3b) |
-| 4 | Herramientas: Tailwind compilado, hosting, pruebas de reglas en CI | Pendiente |
+| 4 | Herramientas: Tailwind compilado, hosting, enlaces rotos en CI | ✅ Hecha (pendiente de merge) |
 | 5 | Trámites | ✅ Hecha (T1, T2 y T3) |
 
 ## Diagnóstico (septiembre 2026)
@@ -124,9 +124,15 @@ Estos puntos condicionan el diseño y no deberían contradecirse:
 - *Más adelante:* dividir la lógica del inventario en módulos.
 
 ## Fase 4: herramientas
-- Compilar Tailwind en lugar de usar el CDN.
-- Definir el hosting en `firebase.json` o documentar GitHub Pages con su dominio.
-- Chequeo de enlaces rotos en CI (las pruebas de reglas ya existen).
+- ✅ **Tailwind compilado** en `assets/css/tailwind.css` (`npm run css`, configuración en `tailwind.config.js`), en lugar
+  del CDN, que no es para producción. Se comparó cada página antes y después, en escritorio y celular: idénticas. La
+  única diferencia es Junta Directiva, que ahora usa las mismas fuentes que el resto del sitio (antes no las tenía
+  configuradas). El flujo **Páginas** avisa en el PR si el archivo no está al día.
+- ✅ **Hosting:** solo GitHub Pages, sin dominio propio (decisión 2026-09: sin costo). Documentado en el README, con
+  los pasos por si algún día se usa un dominio.
+- ✅ **Enlaces rotos en CI:** `tests/revisar-enlaces.mjs` revisa en cada PR los enlaces internos (archivos, secciones
+  `#id`, páginas del menú y redirecciones, `import` de módulos). Los enlaces externos no se revisan: dependen de
+  otros sitios y harían fallar el PR sin culpa del cambio.
 
 ## Fase 5: Trámites
 Diseño acordado con la Junta (2026-09):
