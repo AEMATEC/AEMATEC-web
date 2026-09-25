@@ -17,28 +17,13 @@
   <script>tailwind.config = { theme: { extend: { fontFamily: { sans: ['Montserrat', 'sans-serif'], serif: ['Source Serif 4', 'serif'] } } } }</script>
   <style>
     @media (max-width: 767px) {
-      body[class~="w-[1440px]"] { width: 100% !important; max-width: 100%; overflow-x: hidden; }
-      [class~="w-[1240px]"] { width: auto !important; max-width: none; }
-      html, body { max-width: 100%; }
-      main > section > div { width: calc(100% - 2rem) !important; margin-left: auto; margin-right: auto; }
-      main > section:not([data-design-id="hero-section-aematec"]) { width: 100% !important; }
-      main > section:not([data-design-id="hero-section-aematec"]) > div { width: calc(100% - 2rem) !important; margin-left: auto; margin-right: auto; }
-      [data-design-id="hero-section-aematec"] > div { width: calc(100% - 2rem) !important; min-height: auto; margin-left: auto; margin-right: auto; padding: 3rem 0 2.5rem; }
+      [data-design-id="hero-section-aematec"] > div { min-height: auto; padding: 3rem 0 2.5rem; }
       [data-design-id="hero-section-aematec"] h1 { max-width: 100%; font-size: clamp(2rem, 8.5vw, 3.2rem); overflow-wrap: break-word; }
       [data-design-id="hero-section-aematec"] p { max-width: 100%; font-size: 1rem; line-height: 1.7; }
       [data-design-id="modules-section"] .grid { grid-template-columns: 1fr; }
       [data-design-id="medios-section"] .grid { grid-template-columns: 1fr; }
     }
-    @media (min-width: 768px) and (max-width: 1279px) {
-      body[class~="w-[1440px]"] { width: 100% !important; max-width: 100%; overflow-x: hidden; }
-      [class~="w-[1240px]"] { width: auto !important; max-width: none; }
-      html, body { max-width: 100%; }
-      main > section > div { width: calc(100% - 4rem) !important; margin-left: auto; margin-right: auto; }
-      main > section[class*="w-["] { width: calc(100% - 4rem) !important; margin-left: auto; margin-right: auto; }
-    }
     @media (min-width: 768px) {
-      body[class~="w-[1440px]"] { width: 100% !important; max-width: 100%; overflow-x: hidden; }
-      [class~="w-[1240px]"] { width: min(1240px, calc(100% - clamp(2rem, 8vw, 12.5rem))) !important; max-width: none; }
       [data-design-id="hero-section-aematec"] > div { padding-top: clamp(3rem, 5vw, 5.5rem); padding-bottom: clamp(3rem, 5vw, 5.5rem); }
       [data-design-id="hero-section-aematec"] h1 { font-size: clamp(2.25rem, 3.2vw, 4rem); }
     }
@@ -53,7 +38,7 @@
   <title>AEMATEC — Asociación de Estudiantes de Enseñanza de la Matemática con Entornos Tecnológicos</title>
 </head>
 
-<body class="w-[1440px] bg-[#F4F8FA] text-[#0D2B45] font-serif" style="background-image: radial-gradient(circle at 12% 18%, rgba(0, 175, 193, 0.13) 0, rgba(0, 175, 193, 0.13) 1.2px, transparent 1.8px), radial-gradient(circle at 84% 72%, rgba(13, 43, 69, 0.09) 0, rgba(13, 43, 69, 0.09) 1.2px, transparent 1.8px); background-size: 28px 28px, 36px 36px;">
+<body class="bg-[#F4F8FA] text-[#0D2B45] font-serif" style="background-image: radial-gradient(circle at 12% 18%, rgba(0, 175, 193, 0.13) 0, rgba(0, 175, 193, 0.13) 1.2px, transparent 1.8px), radial-gradient(circle at 84% 72%, rgba(13, 43, 69, 0.09) 0, rgba(13, 43, 69, 0.09) 1.2px, transparent 1.8px); background-size: 28px 28px, 36px 36px;">
   <script src="assets/js/layout.js" data-part="header" data-active="inicio"></script>
 
   <main data-design-id="main-aematec">
@@ -63,14 +48,14 @@
           <source src="assets/hero-aematec.mp4" type="video/mp4">
         </video>
         <div class="absolute inset-0 bg-[#EAF5F7]/25 pointer-events-none"></div>
-        <div class="relative z-10 w-[1240px] mx-auto min-h-[420px] pt-[76px] pb-[64px] text-center">
+        <div class="relative z-10 site-container mx-auto min-h-[420px] pt-[76px] pb-[64px] text-center">
           <h1 class="font-sans text-[54px] leading-[1.08] tracking-[-0.04em] font-bold mt-0">Tu asociación,<br><span class="text-[#00A6B8]">a un clic de distancia.</span></h1>
           <p class="mt-5 text-[19px] leading-8 text-[#526574] max-w-[730px] mx-auto">La Asociación de Estudiantes de Enseñanza de la Matemática con Entornos Tecnológicos representa, acompaña y conecta a la comunidad estudiantil de MATEC en el TEC.</p>
         </div>
       </div>
     </section>
 
-    <section data-design-id="modules-section" class="w-[1240px] mx-auto py-[62px]">
+    <section data-design-id="modules-section" class="site-container mx-auto py-[62px]">
       <div class="mb-7">
         <p class="font-sans text-xs font-bold uppercase tracking-[0.18em] text-[#00A6B8]">¿Qué necesitas hoy?</p>
         <h2 class="font-sans text-[30px] font-bold tracking-[-0.02em] mt-2">Accede a los servicios de la asociación</h2>
@@ -128,7 +113,7 @@
     </section>
 
     <section data-design-id="medios-section" class="bg-[#EAF1F4] border-y border-[#D7E3E8] py-[56px]">
-      <div class="w-[1240px] mx-auto">
+      <div class="site-container mx-auto">
         <div class="mb-7">
           <p class="font-sans text-xs font-bold uppercase tracking-[0.18em] text-[#00A6B8]">Medios Oficiales</p>
           <h2 class="font-sans text-[30px] font-bold mt-2">Canales oficiales de comunicación</h2>

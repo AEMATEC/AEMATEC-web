@@ -24,13 +24,7 @@
   <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
   <style>
     @media (max-width: 767px) {
-      body[class~="w-[1440px]"] { width: 100% !important; max-width: 100%; overflow-x: hidden; }
-      [class~="w-[1240px]"] { width: auto !important; max-width: none; }
-      html, body { max-width: 100%; }
-      main > section > div { width: calc(100% - 2rem) !important; margin-left: auto; margin-right: auto; }
-      main > section:not([data-design-id="hero-section-16a5bf"]):not(#global-search-results) { width: 100% !important; }
-      main > section:not([data-design-id="hero-section-16a5bf"]):not(#global-search-results) > div { width: calc(100% - 2rem) !important; margin-left: auto; margin-right: auto; }
-      [data-design-id="hero-section-16a5bf"] > div { width: calc(100% - 2rem) !important; min-height: auto; margin-left: auto; margin-right: auto; padding: 3rem 0 2.5rem; }
+      [data-design-id="hero-section-16a5bf"] > div { min-height: auto; padding: 3rem 0 2.5rem; }
       [data-design-id="hero-section-16a5bf"] h1 { max-width: 100%; font-size: clamp(2rem, 8.5vw, 3.2rem); overflow-wrap: break-word; }
       [data-design-id="hero-section-16a5bf"] p { max-width: 100%; font-size: 1rem; line-height: 1.7; }
       .hero-equation { top: 1.5rem; right: 1rem; font-size: 1.25rem; }
@@ -41,9 +35,8 @@
       #global-search-results > div > div:first-child { align-items: flex-start; flex-direction: column; gap: 1rem; }
       #global-search-results article { align-items: flex-start; flex-wrap: wrap; }
       #global-search-results article > div:nth-child(2) { min-width: calc(100% - 4.5rem); }
-      #global-search-results article > button { margin-left: auto; }
-      [data-design-id="quick-access-section-0d64a7"], main > section.w-\[1240px\] { padding-top: 2.5rem; padding-bottom: 2.5rem; }
-      [data-design-id="quick-access-section-0d64a7"] .grid, main > section.w-\[1240px\] .grid { grid-template-columns: 1fr; }
+      [data-design-id="quick-access-section-0d64a7"], main > section.site-container { padding-top: 2.5rem; padding-bottom: 2.5rem; }
+      [data-design-id="quick-access-section-0d64a7"] .grid, main > section.site-container .grid { grid-template-columns: 1fr; }
       [data-design-id="quick-card-docentes-17fd90"], [data-design-id="quick-card-academicos-b3a4c8"] { padding: 1.25rem; gap: 1rem; }
       [data-design-id="quick-card-docentes-17fd90"] > div:last-child, [data-design-id="quick-card-academicos-b3a4c8"] > div:last-child { min-width: 0; }
       [data-design-id="quick-card-docentes-17fd90"] h3, [data-design-id="quick-card-academicos-b3a4c8"] h3 { font-size: 1.15rem; }
@@ -55,19 +48,12 @@
       #global-resource-modal dl { grid-template-columns: 1fr; }
     }
     @media (min-width: 768px) and (max-width: 1279px) {
-      body[class~="w-[1440px]"] { width: 100% !important; max-width: 100%; overflow-x: hidden; }
-      [class~="w-[1240px]"] { width: auto !important; max-width: none; }
-      html, body { max-width: 100%; }
-      main > section > div { width: calc(100% - 4rem) !important; margin-left: auto; margin-right: auto; }
-      main > section[class*="w-["] { width: calc(100% - 4rem) !important; margin-left: auto; margin-right: auto; }
       #global-search-form { width: min(800px, 100%); }
       [data-design-id="quick-card-docentes-17fd90"], [data-design-id="quick-card-academicos-b3a4c8"] { min-width: 0; overflow: hidden; }
       [data-design-id="quick-card-docentes-17fd90"] > div:last-child, [data-design-id="quick-card-academicos-b3a4c8"] > div:last-child { min-width: 0; overflow-wrap: anywhere; }
       [data-design-id="quick-card-docentes-17fd90"] > div:last-child > div:last-child, [data-design-id="quick-card-academicos-b3a4c8"] > div:last-child > div:last-child { flex-wrap: wrap; }
     }
     @media (min-width: 768px) {
-      body[class~="w-[1440px]"] { width: 100% !important; max-width: 100%; overflow-x: hidden; }
-      [class~="w-[1240px]"] { width: min(1240px, calc(100% - clamp(2rem, 8vw, 12.5rem))) !important; max-width: none; }
       [data-design-id="hero-section-16a5bf"] > div { padding-top: clamp(3rem, 5vw, 5.5rem); padding-bottom: clamp(3rem, 5vw, 5.5rem); }
       [data-design-id="hero-section-16a5bf"] h1 { font-size: clamp(2.25rem, 3.2vw, 4rem); }
       .hero-equation { top: 2.5rem; right: 2rem; }
@@ -145,7 +131,7 @@
   <title>Biblioteca AEMATEC</title>
 </head>
 
-<body class="w-[1440px] bg-[#F4F8FA] text-[#0D2B45] font-serif" style="background-image: radial-gradient(circle at 12% 18%, rgba(0, 175, 193, 0.13) 0, rgba(0, 175, 193, 0.13) 1.2px, transparent 1.8px), radial-gradient(circle at 84% 72%, rgba(13, 43, 69, 0.09) 0, rgba(13, 43, 69, 0.09) 1.2px, transparent 1.8px); background-size: 28px 28px, 36px 36px;">
+<body class="bg-[#F4F8FA] text-[#0D2B45] font-serif" style="background-image: radial-gradient(circle at 12% 18%, rgba(0, 175, 193, 0.13) 0, rgba(0, 175, 193, 0.13) 1.2px, transparent 1.8px), radial-gradient(circle at 84% 72%, rgba(13, 43, 69, 0.09) 0, rgba(13, 43, 69, 0.09) 1.2px, transparent 1.8px); background-size: 28px 28px, 36px 36px;">
   <script src="assets/js/layout.js" data-part="header" data-active="biblioteca" data-sub="inicio"></script>
 
   <main data-design-id="main-home-3e718d">
@@ -155,13 +141,13 @@
           <source src="assets/hero-aematec.mp4" type="video/mp4">
         </video>
         <div class="absolute inset-0 bg-[#EAF5F7]/25 pointer-events-none"></div>
-        <div class="relative z-10 w-[1240px] mx-auto min-h-[500px] pt-[76px] pb-[64px] text-center">
+        <div class="relative z-10 site-container mx-auto min-h-[500px] pt-[76px] pb-[64px] text-center">
           <h1 class="font-sans text-[54px] leading-[1.08] tracking-[-0.04em] font-bold mt-0">Conocimiento que se
             comparte,<br><span class="text-[#00A6B8]">aprendizaje que crece.</span></h1>
           <p class="mt-5 text-[19px] leading-8 text-[#526574] max-w-[730px] mx-auto">Materiales creados y recopilados por
             la comunidad de Enseñanza de la Matemática con Entornos Tecnológicos del TEC.</p>
           <form id="global-search-form" data-design-id="search-form-75e90c"
-            class="mt-9 mx-auto w-[800px] h-[68px] bg-white border-2 border-[#B8D3DC] rounded-[16px] shadow-[0_12px_35px_rgba(13,43,69,0.10)] flex items-center p-2">
+            class="mt-9 mx-auto w-full max-w-[800px] h-[68px] bg-white border-2 border-[#B8D3DC] rounded-[16px] shadow-[0_12px_35px_rgba(13,43,69,0.10)] flex items-center p-2">
             <i class="fa-solid fa-magnifying-glass text-[#00A6B8] text-xl ml-4"></i>
             <input aria-label="Buscar materiales"
               class="flex-1 h-full px-4 outline-none text-[17px] text-[#233F53] placeholder:text-[#7C909D]"
@@ -174,7 +160,7 @@
     </section>
 
     <section id="global-search-results" class="hidden bg-white border-b border-[#DCE6EA] py-[42px]" aria-live="polite">
-      <div class="w-[1240px] mx-auto">
+      <div class="site-container mx-auto">
         <div class="flex items-end justify-between mb-7">
           <div>
             <p class="font-sans text-xs font-bold uppercase tracking-[0.18em] text-[#00A6B8]">Resultados de búsqueda</p>
@@ -188,7 +174,7 @@
       </div>
     </section>
 
-    <section data-design-id="quick-access-section-0d64a7" class="w-[1240px] mx-auto py-[62px]">
+    <section data-design-id="quick-access-section-0d64a7" class="site-container mx-auto py-[62px]">
       <div class="flex items-end justify-between mb-7">
         <div>
           <p class="font-sans text-xs font-bold uppercase tracking-[0.18em] text-[#00A6B8]">Explora la biblioteca</p>
@@ -239,7 +225,7 @@
     </section>
 
     <section data-design-id="recent-materials-section-651b23" class="bg-[#EAF1F4] border-y border-[#D7E3E8] py-[58px]">
-      <div class="w-[1240px] mx-auto">
+      <div class="site-container mx-auto">
         <div class="flex justify-between items-end mb-7">
           <div>
             <p class="font-sans text-xs font-bold uppercase tracking-[0.18em] text-[#00A6B8]">Novedades</p>
@@ -281,7 +267,7 @@
         </div>
       </div>
     </section>
-    <section class="w-[1240px] mx-auto py-[56px]">
+    <section class="site-container mx-auto py-[56px]">
       <div class="flex items-end justify-between mb-7"><div><p class="font-sans text-xs font-bold uppercase tracking-[0.18em] text-[#00A6B8]">Cursos frecuentes</p><h2 class="font-sans text-[30px] font-bold mt-2">Explora por curso</h2></div><a id="all-courses-link" href="aematec_biblioteca-recursos-academicos.html?showCourses=1" class="font-sans text-sm font-bold text-[#0C8190]">Ver todos</a></div>
       <div class="flex flex-wrap gap-3">
         <a data-course-name="Matemática General" href="aematec_biblioteca-recursos-academicos.html?q=MA0101" class="course-shortcut rounded-full bg-white border border-[#D8E3E9] px-5 py-3 font-sans text-sm font-bold">MA0101</a>
@@ -292,9 +278,9 @@
       </div>
     </section>
     <section class="bg-[#EAF1F4] border-y border-[#D7E3E8] py-[56px]">
-      <div class="w-[1240px] mx-auto">
+      <div class="site-container mx-auto">
         <div class="flex items-end justify-between mb-7"><div><p class="font-sans text-xs font-bold uppercase tracking-[0.18em] text-[#00A6B8]">Explora por categoría</p><h2 class="font-sans text-[30px] font-bold mt-2">Encuentra lo que necesitas</h2></div></div>
-        <div class="grid grid-cols-3 gap-5">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
           <a href="aematec_biblioteca-recursos-docentes.html" class="rounded-[16px] border border-[#D8E3E9] bg-white p-6 hover:border-[#00B5C8]"><i class="fa-solid fa-chalkboard-user text-2xl text-[#00A6B8]"></i><h3 class="mt-4 font-sans font-bold">Actividades y juegos</h3><p class="mt-2 text-sm text-[#627683]">Recursos listos para llevar al aula.</p></a>
           <a href="aematec_biblioteca-recursos-academicos.html" class="rounded-[16px] border border-[#D8E3E9] bg-white p-6 hover:border-[#00B5C8]"><i class="fa-solid fa-file-pen text-2xl text-[#486398]"></i><h3 class="mt-4 font-sans font-bold">Exámenes y apuntes</h3><p class="mt-2 text-sm text-[#627683]">Material para acompañar tus cursos.</p></a>
           <a href="aematec_biblioteca-recursos-docentes.html" class="rounded-[16px] border border-[#D8E3E9] bg-white p-6 hover:border-[#00B5C8]"><i class="fa-solid fa-shapes text-2xl text-[#946316]"></i><h3 class="mt-4 font-sans font-bold">GeoGebra y recursos digitales</h3><p class="mt-2 text-sm text-[#627683]">Explora materiales interactivos.</p></a>
@@ -302,8 +288,8 @@
       </div>
     </section>
 
-    <section data-design-id="upload-cta-section-5a2ef9" class="w-[1240px] mx-auto py-[56px]">
-      <div class="bg-white border border-[#CFE0E6] rounded-[20px] p-8 flex items-center justify-between">
+    <section data-design-id="upload-cta-section-5a2ef9" class="site-container mx-auto py-[56px]">
+      <div class="bg-white border border-[#CFE0E6] rounded-[20px] p-8 flex flex-wrap items-center justify-between gap-6">
         <div class="flex items-center gap-6">
           <div class="w-14 h-14 rounded-full bg-[#DFF6F8] text-[#009CAD] flex items-center justify-center text-xl"><i
               class="fa-solid fa-cloud-arrow-up"></i></div>
@@ -440,7 +426,7 @@
         const sectionClass = isAcademic ? "bg-[#E9EEF9] text-[#3B568D]" : "bg-[#DFF6F8] text-[#087F8C]";
         const metadata = resource.course ? `${courseNames[resource.course] || resource.course}` : (resource.level || "Biblioteca AEMATEC");
         return `<article class="bg-[#F8FBFC] border border-[#D6E2E7] rounded-[15px] p-5 flex items-center gap-5">
-          <div class="w-[52px] h-[60px] rounded-[11px] ${isAcademic ? "bg-[#EDF2FA] text-[#486398]" : "bg-[#E6F8FA] text-[#009CAD]"} flex items-center justify-center text-xl"><i class="fa-regular ${iconFor(resource.extension)}"></i></div>
+          <div class="w-[52px] h-[60px] rounded-[11px] ${isAcademic ?"bg-[#EDF2FA] text-[#486398]" : "bg-[#E6F8FA] text-[#009CAD]"} flex items-center justify-center text-xl"><i class="fa-regular ${iconFor(resource.extension)}"></i></div>
           <div class="flex-1 min-w-0">
             <div class="flex items-center gap-3 flex-wrap"><span class="font-sans text-[10px] font-bold ${sectionClass} px-2.5 py-1 rounded-full">${sectionLabel}</span><span class="font-sans text-[10px] font-bold text-[#657985]">${escapeHtml((resource.type || "Recurso").toUpperCase())}</span></div>
             <h3 class="font-sans font-bold text-[18px] mt-2">${escapeHtml(resource.title || "Material sin título")}</h3>
@@ -460,7 +446,7 @@
         const pages = totalPages <= 3 ? Array.from({ length: totalPages }, (_, index) => index + 1) : [1, 2, totalPages];
         pages.forEach((pageNumber, index) => {
           if (index && pageNumber - pages[index - 1] > 1) pageButtons.push('<span class="px-1 text-[#7A8C96]">...</span>');
-          pageButtons.push(`<button type="button" data-global-page="${pageNumber}" class="w-10 h-10 rounded-[8px] ${globalSearchPage === pageNumber ? "bg-[#0D2B45] text-white" : "bg-white border border-[#CBD9DF]"}">${pageNumber}</button>`);
+          pageButtons.push(`<button type="button" data-global-page="${pageNumber}" class="w-10 h-10 rounded-[8px] ${globalSearchPage === pageNumber ?"bg-[#0D2B45] text-white" : "bg-white border border-[#CBD9DF]"}">${pageNumber}</button>`);
         });
         pageButtons.push(`<button type="button" data-global-page="${Math.min(totalPages, globalSearchPage + 1)}" aria-label="Página siguiente" class="w-10 h-10 border border-[#CBD9DF] rounded-[8px] bg-white flex items-center justify-center"><i class="fa-solid fa-chevron-right text-xs"></i></button>`);
       }
