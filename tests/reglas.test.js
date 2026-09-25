@@ -77,6 +77,13 @@ describe("Padrón y Fiscalía", () => {
     await assertFails(getDocs(collection(anonimo().firestore(), "padron")));
     await assertSucceeds(getDocs(collection(usuario(JUNTA).firestore(), "padron")));
   });
+  test("la Fiscalía y la Junta pueden registrar a la nueva persona Fiscal; el público no", async () => {
+    const nueva = "nueva.fiscal@estudiantec.cr";
+    await assertSucceeds(setDoc(doc(usuario(FISCAL).firestore(), "fiscalia", nueva), { email: nueva }));
+    await assertSucceeds(deleteDoc(doc(usuario(JUNTA).firestore(), "fiscalia", nueva)));
+    await assertFails(setDoc(doc(anonimo().firestore(), "fiscalia", nueva), { email: nueva }));
+    await assertFails(setDoc(doc(usuario(FISCAL, false).firestore(), "fiscalia", nueva), { email: nueva }));
+  });
   test("Fiscalía necesita correo verificado", async () => {
     await assertFails(getDoc(doc(usuario(FISCAL, false).firestore(), "fiscalia", FISCAL)));
     await assertSucceeds(getDoc(doc(usuario(FISCAL).firestore(), "fiscalia", FISCAL)));

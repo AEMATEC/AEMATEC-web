@@ -26,6 +26,9 @@ paso a paso.
   colecciones o documentos de lectura pública. Si una página pública necesita datos de personas, usa un
   documento derivado con solo lo publicable (como `config/junta_publica`).
 - **Fiscalía es independiente de la Junta (RI Art. 42):** lo dirigido a Fiscalía no debe poder leerlo la Junta.
+  Excepción acordada: la Junta sí puede editar la lista `fiscalia` (para registrar a la nueva persona Fiscal).
+- **Nombres:** "Repositorio" es el repositorio digital de materiales; "Biblioteca" es solo la colección física de
+  libros del Inventario (RI Art. 128). No los mezcles en textos nuevos.
 - **Secretos:** nunca en el repositorio ni en el chat (claves de cuentas de servicio, contraseñas de Gmail).
   Van en GitHub → Settings → Secrets and variables → Actions.
 - **Los permisos se aplican en `firestore.rules` y `storage.rules`.** Ocultar un botón no protege nada.
@@ -40,7 +43,7 @@ paso a paso.
   página con `python3 -m http.server 5500`. Explica en el PR qué conviene revisar visualmente.
 - Para Firebase, roles y utilidades usa los módulos de `assets/js/` (`firebase.js`, `roles.js`, `util.js`)
   en lugar de volver a escribir `initializeApp`, listas de correos o `escapeHtml` en la página.
-- El encabezado, el menú (y el sub-menú de la Biblioteca) y el pie son comunes: se editan solo en
+- El encabezado, el menú (y el sub-menú del Repositorio) y el pie son comunes: se editan solo en
   `assets/js/layout.js` y `assets/css/site.css`. Una página nueva los incluye con
   `<script src="assets/js/layout.js" data-part="header" data-active="…"></script>` y
   `<script src="assets/js/layout.js" data-part="footer"></script>`.

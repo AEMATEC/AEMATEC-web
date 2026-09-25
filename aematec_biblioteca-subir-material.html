@@ -103,10 +103,10 @@
       .course-suggestion { transition: none; }
     }
   </style>
-  <title>Subir material — Biblioteca AEMATEC</title>
+  <title>Subir material — Repositorio AEMATEC</title>
 </head>
 <body class="bg-[#F4F8FA] text-[#0D2B45] font-serif" style="background-image: radial-gradient(circle at 12% 18%, rgba(0, 175, 193, 0.13) 0, rgba(0, 175, 193, 0.13) 1.2px, transparent 1.8px), radial-gradient(circle at 84% 72%, rgba(13, 43, 69, 0.09) 0, rgba(13, 43, 69, 0.09) 1.2px, transparent 1.8px); background-size: 28px 28px, 36px 36px;">
-  <script src="assets/js/layout.js" data-part="header" data-active="biblioteca" data-sub="subir"></script>
+  <script src="assets/js/layout.js" data-part="header" data-active="repositorio" data-sub="subir"></script>
   <main data-design-id="main-upload-modal-8fd69e" class="relative min-h-[900px]">
     <section data-design-id="background-content-0d3e64" class="absolute inset-0 opacity-35 pointer-events-none"><div class="site-container mx-auto py-12"><h1 class="font-sans text-[42px] font-bold">Materiales recientes</h1><div class="grid grid-cols-3 gap-6 mt-8"><div class="h-56 bg-white border border-[#CBD9DF] rounded-[16px]"></div><div class="h-56 bg-white border border-[#CBD9DF] rounded-[16px]"></div><div class="h-56 bg-white border border-[#CBD9DF] rounded-[16px]"></div></div></div></section>
     <div class="upload-backdrop" aria-hidden="true"></div>
@@ -340,7 +340,7 @@
       return;
     }
     if (!config?.apiKey || config.apiKey === "REEMPLAZAR") {
-      showStatus("La biblioteca aún no está conectada a Firebase. Configura assets/firebase-config.js.", true);
+      showStatus("El repositorio aún no está conectado a Firebase. Configura assets/firebase-config.js.", true);
       return;
     }
     submit.disabled = true;

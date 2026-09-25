@@ -15,16 +15,16 @@ dependen de él citan el artículo correspondiente en el código y en [`docs/PLA
 | Módulo | Páginas | Qué hace |
 |---|---|---|
 | Portada | `index.html` | Acceso a los servicios y Medios Oficiales (RI Art. 102). |
-| Biblioteca | `aematec_biblioteca-home.html`, `aematec_biblioteca-recursos-docentes.html`, `aematec_biblioteca-recursos-academicos.html`, `aematec_biblioteca-subir-material.html` | Repositorio digital de materiales didácticos y académicos (RI Art. 4 f). Consulta pública; cualquiera puede proponer material, que queda pendiente de moderación. |
+| Repositorio | `aematec_biblioteca-home.html`, `aematec_biblioteca-recursos-docentes.html`, `aematec_biblioteca-recursos-academicos.html`, `aematec_biblioteca-subir-material.html` | Repositorio digital de materiales didácticos y académicos (RI Art. 4 f). Consulta pública; cualquiera puede proponer material, que queda pendiente de moderación. |
 | Moderación | `aematec_biblioteca-moderacion.html` | Aprobación, edición y rechazo de materiales. Gestión del equipo de moderación. |
 | Inventario | `aematec_inventario.html` | Consulta pública de bienes (RI Art. 118) y solicitudes de préstamo (RI Art. 120-123). Administración para la Junta. |
 | Junta Directiva | `aematec_junta-directiva.html` | Integrantes (solo nombre y puesto) y medios de contacto. |
 | Panel de Junta | `aematec_junta-panel.html` | Padrón, Junta, Fiscalía y Medios Oficiales. |
 | Trámites | `aematec_tramites.html` | Pendiente ("Próximamente"). Ver el plan. |
 
-> **Nota de nombres:** en el RI, "Biblioteca AEMATEC" (Art. 128-129) es la colección física de libros para
-> préstamo, que en el sitio está en **Inventario → Libros**. La "Biblioteca" del sitio es el repositorio
-> digital de materiales.
+> **Nota de nombres:** el repositorio digital de materiales se llama **Repositorio** (antes "Biblioteca";
+> sus archivos todavía se llaman `aematec_biblioteca-*.html`). **Biblioteca** es solo la colección física de
+> libros para préstamo del RI (Art. 128-129), que está en **Inventario → Biblioteca**.
 
 ## Roles y permisos
 
@@ -36,7 +36,7 @@ La interfaz solo oculta o muestra opciones.
 | Público | Nadie inicia sesión | Ver recursos publicados, el inventario y la Junta. Proponer material. Solicitar préstamos. |
 | Moderador | Correo en `moderators/{email}` + cuenta con correo verificado | Moderar recursos y gestionar moderadores. |
 | Junta | Correo en `junta/{email}` + cuenta con correo verificado | Padrón, Junta, Fiscalía, Medios, inventario y préstamos. |
-| Fiscalía | Correo en `fiscalia/{email}` + correo verificado | Por ahora solo leer la lista de Fiscalía (se usará en Trámites). |
+| Fiscalía | Correo en `fiscalia/{email}` + correo verificado | Registrar a la persona Fiscal entrante (la Junta también puede). Se usará en Trámites. |
 | Asociado | Correo en `padron/{email}` + correo verificado | Aún no se usa en ninguna página. |
 | Dueño | Correo escrito en el código (ver abajo) | Todo lo anterior. |
 
@@ -57,12 +57,12 @@ si el correo ya fue agregado a la lista correspondiente, y hay que verificar el 
 
 | Colección / documento | Contenido | Lectura |
 |---|---|---|
-| `resources` | Materiales de la Biblioteca (metadatos, estado de moderación, ruta del archivo) | Pública si `published == true` |
+| `resources` | Materiales del Repositorio (metadatos, estado de moderación, ruta del archivo) | Pública si `published == true` |
 | `inventario` | Bienes: `institucional`, `aematec`, `biblioteca` (libros), `consumible` | Pública |
 | `prestamoSolicitudes` | Solicitudes de préstamo (nombre, carné, contacto) | Solo Junta |
 | `padron` | Correos de personas Asociadas | Solo Junta |
 | `junta` | Correo, nombre y puesto de cada integrante | Consulta puntual pública; listado solo Junta |
-| `fiscalia` | Correos de Fiscalía | Junta y Fiscalía |
+| `fiscalia` | Correos de Fiscalía (la editan Fiscalía y Junta) | Junta y Fiscalía |
 | `moderators` | Correos de moderación | Moderadores |
 | `config/medios_oficiales` | Correo, teléfono y enlaces de WhatsApp, Telegram e Instagram | Pública |
 | `config/junta_publica` | Solo nombre y puesto de la Junta, generado por el Panel | Pública |

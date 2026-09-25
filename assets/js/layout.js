@@ -1,12 +1,12 @@
 // Encabezado, sub-navegación y pie de página comunes del sitio AEMATEC.
 //
 // Uso en cada página (script normal, no módulo, para que se dibuje sin parpadeo):
-//   <script src="assets/js/layout.js" data-part="header" data-active="biblioteca" data-sub="docentes"></script>
+//   <script src="assets/js/layout.js" data-part="header" data-active="repositorio" data-sub="docentes"></script>
 //   ...contenido...
 //   <script src="assets/js/layout.js" data-part="footer"></script>
 //
-// data-active: inicio | biblioteca | inventario | junta | tramites
-// data-sub (solo Biblioteca): inicio | docentes | academicos | subir | moderacion
+// data-active: inicio | repositorio | inventario | junta | tramites
+// data-sub (solo Repositorio): inicio | docentes | academicos | subir | moderacion
 // Para agregar o renombrar una página del menú, edita solo las listas de abajo.
 (() => {
   const script = document.currentScript;
@@ -14,15 +14,15 @@
 
   const MENU = [
     { id: "inicio", label: "Inicio", href: "index.html" },
-    { id: "biblioteca", label: "Biblioteca", href: "aematec_biblioteca-home.html" },
+    { id: "repositorio", label: "Repositorio", href: "aematec_biblioteca-home.html" },
     { id: "inventario", label: "Inventario", href: "aematec_inventario.html" },
     { id: "junta", label: "Junta Directiva", href: "aematec_junta-directiva.html" },
     { id: "tramites", label: "Trámites", href: "aematec_tramites.html", icon: "fa-file-signature", cta: true }
   ];
 
   const SUBMENUS = {
-    biblioteca: {
-      title: "Biblioteca",
+    repositorio: {
+      title: "Repositorio",
       items: [
         { id: "inicio", label: "Inicio", href: "aematec_biblioteca-home.html" },
         { id: "docentes", label: "Recursos docentes", href: "aematec_biblioteca-recursos-docentes.html" },
