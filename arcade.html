@@ -4055,7 +4055,7 @@ const DL = {
   mode: null, room: null, me: null, isHost: false, unsub: null, hbStop: null, roomData: null,
   names: { A: 'JUGADOR 1', B: 'JUGADOR 2' }, wins: { A: 0, B: 0 },
   phase: 'idle', countN: 3, yaAt: 0, roundActive: false, currentRoundSeq: 0, roundSeqCounter: 0,
-  appliedRoundSeq: 0, lastResultRoundSeq: -1, appliedMatchSeq: 0, timers: []
+  appliedRoundSeq: 0, lastResultRoundSeq: -1, appliedMatchSeq: 0, timers: [], shot: null
 };
 function dlMsg(t, cls) { const m = $('#dl-msg'); m.textContent = t; m.className = 'msg' + (cls ? ' ' + cls : ''); }
 function dlMenuMsg(t, cls) { const m = $('#dl-menu-msg'); m.textContent = t; m.className = 'msg' + (cls ? ' ' + cls : ''); }
@@ -4063,14 +4063,31 @@ function dlSchedule(fn, delayMs) { const id = setTimeout(fn, Math.max(0, delayMs
 function dlClearTimers() { DL.timers.forEach(clearTimeout); DL.timers = []; }
 
 /* ---------- dibujo ---------- */
-function dlDrawCowboy(ctx, x, groundY, col) {
-  ctx.save(); ctx.fillStyle = col;
+function dlDrawCowboy(ctx, x, groundY, col, fall, tiltDir) {
+  ctx.save();
+  if (fall > 0) { ctx.translate(x, groundY); ctx.rotate(tiltDir * fall * 1.1); ctx.translate(-x, -groundY); ctx.globalAlpha = 1 - fall * .4; }
+  ctx.fillStyle = col;
   ctx.fillRect(x - 6, groundY - 46, 12, 34);
   ctx.beginPath(); ctx.arc(x, groundY - 52, 8, 0, Math.PI * 2); ctx.fill();
   ctx.fillRect(x - 11, groundY - 59, 22, 5);
   ctx.fillRect(x - 5, groundY - 68, 10, 9);
   ctx.fillRect(x - 3, groundY - 12, 6, 12);
   ctx.restore();
+}
+function dlDrawShot(ctx, W, groundY, shot) {
+  const t = Math.min(1, (performance.now() - shot.start) / shot.duration);
+  const shooterX = shot.winnerId === 'A' ? W * 0.26 : W * 0.74, targetX = shot.winnerId === 'A' ? W * 0.74 : W * 0.26;
+  const gunY = groundY - 30, dir = shot.winnerId === 'A' ? 1 : -1;
+  if (t < 0.3) {
+    ctx.save(); ctx.globalAlpha = 1 - t / 0.3; ctx.fillStyle = '#fff4b0';
+    ctx.beginPath(); ctx.arc(shooterX + dir * 16, gunY, 7, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+  }
+  const bx = shooterX + (targetX - shooterX) * Math.min(1, t / 0.65);
+  ctx.strokeStyle = 'rgba(255,244,176,.75)'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(bx - (targetX - shooterX) * 0.08, gunY); ctx.lineTo(bx, gunY); ctx.stroke();
+  ctx.fillStyle = '#fffbe0'; ctx.beginPath(); ctx.arc(bx, gunY, 2.5, 0, Math.PI * 2); ctx.fill();
+  return t;
 }
 function dlDraw() {
   const cv = $('#dl-cv'); if (!cv || !cv.offsetParent) return;
@@ -4082,8 +4099,15 @@ function dlDraw() {
   ctx.fillStyle = 'rgba(255,235,180,.85)'; ctx.beginPath(); ctx.arc(W * 0.5, H * 0.28, 26, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = '#8a5a3c'; ctx.fillRect(0, groundY, W, H - groundY);
   ctx.fillStyle = '#6e4530'; ctx.fillRect(0, groundY, W, 4);
-  dlDrawCowboy(ctx, W * 0.26, groundY, '#241c18');
-  dlDrawCowboy(ctx, W * 0.74, groundY, '#3a2a1e');
+  let fallA = 0, fallB = 0, shotT = 1;
+  if (DL.shot) {
+    shotT = Math.min(1, (performance.now() - DL.shot.start) / DL.shot.duration);
+    const impact = Math.max(0, (shotT - 0.55) / 0.45);
+    if (DL.shot.loserId === 'A') fallA = impact; else fallB = impact;
+  }
+  dlDrawCowboy(ctx, W * 0.26, groundY, '#241c18', fallA, -1);
+  dlDrawCowboy(ctx, W * 0.74, groundY, '#3a2a1e', fallB, 1);
+  if (DL.shot && shotT < 1) dlDrawShot(ctx, W, groundY, DL.shot);
   ctx.textAlign = 'center';
   if (DL.phase === 'count') {
     ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(0, 0, W, H);
@@ -4103,7 +4127,7 @@ function dlDraw() {
 /* ---------- ronda (compartido CPU / en línea) ---------- */
 function dlBeginCountdown(seq, startAt, yaAt) {
   dlClearTimers();
-  DL.currentRoundSeq = seq; DL.roundActive = true; DL.phase = 'count'; DL.countN = 3; DL.yaAt = 0;
+  DL.currentRoundSeq = seq; DL.roundActive = true; DL.phase = 'count'; DL.countN = 3; DL.yaAt = 0; DL.shot = null;
   dlMsg(''); dlDraw();
   const now = Date.now();
   dlSchedule(() => dlTick(seq, 2), startAt + DL_COUNT_STEP - now);
@@ -4119,14 +4143,22 @@ function dlShowGo(seq) {
   if (seq !== DL.currentRoundSeq || !DL.roundActive) return;
   DL.phase = 'go'; DL.yaAt = performance.now(); dlDraw(); SFX.play('go');
 }
-function dlAfterRound(winnerId, wA, wB, msg, cls) {
+function dlAfterRound(winnerId, wA, wB, msg, cls, early) {
   dlClearTimers();
-  DL.wins = { A: wA, B: wB }; DL.phase = 'result'; DL.roundActive = false;
+  DL.roundActive = false; DL.phase = 'shot';
+  if (early) { DL.shot = null; return dlFinishRound(winnerId, wA, wB, msg, cls); }
+  const loserId = winnerId === 'A' ? 'B' : 'A';
+  DL.shot = { winnerId, loserId, start: performance.now(), duration: 260 };
+  SFX.play('boom'); dlDraw();
+  dlSchedule(() => dlFinishRound(winnerId, wA, wB, msg, cls), 420);
+}
+function dlFinishRound(winnerId, wA, wB, msg, cls) {
+  DL.wins = { A: wA, B: wB }; DL.phase = 'result';
   dlMsg(msg, cls); dlDraw();
   SFX.play(cls === 'win' ? 'win' : 'lose');
   if (wA >= DL_WINS_TO_TAKE || wB >= DL_WINS_TO_TAKE) return dlMatchOver(wA >= DL_WINS_TO_TAKE ? 'A' : 'B');
-  if (DL.mode === 'cpu') dlSchedule(() => dlStartRound(), 1800);
-  else if (DL.mode === 'online' && DL.isHost) dlSchedule(() => dlHostNextRound(), 1800);
+  if (DL.mode === 'cpu') dlSchedule(() => dlStartRound(), 1600);
+  else if (DL.mode === 'online' && DL.isHost) dlSchedule(() => dlHostNextRound(), 1600);
 }
 function dlMatchOver(id) {
   dlClearTimers(); DL.roundActive = false;
@@ -4144,13 +4176,13 @@ function dlHumanFire() {
   if (DL.mode === 'online') return dlHumanFireOnline();
 }
 function dlHumanFireCpu() {
-  if (DL.phase !== 'go') return dlAfterRound('B', DL.wins.A, DL.wins.B + 1, 'DISPARASTE ANTES DE TIEMPO', 'lose');
+  if (DL.phase !== 'go') return dlAfterRound('B', DL.wins.A, DL.wins.B + 1, 'DISPARASTE ANTES DE TIEMPO', 'lose', true);
   const rt = performance.now() - DL.yaAt;
-  dlAfterRound('A', DL.wins.A + 1, DL.wins.B, `¡GANASTE EN ${rt.toFixed(0)} MS!`, 'win');
+  dlAfterRound('A', DL.wins.A + 1, DL.wins.B, `¡GANASTE EN ${rt.toFixed(0)} MS!`, 'win', false);
 }
 function dlCpuFire(seq) {
   if (seq !== DL.currentRoundSeq || !DL.roundActive || DL.phase !== 'go') return;
-  dlAfterRound('B', DL.wins.A, DL.wins.B + 1, `${DL.names.B} DISPARÓ PRIMERO`, 'lose');
+  dlAfterRound('B', DL.wins.A, DL.wins.B + 1, `${DL.names.B} DISPARÓ PRIMERO`, 'lose', false);
 }
 function dlHumanFireOnline() {
   const seq = DL.currentRoundSeq, early = DL.phase !== 'go';
@@ -4242,7 +4274,7 @@ function dlOnRoom(d) {
     DL.lastResultRoundSeq = d.roundSeq;
     const winnerId = d.roundWinner.id, name = winnerId === 'A' ? DL.names.A : DL.names.B, mine = winnerId === DL.me;
     const msg = d.roundWinner.rt != null ? `${name} GANA LA RONDA (${d.roundWinner.rt.toFixed(0)} MS)` : `${name} GANA: EL RIVAL DISPARÓ ANTES DE TIEMPO`;
-    dlAfterRound(winnerId, d.winsA, d.winsB, msg, mine ? 'win' : 'lose');
+    dlAfterRound(winnerId, d.winsA, d.winsB, msg, mine ? 'win' : 'lose', d.roundWinner.rt == null);
   }
 }
 function dlEnterGame(d) {
