@@ -102,6 +102,25 @@
       </div>
     </section>
 
+    <section data-design-id="carrusel-actividades-section" class="site-container mx-auto pb-[62px]">
+      <div class="mb-7">
+        <p class="font-sans text-xs font-bold uppercase tracking-[0.18em] text-[#00A6B8]">Vida estudiantil</p>
+        <h2 class="font-sans text-[30px] font-bold tracking-[-0.02em] mt-2">Actividades de la asociación</h2>
+      </div>
+      <div id="carrusel-actividades" class="relative rounded-[20px] overflow-hidden border border-[#D8E3E9] bg-[#0D2B45] shadow-[0_10px_28px_rgba(13,43,69,0.08)]">
+        <div id="carrusel-track" class="flex transition-transform duration-500 ease-out">
+          <div class="w-full shrink-0 aspect-[16/9] md:aspect-[21/9]"><img src="assets/img/actividades/parada-nocturna.jpg" alt="Estudiantes de MATEC reunidos en una parada nocturna del TEC" class="w-full h-full object-cover" loading="lazy"></div>
+          <div class="w-full shrink-0 aspect-[16/9] md:aspect-[21/9]"><img src="assets/img/actividades/charla-egresados.jpg" alt="Charla sobre salidas laborales para la carrera MATEC" class="w-full h-full object-cover" loading="lazy"></div>
+          <div class="w-full shrink-0 aspect-[16/9] md:aspect-[21/9]"><img src="assets/img/actividades/semana-carrera-carreta.jpg" alt="Estudiantes de MATEC con una carreta decorada en la Semana de la Carrera" class="w-full h-full object-cover" loading="lazy"></div>
+          <div class="w-full shrink-0 aspect-[16/9] md:aspect-[21/9]"><img src="assets/img/actividades/semana-civica-baile.jpg" alt="Baile típico en la Semana Cívica de MATEC" class="w-full h-full object-cover" loading="lazy"></div>
+          <div class="w-full shrink-0 aspect-[16/9] md:aspect-[21/9]"><img src="assets/img/actividades/feria-vocacional.jpg" alt="Estand de MATEC en la feria vocacional del TEC" class="w-full h-full object-cover" loading="lazy"></div>
+        </div>
+        <button id="carrusel-prev" type="button" aria-label="Foto anterior" class="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/85 text-[#0D2B45] flex items-center justify-center hover:bg-white"><i class="fa-solid fa-chevron-left"></i></button>
+        <button id="carrusel-next" type="button" aria-label="Foto siguiente" class="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/85 text-[#0D2B45] flex items-center justify-center hover:bg-white"><i class="fa-solid fa-chevron-right"></i></button>
+        <div id="carrusel-dots" class="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2"></div>
+      </div>
+    </section>
+
     <section data-design-id="medios-section" class="bg-[#EAF1F4] border-y border-[#D7E3E8] py-[56px]">
       <div class="site-container mx-auto">
         <div class="mb-7">
@@ -123,6 +142,7 @@
 
   <script src="assets/js/layout.js" data-part="footer"></script>
   <script src="assets/js/hero-trig.js"></script>
+  <script src="assets/js/carrusel-actividades.js"></script>
 
   <script type="module">
     import { app } from "./assets/js/firebase.js";
