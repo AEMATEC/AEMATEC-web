@@ -14,7 +14,7 @@ dependen de él citan el artículo correspondiente en el código y en [`docs/PLA
 
 | Módulo | Páginas | Qué hace |
 |---|---|---|
-| Portada | `index.html` | Acceso a los servicios y Medios Oficiales (RI Art. 102). |
+| Portada | `index.html` | Acceso a los servicios, Medios Oficiales (RI Art. 102) y un carrusel de fotos de actividades (ver [abajo](#carrusel-de-fotos-de-actividades-portada)). |
 | Repositorio | `repositorio.html`, `repositorio-docentes.html`, `repositorio-academicos.html`, `repositorio-subir.html` | Repositorio digital de materiales didácticos y académicos (RI Art. 4 f). Consulta pública; cualquiera puede proponer material, que queda pendiente de moderación. |
 | Inventario | `inventario.html` | Consulta pública de bienes (RI Art. 118) y solicitudes de préstamo (RI Art. 120-123). Administración para la Junta. |
 | Junta Directiva | `junta-directiva.html` | Integrantes (solo nombre y puesto) y medios de contacto. |
@@ -26,6 +26,26 @@ dependen de él citan el artículo correspondiente en el código y en [`docs/PLA
 > **Nota de nombres:** el repositorio digital de materiales se llama **Repositorio** (antes "Biblioteca").
 > Los archivos `aematec_*.html` que quedan son solo redirecciones a las páginas nuevas. **Biblioteca** es solo la colección física de
 > libros para préstamo del RI (Art. 128-129), que está en **Inventario → Biblioteca**.
+
+## Carrusel de fotos de actividades (portada)
+
+`index.html` muestra en la portada un carrusel con fotos de actividades de la asociación. Son archivos
+fijos del sitio (no Firestore ni Storage), así que solo alguien con acceso al código puede agregarlas o
+quitarlas; si eres de la Junta y quieres fotos nuevas, pásaselas a quien mantenga el sitio (o a Claude Code).
+
+- Las fotos están en `assets/img/actividades/`, en formato `.jpg`, con nombre corto en minúsculas y
+  guiones que describa la actividad (por ejemplo `semana-carrera-carreta.jpg`).
+- Antes de subir una foto, redúcela a un ancho máximo de unos 1100 px y guárdala con calidad JPEG
+  alrededor de 65-70; cada foto debería pesar menos de 150-200 KB para que la portada cargue rápido.
+- Para agregarla, copia el archivo a esa carpeta y agrega un bloque dentro de `#carrusel-track` en
+  `index.html`, igual a los que ya hay:
+  ```html
+  <div class="w-full shrink-0 aspect-[16/9] md:aspect-[21/9]"><img src="assets/img/actividades/NOMBRE.jpg" alt="Descripción de la foto" class="w-full h-full object-cover" loading="lazy"></div>
+  ```
+  El texto de `alt` describe la foto para quien no puede verla (lectores de pantalla), no hace falta nada más:
+  `assets/js/carrusel-actividades.js` cuenta las fotos solas y arma las flechas y los puntos.
+- Para quitar una foto, borra su bloque del HTML (y el archivo, si ya no se va a usar).
+- Antes de abrir el PR corre `node tests/revisar-paginas.mjs` y `node tests/revisar-enlaces.mjs`.
 
 ## Roles y permisos
 
