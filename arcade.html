@@ -3751,6 +3751,7 @@ function blShoot(angle, power) {
   const cue = BL.balls.find(b => b.num === 0);
   cue.vx = Math.cos(angle) * power; cue.vy = Math.sin(angle) * power;
   BL.shotActive = true; BL.shotEvents = { potted: [], firstHit: null }; BL._acc = 0;
+  BL.shotSt = blSt(BL.turn); // estado justo antes de tirar (bola más baja, grupo, etc.): no cambia aunque esta tirada meta bolas
   SFX.play('throw'); blUI();
   if (BL.mode === 'online') fs.updateDoc(fs.doc(db, 'pool', BL.room), { shooting: BL.turn === 0 ? 'p1' : 'p2' }).catch(() => {});
 }
@@ -3767,7 +3768,8 @@ function blUpdate(dt) {
 }
 function blShotDone() {
   const ev = BL.shotEvents, shooter = BL.turn;
-  const res = BL.variant === 'eight' ? blEvalEight(blSt(shooter), ev) : blEvalNine(blSt(shooter), ev);
+  const st = BL.shotSt || blSt(shooter);
+  const res = BL.variant === 'eight' ? blEvalEight(st, ev) : blEvalNine(st, ev);
   if (BL.variant === 'nine' && res.result === 'respot_foul') {
     const nine = BL.balls.find(b => b.num === 9); nine.potted = false; nine.x = BL_PW * 0.5; nine.y = BL_PH / 2;
     let k = 0; while (BL.balls.some(b => b.num !== 9 && !b.potted && Math.hypot(b.x - nine.x, b.y - nine.y) < BL_R * 2) && k < 20) { nine.x += BL_R * 2.2; k++; }
