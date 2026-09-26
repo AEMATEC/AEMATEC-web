@@ -269,6 +269,7 @@ nav .btn{padding:8px 12px}
     <button class="btn tab" data-t="funciones">COMBATE DE FUNCIONES</button>
     <button class="btn tab" data-t="21">21</button>
     <button class="btn tab" data-t="billar">BILLAR</button>
+    <button class="btn tab" data-t="duelo">DUELO DEL OESTE</button>
   </nav>
 
   <!-- ============ MENÚ ============ -->
@@ -660,6 +661,57 @@ nav .btn{padding:8px 12px}
       <ol class="lb" id="bl-lb"></ol>
       <h4 style="margin-top:16px">CÓMO SE JUEGA</h4>
       <p class="howto">ARRASTRA DESDE LA BOLA BLANCA HACIA ATRÁS PARA APUNTAR Y SOLTAR PARA GOLPEAR: ENTRE MÁS ESTIRES, MÁS FUERTE.<br><br><b>NORMAL:</b> METE TODAS TUS LISAS O RAYADAS Y LUEGO LA 8 PARA GANAR.<br><b>BOLA 9:</b> GOLPEA SIEMPRE PRIMERO LA BOLA MÁS BAJA. GANA QUIEN METE LA 9.</p>
+    </aside>
+  </section>
+
+  <!-- ============ DUELO DEL OESTE ============ -->
+  <section class="game" id="g-duelo">
+    <div class="main px">
+      <div class="splash" data-g="duelo"><canvas width="160" height="72"></canvas><h2>DUELO DEL OESTE</h2><p>UN DUELO DE REFLEJOS: CUENTA REGRESIVA, ESPERA EL "¡YA!" Y DISPARA ANTES QUE EL RIVAL. AL MEJOR DE 3.</p><button class="btn red">INICIAR</button></div>
+      <div class="gbody" hidden>
+        <div id="dl-menu">
+          <h4>¿CÓMO QUIERES JUGAR?</h4>
+          <div class="row left"><button class="btn green" id="dl-cpu">VS CPU</button></div>
+          <div class="row left">
+            <button class="btn" id="dl-create">CREAR SALA ONLINE</button>
+            <input id="dl-code" class="px-in" placeholder="CÓDIGO" maxlength="5">
+            <button class="btn orange" id="dl-join">UNIRSE</button>
+          </div>
+          <p class="msg" id="dl-menu-msg" style="text-align:left"></p>
+        </div>
+        <div id="dl-lobby" hidden>
+          <div class="rc-top"><span class="tag" id="dl-room"></span><button class="btn gray" id="dl-leave">SALIR</button></div>
+          <p class="sub" id="dl-lobby-msg"></p>
+          <ul class="plist" id="dl-plist"></ul>
+          <div class="row left"><button class="btn green" id="dl-go">¡EMPEZAR!</button></div>
+        </div>
+        <div id="dl-game" hidden>
+          <div class="fc-bar">
+            <span id="dl-turn"></span>
+            <span id="dl-score"></span>
+          </div>
+          <div class="stage">
+            <canvas id="dl-cv" width="480" height="220"></canvas>
+            <div class="over" id="dl-over" hidden>
+              <h3 id="dl-over-t" style="font-size:16px"></h3>
+              <p id="dl-over-p"></p>
+              <div class="row"><button class="btn green" id="dl-again">OTRA PARTIDA</button><button class="btn gray" id="dl-exit">MENÚ</button></div>
+            </div>
+          </div>
+          <p class="msg" id="dl-msg"></p>
+          <div class="row"><button class="btn red" id="dl-fire" hidden>¡DISPARAR!</button></div>
+          <div class="row"><button class="btn gray" id="dl-quit">ABANDONAR</button></div>
+        </div>
+      </div>
+    </div>
+    <aside class="side px">
+      <h3>TOP 10</h3>
+      <p class="sub">DUELOS GANADOS VS CPU</p>
+      <ol class="lb" id="dl-lb"></ol>
+      <h4 style="margin-top:16px">CONTROLES</h4>
+      <p class="howto">ESPACIO O EL BOTÓN ¡DISPARAR!: DISPARA EN CUANTO APAREZCA "¡YA!" EN PANTALLA.</p>
+      <h4 style="margin-top:16px">CÓMO SE JUEGA</h4>
+      <p class="howto">CUENTA REGRESIVA 3, 2, 1… Y UNA ESPERA SORPRESA ANTES DEL "¡YA!". SI DISPARAS ANTES DE TIEMPO, PIERDES LA RONDA. GANA LA RONDA QUIEN DISPARE PRIMERO DESPUÉS DEL "¡YA!". GANA EL DUELO QUIEN GANE 2 DE 3 RONDAS.</p>
     </aside>
   </section>
 
@@ -3988,6 +4040,263 @@ $('#bl-again').onclick = () => {
 window.addEventListener('beforeunload', () => { if (BL.mode === 'online') blLeaveOnline(); });
 blSetupRender(); blLB(); blView('menu');
 
+/* ============================================================
+   DUELO DEL OESTE — duelo de reflejos, 1 contra 1. Cuenta regresiva
+   3, 2, 1… una espera al azar y "¡YA!": gana la ronda quien dispare
+   primero. Disparar antes de tiempo pierde la ronda. Al mejor de 3.
+   Modos: VS CPU (todo local) y en línea (el anfitrión reparte la
+   cuenta regresiva con una marca de tiempo compartida; quien gana la
+   ronda la reclama con una transacción de Firestore, así los dos
+   quedan de acuerdo aunque disparen casi al mismo tiempo).
+   ============================================================ */
+const DL_COUNT_STEP = 700, DL_MIN_WAIT = 1000, DL_MAX_WAIT = 3500;
+const DL_CPU_MIN = 220, DL_CPU_MAX = 520, DL_WINS_TO_TAKE = 2;
+const DL = {
+  mode: null, room: null, me: null, isHost: false, unsub: null, hbStop: null, roomData: null,
+  names: { A: 'JUGADOR 1', B: 'JUGADOR 2' }, wins: { A: 0, B: 0 },
+  phase: 'idle', countN: 3, yaAt: 0, roundActive: false, currentRoundSeq: 0, roundSeqCounter: 0,
+  appliedRoundSeq: 0, lastResultRoundSeq: -1, appliedMatchSeq: 0, timers: []
+};
+function dlMsg(t, cls) { const m = $('#dl-msg'); m.textContent = t; m.className = 'msg' + (cls ? ' ' + cls : ''); }
+function dlMenuMsg(t, cls) { const m = $('#dl-menu-msg'); m.textContent = t; m.className = 'msg' + (cls ? ' ' + cls : ''); }
+function dlSchedule(fn, delayMs) { const id = setTimeout(fn, Math.max(0, delayMs)); DL.timers.push(id); return id; }
+function dlClearTimers() { DL.timers.forEach(clearTimeout); DL.timers = []; }
+
+/* ---------- dibujo ---------- */
+function dlDrawCowboy(ctx, x, groundY, col) {
+  ctx.save(); ctx.fillStyle = col;
+  ctx.fillRect(x - 6, groundY - 46, 12, 34);
+  ctx.beginPath(); ctx.arc(x, groundY - 52, 8, 0, Math.PI * 2); ctx.fill();
+  ctx.fillRect(x - 11, groundY - 59, 22, 5);
+  ctx.fillRect(x - 5, groundY - 68, 10, 9);
+  ctx.fillRect(x - 3, groundY - 12, 6, 12);
+  ctx.restore();
+}
+function dlDraw() {
+  const cv = $('#dl-cv'); if (!cv || !cv.offsetParent) return;
+  const ctx = cv.getContext('2d'); ctx.imageSmoothingEnabled = false;
+  const W = cv.width, H = cv.height, groundY = H * 0.74;
+  const grad = ctx.createLinearGradient(0, 0, 0, H);
+  grad.addColorStop(0, '#f2a65a'); grad.addColorStop(.55, '#e8834f'); grad.addColorStop(1, '#c96a3e');
+  ctx.fillStyle = grad; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = 'rgba(255,235,180,.85)'; ctx.beginPath(); ctx.arc(W * 0.5, H * 0.28, 26, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#8a5a3c'; ctx.fillRect(0, groundY, W, H - groundY);
+  ctx.fillStyle = '#6e4530'; ctx.fillRect(0, groundY, W, 4);
+  dlDrawCowboy(ctx, W * 0.26, groundY, '#241c18');
+  dlDrawCowboy(ctx, W * 0.74, groundY, '#3a2a1e');
+  ctx.textAlign = 'center';
+  if (DL.phase === 'count') {
+    ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = '#fff4e0'; ctx.font = '48px "Press Start 2P"'; ctx.fillText(String(DL.countN), W / 2, H / 2 + 16);
+  } else if (DL.phase === 'go') {
+    const pulse = 1 + Math.sin(performance.now() / 60) * .05;
+    ctx.save(); ctx.translate(W / 2, H / 2); ctx.scale(pulse, pulse);
+    ctx.fillStyle = '#ffe14d'; ctx.font = '40px "Press Start 2P"'; ctx.fillText('¡YA!', 0, 10);
+    ctx.restore();
+  } else if (DL.phase === 'idle') {
+    ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = '#fff4e0'; ctx.font = '11px "Press Start 2P"'; ctx.fillText('PREPÁRATE…', W / 2, H / 2);
+  }
+  $('#dl-score').textContent = `${DL.names.A} ${DL.wins.A} - ${DL.wins.B} ${DL.names.B}`;
+}
+
+/* ---------- ronda (compartido CPU / en línea) ---------- */
+function dlBeginCountdown(seq, startAt, yaAt) {
+  dlClearTimers();
+  DL.currentRoundSeq = seq; DL.roundActive = true; DL.phase = 'count'; DL.countN = 3; DL.yaAt = 0;
+  dlMsg(''); dlDraw();
+  const now = Date.now();
+  dlSchedule(() => dlTick(seq, 2), startAt + DL_COUNT_STEP - now);
+  dlSchedule(() => dlTick(seq, 1), startAt + DL_COUNT_STEP * 2 - now);
+  dlSchedule(() => dlShowGo(seq), yaAt - now);
+  if (DL.mode === 'cpu') {
+    const cpuDelay = DL_CPU_MIN + Math.random() * (DL_CPU_MAX - DL_CPU_MIN);
+    dlSchedule(() => dlCpuFire(seq), (yaAt - now) + cpuDelay);
+  }
+}
+function dlTick(seq, n) { if (seq !== DL.currentRoundSeq || !DL.roundActive) return; DL.countN = n; dlDraw(); SFX.play('click'); }
+function dlShowGo(seq) {
+  if (seq !== DL.currentRoundSeq || !DL.roundActive) return;
+  DL.phase = 'go'; DL.yaAt = performance.now(); dlDraw(); SFX.play('go');
+}
+function dlAfterRound(winnerId, wA, wB, msg, cls) {
+  dlClearTimers();
+  DL.wins = { A: wA, B: wB }; DL.phase = 'result'; DL.roundActive = false;
+  dlMsg(msg, cls); dlDraw();
+  SFX.play(cls === 'win' ? 'win' : 'lose');
+  if (wA >= DL_WINS_TO_TAKE || wB >= DL_WINS_TO_TAKE) return dlMatchOver(wA >= DL_WINS_TO_TAKE ? 'A' : 'B');
+  if (DL.mode === 'cpu') dlSchedule(() => dlStartRound(), 1800);
+  else if (DL.mode === 'online' && DL.isHost) dlSchedule(() => dlHostNextRound(), 1800);
+}
+function dlMatchOver(id) {
+  dlClearTimers(); DL.roundActive = false;
+  const winner = id === 'A' ? DL.names.A : DL.names.B;
+  $('#dl-over-t').textContent = `¡${winner} GANA EL DUELO!`;
+  $('#dl-over-p').textContent = `${DL.wins.A} - ${DL.wins.B}`;
+  $('#dl-over').hidden = false; $('#dl-fire').hidden = true;
+  if (DL.mode === 'cpu' && id === 'A') LB.increment('duelo').then(() => LB.render($('#dl-lb'), 'duelo', false, r => r.score));
+}
+
+/* ---------- disparo ---------- */
+function dlHumanFire() {
+  if (!DL.roundActive) return;
+  if (DL.mode === 'cpu') return dlHumanFireCpu();
+  if (DL.mode === 'online') return dlHumanFireOnline();
+}
+function dlHumanFireCpu() {
+  if (DL.phase !== 'go') return dlAfterRound('B', DL.wins.A, DL.wins.B + 1, 'DISPARASTE ANTES DE TIEMPO', 'lose');
+  const rt = performance.now() - DL.yaAt;
+  dlAfterRound('A', DL.wins.A + 1, DL.wins.B, `¡GANASTE EN ${rt.toFixed(0)} MS!`, 'win');
+}
+function dlCpuFire(seq) {
+  if (seq !== DL.currentRoundSeq || !DL.roundActive || DL.phase !== 'go') return;
+  dlAfterRound('B', DL.wins.A, DL.wins.B + 1, `${DL.names.B} DISPARÓ PRIMERO`, 'lose');
+}
+function dlHumanFireOnline() {
+  const seq = DL.currentRoundSeq, early = DL.phase !== 'go';
+  const rt = early ? null : performance.now() - DL.yaAt;
+  DL.roundActive = false;
+  dlClaim(early ? (DL.me === 'A' ? 'B' : 'A') : DL.me, seq, rt);
+}
+async function dlClaim(winnerId, seq, rt) {
+  if (!DL.room) return;
+  const ref = fs.doc(db, 'duelos', DL.room);
+  try {
+    await fs.runTransaction(db, async tx => {
+      const s = await tx.get(ref), d = s.data();
+      if (!d || d.roundSeq !== seq || d.roundWinner) return;
+      const wA = (d.winsA || 0) + (winnerId === 'A' ? 1 : 0), wB = (d.winsB || 0) + (winnerId === 'B' ? 1 : 0);
+      tx.update(ref, { roundWinner: { id: winnerId, rt: rt || null }, winsA: wA, winsB: wB });
+    });
+  } catch (e) { console.warn(e); }
+}
+
+/* ---------- modos y sala en línea ---------- */
+function dlStartRound() {
+  const startAt = Date.now(), yaAt = startAt + DL_COUNT_STEP * 3 + DL_MIN_WAIT + Math.random() * (DL_MAX_WAIT - DL_MIN_WAIT);
+  DL.roundSeqCounter++; dlBeginCountdown(DL.roundSeqCounter, startAt, yaAt);
+}
+function dlCpu() {
+  dlLeaveOnline(true);
+  DL.mode = 'cpu'; DL.me = 'A'; DL.names = { A: playerName() || 'JUGADOR 1', B: 'CPU' }; DL.wins = { A: 0, B: 0 };
+  $('#dl-menu').hidden = true; $('#dl-lobby').hidden = true; $('#dl-game').hidden = false; $('#dl-over').hidden = true;
+  $('#dl-fire').hidden = false; DL.phase = 'idle'; dlMsg(''); dlDraw();
+  fitSoon(); dlStartRound();
+}
+async function dlCreate() {
+  if (!(await fbReady)) return dlMenuMsg('SIN CONEXIÓN A FIREBASE: SOLO SE PUEDE JUGAR VS CPU.', 'lose');
+  dlLeaveOnline(true); dlMenuMsg('CREANDO SALA…');
+  try {
+    let code, ref;
+    for (let k = 0; k < 5; k++) { code = genCode(); ref = fs.doc(db, 'duelos', code); if (!(await fs.getDoc(ref)).exists()) break; }
+    await fs.setDoc(ref, {
+      A: { uid: UID, name: playerName(), lastSeen: fs.serverTimestamp() }, B: null,
+      state: 'lobby', matchSeq: 0, winsA: 0, winsB: 0, roundSeq: 0, startAt: null, yaAt: null, roundWinner: null,
+      created: fs.serverTimestamp()
+    });
+    DL.mode = 'online'; DL.me = 'A'; DL.isHost = true; DL.room = code;
+    $('#dl-room').textContent = 'SALA ' + code; dlMenuMsg('');
+    dlShowLobby(); dlListen();
+  } catch (e) { console.error(e); dlMenuMsg('ERROR AL CREAR SALA: ' + e.message, 'lose'); }
+}
+async function dlJoin() {
+  const code = $('#dl-code').value.trim().toUpperCase();
+  if (code.length < 5) return dlMenuMsg('ESCRIBE EL CÓDIGO DE 5 LETRAS.', 'lose');
+  if (!(await fbReady)) return dlMenuMsg('SIN CONEXIÓN A FIREBASE: SOLO SE PUEDE JUGAR VS CPU.', 'lose');
+  dlLeaveOnline(true); dlMenuMsg('ENTRANDO…');
+  const ref = fs.doc(db, 'duelos', code);
+  try {
+    await fs.runTransaction(db, async tx => {
+      const s = await tx.get(ref);
+      if (!s.exists()) throw new Error('ESA SALA NO EXISTE');
+      if (s.data().B) throw new Error('LA SALA ESTÁ LLENA');
+      if (s.data().A.uid === UID) throw new Error('NO PUEDES UNIRTE A TU PROPIA SALA');
+      tx.update(ref, { B: { uid: UID, name: playerName(), lastSeen: fs.serverTimestamp() } });
+    });
+    DL.mode = 'online'; DL.me = 'B'; DL.isHost = false; DL.room = code;
+    $('#dl-room').textContent = 'SALA ' + code; dlMenuMsg('');
+    dlShowLobby(); dlListen();
+  } catch (e) { dlMenuMsg(e.message, 'lose'); }
+}
+function dlShowLobby() { $('#dl-menu').hidden = true; $('#dl-lobby').hidden = false; fitSoon(); }
+function dlListen() {
+  DL.unsub = fs.onSnapshot(fs.doc(db, 'duelos', DL.room), s => {
+    if (!s.exists()) { dlLeaveOnline(); dlMenuMsg('LA SALA SE CERRÓ.', 'lose'); return; }
+    dlOnRoom(s.data());
+  });
+  DL.hbStop = presenceLoop(() => fs.updateDoc(fs.doc(db, 'duelos', DL.room), { [DL.me + '.lastSeen']: fs.serverTimestamp() }).catch(() => {}));
+}
+function dlOnRoom(d) {
+  DL.roomData = d;
+  const oppKey = DL.me === 'A' ? 'B' : 'A', oppD = d[oppKey];
+  $('#dl-plist').innerHTML = ['A', 'B'].map(k => d[k] ? `<li>${esc(d[k].name)}${d[k].uid === UID ? ' (TÚ)' : ''}</li>` : '<li class="muted">ESPERANDO…</li>').join('');
+  $('#dl-lobby-msg').textContent = DL.isHost ? `COMPARTE EL CÓDIGO ${DL.room}.` : 'ESPERANDO AL ANFITRIÓN…';
+  $('#dl-turn').textContent = (oppD && isStale(oppD.lastSeen, Date.now())) ? 'EL RIVAL SE DESCONECTÓ' : '';
+  if (typeof d.matchSeq === 'number' && d.matchSeq > 0 && d.matchSeq !== DL.appliedMatchSeq) {
+    DL.appliedMatchSeq = d.matchSeq; dlEnterGame(d);
+  }
+  if (typeof d.roundSeq === 'number' && d.roundSeq > 0 && d.roundSeq !== DL.appliedRoundSeq && d.startAt) {
+    DL.appliedRoundSeq = d.roundSeq; dlBeginCountdown(d.roundSeq, d.startAt, d.yaAt);
+  }
+  if (d.roundWinner && d.roundSeq !== DL.lastResultRoundSeq) {
+    DL.lastResultRoundSeq = d.roundSeq;
+    const winnerId = d.roundWinner.id, name = winnerId === 'A' ? DL.names.A : DL.names.B, mine = winnerId === DL.me;
+    const msg = d.roundWinner.rt != null ? `${name} GANA LA RONDA (${d.roundWinner.rt.toFixed(0)} MS)` : `${name} GANA: EL RIVAL DISPARÓ ANTES DE TIEMPO`;
+    dlAfterRound(winnerId, d.winsA, d.winsB, msg, mine ? 'win' : 'lose');
+  }
+}
+function dlEnterGame(d) {
+  $('#dl-lobby').hidden = true; $('#dl-game').hidden = false; $('#dl-over').hidden = true; $('#dl-fire').hidden = false;
+  DL.names = { A: (d.A && d.A.name) || 'JUGADOR 1', B: (d.B && d.B.name) || 'JUGADOR 2' };
+  DL.wins = { A: d.winsA || 0, B: d.winsB || 0 };
+  DL.appliedRoundSeq = 0; DL.lastResultRoundSeq = -1; DL.phase = 'idle'; DL.roundActive = false;
+  dlMsg(''); dlDraw();
+  fitSoon();
+}
+async function dlGo() {
+  if (!DL.isHost || !DL.room) return;
+  const seq = ((DL.roomData && DL.roomData.matchSeq) || 0) + 1;
+  const startAt = Date.now(), yaAt = startAt + DL_COUNT_STEP * 3 + DL_MIN_WAIT + Math.random() * (DL_MAX_WAIT - DL_MIN_WAIT);
+  await fs.updateDoc(fs.doc(db, 'duelos', DL.room), {
+    state: 'play', matchSeq: seq, winsA: 0, winsB: 0, roundSeq: 1, startAt, yaAt, roundWinner: null
+  }).catch(console.error);
+}
+async function dlHostNextRound() {
+  if (!DL.room || !DL.roomData) return;
+  const seq = (DL.roomData.roundSeq || 0) + 1;
+  const startAt = Date.now(), yaAt = startAt + DL_COUNT_STEP * 3 + DL_MIN_WAIT + Math.random() * (DL_MAX_WAIT - DL_MIN_WAIT);
+  await fs.updateDoc(fs.doc(db, 'duelos', DL.room), { roundSeq: seq, startAt, yaAt, roundWinner: null }).catch(() => {});
+}
+function dlLeaveOnline(silent) {
+  dlClearTimers();
+  if (DL.unsub) { DL.unsub(); DL.unsub = null; }
+  if (DL.hbStop) { DL.hbStop(); DL.hbStop = null; }
+  DL.mode = null; DL.room = null; DL.isHost = false; DL.roomData = null; DL.roundActive = false;
+  $('#dl-menu').hidden = false; $('#dl-lobby').hidden = true; $('#dl-game').hidden = true; $('#dl-fire').hidden = true;
+  if (!silent) dlMenuMsg('');
+}
+function dlQuit() {
+  dlClearTimers();
+  if (DL.mode === 'online') dlLeaveOnline();
+  else { DL.mode = null; DL.roundActive = false; $('#dl-menu').hidden = false; $('#dl-game').hidden = true; $('#dl-fire').hidden = true; }
+}
+function dlAgain() {
+  $('#dl-over').hidden = true;
+  if (DL.mode === 'cpu') { DL.wins = { A: 0, B: 0 }; $('#dl-fire').hidden = false; dlStartRound(); }
+  else if (DL.mode === 'online' && DL.isHost) dlGo();
+}
+$('#dl-cpu').onclick = () => { SFX.play('start'); dlCpu(); };
+$('#dl-create').onclick = () => { SFX.play('click'); dlCreate(); };
+$('#dl-join').onclick = () => { SFX.play('click'); dlJoin(); };
+$('#dl-go').onclick = () => { SFX.play('start'); dlGo(); };
+$('#dl-leave').onclick = () => dlLeaveOnline();
+$('#dl-quit').onclick = () => dlQuit();
+$('#dl-again').onclick = () => { SFX.play('start'); dlAgain(); };
+$('#dl-exit').onclick = () => dlQuit();
+$('#dl-fire').onclick = () => dlHumanFire();
+window.addEventListener('beforeunload', () => { if (DL.mode === 'online') dlLeaveOnline(); });
+LB.render($('#dl-lb'), 'duelo', false, r => r.score);
+
 /* ---------- ajuste a la pantalla ---------- */
 function fitAll() {
   const vh = window.innerHeight, sec = document.querySelector('.game.on');
@@ -4117,6 +4426,19 @@ function drawSplash(g, c) {
     ball(90, 30, 9, '#e3b619', true);
     ball(100, 48, 3, '#c81e2c', false);
     pxCircle(x, 46, 36, 6, '#f4f4f4');
+  } else if (g === 'duelo') {
+    c.width = 160; c.height = 72;
+    const grad = x.createLinearGradient(0, 0, 0, 72);
+    grad.addColorStop(0, '#f2a65a'); grad.addColorStop(.55, '#e8834f'); grad.addColorStop(1, '#c96a3e');
+    x.fillStyle = grad; x.fillRect(0, 0, 160, 72);
+    x.fillStyle = 'rgba(255,235,180,.85)'; pxCircle(x, 80, 18, 9, '#fff4e0');
+    x.fillStyle = '#8a5a3c'; x.fillRect(0, 52, 160, 20);
+    const cowboy = (px, col) => {
+      x.fillStyle = col; x.fillRect(px - 5, 20, 10, 26); pxCircle(x, px, 14, 6, col);
+      x.fillRect(px - 9, 9, 18, 4); x.fillRect(px - 4, 3, 8, 7); x.fillRect(px - 2, 46, 4, 8);
+    };
+    cowboy(46, '#241c18'); cowboy(114, '#3a2a1e');
+    x.fillStyle = '#ffe14d'; x.font = '13px "Press Start 2P"'; x.textAlign = 'center'; x.fillText('¡YA!', 80, 40);
   }
 }
 document.querySelectorAll('.splash').forEach(sp => {
@@ -4140,7 +4462,7 @@ function goTab(t) {
 const GAMES = [
   { g: 'minas', n: 'BUSCAMINAS' }, { g: 'batalla', n: 'BATALLA NAVAL' }, { g: 'tiro', n: 'ANIMAL AL TIRO' },
   { g: 'carreras', n: 'CARRERAS' }, { g: 'funciones', n: 'COMBATE DE FUNCIONES' }, { g: '21', n: 'CASINO 21' },
-  { g: 'billar', n: 'BILLAR' },
+  { g: 'billar', n: 'BILLAR' }, { g: 'duelo', n: 'DUELO DEL OESTE' },
 ];
 (() => {
   const grid = $('#menu-grid');
@@ -4275,6 +4597,7 @@ function loop(now) {
   if (FC.img && (tab === 'funciones' || FC.mode === 'online')) { fcUpdate(dt, now); if (tab === 'funciones') fcDraw(now); }
   if (BL.shotActive) blUpdate(dt);
   if (tab === 'billar') blDraw();
+  if (tab === 'duelo') dlDraw();
 }
 requestAnimationFrame(loop);
 
@@ -4285,6 +4608,7 @@ document.addEventListener('keydown', e => {
   if (tab === 'tiro' && e.code === 'Space' && !splashOn('tiro')) { e.preventDefault(); if (T.running) llSpit(); else llStart(); }
   if (tab === 'batalla' && (e.key === 'r' || e.key === 'R') && BS.phase === 'place') { BS.hor = !BS.hor; bsRender(); }
   if ((tab === 'carreras' || tab === 'funciones') && RC_KEYS.has(e.code)) { RC.keys[e.code] = true; if (RC.T || (tab === 'funciones' && FC.phase === 'play')) e.preventDefault(); }
+  if (tab === 'duelo' && e.code === 'Space' && !e.repeat) { e.preventDefault(); dlHumanFire(); }
 });
 document.addEventListener('keyup', e => { if (RC_KEYS.has(e.code)) RC.keys[e.code] = false; });
 window.addEventListener('blur', () => { RC.keys = {}; });
