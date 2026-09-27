@@ -270,7 +270,7 @@ nav .btn{padding:8px 12px}
     <button class="btn tab" data-t="21">21</button>
     <button class="btn tab" data-t="billar">BILLAR</button>
     <button class="btn tab" data-t="duelo">DUELO DEL OESTE</button>
-    <button class="btn tab" data-t="runner">SIN CONEXIÓN</button>
+    <button class="btn tab" data-t="runner">LA HUIDA DEL ZORRO</button>
   </nav>
 
   <!-- ============ MENÚ ============ -->
@@ -716,10 +716,10 @@ nav .btn{padding:8px 12px}
     </aside>
   </section>
 
-  <!-- ============ SIN CONEXIÓN ============ -->
+  <!-- ============ LA HUIDA DEL ZORRO ============ -->
   <section class="game" id="g-runner">
     <div class="main px">
-      <div class="splash" data-g="runner"><canvas width="160" height="72"></canvas><h2>SIN CONEXIÓN</h2><p>SALTA Y AGÁCHATE PARA ESQUIVAR OBSTÁCULOS. EL ESCENARIO CAMBIA MIENTRAS MÁS LEJOS LLEGUES.</p><button class="btn red">INICIAR</button></div>
+      <div class="splash" data-g="runner"><canvas width="160" height="72"></canvas><h2>LA HUIDA DEL ZORRO</h2><p>EL ZORRO SE ROBÓ UNOS HUEVOS DEL GALLINERO Y AHORA TIENE QUE HUIR SIN PARAR DE QUIEN LO PERSIGUE. SALTA LOS OBSTÁCULOS Y LOS HUECOS, AGÁCHATE BAJO LO QUE CUELGA. ¿CUÁNTOS METROS PUEDES ESCAPAR?</p><button class="btn red">INICIAR</button></div>
       <div class="gbody" hidden>
         <div class="fc-bar">
           <span id="rn-status"></span>
@@ -728,7 +728,7 @@ nav .btn{padding:8px 12px}
         <div class="stage">
           <canvas id="rn-cv" width="480" height="200"></canvas>
           <div class="over" id="rn-over" hidden>
-            <h3 style="font-size:16px">SIN CONEXIÓN</h3>
+            <h3 style="font-size:16px">¡TE ATRAPARON!</h3>
             <p id="rn-over-p"></p>
             <div class="row"><button class="btn green" id="rn-again">OTRA VEZ</button><button class="btn gray" id="rn-exit">MENÚ</button></div>
           </div>
@@ -742,10 +742,10 @@ nav .btn{padding:8px 12px}
     </div>
     <aside class="side px">
       <h3>TOP 10</h3>
-      <p class="sub">PUNTOS</p>
+      <p class="sub">METROS RECORRIDOS</p>
       <ol class="lb" id="rn-lb"></ol>
       <h4 style="margin-top:16px">CÓMO SE JUEGA</h4>
-      <p class="howto">SALTA LOS OBSTÁCULOS DEL SUELO Y AGÁCHATE PARA PASAR POR DEBAJO DE LOS QUE VUELAN. LA VELOCIDAD SUBE MIENTRAS MÁS AVANZAS, Y EL ESCENARIO CAMBIA CADA CIERTO PUNTAJE. UN SOLO CHOQUE TERMINA LA PARTIDA.</p>
+      <p class="howto">SALTA LOS OBSTÁCULOS Y LOS HUECOS EN EL SUELO. LOS QUE CUELGAN DESDE ARRIBA NO SE PUEDEN SALTAR: AGÁCHATE PARA PASAR POR DEBAJO. LA VELOCIDAD SUBE CON LA DISTANCIA Y CADA 500 M CAMBIA EL ESCENARIO. SI TE ATRAPAN SE ACABÓ LA HUIDA: LA PUNTUACIÓN SON LOS METROS QUE LOGRASTE ESCAPAR.</p>
     </aside>
   </section>
 
@@ -4364,48 +4364,64 @@ window.addEventListener('beforeunload', () => { if (DL.mode === 'online') dlLeav
 LB.render($('#dl-lb'), 'duelo', false, r => r.score);
 
 /* ============================================================
-   SIN CONEXIÓN — corredor sin fin al estilo del dinosaurio de Chrome.
-   Salta (Espacio/↑/tocar) los obstáculos del suelo, agáchate (↓) para
-   pasar bajo los que vuelan. La velocidad sube con el puntaje y el
-   escenario cambia cada cierto puntaje. Un choque termina la partida.
+   LA HUIDA DEL ZORRO — corredor sin fin. Salta (Espacio/↑/tocar) los
+   obstáculos del suelo; los que cuelgan desde arriba no se pueden
+   saltar, hay que agacharse (↓) para pasar por debajo. La puntuación
+   son los metros recorridos: la velocidad sube con la distancia y
+   cada 500 m cambia el escenario con una transición pixelada.
    ============================================================ */
 const RN_CVW = 480, RN_CVH = 200, RN_GROUND = 160, RN_CHAR_X = 70;
 const RN_GRAVITY = 2200, RN_JUMP_V = 680;
 const RN_BASE_SPEED = 220, RN_MAX_SPEED = 520;
 const RN_DUCK_H = 20, RN_STAND_H = 38;
-const RN_THEME_SCORE = 400;
+const RN_PX_PER_M = 10, RN_THEME_METERS = 500;
+const RN_TRANS_OUT = 380, RN_TRANS_HOLD = 850, RN_TRANS_IN = 380;
+const RN_TRANS_TOTAL = RN_TRANS_OUT + RN_TRANS_HOLD + RN_TRANS_IN;
 const RN_THEMES = [
   { n: 'DESIERTO', sky: '#f2c675', sky2: '#f6dca0', ground: '#caa15b', deco: '#a97f3f' },
-  { n: 'CIUDAD', sky: '#2b3350', sky2: '#3c4568', ground: '#4a4f63', deco: '#1c1f29' },
+  { n: 'CIUDAD DE NOCHE', sky: '#2b3350', sky2: '#3c4568', ground: '#4a4f63', deco: '#1c1f29' },
   { n: 'BOSQUE', sky: '#7fcf8f', sky2: '#a9e6b4', ground: '#4c8a52', deco: '#2c5c34' },
-  { n: 'NOCHE ESTRELLADA', sky: '#141830', sky2: '#232a52', ground: '#2a2f4a', deco: '#e8e8f0' }
+  { n: 'CUEVA HELADA', sky: '#141830', sky2: '#232a52', ground: '#2a2f4a', deco: '#8fd6f0' }
 ];
+const RN_PIX_COLS = 16, RN_PIX_ROWS = 8;
+const RN_PIX_ORDER = (() => {
+  const arr = [];
+  for (let r = 0; r < RN_PIX_ROWS; r++) for (let c = 0; c < RN_PIX_COLS; c++) arr.push([r, c]);
+  for (let i = arr.length - 1; i > 0; i--) { const j = (Math.random() * (i + 1)) | 0;[arr[i], arr[j]] = [arr[j], arr[i]]; }
+  return arr;
+})();
 const RN = {
   state: 'idle', y: 0, vy: 0, onGround: true, duck: false, duckHeld: false,
-  speed: RN_BASE_SPEED, score: 0, dist: 0, obstacles: [], spawnCd: 60, themeIdx: 0, t: 0
+  speed: RN_BASE_SPEED, dist: 0, obstacles: [], spawnCd: 60, themeIdx: 0, themeStage: 0, pendingTheme: 0,
+  transitionT: 0, t: 0
 };
+const rnMeters = () => Math.floor(RN.dist / RN_PX_PER_M);
 function rnReset() {
   RN.y = 0; RN.vy = 0; RN.onGround = true; RN.duck = false;
-  RN.speed = RN_BASE_SPEED; RN.score = 0; RN.dist = 0; RN.obstacles = []; RN.spawnCd = 60; RN.themeIdx = 0; RN.t = 0;
+  RN.speed = RN_BASE_SPEED; RN.dist = 0; RN.obstacles = []; RN.spawnCd = 60;
+  RN.themeIdx = 0; RN.themeStage = 0; RN.t = 0;
 }
 function rnStart() { rnReset(); RN.state = 'playing'; $('#rn-over').hidden = true; SFX.play('start'); }
 function rnJumpPress() {
-  if (RN.state !== 'playing') return rnStart();
+  if (RN.state !== 'playing') { if (RN.state !== 'transition') rnStart(); return; }
   if (RN.onGround) { RN.vy = -RN_JUMP_V; RN.onGround = false; SFX.play('bump'); }
 }
-function rnLB() { LB.render($('#rn-lb'), 'runner', false, r => r.score); }
+function rnLB() { LB.render($('#rn-lb'), 'runner', false, r => r.score + ' M'); }
 function rnGameOver() {
   RN.state = 'over';
-  const score = Math.floor(RN.score);
-  $('#rn-over-p').textContent = `PUNTOS: ${score}`;
+  const m = rnMeters();
+  $('#rn-over-p').textContent = `LOGRASTE ESCAPAR ${m} M`;
   $('#rn-over').hidden = false;
   SFX.play('lose');
-  LB.submit('runner', score, false).then(rnLB);
+  LB.submit('runner', m, false).then(rnLB);
 }
 function rnSpawnObstacle() {
-  const air = RN.score > 150 && Math.random() < 0.35;
-  if (air) {
-    RN.obstacles.push({ type: 'air', x: RN_CVW + 10, w: 26, h: 16 });
+  const m = rnMeters();
+  const roll = Math.random();
+  if (m > 60 && roll < 0.28) {
+    RN.obstacles.push({ type: 'air', x: RN_CVW + 10, w: 24, h: RN_GROUND - 24 });
+  } else if (m > 25 && roll < 0.52) {
+    RN.obstacles.push({ type: 'pit', x: RN_CVW + 10, w: 36 + Math.random() * 28 });
   } else {
     const kinds = [{ w: 14, h: 24 }, { w: 22, h: 32 }, { w: 30, h: 22 }, { w: 16, h: 40 }];
     const k = kinds[(Math.random() * kinds.length) | 0];
@@ -4418,6 +4434,7 @@ function rnCheckHit() {
   const cx0 = RN_CHAR_X - 8, cx1 = RN_CHAR_X + 8;
   for (const o of RN.obstacles) {
     if (cx1 < o.x || cx0 > o.x + o.w) continue;
+    if (o.type === 'pit') { if (RN.onGround) return true; continue; }
     let oTop, oBottom;
     if (o.type === 'ground') { oBottom = RN_GROUND; oTop = RN_GROUND - o.h; }
     else { oBottom = RN_GROUND - 24; oTop = oBottom - o.h; }
@@ -4427,8 +4444,14 @@ function rnCheckHit() {
 }
 function rnStep(dt) {
   RN.t += dt;
-  RN.speed = Math.min(RN_MAX_SPEED, RN_BASE_SPEED + RN.score * 0.12);
-  RN.score += RN.speed * dt * 0.12;
+  if (RN.state === 'transition') {
+    RN.transitionT += dt * 1000;
+    if (RN.transitionT >= RN_TRANS_TOTAL) {
+      RN.themeIdx = RN.pendingTheme; RN.state = 'playing'; RN.spawnCd = 220;
+    }
+    return;
+  }
+  RN.speed = Math.min(RN_MAX_SPEED, RN_BASE_SPEED + rnMeters() * 0.25);
   RN.dist += RN.speed * dt;
   if (!RN.onGround) {
     RN.vy += RN_GRAVITY * dt; RN.y += RN.vy * dt;
@@ -4441,63 +4464,150 @@ function rnStep(dt) {
     const o = RN.obstacles[i]; o.x -= RN.speed * dt;
     if (o.x < -40) RN.obstacles.splice(i, 1);
   }
-  RN.themeIdx = Math.min(RN_THEMES.length - 1, Math.floor(RN.score / RN_THEME_SCORE));
-  if (rnCheckHit()) rnGameOver();
+  if (rnCheckHit()) return rnGameOver();
+  const stage = Math.floor(rnMeters() / RN_THEME_METERS);
+  if (stage > RN.themeStage) {
+    RN.themeStage = stage; RN.pendingTheme = stage % RN_THEMES.length;
+    RN.state = 'transition'; RN.transitionT = 0; RN.obstacles = [];
+    SFX.play('go');
+  }
 }
-function rnDrawBg(ctx, theme) {
+function rnDrawPixelate(ctx, progress, color) {
+  const cw = RN_CVW / RN_PIX_COLS, ch = RN_CVH / RN_PIX_ROWS;
+  const count = Math.floor(Math.max(0, Math.min(1, progress)) * RN_PIX_ORDER.length);
+  ctx.fillStyle = color;
+  for (let i = 0; i < count; i++) { const [r, c] = RN_PIX_ORDER[i]; ctx.fillRect(c * cw, r * ch, cw + 1, ch + 1); }
+}
+function rnDrawBg(ctx, theme, themeIdx) {
   const grad = ctx.createLinearGradient(0, 0, 0, RN_CVH);
   grad.addColorStop(0, theme.sky); grad.addColorStop(1, theme.sky2);
   ctx.fillStyle = grad; ctx.fillRect(0, 0, RN_CVW, RN_CVH);
-  ctx.save(); ctx.globalAlpha = .45; ctx.fillStyle = theme.deco;
-  const off1 = RN.dist * 0.3 % 90;
-  for (let i = -1; i < 7; i++) ctx.fillRect(i * 90 - off1, RN_CVH * 0.5, 46, 34);
+  ctx.save(); ctx.globalAlpha = .5; ctx.fillStyle = theme.deco;
+  const off1 = RN.dist * 0.3 % 120;
+  for (let i = -1; i < 6; i++) {
+    const bx = i * 120 - off1;
+    if (themeIdx === 0) { ctx.fillRect(bx + 20, RN_CVH * 0.55, 6, 26); ctx.fillRect(bx + 14, RN_CVH * 0.6, 8, 8); ctx.fillRect(bx + 24, RN_CVH * 0.58, 8, 10); }
+    else if (themeIdx === 1) { ctx.fillRect(bx, RN_CVH * 0.3, 26, RN_CVH * 0.42); ctx.fillRect(bx + 34, RN_CVH * 0.2, 20, RN_CVH * 0.52); }
+    else if (themeIdx === 2) { ctx.beginPath(); ctx.moveTo(bx + 20, RN_CVH * 0.4); ctx.lineTo(bx + 40, RN_CVH * 0.68); ctx.lineTo(bx, RN_CVH * 0.68); ctx.closePath(); ctx.fill(); }
+    else { ctx.fillRect(bx + 10, RN_CVH * 0.2, 2, 2); ctx.fillRect(bx + 40, RN_CVH * 0.3, 2, 2); ctx.fillRect(bx + 70, RN_CVH * 0.15, 2, 2); }
+  }
   ctx.restore();
   ctx.fillStyle = theme.ground; ctx.fillRect(0, RN_GROUND, RN_CVW, RN_CVH - RN_GROUND);
-  ctx.fillStyle = theme.deco; ctx.globalAlpha = .6;
+  ctx.save(); ctx.globalAlpha = .6; ctx.fillStyle = theme.deco;
   const off2 = RN.dist % 24;
   for (let i = -1; i < 22; i++) ctx.fillRect(i * 24 - off2, RN_GROUND, 12, 3);
-  ctx.globalAlpha = 1;
+  ctx.restore();
 }
-function rnDrawObstacles(ctx, theme) {
-  ctx.fillStyle = theme.deco;
+function rnDrawGroundObstacle(ctx, o, themeIdx) {
+  const gx = o.x, gy = RN_GROUND - o.h, w = o.w, h = o.h;
+  if (themeIdx === 0) {
+    ctx.fillStyle = '#3f7d44';
+    ctx.fillRect(gx + w * 0.35, gy, w * 0.3, h);
+    ctx.fillRect(gx, gy + h * 0.35, w * 0.35, w * 0.35);
+    ctx.fillRect(gx + w * 0.65, gy + h * 0.2, w * 0.35, w * 0.3);
+    ctx.fillStyle = '#2c5c34';
+    for (let i = 4; i < h; i += 6) ctx.fillRect(gx + w * 0.35 - 1, gy + i, 2, 2);
+  } else if (themeIdx === 1) {
+    ctx.fillStyle = '#e8823c';
+    ctx.beginPath(); ctx.moveTo(gx + w / 2, gy); ctx.lineTo(gx + w, gy + h); ctx.lineTo(gx, gy + h); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#fff4e0'; ctx.fillRect(gx + w * 0.2, gy + h * 0.55, w * 0.6, h * 0.14);
+  } else if (themeIdx === 2) {
+    ctx.fillStyle = '#6b4a2c'; ctx.fillRect(gx, gy, w, h);
+    ctx.fillStyle = '#4a2f1c'; ctx.fillRect(gx + 2, gy + h * 0.25, w - 4, 2); ctx.fillRect(gx + 2, gy + h * 0.6, w - 4, 2);
+  } else {
+    ctx.fillStyle = '#bfe6f2';
+    ctx.beginPath(); ctx.moveTo(gx + w / 2, gy); ctx.lineTo(gx + w, gy + h * 0.5); ctx.lineTo(gx + w * 0.7, gy + h); ctx.lineTo(gx + w * 0.3, gy + h); ctx.lineTo(gx, gy + h * 0.5); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#eaf9ff'; ctx.fillRect(gx + w * 0.45, gy + h * 0.15, w * 0.12, h * 0.45);
+  }
+}
+function rnDrawAirObstacle(ctx, o, themeIdx) {
+  const bottom = RN_GROUND - 24, x = o.x, w = o.w;
+  if (themeIdx === 0) {
+    ctx.fillStyle = '#4c7a3f'; ctx.fillRect(x + w / 2 - 3, 0, 6, bottom - 10);
+    ctx.fillStyle = '#3f7d44'; ctx.fillRect(x, bottom - 14, w, 14);
+  } else if (themeIdx === 1) {
+    ctx.fillStyle = '#2c2f3a'; ctx.fillRect(x + w / 2 - 2, 0, 4, bottom - 16);
+    ctx.fillStyle = '#e8823c'; ctx.fillRect(x, bottom - 16, w, 16);
+    ctx.fillStyle = '#ffe14d'; ctx.fillRect(x + w / 2 - 3, bottom - 13, 6, 4);
+  } else if (themeIdx === 2) {
+    ctx.fillStyle = '#5c3a1e'; ctx.fillRect(x + w * 0.3, 0, w * 0.4, bottom - 12);
+    ctx.fillStyle = '#3f7d44'; ctx.fillRect(x, bottom - 18, w, 18);
+  } else {
+    ctx.fillStyle = '#bfe6f2';
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x + w, 0); ctx.lineTo(x + w * 0.5, bottom); ctx.closePath(); ctx.fill();
+  }
+}
+function rnDrawPit(ctx, o) {
+  ctx.fillStyle = '#0b0c14'; ctx.fillRect(o.x, RN_GROUND, o.w, RN_CVH - RN_GROUND);
+  ctx.fillStyle = 'rgba(0,0,0,.45)'; ctx.fillRect(o.x - 2, RN_GROUND, 2, RN_CVH - RN_GROUND); ctx.fillRect(o.x + o.w, RN_GROUND, 2, RN_CVH - RN_GROUND);
+}
+function rnDrawObstacles(ctx, themeIdx) {
   RN.obstacles.forEach(o => {
-    if (o.type === 'ground') {
-      ctx.fillRect(o.x, RN_GROUND - o.h, o.w, o.h);
-    } else {
-      const y = RN_GROUND - 24 - o.h / 2 + Math.sin(RN.t * 4 + o.x * 0.05) * 3;
-      ctx.fillRect(o.x, y, o.w, o.h * 0.55);
-      ctx.fillRect(o.x + o.w * 0.25, y - 4, o.w * 0.5, 5);
-    }
+    if (o.type === 'pit') rnDrawPit(ctx, o);
+    else if (o.type === 'ground') rnDrawGroundObstacle(ctx, o, themeIdx);
+    else rnDrawAirObstacle(ctx, o, themeIdx);
   });
 }
 function rnDrawChar(ctx) {
   const bodyH = RN.duck ? RN_DUCK_H : RN_STAND_H;
-  const top = RN_GROUND + RN.y - bodyH;
-  ctx.fillStyle = '#3a2a1e';
+  const top = RN_GROUND + RN.y - bodyH, x = RN_CHAR_X;
+  const bob = RN.onGround && !RN.duck ? Math.sin(RN.t * 16) * 2 : 0;
   if (RN.duck) {
-    ctx.fillRect(RN_CHAR_X - 15, top, 28, bodyH);
-    ctx.fillRect(RN_CHAR_X + 11, top - 5, 10, 9);
+    const gy = RN_GROUND + RN.y;
+    ctx.fillStyle = '#e8823c'; ctx.fillRect(x - 16, gy - 13, 32, 10);
+    ctx.fillStyle = '#fff3d6'; ctx.fillRect(x - 14, gy - 6, 28, 4);
+    ctx.fillStyle = '#e8823c'; ctx.fillRect(x + 13, gy - 12, 11, 8);
+    ctx.fillStyle = '#5c3a1e'; ctx.fillRect(x + 22, gy - 10, 5, 3); ctx.fillRect(x + 15, gy - 15, 3, 4);
+    ctx.fillStyle = '#1a1c2c'; ctx.fillRect(x + 19, gy - 10, 2, 2);
+    ctx.fillStyle = '#5c3a1e'; ctx.fillRect(x - 11, gy - 2, 5, 2); ctx.fillRect(x + 3, gy - 2, 5, 2);
+    ctx.fillStyle = '#e8823c'; ctx.fillRect(x - 23, gy - 9, 8, 4);
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(x - 25, gy - 8, 3, 3);
   } else {
-    ctx.fillRect(RN_CHAR_X - 7, top + bodyH * 0.3, 15, bodyH * 0.7);
-    ctx.fillRect(RN_CHAR_X - 3, top - 9, 15, 13);
-    const legPhase = RN.onGround ? Math.floor(RN.t * 10) % 2 : 0;
-    ctx.fillRect(RN_CHAR_X - 6, RN_GROUND + RN.y - 8, 5, RN.onGround ? (legPhase ? 8 : 5) : 8);
-    ctx.fillRect(RN_CHAR_X + 2, RN_GROUND + RN.y - 8, 5, RN.onGround ? (legPhase ? 5 : 8) : 8);
+    const legPhase = RN.onGround ? Math.floor(RN.t * 10) % 2 : -1;
+    ctx.fillStyle = '#e8823c'; ctx.fillRect(x - 13, top + 6 + bob, 8, 6);
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(x - 15, top + 4 + bob, 4, 4);
+    ctx.fillStyle = '#e8823c'; ctx.fillRect(x - 8, top + 8 + bob, 18, 14);
+    ctx.fillStyle = '#fff3d6'; ctx.fillRect(x - 6, top + 16 + bob, 14, 6);
+    ctx.fillStyle = '#e8823c'; ctx.fillRect(x + 6, top + bob, 12, 12);
+    ctx.fillStyle = '#5c3a1e'; ctx.fillRect(x + 15, top + 4 + bob, 5, 4);
+    ctx.fillRect(x + 7, top - 5 + bob, 4, 6); ctx.fillRect(x + 13, top - 5 + bob, 4, 6);
+    ctx.fillStyle = '#1a1c2c'; ctx.fillRect(x + 13, top + 3 + bob, 2, 2);
+    ctx.fillStyle = '#5c3a1e';
+    const legY = RN_GROUND + RN.y - 8;
+    if (legPhase === -1) { ctx.fillRect(x - 4, legY, 5, 8); ctx.fillRect(x + 4, legY, 5, 8); }
+    else { ctx.fillRect(x - 4, legY, 5, legPhase ? 8 : 5); ctx.fillRect(x + 4, legY, 5, legPhase ? 5 : 8); }
   }
 }
 function rnDraw() {
   const cv = $('#rn-cv'); if (!cv || !cv.offsetParent) return;
   const ctx = cv.getContext('2d'); ctx.imageSmoothingEnabled = false;
+  ctx.textAlign = 'center';
+  if (RN.state === 'transition') {
+    const cur = RN_THEMES[RN.themeIdx], next = RN_THEMES[RN.pendingTheme];
+    if (RN.transitionT < RN_TRANS_OUT) {
+      rnDrawBg(ctx, cur, RN.themeIdx); rnDrawObstacles(ctx, RN.themeIdx); rnDrawChar(ctx);
+      rnDrawPixelate(ctx, RN.transitionT / RN_TRANS_OUT, cur.ground);
+    } else if (RN.transitionT < RN_TRANS_OUT + RN_TRANS_HOLD) {
+      ctx.fillStyle = next.sky2; ctx.fillRect(0, 0, RN_CVW, RN_CVH);
+      ctx.fillStyle = '#fff4e0'; ctx.font = '15px "Press Start 2P"'; ctx.fillText(next.n, RN_CVW / 2, RN_CVH / 2);
+    } else {
+      rnDrawBg(ctx, next, RN.pendingTheme); rnDrawChar(ctx);
+      const p = 1 - (RN.transitionT - RN_TRANS_OUT - RN_TRANS_HOLD) / RN_TRANS_IN;
+      rnDrawPixelate(ctx, p, next.ground);
+    }
+    $('#rn-status').textContent = ''; $('#rn-score').textContent = rnMeters() + ' M';
+    return;
+  }
   const theme = RN_THEMES[RN.themeIdx];
-  rnDrawBg(ctx, theme);
-  rnDrawObstacles(ctx, theme);
+  rnDrawBg(ctx, theme, RN.themeIdx);
+  rnDrawObstacles(ctx, RN.themeIdx);
   rnDrawChar(ctx);
   if (RN.state === 'idle') {
     ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(0, 0, RN_CVW, RN_CVH);
-    ctx.fillStyle = '#fff4e0'; ctx.font = '11px "Press Start 2P"'; ctx.textAlign = 'center';
+    ctx.fillStyle = '#fff4e0'; ctx.font = '11px "Press Start 2P"';
     ctx.fillText('ESPACIO O TOCA PARA EMPEZAR', RN_CVW / 2, RN_CVH / 2);
   }
-  $('#rn-score').textContent = 'PUNTOS ' + Math.floor(RN.score);
+  $('#rn-score').textContent = rnMeters() + ' M';
   $('#rn-status').textContent = RN.state === 'playing' ? theme.n : '';
 }
 $('#rn-cv').addEventListener('pointerdown', e => { e.preventDefault(); rnJumpPress(); });
@@ -4658,12 +4768,17 @@ function drawSplash(g, c) {
     grad.addColorStop(0, '#f2c675'); grad.addColorStop(1, '#f6dca0');
     x.fillStyle = grad; x.fillRect(0, 0, 160, 72);
     x.fillStyle = '#caa15b'; x.fillRect(0, 56, 160, 16);
-    x.fillStyle = '#a97f3f';
-    x.fillRect(70, 40, 8, 16); x.fillRect(96, 34, 10, 22); x.fillRect(120, 44, 7, 12);
-    x.fillStyle = '#3a2a1e';
-    x.fillRect(24, 40, 16, 14); x.fillRect(30, 30, 12, 12);
-    x.fillRect(26, 54, 5, 6); x.fillRect(34, 54, 5, 6);
-    x.fillStyle = '#ffe14d'; x.font = '9px "Press Start 2P"'; x.textAlign = 'center'; x.fillText('SIN CONEXIÓN', 80, 16);
+    x.fillStyle = '#3f7d44';
+    x.fillRect(110, 30, 6, 26); x.fillRect(104, 38, 6, 7); x.fillRect(116, 34, 6, 7);
+    x.fillStyle = '#2c5c34'; x.fillRect(112, 34, 2, 2); x.fillRect(112, 44, 2, 2);
+    const fx = 32, fy = 40;
+    x.fillStyle = '#e8823c';
+    x.fillRect(fx - 13, fy + 6, 8, 6); x.fillRect(fx - 8, fy + 8, 18, 14); x.fillRect(fx + 6, fy, 12, 12);
+    x.fillStyle = '#fff3d6'; x.fillRect(fx - 6, fy + 16, 14, 6);
+    x.fillStyle = '#5c3a1e'; x.fillRect(fx + 15, fy + 4, 5, 4); x.fillRect(fx + 7, fy - 5, 4, 6); x.fillRect(fx + 13, fy - 5, 4, 6);
+    x.fillRect(fx - 4, fy + 22, 5, 8); x.fillRect(fx + 4, fy + 22, 5, 5);
+    x.fillStyle = '#1a1c2c'; x.fillRect(fx + 13, fy + 3, 2, 2);
+    x.fillStyle = '#ffe14d'; x.font = '8px "Press Start 2P"'; x.textAlign = 'center'; x.fillText('LA HUIDA DEL ZORRO', 80, 16);
   }
 }
 document.querySelectorAll('.splash').forEach(sp => {
@@ -4687,7 +4802,7 @@ function goTab(t) {
 const GAMES = [
   { g: 'minas', n: 'BUSCAMINAS' }, { g: 'batalla', n: 'BATALLA NAVAL' }, { g: 'tiro', n: 'ANIMAL AL TIRO' },
   { g: 'carreras', n: 'CARRERAS' }, { g: 'funciones', n: 'COMBATE DE FUNCIONES' }, { g: '21', n: 'CASINO 21' },
-  { g: 'billar', n: 'BILLAR' }, { g: 'duelo', n: 'DUELO DEL OESTE' }, { g: 'runner', n: 'SIN CONEXIÓN' },
+  { g: 'billar', n: 'BILLAR' }, { g: 'duelo', n: 'DUELO DEL OESTE' }, { g: 'runner', n: 'LA HUIDA DEL ZORRO' },
 ];
 (() => {
   const grid = $('#menu-grid');
@@ -4823,7 +4938,7 @@ function loop(now) {
   if (BL.shotActive) blUpdate(dt);
   if (tab === 'billar') blDraw();
   if (tab === 'duelo') dlDraw();
-  if (tab === 'runner') { if (RN.state === 'playing') rnStep(dt); rnDraw(); }
+  if (tab === 'runner') { if (RN.state === 'playing' || RN.state === 'transition') rnStep(dt); rnDraw(); }
 }
 requestAnimationFrame(loop);
 
