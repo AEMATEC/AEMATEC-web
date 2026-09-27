@@ -270,6 +270,7 @@ nav .btn{padding:8px 12px}
     <button class="btn tab" data-t="21">21</button>
     <button class="btn tab" data-t="billar">BILLAR</button>
     <button class="btn tab" data-t="duelo">DUELO DEL OESTE</button>
+    <button class="btn tab" data-t="runner">SIN CONEXIÓN</button>
   </nav>
 
   <!-- ============ MENÚ ============ -->
@@ -712,6 +713,39 @@ nav .btn{padding:8px 12px}
       <p class="howto">ESPACIO O EL BOTÓN ¡DISPARAR!: DISPARA EN CUANTO APAREZCA "¡YA!" EN PANTALLA.</p>
       <h4 style="margin-top:16px">CÓMO SE JUEGA</h4>
       <p class="howto">CUENTA REGRESIVA 3, 2, 1… Y UNA ESPERA SORPRESA ANTES DEL "¡YA!". SI DISPARAS ANTES DE TIEMPO, PIERDES LA RONDA. GANA LA RONDA QUIEN DISPARE PRIMERO DESPUÉS DEL "¡YA!". GANA EL DUELO QUIEN GANE 2 DE 3 RONDAS.</p>
+    </aside>
+  </section>
+
+  <!-- ============ SIN CONEXIÓN ============ -->
+  <section class="game" id="g-runner">
+    <div class="main px">
+      <div class="splash" data-g="runner"><canvas width="160" height="72"></canvas><h2>SIN CONEXIÓN</h2><p>SALTA Y AGÁCHATE PARA ESQUIVAR OBSTÁCULOS. EL ESCENARIO CAMBIA MIENTRAS MÁS LEJOS LLEGUES.</p><button class="btn red">INICIAR</button></div>
+      <div class="gbody" hidden>
+        <div class="fc-bar">
+          <span id="rn-status"></span>
+          <span id="rn-score"></span>
+        </div>
+        <div class="stage">
+          <canvas id="rn-cv" width="480" height="200"></canvas>
+          <div class="over" id="rn-over" hidden>
+            <h3 style="font-size:16px">SIN CONEXIÓN</h3>
+            <p id="rn-over-p"></p>
+            <div class="row"><button class="btn green" id="rn-again">OTRA VEZ</button><button class="btn gray" id="rn-exit">MENÚ</button></div>
+          </div>
+        </div>
+        <div class="touch">
+          <div><button class="btn green" id="rn-jump-btn">SALTAR</button></div>
+          <div><button class="btn gray" id="rn-duck-btn">AGACHARSE</button></div>
+        </div>
+        <p class="keys">ESPACIO O ↑: SALTAR · ↓: AGACHARSE · TAMBIÉN PUEDES TOCAR LA PANTALLA PARA SALTAR</p>
+      </div>
+    </div>
+    <aside class="side px">
+      <h3>TOP 10</h3>
+      <p class="sub">PUNTOS</p>
+      <ol class="lb" id="rn-lb"></ol>
+      <h4 style="margin-top:16px">CÓMO SE JUEGA</h4>
+      <p class="howto">SALTA LOS OBSTÁCULOS DEL SUELO Y AGÁCHATE PARA PASAR POR DEBAJO DE LOS QUE VUELAN. LA VELOCIDAD SUBE MIENTRAS MÁS AVANZAS, Y EL ESCENARIO CAMBIA CADA CIERTO PUNTAJE. UN SOLO CHOQUE TERMINA LA PARTIDA.</p>
     </aside>
   </section>
 
@@ -4329,6 +4363,153 @@ $('#dl-fire').onclick = () => dlHumanFire();
 window.addEventListener('beforeunload', () => { if (DL.mode === 'online') dlLeaveOnline(); });
 LB.render($('#dl-lb'), 'duelo', false, r => r.score);
 
+/* ============================================================
+   SIN CONEXIÓN — corredor sin fin al estilo del dinosaurio de Chrome.
+   Salta (Espacio/↑/tocar) los obstáculos del suelo, agáchate (↓) para
+   pasar bajo los que vuelan. La velocidad sube con el puntaje y el
+   escenario cambia cada cierto puntaje. Un choque termina la partida.
+   ============================================================ */
+const RN_CVW = 480, RN_CVH = 200, RN_GROUND = 160, RN_CHAR_X = 70;
+const RN_GRAVITY = 2200, RN_JUMP_V = 680;
+const RN_BASE_SPEED = 220, RN_MAX_SPEED = 520;
+const RN_DUCK_H = 20, RN_STAND_H = 38;
+const RN_THEME_SCORE = 400;
+const RN_THEMES = [
+  { n: 'DESIERTO', sky: '#f2c675', sky2: '#f6dca0', ground: '#caa15b', deco: '#a97f3f' },
+  { n: 'CIUDAD', sky: '#2b3350', sky2: '#3c4568', ground: '#4a4f63', deco: '#1c1f29' },
+  { n: 'BOSQUE', sky: '#7fcf8f', sky2: '#a9e6b4', ground: '#4c8a52', deco: '#2c5c34' },
+  { n: 'NOCHE ESTRELLADA', sky: '#141830', sky2: '#232a52', ground: '#2a2f4a', deco: '#e8e8f0' }
+];
+const RN = {
+  state: 'idle', y: 0, vy: 0, onGround: true, duck: false, duckHeld: false,
+  speed: RN_BASE_SPEED, score: 0, dist: 0, obstacles: [], spawnCd: 60, themeIdx: 0, t: 0
+};
+function rnReset() {
+  RN.y = 0; RN.vy = 0; RN.onGround = true; RN.duck = false;
+  RN.speed = RN_BASE_SPEED; RN.score = 0; RN.dist = 0; RN.obstacles = []; RN.spawnCd = 60; RN.themeIdx = 0; RN.t = 0;
+}
+function rnStart() { rnReset(); RN.state = 'playing'; $('#rn-over').hidden = true; SFX.play('start'); }
+function rnJumpPress() {
+  if (RN.state !== 'playing') return rnStart();
+  if (RN.onGround) { RN.vy = -RN_JUMP_V; RN.onGround = false; SFX.play('bump'); }
+}
+function rnLB() { LB.render($('#rn-lb'), 'runner', false, r => r.score); }
+function rnGameOver() {
+  RN.state = 'over';
+  const score = Math.floor(RN.score);
+  $('#rn-over-p').textContent = `PUNTOS: ${score}`;
+  $('#rn-over').hidden = false;
+  SFX.play('lose');
+  LB.submit('runner', score, false).then(rnLB);
+}
+function rnSpawnObstacle() {
+  const air = RN.score > 150 && Math.random() < 0.35;
+  if (air) {
+    RN.obstacles.push({ type: 'air', x: RN_CVW + 10, w: 26, h: 16 });
+  } else {
+    const kinds = [{ w: 14, h: 24 }, { w: 22, h: 32 }, { w: 30, h: 22 }, { w: 16, h: 40 }];
+    const k = kinds[(Math.random() * kinds.length) | 0];
+    RN.obstacles.push({ type: 'ground', x: RN_CVW + 10, w: k.w, h: k.h });
+  }
+}
+function rnCheckHit() {
+  const bodyH = RN.duck ? RN_DUCK_H : RN_STAND_H;
+  const top = RN_GROUND + RN.y - bodyH, bottom = RN_GROUND + RN.y;
+  const cx0 = RN_CHAR_X - 8, cx1 = RN_CHAR_X + 8;
+  for (const o of RN.obstacles) {
+    if (cx1 < o.x || cx0 > o.x + o.w) continue;
+    let oTop, oBottom;
+    if (o.type === 'ground') { oBottom = RN_GROUND; oTop = RN_GROUND - o.h; }
+    else { oBottom = RN_GROUND - 24; oTop = oBottom - o.h; }
+    if (top < oBottom && bottom > oTop) return true;
+  }
+  return false;
+}
+function rnStep(dt) {
+  RN.t += dt;
+  RN.speed = Math.min(RN_MAX_SPEED, RN_BASE_SPEED + RN.score * 0.12);
+  RN.score += RN.speed * dt * 0.12;
+  RN.dist += RN.speed * dt;
+  if (!RN.onGround) {
+    RN.vy += RN_GRAVITY * dt; RN.y += RN.vy * dt;
+    if (RN.y >= 0) { RN.y = 0; RN.vy = 0; RN.onGround = true; }
+  }
+  RN.duck = RN.onGround && RN.duckHeld;
+  RN.spawnCd -= RN.speed * dt;
+  if (RN.spawnCd <= 0) { rnSpawnObstacle(); RN.spawnCd = 150 + Math.random() * 130; }
+  for (let i = RN.obstacles.length - 1; i >= 0; i--) {
+    const o = RN.obstacles[i]; o.x -= RN.speed * dt;
+    if (o.x < -40) RN.obstacles.splice(i, 1);
+  }
+  RN.themeIdx = Math.min(RN_THEMES.length - 1, Math.floor(RN.score / RN_THEME_SCORE));
+  if (rnCheckHit()) rnGameOver();
+}
+function rnDrawBg(ctx, theme) {
+  const grad = ctx.createLinearGradient(0, 0, 0, RN_CVH);
+  grad.addColorStop(0, theme.sky); grad.addColorStop(1, theme.sky2);
+  ctx.fillStyle = grad; ctx.fillRect(0, 0, RN_CVW, RN_CVH);
+  ctx.save(); ctx.globalAlpha = .45; ctx.fillStyle = theme.deco;
+  const off1 = RN.dist * 0.3 % 90;
+  for (let i = -1; i < 7; i++) ctx.fillRect(i * 90 - off1, RN_CVH * 0.5, 46, 34);
+  ctx.restore();
+  ctx.fillStyle = theme.ground; ctx.fillRect(0, RN_GROUND, RN_CVW, RN_CVH - RN_GROUND);
+  ctx.fillStyle = theme.deco; ctx.globalAlpha = .6;
+  const off2 = RN.dist % 24;
+  for (let i = -1; i < 22; i++) ctx.fillRect(i * 24 - off2, RN_GROUND, 12, 3);
+  ctx.globalAlpha = 1;
+}
+function rnDrawObstacles(ctx, theme) {
+  ctx.fillStyle = theme.deco;
+  RN.obstacles.forEach(o => {
+    if (o.type === 'ground') {
+      ctx.fillRect(o.x, RN_GROUND - o.h, o.w, o.h);
+    } else {
+      const y = RN_GROUND - 24 - o.h / 2 + Math.sin(RN.t * 4 + o.x * 0.05) * 3;
+      ctx.fillRect(o.x, y, o.w, o.h * 0.55);
+      ctx.fillRect(o.x + o.w * 0.25, y - 4, o.w * 0.5, 5);
+    }
+  });
+}
+function rnDrawChar(ctx) {
+  const bodyH = RN.duck ? RN_DUCK_H : RN_STAND_H;
+  const top = RN_GROUND + RN.y - bodyH;
+  ctx.fillStyle = '#3a2a1e';
+  if (RN.duck) {
+    ctx.fillRect(RN_CHAR_X - 15, top, 28, bodyH);
+    ctx.fillRect(RN_CHAR_X + 11, top - 5, 10, 9);
+  } else {
+    ctx.fillRect(RN_CHAR_X - 7, top + bodyH * 0.3, 15, bodyH * 0.7);
+    ctx.fillRect(RN_CHAR_X - 3, top - 9, 15, 13);
+    const legPhase = RN.onGround ? Math.floor(RN.t * 10) % 2 : 0;
+    ctx.fillRect(RN_CHAR_X - 6, RN_GROUND + RN.y - 8, 5, RN.onGround ? (legPhase ? 8 : 5) : 8);
+    ctx.fillRect(RN_CHAR_X + 2, RN_GROUND + RN.y - 8, 5, RN.onGround ? (legPhase ? 5 : 8) : 8);
+  }
+}
+function rnDraw() {
+  const cv = $('#rn-cv'); if (!cv || !cv.offsetParent) return;
+  const ctx = cv.getContext('2d'); ctx.imageSmoothingEnabled = false;
+  const theme = RN_THEMES[RN.themeIdx];
+  rnDrawBg(ctx, theme);
+  rnDrawObstacles(ctx, theme);
+  rnDrawChar(ctx);
+  if (RN.state === 'idle') {
+    ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(0, 0, RN_CVW, RN_CVH);
+    ctx.fillStyle = '#fff4e0'; ctx.font = '11px "Press Start 2P"'; ctx.textAlign = 'center';
+    ctx.fillText('ESPACIO O TOCA PARA EMPEZAR', RN_CVW / 2, RN_CVH / 2);
+  }
+  $('#rn-score').textContent = 'PUNTOS ' + Math.floor(RN.score);
+  $('#rn-status').textContent = RN.state === 'playing' ? theme.n : '';
+}
+$('#rn-cv').addEventListener('pointerdown', e => { e.preventDefault(); rnJumpPress(); });
+$('#rn-jump-btn').addEventListener('pointerdown', e => { e.preventDefault(); rnJumpPress(); });
+const rnDuckBtn = $('#rn-duck-btn');
+rnDuckBtn.addEventListener('pointerdown', e => { e.preventDefault(); RN.duckHeld = true; });
+['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => rnDuckBtn.addEventListener(ev, () => { RN.duckHeld = false; }));
+$('#rn-again').onclick = () => { SFX.play('start'); rnStart(); };
+$('#rn-exit').onclick = () => goTab('menu');
+rnLB();
+
+
 /* ---------- ajuste a la pantalla ---------- */
 function fitAll() {
   const vh = window.innerHeight, sec = document.querySelector('.game.on');
@@ -4471,6 +4652,18 @@ function drawSplash(g, c) {
     };
     cowboy(46, '#241c18'); cowboy(114, '#3a2a1e');
     x.fillStyle = '#ffe14d'; x.font = '13px "Press Start 2P"'; x.textAlign = 'center'; x.fillText('¡YA!', 80, 40);
+  } else if (g === 'runner') {
+    c.width = 160; c.height = 72;
+    const grad = x.createLinearGradient(0, 0, 0, 72);
+    grad.addColorStop(0, '#f2c675'); grad.addColorStop(1, '#f6dca0');
+    x.fillStyle = grad; x.fillRect(0, 0, 160, 72);
+    x.fillStyle = '#caa15b'; x.fillRect(0, 56, 160, 16);
+    x.fillStyle = '#a97f3f';
+    x.fillRect(70, 40, 8, 16); x.fillRect(96, 34, 10, 22); x.fillRect(120, 44, 7, 12);
+    x.fillStyle = '#3a2a1e';
+    x.fillRect(24, 40, 16, 14); x.fillRect(30, 30, 12, 12);
+    x.fillRect(26, 54, 5, 6); x.fillRect(34, 54, 5, 6);
+    x.fillStyle = '#ffe14d'; x.font = '9px "Press Start 2P"'; x.textAlign = 'center'; x.fillText('SIN CONEXIÓN', 80, 16);
   }
 }
 document.querySelectorAll('.splash').forEach(sp => {
@@ -4494,7 +4687,7 @@ function goTab(t) {
 const GAMES = [
   { g: 'minas', n: 'BUSCAMINAS' }, { g: 'batalla', n: 'BATALLA NAVAL' }, { g: 'tiro', n: 'ANIMAL AL TIRO' },
   { g: 'carreras', n: 'CARRERAS' }, { g: 'funciones', n: 'COMBATE DE FUNCIONES' }, { g: '21', n: 'CASINO 21' },
-  { g: 'billar', n: 'BILLAR' }, { g: 'duelo', n: 'DUELO DEL OESTE' },
+  { g: 'billar', n: 'BILLAR' }, { g: 'duelo', n: 'DUELO DEL OESTE' }, { g: 'runner', n: 'SIN CONEXIÓN' },
 ];
 (() => {
   const grid = $('#menu-grid');
@@ -4630,6 +4823,7 @@ function loop(now) {
   if (BL.shotActive) blUpdate(dt);
   if (tab === 'billar') blDraw();
   if (tab === 'duelo') dlDraw();
+  if (tab === 'runner') { if (RN.state === 'playing') rnStep(dt); rnDraw(); }
 }
 requestAnimationFrame(loop);
 
@@ -4641,8 +4835,15 @@ document.addEventListener('keydown', e => {
   if (tab === 'batalla' && (e.key === 'r' || e.key === 'R') && BS.phase === 'place') { BS.hor = !BS.hor; bsRender(); }
   if ((tab === 'carreras' || tab === 'funciones') && RC_KEYS.has(e.code)) { RC.keys[e.code] = true; if (RC.T || (tab === 'funciones' && FC.phase === 'play')) e.preventDefault(); }
   if (tab === 'duelo' && e.code === 'Space' && !e.repeat) { e.preventDefault(); dlHumanFire(); }
+  if (tab === 'runner') {
+    if ((e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') && !e.repeat) { e.preventDefault(); rnJumpPress(); }
+    else if (e.code === 'ArrowDown' || e.code === 'KeyS') { e.preventDefault(); RN.duckHeld = true; }
+  }
 });
-document.addEventListener('keyup', e => { if (RC_KEYS.has(e.code)) RC.keys[e.code] = false; });
+document.addEventListener('keyup', e => {
+  if (RC_KEYS.has(e.code)) RC.keys[e.code] = false;
+  if (e.code === 'ArrowDown' || e.code === 'KeyS') RN.duckHeld = false;
+});
 window.addEventListener('blur', () => { RC.keys = {}; });
 </script>
 </body>
