@@ -4371,7 +4371,7 @@ LB.render($('#dl-lb'), 'duelo', false, r => r.score);
    cada 500 m cambia el escenario con una transición pixelada.
    ============================================================ */
 const RN_CVW = 480, RN_CVH = 200, RN_GROUND = 160, RN_CHAR_X = 70;
-const RN_GRAVITY = 2200, RN_JUMP_V = 680;
+const RN_GRAVITY = 2200, RN_JUMP_V = 520;
 const RN_BASE_SPEED = 220, RN_MAX_SPEED = 520;
 const RN_DUCK_H = 20, RN_STAND_H = 38;
 const RN_PX_PER_M = 10, RN_THEME_METERS = 500;
@@ -4393,13 +4393,14 @@ const RN_PIX_ORDER = (() => {
 const RN = {
   state: 'idle', y: 0, vy: 0, onGround: true, duck: false, duckHeld: false,
   speed: RN_BASE_SPEED, dist: 0, obstacles: [], spawnCd: 60, themeIdx: 0, themeStage: 0, pendingTheme: 0,
-  transitionT: 0, t: 0
+  transitionT: 0, t: 0, nextPlatformAt: 220
 };
 const rnMeters = () => Math.floor(RN.dist / RN_PX_PER_M);
 function rnReset() {
   RN.y = 0; RN.vy = 0; RN.onGround = true; RN.duck = false;
   RN.speed = RN_BASE_SPEED; RN.dist = 0; RN.obstacles = []; RN.spawnCd = 60;
   RN.themeIdx = 0; RN.themeStage = 0; RN.t = 0;
+  RN.nextPlatformAt = 220 + Math.random() * 120;
 }
 function rnStart() { rnReset(); RN.state = 'playing'; $('#rn-over').hidden = true; SFX.play('start'); }
 function rnJumpPress() {
@@ -4414,6 +4415,16 @@ function rnGameOver() {
   $('#rn-over').hidden = false;
   SFX.play('lose');
   LB.submit('runner', m, false).then(rnLB);
+}
+function rnSpawnPlatformSection() {
+  let x = RN_CVW + 10;
+  const count = 3 + ((Math.random() * 3) | 0);
+  for (let i = 0; i < count; i++) {
+    const gapW = 46 + Math.random() * 18;
+    RN.obstacles.push({ type: 'pit', x, w: gapW });
+    x += gapW + 42 + Math.random() * 16;
+  }
+  RN.spawnCd = (x - RN_CVW) + 120;
 }
 function rnSpawnObstacle() {
   const m = rnMeters();
@@ -4459,7 +4470,12 @@ function rnStep(dt) {
   }
   RN.duck = RN.onGround && RN.duckHeld;
   RN.spawnCd -= RN.speed * dt;
-  if (RN.spawnCd <= 0) { rnSpawnObstacle(); RN.spawnCd = 150 + Math.random() * 130; }
+  if (RN.spawnCd <= 0) {
+    if (rnMeters() >= RN.nextPlatformAt) {
+      rnSpawnPlatformSection();
+      RN.nextPlatformAt = rnMeters() + 300 + Math.random() * 250;
+    } else { rnSpawnObstacle(); RN.spawnCd = 150 + Math.random() * 130; }
+  }
   for (let i = RN.obstacles.length - 1; i >= 0; i--) {
     const o = RN.obstacles[i]; o.x -= RN.speed * dt;
     if (o.x < -40) RN.obstacles.splice(i, 1);
