@@ -751,6 +751,7 @@ nav .btn{padding:8px 12px}
 
   <footer class="credits">REALIZADO POR <b>ANTONY ARIAS</b> 2026 · CON AYUDA DE CLAUDE PARA EL DISEÑO ESTÉTICO</footer>
 </div>
+<audio id="menu-music" src="assets/audio/arcade-menu.mp3" loop preload="auto"></audio>
 <div id="intro">
   <button class="btn gray" id="intro-skip">SALTAR</button>
   <canvas id="intro-cv" width="240" height="150"></canvas>
@@ -889,7 +890,7 @@ const SFX = {
   }
 };
 function sndBtn() { const b = $('#snd'); b.textContent = SFX.on ? '♪ SÍ' : '♪ NO'; b.classList.toggle('off', !SFX.on); }
-$('#snd').onclick = () => { SFX.on = !SFX.on; store.set('pa_snd', SFX.on); sndBtn(); SFX.play('click'); };
+$('#snd').onclick = () => { SFX.on = !SFX.on; store.set('pa_snd', SFX.on); sndBtn(); SFX.play('click'); updateMenuMusic(); };
 sndBtn();
 $('#arcade-volver').onclick = () => window.arcadeTransition('index.html');
 ['pointerdown', 'keydown'].forEach(ev => window.addEventListener(ev, () => SFX.on && SFX.init(), { once: true }));
@@ -4808,12 +4809,18 @@ document.querySelectorAll('.splash').forEach(sp => {
 const splashOn = g => !document.querySelector(`.splash[data-g="${g}"]`).hidden;
 
 /* ---------- navegación entre juegos ---------- */
+const menuMusic = $('#menu-music'); menuMusic.volume = 0.45;
+function updateMenuMusic() {
+  if (tab === 'menu' && SFX.on) menuMusic.play().catch(() => {});
+  else menuMusic.pause();
+}
 function goTab(t) {
   tab = t;
   document.querySelectorAll('.tab').forEach(x => x.classList.toggle('on', x.dataset.t === t));
   document.querySelectorAll('.game').forEach(g => g.classList.toggle('on', g.id === 'g-' + t));
   window.scrollTo(0, 0);
   fitSoon();
+  updateMenuMusic();
 }
 const GAMES = [
   { g: 'minas', n: 'BUSCAMINAS' }, { g: 'batalla', n: 'BATALLA NAVAL' }, { g: 'tiro', n: 'ANIMAL AL TIRO' },
