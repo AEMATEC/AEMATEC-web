@@ -234,7 +234,7 @@
     const capa = document.createElement("div");
     capa.className = `tema-particulas tema-particulas--${movimiento}`;
     capa.setAttribute("aria-hidden", "true");
-    const cantidad = window.innerWidth < 640 ? 9 : 16;
+    const cantidad = window.innerWidth < 640 ? 14 : 24;
     let maximo = 0;
     for (let i = 0; i < cantidad; i++) {
       const p = document.createElement("span");
