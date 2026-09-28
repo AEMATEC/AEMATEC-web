@@ -494,7 +494,7 @@
 
   <script type="module">
     import { app } from "./assets/js/firebase.js";
-    import { escapeHtml } from "./assets/js/util.js";
+    import { escapeHtml, mensajeErrorAuth } from "./assets/js/util.js";
     import { tieneRol } from "./assets/js/roles.js";
     import {
       getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, getDoc, serverTimestamp
@@ -938,9 +938,7 @@
         hideModal(document.querySelector("#junta-login-modal"));
       } catch (error) {
         status.hidden = false;
-        status.textContent = ["auth/user-not-found", "auth/wrong-password", "auth/invalid-credential", "auth/invalid-email"].includes(error.code)
-          ? "Correo o contraseña incorrectos, o el correo no está registrado en Firebase."
-          : `No se pudo iniciar sesión: ${error.message}`;
+        status.textContent = mensajeErrorAuth(error);
       }
     });
     document.querySelector("#junta-logout-btn").addEventListener("click", () => signOut(auth));

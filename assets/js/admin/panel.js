@@ -2,6 +2,7 @@
 // Cada persona ve las secciones de sus roles. Los permisos reales los aplican firestore.rules y storage.rules.
 import { app } from "../firebase.js";
 import { tieneRol } from "../roles.js";
+import { mensajeErrorAuth } from "../util.js";
 import {
   browserSessionPersistence, getAuth, onAuthStateChanged, setPersistence, signInWithEmailAndPassword, signOut,
   createUserWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail
@@ -25,7 +26,7 @@ document.querySelector("#login-form").addEventListener("submit", async event => 
   try {
     await signInWithEmailAndPassword(auth, document.querySelector("#email").value.trim(), document.querySelector("#password").value);
   } catch (error) {
-    status.textContent = "No se pudo iniciar sesión. Verifica el correo y la contraseña.";
+    status.textContent = mensajeErrorAuth(error);
     status.hidden = false;
   }
 });
@@ -65,11 +66,7 @@ document.querySelector("#signup-form").addEventListener("submit", async event =>
     status.className = "text-sm text-[#087F8C]";
     status.hidden = false;
   } catch (error) {
-    status.textContent = error.code === "auth/email-already-in-use"
-      ? "Ya existe una cuenta con este correo. Usa '¿Olvidaste tu contraseña?' si no la recuerdas."
-      : error.code === "auth/weak-password"
-        ? "La contraseña debe tener al menos 6 caracteres."
-        : `No se pudo crear la cuenta: ${error.message}`;
+    status.textContent = mensajeErrorAuth(error);
     status.className = "text-sm text-[#C2413B]";
     status.hidden = false;
   }
