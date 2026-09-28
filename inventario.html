@@ -15,6 +15,7 @@
     rel="stylesheet">
   <script src="assets/firebase-config.js"></script>
   <script src="assets/js/inventario-codigos.js"></script>
+  <script src="assets/js/inventario-categorias.js"></script>
   <style>
     @media (max-width: 767px) {
       #inv-hero-row {
@@ -485,7 +486,7 @@
     const SUGERENCIAS = {
       categoria: {
         aematec: ["Equipo tecnológico", "Mobiliario", "Electrodoméstico", "Material didáctico", "Decoración", "Herramientas", "Cocina", "Juegos", "Limpieza", "Otro"],
-        biblioteca: ["Álgebra", "Álgebra lineal", "Geometría", "Probabilidad", "Estadística", "Cálculo", "Trigonometría"],
+        biblioteca: window.InventarioCategorias.CANONICAS,
         consumible: ["Cocina", "Limpieza", "Oficina", "Otro"]
       },
       estado: ["Excelente", "Bueno", "Regular", "Malo", "En reparación", "Falta comprobar", "Extraviado", "Regalado", "Vendido", "Dado de baja"],
@@ -493,8 +494,9 @@
     };
     // Estado con el que entra un bien duplicado, hasta que la Junta lo revise en físico.
     const ESTADO_POR_REVISAR = "Falta comprobar";
-    const MAX_CATEGORIAS_LIBRO = 3;
     const Codigos = window.InventarioCodigos;
+    const Categorias = window.InventarioCategorias;
+    const MAX_CATEGORIAS_LIBRO = Categorias.MAX_CATEGORIAS;
 
     let itemsByTipo = { institucional: [], aematec: [], biblioteca: [], consumible: [] };
     let activeTab = "institucional";
@@ -534,11 +536,30 @@
       renderGrid();
     }
 
-    // Los libros guardan varias categorías en `categorias` (lista). Los que aún no se migran tienen
-    // `categoria` como texto, a veces con varias separadas por "/" (ver scripts/categorias/).
+    // Los libros guardan varias categorías en `categorias` (lista) y se muestran con los nombres unificados
+    // de assets/js/inventario-categorias.js. Los que aún no se migran tienen `categoria` como texto,
+    // a veces con varias separadas por "/" (ver scripts/categorias/migrar.js).
     function categoriasDe(item) {
-      if (Array.isArray(item.categorias)) return item.categorias.map(value => String(value).trim()).filter(Boolean);
+      if (item.tipo === "biblioteca") return Categorias.categoriasDeLibro(item);
       return String(item.categoria || "").split("/").map(value => value.trim()).filter(Boolean);
+    }
+
+    // Filtro de la Biblioteca: las categorías van agrupadas y se puede elegir un grupo entero.
+    function fillGroupedCategorySelect(select, values) {
+      const current = select.value;
+      const groups = new Map();
+      for (const value of values) {
+        const group = Categorias.grupoDe(value) || "Otras";
+        if (!groups.has(group)) groups.set(group, []);
+        groups.get(group).push(value);
+      }
+      const sorted = [...groups.entries()].sort((a, b) => (a[0] === "Otras") - (b[0] === "Otras") || a[0].localeCompare(b[0], "es"));
+      select.innerHTML = `<option value="">Todas las categorías</option>` + sorted.map(([group, list]) =>
+        `<optgroup label="${escapeHtml(group)}">`
+        + (group === "Otras" ? "" : `<option value="grupo:${escapeHtml(group)}">Todo: ${escapeHtml(group)}</option>`)
+        + list.map(value => `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`).join("")
+        + "</optgroup>").join("");
+      select.value = [...select.options].some(option => option.value === current) ? current : "";
     }
 
     function uniqueValues(list, field) {
@@ -564,7 +585,8 @@
       document.querySelector("#filter-ubicacion-wrap").hidden = !config.ubicacion;
       document.querySelector("#filter-disponible-wrap").hidden = !config.disponible;
       document.querySelector("#filter-bajostock-wrap").hidden = !config.bajoStock;
-      if (config.categoria) fillSelect(document.querySelector("#filter-categoria"), uniqueValues(list, "categoria"), "Todas las categorías");
+      if (config.categoria && tipo === "biblioteca") fillGroupedCategorySelect(document.querySelector("#filter-categoria"), uniqueValues(list, "categoria"));
+      else if (config.categoria) fillSelect(document.querySelector("#filter-categoria"), uniqueValues(list, "categoria"), "Todas las categorías");
       if (config.estado) fillSelect(document.querySelector("#filter-estado"), uniqueValues(list, "estado"), "Todos los estados");
       if (config.ubicacion) fillSelect(document.querySelector("#filter-ubicacion"), uniqueValues(list, "ubicacion"), "Todas las ubicaciones");
     }
@@ -619,7 +641,12 @@
       const ubicacionFilter = document.querySelector("#filter-ubicacion").value;
       const disponibleFilter = document.querySelector("#filter-disponible").checked;
       const bajoStockFilter = document.querySelector("#filter-bajostock").checked;
-      if (categoriaFilter) list = list.filter(item => categoriasDe(item).includes(categoriaFilter));
+      if (categoriaFilter.startsWith("grupo:")) {
+        const group = categoriaFilter.slice("grupo:".length);
+        list = list.filter(item => categoriasDe(item).some(categoria => Categorias.grupoDe(categoria) === group));
+      } else if (categoriaFilter) {
+        list = list.filter(item => categoriasDe(item).includes(categoriaFilter));
+      }
       if (estadoFilter) list = list.filter(item => (item.estado || "") === estadoFilter);
       if (ubicacionFilter) list = list.filter(item => (item.ubicacion || "") === ubicacionFilter);
       if (disponibleFilter) list = list.filter(item => (item.ejemplares || []).some(exemplar => exemplar.disponible));
@@ -1225,9 +1252,9 @@
             ubicacion: row.querySelector("[data-exemplar=ubicacion]").value.trim(),
             disponible: row.querySelector("[data-exemplar=disponible]").checked
           })).filter(exemplar => exemplar.codigo);
-          // Categorías como lista (máx. 3); se acepta coma o "/" al escribirlas. Se borra el campo viejo `categoria`.
-          const categorias = [...new Map(String(fields.categorias || "").split(/[,/]/).map(value => value.trim()).filter(Boolean)
-            .map(value => [value.toLowerCase(), value])).values()];
+          // Categorías como lista (máx. 3), con los nombres unificados ("Tercer ciclio" → "Tercer ciclo");
+          // se acepta coma o "/" al escribirlas. Se borra el campo viejo `categoria`.
+          const categorias = Categorias.normalizarLista(fields.categorias);
           if (categorias.length > MAX_CATEGORIAS_LIBRO) throw new Error(`Un libro puede tener como máximo ${MAX_CATEGORIAS_LIBRO} categorías.`);
           payload.categorias = categorias;
           if (itemId) payload.categoria = deleteField();

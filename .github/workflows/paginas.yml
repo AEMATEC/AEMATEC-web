@@ -1,5 +1,6 @@
 # Revisa las páginas en cada PR (antes del merge) y en cada cambio a main:
-# - JavaScript sin errores de sintaxis (uno solo deja sin funcionar la página completa) y fechas de los temas.
+# - JavaScript sin errores de sintaxis (uno solo deja sin funcionar la página completa), fechas de los temas
+#   y códigos y categorías del Inventario.
 # - Enlaces internos que apunten a archivos y secciones que existen.
 # - Estilos compilados (assets/css/tailwind.css) al día con las clases que usan las páginas.
 name: Páginas
@@ -15,6 +16,8 @@ on:
       - tests/revisar-paginas.mjs
       - tests/revisar-enlaces.mjs
       - tests/temas.test.js
+      - tests/inventario-*.test.js
+      - scripts/categorias/**
       - .github/workflows/paginas.yml
   push:
     branches: [main]
@@ -27,6 +30,8 @@ on:
       - tests/revisar-paginas.mjs
       - tests/revisar-enlaces.mjs
       - tests/temas.test.js
+      - tests/inventario-*.test.js
+      - scripts/categorias/**
       - .github/workflows/paginas.yml
 
 jobs:
@@ -42,6 +47,8 @@ jobs:
         run: node tests/revisar-paginas.mjs
       - name: Probar las fechas de los temas de temporada
         run: node --test tests/temas.test.js
+      - name: Probar los códigos y las categorías del Inventario
+        run: node --test tests/inventario-codigos.test.js tests/inventario-categorias.test.js
 
   revisar-enlaces:
     name: Revisar enlaces internos

@@ -239,11 +239,13 @@ no en `CLAUDE.md`.
 Ver la cabecera de [`scripts/import-inventario.js`](scripts/import-inventario.js). Necesita una clave de
 cuenta de servicio que **nunca** se sube al repositorio (ya está en `.gitignore`).
 
-**Categorías de los libros.** Cada libro guarda sus categorías en `categorias` (lista, máximo 3). Los libros
-importados antes tienen `categoria` (texto, a veces con varias separadas por "/"); la página entiende los dos
-formatos. Para pasarlos al nuevo formato y unificar cómo se escriben están los scripts de
-[`scripts/categorias/`](scripts/categorias) (por defecto solo simulan; escriben con `--aplicar`) y el análisis
-para la Junta en [`docs/categorias/`](docs/categorias).
+**Categorías de los libros.** Cada libro guarda sus categorías en `categorias` (lista, máximo 3). Cómo se
+escribe cada una y en qué grupo va (el filtro de la Biblioteca permite elegir un grupo entero) está en
+[`assets/js/inventario-categorias.js`](assets/js/inventario-categorias.js): para una categoría nueva, agrégala a un
+grupo ahí. La página, el importador y la migración usan ese mismo archivo. Los libros que aún tengan el texto viejo
+`categoria` se pasan al formato nuevo con **Actions → "Categorías de la Biblioteca" → Run workflow** (primero en
+modo `simular`, luego `aplicar`); el plan con los datos de 2026-09 está en
+[`docs/categorias/migracion.md`](docs/categorias/migracion.md).
 
 `data/Plantilla_Inventario_AEMATEC.xlsx` es público en el repositorio. **No llenes ahí las hojas
 `Personas` ni `Prestamos`**: contendrían datos personales (Ley 8968, RI Art. 143).
