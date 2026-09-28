@@ -239,6 +239,12 @@ no en `CLAUDE.md`.
 Ver la cabecera de [`scripts/import-inventario.js`](scripts/import-inventario.js). Necesita una clave de
 cuenta de servicio que **nunca** se sube al repositorio (ya está en `.gitignore`).
 
+**Categorías de los libros.** Cada libro guarda sus categorías en `categorias` (lista, máximo 3). Los libros
+importados antes tienen `categoria` (texto, a veces con varias separadas por "/"); la página entiende los dos
+formatos. Para pasarlos al nuevo formato y unificar cómo se escriben están los scripts de
+[`scripts/categorias/`](scripts/categorias) (por defecto solo simulan; escriben con `--aplicar`) y el análisis
+para la Junta en [`docs/categorias/`](docs/categorias).
+
 `data/Plantilla_Inventario_AEMATEC.xlsx` es público en el repositorio. **No llenes ahí las hojas
 `Personas` ni `Prestamos`**: contendrían datos personales (Ley 8968, RI Art. 143).
 

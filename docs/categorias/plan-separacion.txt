@@ -1,0 +1,422 @@
+Plan de migración: separar categorías por "/"
+  Libros a migrar: 136
+    con varias categorías (se separan): 20
+    con una sola categoría: 116
+    sin categoría (quedan con lista vacía): 0
+  Libros con más de 3 categorías (NO se migran; la Junta elige 3): 1
+
+Cambios:
+  [excel:BIB-001-01] Análisis combinatorio
+      antes:   "Probabilidad"
+      después: ["Probabilidad"]
+  [excel:BIB-002] Álgebra y Trigonometría
+      antes:   "Álgebra / Trigonometría"
+      después: ["Álgebra","Trigonometría"]
+  [excel:BIB-003-01] Introducción al Álgebra Lineal
+      antes:   "Álgebra Lineal"
+      después: ["Álgebra Lineal"]
+  [excel:BIB-004] Álgebra Intermedia
+      antes:   "Álgebra"
+      después: ["Álgebra"]
+  [excel:BIB-005] Álgebra y trigonometría con geometría analítica
+      antes:   "Álgebra / Trigonometría / Geometría Analítica"
+      después: ["Álgebra","Trigonometría","Geometría Analítica"]
+  [excel:BIB-006] Álgebra Superior
+      antes:   "Álgebra"
+      después: ["Álgebra"]
+  [excel:BIB-007] Álgebra y trigonometría con geometría analítica
+      antes:   "Álgebra / Trigonometría / Geometría Analítica"
+      después: ["Álgebra","Trigonometría","Geometría Analítica"]
+  [excel:BIB-008] Álgebra
+      antes:   "Álgebra"
+      después: ["Álgebra"]
+  [excel:BIB-009] Álgebra Lineal con aplicaciones
+      antes:   "Álgebra Lineal"
+      después: ["Álgebra Lineal"]
+  [excel:BIB-010-01] Álgebra Universitaria
+      antes:   "Álgebra"
+      después: ["Álgebra"]
+  [excel:BIB-010-02] Álgebra Universitaria
+      antes:   "Álgebra"
+      después: ["Álgebra"]
+  [excel:BIB-011] Álgebra Abstracta
+      antes:   "Álgebra"
+      después: ["Álgebra"]
+  [excel:BIB-012-01] Álgebra y Trigonometría
+      antes:   "Álgebra / Trigonometría"
+      después: ["Álgebra","Trigonometría"]
+  [excel:BIB-013] Álgebra I
+      antes:   "Álgebra"
+      después: ["Álgebra"]
+  [excel:BIB-014] Problemas de Álgebra Moderna
+      antes:   "Álgebra"
+      después: ["Álgebra"]
+  [excel:BIB-015] A survey of Modern Algebra
+      antes:   "Álgebra"
+      después: ["Álgebra"]
+  [excel:BIB-016] Álgebra Curso teórico-práctico
+      antes:   "Álgebra"
+      después: ["Álgebra"]
+  [excel:BIB-017] Ejercicios de Álgebra Superior
+      antes:   "Álgebra"
+      después: ["Álgebra"]
+  [excel:BIB-018] Numerical Analysis
+      antes:   "Análisis"
+      después: ["Análisis"]
+  [excel:BIB-019] Aprendizaje y Cognición
+      antes:   "Pedagogía"
+      después: ["Pedagogía"]
+  [excel:BIB-020] Tesis de grado: Tópicos de análisis de datos
+      antes:   "Análisis de Datos"
+      después: ["Análisis de Datos"]
+  [excel:BIB-021] Análisis numérico
+      antes:   "Análisis"
+      después: ["Análisis"]
+  [excel:BIB-022] Topología Algebraica Elemental
+      antes:   "Topología"
+      después: ["Topología"]
+  [excel:BIB-023] Cerca de la Matemática (2)
+      antes:   "Análisis / Álgebra lineal / Geometría"
+      después: ["Análisis","Álgebra lineal","Geometría"]
+  [excel:BIB-024] Calculus
+      antes:   "Cálculo"
+      después: ["Cálculo"]
+  [excel:BIB-025] Cálculo V.1
+      antes:   "Cálculo"
+      después: ["Cálculo"]
+  [excel:BIB-026] Elementos de cálculo diferecial. Volumen I: Límites y la derivada
+      antes:   "Cálculo"
+      después: ["Cálculo"]
+  [excel:BIB-027] Cálculo en una variable
+      antes:   "Cálculo"
+      después: ["Cálculo"]
+  [excel:BIB-028] Cálulo diferencial
+      antes:   "Cálculo"
+      después: ["Cálculo"]
+  [excel:BIB-029] Elementos de cálculo con aplicaciones
+      antes:   "Cálculo"
+      después: ["Cálculo"]
+  [excel:BIB-030] Ejercicios de Cálculo Diferencial e Integral
+      antes:   "Cálculo"
+      después: ["Cálculo"]
+  [excel:BIB-031-01] Cálculo
+      antes:   "Cálculo"
+      después: ["Cálculo"]
+  [excel:BIB-032] Cálculo aplicado a Administración, Economía, Contaduría y Ciencias Sociales
+      antes:   "Cálculo"
+      después: ["Cálculo"]
+  [excel:BIB-033] Cálculo de una variable. Trascendentes tempranas
+      antes:   "Cálculo"
+      después: ["Cálculo"]
+  [excel:BIB-034] Variable compleja con aplicaciones
+      antes:   "Complejos"
+      después: ["Complejos"]
+  [excel:BIB-035] Cálculo con Geometría Analítica
+      antes:   "Cálculo / Geometría Analítica"
+      después: ["Cálculo","Geometría Analítica"]
+  [excel:BIB-036-01] Cálculo con Geometría Analítica
+      antes:   "Cálculo / Geometría Analítica"
+      después: ["Cálculo","Geometría Analítica"]
+  [excel:BIB-037] El cálculo con Geometría Analítica
+      antes:   "Cálculo / Geometría Analítica"
+      después: ["Cálculo","Geometría Analítica"]
+  [excel:BIB-038-01] Introducción al Cálculo en una variable
+      antes:   "Cálculo"
+      después: ["Cálculo"]
+  [excel:BIB-039] Cálculo diferencial e integral
+      antes:   "Cálculo"
+      después: ["Cálculo"]
+  [excel:BIB-040] Cálculo diferencial e integral
+      antes:   "Cálculo"
+      después: ["Cálculo"]
+  [excel:BIB-041] Mathematical Analysis for business and economics
+      antes:   "Cálculo"
+      después: ["Cálculo"]
+  [excel:BIB-042-01] Ejercicios de matemática para administración: Precalculo
+      antes:   "Precálculo"
+      después: ["Precálculo"]
+  [excel:BIB-043-01] Ejercicios de matemática para administración: Cálculo
+      antes:   "Cálculo"
+      después: ["Cálculo"]
+  [excel:BIB-044] Cálculo diferencial e integral
+      antes:   "Cálculo"
+      después: ["Cálculo"]
+  [excel:BIB-045] Cálculo Infinitesimal
+      antes:   "Cálculo"
+      después: ["Cálculo"]
+  [excel:BIB-046] Introducción a la Matemática Discreta
+      antes:   "Discreta"
+      después: ["Discreta"]
+  [excel:BIB-047] Matemáticas discretas con teoría de gráficas y combinatoria
+      antes:   "Discreta"
+      después: ["Discreta"]
+  [excel:BIB-048] Differential Equations: Basic Concepts and Theories, Excercises, Examinations, Answers
+      antes:   "Ecuaciones diferenciales"
+      después: ["Ecuaciones diferenciales"]
+  [excel:BIB-049] Matemáticas avanzadas para igeniería, Ecuaciones Diferenciales
+      antes:   "Ecuaciones diferenciales"
+      después: ["Ecuaciones diferenciales"]
+  [excel:BIB-050] Las matemáticas y su enseñanza
+      antes:   "Olimpiadas"
+      después: ["Olimpiadas"]
+  [excel:BIB-051] Las matemáticas y su enseñanza
+      antes:   "Didáctica general"
+      después: ["Didáctica general"]
+  [excel:BIB-052-01] Las matemáticas y su enseñanza
+      antes:   "Didáctica general"
+      después: ["Didáctica general"]
+  [excel:BIB-053] Las matemáticas y su enseñanza
+      antes:   "Didáctica general"
+      después: ["Didáctica general"]
+  [excel:BIB-054] Las matemáticas y su enseñanza
+      antes:   "Didáctica general"
+      después: ["Didáctica general"]
+  [excel:BIB-055] Las matemáticas y su enseñanza
+      antes:   "Didáctica general"
+      después: ["Didáctica general"]
+  [excel:BIB-056] Las matemáticas y su enseñanza
+      antes:   "Didáctica general"
+      después: ["Didáctica general"]
+  [excel:BIB-057] Las matemáticas y su enseñanza
+      antes:   "Didáctica general"
+      después: ["Didáctica general"]
+  [excel:BIB-058] Las matemáticas y su enseñanza
+      antes:   "Didáctica general"
+      después: ["Didáctica general"]
+  [excel:BIB-059] Las matemáticas y su enseñanza
+      antes:   "Didáctica general"
+      después: ["Didáctica general"]
+  [excel:BIB-060] Las matemáticas y su enseñanza
+      antes:   "Didáctica general"
+      después: ["Didáctica general"]
+  [excel:BIB-061] Las matemáticas y su enseñanza
+      antes:   "Didáctica general"
+      después: ["Didáctica general"]
+  [excel:BIB-062] Elementos para enseñar matemática
+      antes:   "Didáctica general"
+      después: ["Didáctica general"]
+  [excel:BIB-063] Educación Matemática
+      antes:   "Didáctica general"
+      después: ["Didáctica general"]
+  [excel:BIB-064] Educación Matemática
+      antes:   "Didáctica general"
+      después: ["Didáctica general"]
+  [excel:BIB-065] Educación Matemática
+      antes:   "Didáctica general"
+      después: ["Didáctica general"]
+  [excel:BIB-066] Educación Matemática
+      antes:   "Didáctica general"
+      después: ["Didáctica general"]
+  [excel:BIB-067] Educación Matemática
+      antes:   "Didáctica general"
+      después: ["Didáctica general"]
+  [excel:BIB-068] Educación Matemática
+      antes:   "Didáctica general"
+      después: ["Didáctica general"]
+  [excel:BIB-069] Educación Matemática
+      antes:   "Didáctica general"
+      después: ["Didáctica general"]
+  [excel:BIB-070] Educación Matemática
+      antes:   "Didáctica general"
+      después: ["Didáctica general"]
+  [excel:BIB-071] Planeamiento, Conducción y Evaluación en la enseñanza superior
+      antes:   "Didáctica en educación superior"
+      después: ["Didáctica en educación superior"]
+  [excel:BIB-072] Evaluación de los aprendizajes
+      antes:   "Evaluación"
+      después: ["Evaluación"]
+  [excel:BIB-073-01] Matemática Elemental: Tomo I
+      antes:   "Matemática general"
+      después: ["Matemática general"]
+  [excel:BIB-074-01] Matemática Elemental: Tomo II
+      antes:   "Matemática general"
+      después: ["Matemática general"]
+  [excel:BIB-075-01] Matemática elemental con aplicaciones
+      antes:   "Matemática general"
+      después: ["Matemática general"]
+  [excel:BIB-075-02] Matemática elemental con aplicaciones
+      antes:   "Matemática general"
+      después: ["Matemática general"]
+  [excel:BIB-076] Matemática elemental por objetivos 7mo año
+      antes:   "Matemática general"
+      después: ["Matemática general"]
+  [excel:BIB-077] Fundamentos matemáticos: un enfoque para técnicos
+      antes:   "Matemática general"
+      después: ["Matemática general"]
+  [excel:BIB-078] Matemática Activa Sétimo año
+      antes:   "Tercer ciclio"
+      después: ["Tercer ciclio"]
+  [excel:BIB-079] Geometría Analítica y Trigonometría
+      antes:   "Geometría Analítica / Trigonometría"
+      después: ["Geometría Analítica","Trigonometría"]
+  [excel:BIB-080] Geometría Euclídea II
+      antes:   "Geometría Euclídea"
+      después: ["Geometría Euclídea"]
+  [excel:BIB-081] La geometría
+      antes:   "Geometría Euclídea"
+      después: ["Geometría Euclídea"]
+  [excel:BIB-082] Geometría Plana y del Espacio y Trigonometría
+      antes:   "Geometría Euclídea / Trigonometría"
+      después: ["Geometría Euclídea","Trigonometría"]
+  [excel:BIB-083] Introducción a la Matemática
+      antes:   "Matemática general"
+      después: ["Matemática general"]
+  [excel:BIB-084] Materiales de trabajo del curso Introducción a la Pedagogía
+      antes:   "Curso: Introducción a la Pedagogía"
+      después: ["Curso: Introducción a la Pedagogía"]
+  [excel:BIB-085] Lucturas para el curso Introducción a la Pedagogía
+      antes:   "Curso: Introducción a la Pedagogía"
+      después: ["Curso: Introducción a la Pedagogía"]
+  [excel:BIB-086] Educación
+      antes:   "Curso: Introducción a la Pedagogía"
+      después: ["Curso: Introducción a la Pedagogía"]
+  [excel:BIB-087] Introducción a la pedagogía
+      antes:   "Pedagogía"
+      después: ["Pedagogía"]
+  [excel:BIB-088-01] Introducción a la Matemática Moderna
+      antes:   "Matemática general"
+      después: ["Matemática general"]
+  [excel:BIB-089] Introducción a la lógica
+      antes:   "Lógica"
+      después: ["Lógica"]
+  [excel:BIB-090-01] Matemática general Vol II
+      antes:   "Geometría Euclídea / Geometría analítica / Teoría de Matrices"
+      después: ["Geometría Euclídea","Geometría analítica","Teoría de Matrices"]
+  [excel:BIB-091] VI Congreso Internacional de Biomatemáticas
+      antes:   "Biomatemática"
+      después: ["Biomatemática"]
+  [excel:BIB-092] Mathematique
+      antes:   "Matemática general"
+      después: ["Matemática general"]
+  [excel:BIB-093] N ejercicios de matemática para 9no año
+      antes:   "Matemática general"
+      después: ["Matemática general"]
+  [excel:BIB-094] Matemática para Bachillerato
+      antes:   "Matemática general"
+      después: ["Matemática general"]
+  [excel:BIB-095] Geometría 7mo
+      antes:   "Geometría analítica / Geometría euclídea"
+      después: ["Geometría analítica","Geometría euclídea"]
+  [excel:BIB-096] Curso moderno de Matemáticas para la enseñanza media
+      antes:   "Discreta / Matemática General"
+      después: ["Discreta","Matemática General"]
+  [excel:BIB-097] Probabilidad y Estadística
+      antes:   "Probabilidad / Estadística"
+      después: ["Probabilidad","Estadística"]
+  [excel:BIB-098] Probabilidad y Estadística: aplicaciones para ingeniería
+      antes:   "Probabilidad / Estadística"
+      después: ["Probabilidad","Estadística"]
+  [excel:BIB-099-01] Probabilidad y Estadística II
+      antes:   "Probabilidad / Estadística"
+      después: ["Probabilidad","Estadística"]
+  [excel:BIB-100] Problemario de probabilidad
+      antes:   "Probabilidad"
+      después: ["Probabilidad"]
+  [excel:BIB-101] Estadística aplicada con Fathom
+      antes:   "Estadística"
+      después: ["Estadística"]
+  [excel:BIB-102] Procesos Aleatorios
+      antes:   "Probabilidad"
+      después: ["Probabilidad"]
+  [excel:BIB-103] Problemas y ejercicios de análisis matemático
+      antes:   "Análisis"
+      después: ["Análisis"]
+  [excel:BIB-104] Manual Integrado de acción tutorial
+      antes:   "Andragogía"
+      después: ["Andragogía"]
+  [excel:BIB-105] Métodos matemáticos aplicados a las ciencias: VII y VIII Simposios
+      antes:   "Métodos matemáticos"
+      después: ["Métodos matemáticos"]
+  [excel:BIB-106] Física: Un enfoque práctico
+      antes:   "Física"
+      después: ["Física"]
+  [excel:BIB-107] Matemáticas para administración y economía
+      antes:   "Economía"
+      después: ["Economía"]
+  [excel:BIB-108] MatLab: An introduction with applications
+      antes:   "Programación"
+      después: ["Programación"]
+  [excel:BIB-109] Programación en Java: Algoritmos, programación orientada a objetos e interfaz gráfica de usuario
+      antes:   "Programación"
+      después: ["Programación"]
+  [excel:BIB-110-01] Matemáticas para administración y economía
+      antes:   "Economía"
+      después: ["Economía"]
+  [excel:BIB-111] Matemática básica para administración
+      antes:   "Economía"
+      después: ["Economía"]
+  [excel:BIB-112] Matemáticas para la computación
+      antes:   "Discreta / Lógica / Computación"
+      después: ["Discreta","Lógica","Computación"]
+  [excel:BIB-113] Matemáticas avanzadas para igeniería. Vol2
+      antes:   "Cálculo / Complejos"
+      después: ["Cálculo","Complejos"]
+  [excel:BIB-114] Matemática básica con aplicaciones
+      antes:   "Matemática general"
+      después: ["Matemática general"]
+  [excel:BIB-116-01] Matemática para la enseñanza media ciclio diversificado: Teoría y ejercicios
+      antes:   "Ciclio diversificado"
+      después: ["Ciclio diversificado"]
+  [excel:BIB-117-01] Matemática enseñanza-aprendizaje: Programas actualizados del MEP
+      antes:   "Ciclio diversificado"
+      después: ["Ciclio diversificado"]
+  [excel:BIB-118] Matemáticas 9no
+      antes:   "Tercer ciclio"
+      después: ["Tercer ciclio"]
+  [excel:BIB-119] Matemática Noveno
+      antes:   "Tercer ciclio"
+      después: ["Tercer ciclio"]
+  [excel:BIB-120] Jaque Mate 7
+      antes:   "Tercer ciclio"
+      después: ["Tercer ciclio"]
+  [excel:BIB-121-01] Matemáticas 9° año ejercicios
+      antes:   "Tercer ciclio"
+      después: ["Tercer ciclio"]
+  [excel:BIB-122] Matemática Enseñanza-aprendizaje 8 año
+      antes:   "Tercer ciclio"
+      después: ["Tercer ciclio"]
+  [excel:BIB-123] Matemática Enseñanza-aprendizaje 9 año
+      antes:   "Tercer ciclio"
+      después: ["Tercer ciclio"]
+  [excel:BIB-124] Matemática Enseñanza-aprendizaje 10 año
+      antes:   "Tercer ciclio"
+      después: ["Tercer ciclio"]
+  [excel:BIB-125] Matemática para Bachillerato: Prácticas
+      antes:   "Ciclio diversificado"
+      después: ["Ciclio diversificado"]
+  [excel:BIB-126] Bachillerato Matemáticas 1997
+      antes:   "Ciclio diversificado"
+      después: ["Ciclio diversificado"]
+  [excel:BIB-127] Fuzzy Systems Handbook
+      antes:   "Programación/Lógica"
+      después: ["Programación","Lógica"]
+  [excel:BIB-128] Matemáticas Universitarias
+      antes:   "Matemática"
+      después: ["Matemática"]
+  [excel:BIB-129] Métodos matemáticos aplicados a las ciencias: V y VI Simposios
+      antes:   "Ciencia/Tecnología"
+      después: ["Ciencia","Tecnología"]
+  [excel:BIB-130] Matemáticas 9
+      antes:   "Matemática"
+      después: ["Matemática"]
+  [excel:BIB-131] Ejercicios de Matemáticas para Administración
+      antes:   "Matemática Básica"
+      después: ["Matemática Básica"]
+  [excel:BIB-132] Cálculo Diferencial e Integral
+      antes:   "Cálculo"
+      después: ["Cálculo"]
+  [excel:BIB-133] Java para Estudiantes
+      antes:   "Programación"
+      después: ["Programación"]
+  [excel:BIB-134] Curso de Trigonometría
+      antes:   "Matemática General"
+      después: ["Matemática General"]
+  [excel:BIB-135-01] Matemáticas
+      antes:   "Matemática Universitaria"
+      después: ["Matemática Universitaria"]
+
+Excedidos (más de 3 categorías):
+  [excel:BIB-115] Matemáticas finitas: Aplicaciones prácticas
+      categorías: ["Álgebra lineal","Álgebra abstracta","Programación Lineal","Estocástica"]
+
+Modo --desde-excel: datos tomados del Excel, no se leyó ni escribió Firestore.
