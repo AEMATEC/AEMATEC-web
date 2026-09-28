@@ -7,15 +7,25 @@
   if (!canvas) return;
   const ctx = canvas.getContext("2d");
 
-  const NAVY = "#0D2B45";
-  const CYAN = "#00A6B8";
-  const GRID = "rgba(13,43,69,0.08)";
+  // data-mode="dark" en el <canvas> es para fondos oscuros (p. ej. el encabezado de Inventario):
+  // usa líneas claras en vez de azul marino, que ahí casi no se vería.
+  const DARK = canvas.dataset.mode === "dark";
+  const NAVY = DARK ? "#EAF6F8" : "#0D2B45";
+  const CYAN = DARK ? "#63E0E1" : "#00A6B8";
+  const GRID = DARK ? "rgba(255,255,255,0.14)" : "rgba(13,43,69,0.08)";
   const T_DRAW = 3000, T_MOVE = 1200, T_TRACE = 4000, T_HOLD = 1200, T_CLEAR = 500;
   const T_CORNER = 1300, T_WRITE = 3200, T_BACK = 900;
 
   // Todas dentro de la misma familia de azules/verdes del sitio (nada de colores muy vivos):
   // es un fondo decorativo, no debe competir con el título.
-  const FUNCS = [
+  const FUNCS = DARK ? [
+    { f: x => Math.sin(x), color: "#8FD9DA" },
+    { f: x => Math.cos(x), color: "#6FB8C9" },
+    { f: x => Math.tan(x), color: "#9CB6E0" },
+    { f: x => 1 / Math.sin(x), color: "#7FD1B9" },
+    { f: x => 1 / Math.cos(x), color: "#8CC5DD" },
+    { f: x => Math.cos(x) / Math.sin(x), color: "#A9B8E0" }
+  ] : [
     { f: x => Math.sin(x), color: "#3B8FA6" },
     { f: x => Math.cos(x), color: "#43708F" },
     { f: x => Math.tan(x), color: "#5B7FB0" },
