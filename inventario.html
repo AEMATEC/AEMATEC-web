@@ -522,7 +522,11 @@
     const PAGE_SIZE = { institucional: 8, aematec: 8, biblioteca: 16, consumible: 8 };
 
     let itemsByTipo = { institucional: [], aematec: [], biblioteca: [], consumible: [] };
-    let activeTab = "institucional";
+    // Permite enlazar directo a una división desde afuera, p. ej. inventario.html?tipo=biblioteca
+    const TIPOS_VALIDOS = ["institucional", "aematec", "biblioteca", "consumible"];
+    const tipoPedido = new URLSearchParams(location.search).get("tipo");
+    let activeTab = TIPOS_VALIDOS.includes(tipoPedido) ? tipoPedido : "institucional";
+    document.querySelectorAll(".inv-tab-btn").forEach(b => b.classList.toggle("is-active", b.dataset.tipo === activeTab));
     let page = 1;
     let isJunta = false;
     let currentItem = null;
