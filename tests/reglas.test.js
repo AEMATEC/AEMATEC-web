@@ -112,6 +112,24 @@ describe("Préstamos (RI Art. 120-123)", () => {
   });
 });
 
+describe("Asistente básico (reportar un problema)", () => {
+  const reporte = cambios => ({ mensaje: "No puedo abrir un archivo del Repositorio", contacto: "", pagina: "repositorio.html", ...cambios });
+
+  test("cualquiera puede reportar un problema, sin dar su correo", async () => {
+    await assertSucceeds(addDoc(collection(anonimo().firestore(), "chatbotReportes"), reporte()));
+  });
+  test("el mensaje es obligatorio", async () => {
+    await assertFails(addDoc(collection(anonimo().firestore(), "chatbotReportes"), reporte({ mensaje: "" })));
+  });
+  test("no se aceptan campos fuera de lo esperado (por ejemplo, un uid)", async () => {
+    await assertFails(addDoc(collection(anonimo().firestore(), "chatbotReportes"), reporte({ uid: "algo" })));
+  });
+  test("solo Moderadores leen los reportes (pueden traer datos de contacto)", async () => {
+    await assertFails(getDocs(collection(anonimo().firestore(), "chatbotReportes")));
+    await assertSucceeds(getDocs(collection(usuario(MODERADOR).firestore(), "chatbotReportes")));
+  });
+});
+
 describe("Inventario", () => {
   test("lectura pública, escritura solo Junta", async () => {
     await assertSucceeds(getDocs(collection(anonimo().firestore(), "inventario")));
