@@ -239,3 +239,55 @@
 @media (prefers-reduced-motion: reduce) {
   .site-nav a { transition: none; }
 }
+
+/* ---------- Sugerencias en campos de texto (assets/js/sugerencias.js) ----------
+   Reemplaza el <datalist> del navegador por una lista con los colores del sitio. */
+.sugerencias { position: relative; }
+.sugerencias > input { width: 100%; }
+
+.sugerencias__lista {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  min-width: 11rem;
+  max-height: 14rem;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0.3rem;
+  list-style: none;
+  background: #FFFFFF;
+  border: 1px solid var(--aematec-border);
+  border-radius: 10px;
+  box-shadow: 0 14px 32px rgba(13, 43, 69, 0.16);
+  font-family: Montserrat, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: left;
+}
+
+.sugerencias__opcion {
+  padding: 0.5rem 0.7rem;
+  border-radius: 7px;
+  color: var(--aematec-navy);
+  cursor: pointer;
+}
+
+.sugerencias__opcion:hover { background: #F0F6F8; }
+
+.sugerencias__opcion[aria-selected="true"] {
+  background: var(--aematec-navy);
+  color: #FFFFFF;
+}
+
+.sugerencias__opcion[aria-selected="true"]::before {
+  content: "";
+  display: inline-block;
+  width: 3px;
+  height: 0.9em;
+  margin-right: 0.5rem;
+  vertical-align: -0.1em;
+  border-radius: 2px;
+  background: var(--aematec-teal-light);
+}

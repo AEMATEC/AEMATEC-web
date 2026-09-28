@@ -1,0 +1,74 @@
+# Migración de las categorías de los libros de la Biblioteca (scripts/categorias/migrar.js).
+# Se corre a mano: pestaña Actions → "Categorías de la Biblioteca" → Run workflow.
+# - modo "simular": muestra qué cambiaría, sin escribir nada (no necesita secretos).
+# - modo "aplicar": guarda los cambios en Firestore. Solo desde main. Usa el secreto FIREBASE_SERVICE_ACCOUNT.
+# El resultado se ve en el resumen de la ejecución. Se puede volver a correr: lo ya migrado no se toca.
+name: Categorías de la Biblioteca
+
+on:
+  workflow_dispatch:
+    inputs:
+      modo:
+        description: "simular (no escribe nada) o aplicar (guarda los cambios)"
+        type: choice
+        options: [simular, aplicar]
+        default: simular
+
+permissions:
+  contents: read
+
+concurrency:
+  group: categorias-biblioteca
+  cancel-in-progress: false
+
+jobs:
+  migrar:
+    name: Migrar categorías (${{ inputs.modo }})
+    runs-on: ubuntu-latest
+    env:
+      FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+    steps:
+      - name: Verificar
+        if: inputs.modo == 'aplicar'
+        run: |
+          if [ "$GITHUB_REF" != "refs/heads/main" ]; then
+            echo "::error::El modo aplicar solo se puede usar desde la rama main."
+            exit 1
+          fi
+          if [ -z "$FIREBASE_SERVICE_ACCOUNT" ]; then
+            echo "::error::Falta el secreto FIREBASE_SERVICE_ACCOUNT. Ver README → Publicación automática."
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: scripts/package-lock.json
+
+      - name: Instalar dependencias
+        working-directory: scripts
+        run: npm ci
+
+      - name: Preparar credenciales
+        if: inputs.modo == 'aplicar'
+        run: |
+          printf '%s' "$FIREBASE_SERVICE_ACCOUNT" > "$RUNNER_TEMP/cuenta-servicio.json"
+          echo "GOOGLE_APPLICATION_CREDENTIALS=$RUNNER_TEMP/cuenta-servicio.json" >> "$GITHUB_ENV"
+
+      - name: Migrar
+        working-directory: scripts
+        run: node categorias/migrar.js --reporte="$RUNNER_TEMP/reporte.md" ${{ inputs.modo == 'aplicar' && '--aplicar' || '' }}
+
+      - name: Resumen
+        if: always()
+        run: |
+          if [ "${{ job.status }}" != "success" ]; then echo "## ❌ La migración falló: revisa el registro del paso anterior" >> "$GITHUB_STEP_SUMMARY";
+          elif [ "${{ inputs.modo }}" = "aplicar" ]; then echo "## ✅ Cambios guardados en Firestore" >> "$GITHUB_STEP_SUMMARY";
+          else echo "## Simulación (no se guardó nada)" >> "$GITHUB_STEP_SUMMARY"; fi
+          cat "$RUNNER_TEMP/reporte.md" >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
+
+      - name: Borrar credenciales
+        if: always()
+        run: rm -f "$RUNNER_TEMP/cuenta-servicio.json"

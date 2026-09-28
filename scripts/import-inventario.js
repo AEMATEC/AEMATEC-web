@@ -17,6 +17,7 @@
 const path = require("path");
 const admin = require("firebase-admin");
 const XLSX = require("xlsx");
+const { normalizarLista } = require("../assets/js/inventario-categorias.js");
 
 const isDryRun = process.argv.includes("--dry-run");
 const shouldReplace = process.argv.includes("--replace");
@@ -111,7 +112,8 @@ function buildBiblioteca(workbook) {
                 autor,
                 edicion,
                 anio: normalize(row["Año"]) || "N/A",
-                categoria: normalize(row["Categoría"]),
+                // Lista unificada, igual que la página (assets/js/inventario-categorias.js).
+                categorias: normalizarLista(normalize(row["Categoría"])),
                 observaciones: normalize(row["Observaciones"]),
                 portadaUrl: "",
                 portadaPath: "",
