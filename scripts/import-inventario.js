@@ -38,6 +38,7 @@ function initAdmin() {
 }
 
 function normalize(value) {
+    if (value instanceof Date) return value.toLocaleDateString("es-CR");
     return String(value ?? "").trim();
 }
 
@@ -152,7 +153,7 @@ async function deleteExistingByTipo(db, tipo) {
 }
 
 async function main() {
-    const workbook = XLSX.readFile(excelPath);
+    const workbook = XLSX.readFile(excelPath, { cellDates: true });
     const groups = {
         institucional: buildInstitucionales(workbook),
         aematec: buildAematec(workbook),
