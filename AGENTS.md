@@ -92,6 +92,18 @@ revisa la pestaña **Actions** del repositorio en GitHub.
 `layout.js` ni cuentas del sitio. Sus reglas no están en este repositorio: si un cambio del Arcade escribe datos
 nuevos, documéntalo para quien administra `arcade-matec` (ver `docs/arcade-firebase-cambios.md`).
 
+Todo el Arcade (los 11 juegos y el menú) vive hoy en un solo `<script>` dentro de `arcade.html`, para que cambiar
+de juego sea instantáneo (sin recargar la página) y todo comparta sonido, música y conexión a Firebase. Está
+pendiente separar ese script en archivos por juego (empezando por Golf, que ya tiene su propio bloque bien
+delimitado) sin perder esa experiencia de una sola página — házlo si te lo piden, pero de a un juego a la vez y
+probando bien cada uno, no todos de golpe.
+
+Golf tiene un **creador de hoyos**: cualquiera diseña uno y lo envía a `golfHoyosPropuestos` (arcade-matec); un
+moderador lo aprueba desde "PROPUESTAS DE LA COMUNIDAD" con un código compartido (constante `GFP_MOD_CODE` en
+`arcade.html`, no es una contraseña fuerte, ver `docs/arcade-firebase-cambios.md`) y ahí se suma a "JUGAR SOLO".
+Si se agrega este mismo patrón a otro juego con mapas/pistas, sigue la misma idea: propuesta pendiente → código
+de moderador → se integra solo en modo local (no se sincronizó para partidas en línea, por simplicidad).
+
 ## Estilo del código
 Sitio estático: HTML + Tailwind compilado (`assets/css/tailwind.css`, ver `tailwind.config.js`) + JavaScript modular en línea, con el SDK de Firebase 10.12.2
 desde `gstatic`. Imita el código que rodea al cambio. El único paso de compilación es `npm run css`
