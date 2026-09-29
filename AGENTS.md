@@ -82,8 +82,15 @@ revisa la pestaña **Actions** del repositorio en GitHub.
 
 ## Archivos de páginas
 - Las páginas usan nombres cortos (`repositorio*.html`, `inventario.html`, `junta-directiva.html`, `tramites.html`).
+- Si agregas o renombras una página, agrégala también en `assets/js/site-pages.js` (buscador de la portada y
+  asistente).
 - Los archivos `aematec_*.html` que solo contienen una redirección existen para no romper enlaces viejos: no
   les agregues contenido. Si renombras una página, deja una redirección igual en el nombre anterior.
+
+## Arcade
+`arcade.html` es aparte: tiene su propio estilo y su propio proyecto de Firebase (`arcade-matec`), no usa
+`layout.js` ni cuentas del sitio. Sus reglas no están en este repositorio: si un cambio del Arcade escribe datos
+nuevos, documéntalo para quien administra `arcade-matec` (ver `docs/arcade-firebase-cambios.md`).
 
 ## Estilo del código
 Sitio estático: HTML + Tailwind compilado (`assets/css/tailwind.css`, ver `tailwind.config.js`) + JavaScript modular en línea, con el SDK de Firebase 10.12.2

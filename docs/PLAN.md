@@ -10,11 +10,11 @@ afectan al sitio.
 | Fase | Contenido | Estado |
 |---|---|---|
 | 0 | Documentar: README, este plan, agente de `.github` | ✅ Hecha |
-| 0.5 | Publicación automática (GitHub Actions), pruebas de reglas, correos por Gmail, agente de mantenimiento (`AGENTS.md`, `CLAUDE.md` y guías) | ✅ Hecha (falta configurar los secretos) |
+| 0.5 | Publicación automática (GitHub Actions), pruebas de reglas, correos por Gmail, agente de mantenimiento (`AGENTS.md`, `CLAUDE.md` y guías) | ✅ Hecha |
 | 1 | Correcciones urgentes (seguridad, datos personales, cumplimiento del RI) | ✅ Hecha (quedan pasos manuales, ver abajo) |
 | 2 | Base compartida: layout, navegación y módulos JS comunes | ✅ Hecha (2a, 2b y 2c) |
 | 3 | Consolidar páginas y paneles (versión corta) | ✅ Hecha (3a y 3b) |
-| 4 | Herramientas: Tailwind compilado, hosting, enlaces rotos en CI | ✅ Hecha (pendiente de merge) |
+| 4 | Herramientas: Tailwind compilado, hosting, enlaces rotos en CI | ✅ Hecha |
 | 5 | Trámites | ✅ Hecha (T1, T2 y T3) |
 
 ## Diagnóstico (septiembre 2026)
@@ -54,7 +54,7 @@ Estas correcciones se validaron con 10 pruebas de reglas en el emulador de Fires
 
 ### Pasos manuales pendientes de la Fase 1
 1. ~~Verificar un dominio en Resend~~: se usa Gmail. Crear la contraseña de aplicación (README → Correos de notificación).
-2. **Configurar la publicación automática** (README → Publicación automática). Las reglas ya se publicaron a mano; las Functions se publicarán con el flujo.
+2. ~~Configurar la publicación automática~~: los secretos están configurados y el flujo **Firebase** publica reglas y Functions en cada merge.
 3. **Entrar una vez al Panel de administración** (`admin.html`) después del despliegue para generar `config/junta_publica`. Hasta
    entonces la página pública mostrará "Aún no se han registrado integrantes".
 4. ~~Confirmar el dominio~~: es `https://aematec.github.io/AEMATEC-web/`, que ya está incluido en `cors.json`.
