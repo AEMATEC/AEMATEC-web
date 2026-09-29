@@ -272,6 +272,7 @@ nav .btn{padding:8px 12px}
     <button class="btn tab" data-t="duelo">DUELO DEL OESTE</button>
     <button class="btn tab" data-t="runner">LA HUIDA DEL ZORRO</button>
     <button class="btn tab" data-t="golf">GOLF</button>
+    <button class="btn tab" data-t="cruce">CRUZAR LA CALLE</button>
   </nav>
 
   <!-- ============ MENÚ ============ -->
@@ -804,6 +805,69 @@ nav .btn{padding:8px 12px}
       <ol class="lb" id="gf-lb"></ol>
       <h4 style="margin-top:16px">CÓMO SE JUEGA</h4>
       <p class="howto">SOLO O CON HASTA 4 PERSONAS, TURNÁNDOSE EN EL MISMO RECORRIDO. ARRASTRA DESDE TU BOLA HACIA ATRÁS PARA APUNTAR: ENTRE MÁS ESTIRES, MÁS FUERTE EL GOLPE. LA ARENA FRENA LA BOLA Y EL AGUA TE REGRESA AL ÚLTIMO LUGAR SEGURO CON UN GOLPE DE PENALIDAD. SI VAS MUY RÁPIDO, LA BOLA NO ENTRA AL HOYO Y SIGUE DE LARGO: BAJA LA FUERZA CERCA DE LA META.</p>
+    </aside>
+  </section>
+
+  <!-- ============ CRUZAR LA CALLE ============ -->
+  <section class="game" id="g-cruce">
+    <div class="main px">
+      <div class="splash" data-g="cruce"><canvas width="160" height="72"></canvas><h2>CRUZAR LA CALLE</h2><p>ESQUIVA LOS CARROS Y CRUZA EL RÍO SUBIDO EN TRONCOS Y TORTUGAS. LLEGA A LA META SIN CAER AL AGUA NI QUE TE ATROPELLEN. TIENES 3 VIDAS.</p><button class="btn red">INICIAR</button></div>
+      <div class="gbody" hidden>
+        <div id="cr-menu">
+          <h4>¿CÓMO QUIERES JUGAR?</h4>
+          <div class="row left"><button class="btn green" id="cr-local">JUGAR SOLO</button></div>
+          <div class="row left">
+            <button class="btn" id="cr-create">CREAR PARTIDA ONLINE</button>
+            <input id="cr-code" class="px-in" placeholder="CÓDIGO" maxlength="5">
+            <button class="btn orange" id="cr-join">UNIRSE</button>
+          </div>
+          <p class="msg" id="cr-menu-msg" style="text-align:left"></p>
+          <div class="row left spec-toggle">
+            <button class="btn gray" id="cr-spec-btn">👁 PARTIDAS EN VIVO</button>
+          </div>
+          <ul class="spec-list" id="cr-spec-list" hidden></ul>
+        </div>
+        <div id="cr-lobby" hidden>
+          <div class="rc-top"><span class="tag" id="cr-room"></span><button class="btn gray" id="cr-leave">SALIR</button></div>
+          <p class="sub" id="cr-lobby-msg"></p>
+          <ul class="plist" id="cr-plist"></ul>
+          <div class="row left"><button class="btn green" id="cr-go">¡EMPEZAR!</button></div>
+        </div>
+        <div id="cr-game" hidden>
+          <div class="rc-top">
+            <span class="tag" id="cr-room2" hidden></span>
+            <span id="cr-spec-badge" class="badge" hidden>👁 ESPECTADOR</span>
+            <button class="btn gray" id="cr-quit">SALIR</button>
+          </div>
+          <div class="fc-bar">
+            <span id="cr-status"></span>
+            <span id="cr-score"></span>
+          </div>
+          <ul class="plist" id="cr-players" hidden></ul>
+          <div class="stage">
+            <canvas id="cr-cv" width="416" height="416"></canvas>
+            <div class="over" id="cr-over" hidden>
+              <h3 style="font-size:16px">¡SE ACABARON TUS VIDAS!</h3>
+              <p id="cr-over-p"></p>
+              <div class="row"><button class="btn green" id="cr-again">OTRA VEZ</button><button class="btn gray" id="cr-exit">MENÚ</button></div>
+            </div>
+          </div>
+          <div class="touch">
+            <div><button class="btn gray" id="cr-left">◄</button></div>
+            <div><button class="btn green" id="cr-up">▲</button></div>
+            <div><button class="btn gray" id="cr-down">▼</button></div>
+            <div><button class="btn gray" id="cr-right">►</button></div>
+          </div>
+          <p class="keys">FLECHAS O WASD PARA MOVERTE · TAMBIÉN PUEDES USAR LOS BOTONES</p>
+        </div>
+      </div>
+    </div>
+    <aside class="side px">
+      <h3>TOP 10</h3>
+      <p class="sub">MEJOR PUNTAJE</p>
+      <ol class="lb" id="cr-lb"></ol>
+      <h4 style="margin-top:16px">CÓMO SE JUEGA</h4>
+      <p class="howto">MUEVE CASILLA POR CASILLA CON LAS FLECHAS. LOS CARROS TE QUITAN UNA VIDA. EN EL RÍO SOLO SOBREVIVES SUBIDO EN UN TRONCO O TORTUGA: SI CAES AL AGUA, PIERDES UNA VIDA. LLEGAR A UNA META SUMA PUNTOS, SUBE DE NIVEL (DÍA, NOCHE, DESIERTO O CIUDAD, CADA VEZ UN POCO MÁS RÁPIDO) Y TE MANDA OTRA VEZ AL INICIO. SE ACABA CON 3 VIDAS PERDIDAS. EN LÍNEA, HASTA 4 PERSONAS JUEGAN A LA VEZ EN EL MISMO TABLERO.</p>
     </aside>
   </section>
 
@@ -5193,6 +5257,367 @@ $('#gf-exit').onclick = () => goTab('menu');
 window.addEventListener('beforeunload', () => { if (GF.mode === 'online') gfLeaveOnline(); });
 gfLB(); gfView('menu');
 
+/* =========================================================
+   CRUZAR LA CALLE — solo o hasta 4 en línea (cada quien su rana,
+   mismo tablero, sincronizado con una semilla compartida)
+   ========================================================= */
+const CR_TILE = 32, CR_COLS = 13, CR_ROWS = 13;
+const CR_CVW = CR_TILE * CR_COLS, CR_CVH = CR_TILE * CR_ROWS;
+const CR_START_ROW = 12, CR_MEDIAN_ROW = 6, CR_HOME_ROW = 0;
+const CR_RIVER_ROWS = [1, 2, 3, 4, 5], CR_ROAD_ROWS = [7, 8, 9, 10, 11];
+const CR_HOME_COLS = [1, 4, 7, 10];
+const CR_LIVES_START = 3, CR_HOP_MS = 140, CR_MOVE_COOLDOWN = 150;
+const CR_CAR_COLORS = ['#b13e53', '#41a6f6', '#ef7d57', '#5d275d', '#e3b619'];
+const CR_PCOLORS = ['#a7f070', '#e83b3b', '#41a6f6', '#ffcd75'];
+const CR_THEMES = [
+  { n: 'DÍA', water: '#2f8b93', waterHome: '#0b5c66', grass: '#38b764', road: '#333c57', line: '#f4f4f4', homeSlot: '#a7f070' },
+  { n: 'NOCHE', water: '#1c3c5a', waterHome: '#0a1f33', grass: '#1f4d3a', road: '#141522', line: '#8fa0c0', homeSlot: '#73eff7' },
+  { n: 'DESIERTO', water: '#3a6ea8', waterHome: '#254b78', grass: '#c9a15a', road: '#7a5a3a', line: '#fff1c4', homeSlot: '#ffcd75' },
+  { n: 'CIUDAD', water: '#345b7a', waterHome: '#1c3348', grass: '#4a5568', road: '#22242f', line: '#ffe14d', homeSlot: '#41a6f6' },
+];
+function crTheme() { return CR_THEMES[CR.level % CR_THEMES.length]; }
+function crRng(seed) { let s = (seed >>> 0) || 1; return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; }
+function crLanes(seed, level = 0) {
+  const rng = crRng(seed), lanes = {}, boost = 1 + Math.min(level, 6) * 0.1;
+  CR_ROAD_ROWS.forEach((row, i) => {
+    const count = 3 + (rng() < .5 ? 0 : 1);
+    lanes[row] = {
+      dir: i % 2 === 0 ? 1 : -1, speed: (55 + rng() * 65) * boost, w: 26 + (rng() < .5 ? 0 : 12),
+      count, spacing: CR_CVW / count, phase: rng() * CR_CVW, kind: 'car',
+      color: CR_CAR_COLORS[(i * 2 + Math.floor(rng() * 5)) % CR_CAR_COLORS.length]
+    };
+  });
+  CR_RIVER_ROWS.forEach((row, i) => {
+    const count = 2 + (rng() < .5 ? 0 : 1);
+    lanes[row] = {
+      dir: i % 2 === 0 ? -1 : 1, speed: (35 + rng() * 45) * boost, w: 46 + (rng() < .5 ? 0 : 26),
+      count, spacing: CR_CVW / count, phase: rng() * CR_CVW, kind: i % 2 === 0 ? 'log' : 'turtle'
+    };
+  });
+  return lanes;
+}
+function crLaneItems(lane, t) {
+  const items = [], span = CR_CVW + lane.spacing;
+  for (let i = 0; i < lane.count; i++) {
+    let x = (lane.phase + i * lane.spacing + lane.dir * lane.speed * t) % span;
+    if (x < 0) x += span;
+    x -= lane.spacing;
+    items.push({ x, w: lane.w });
+  }
+  return items;
+}
+function crItemAt(lane, t, px) { return crLaneItems(lane, t).find(it => px >= it.x && px <= it.x + it.w) || null; }
+const CR = {
+  mode: null, spectating: false, room: null, isHost: false, roomData: null, roomPlayers: {}, others: {},
+  unsubs: [], hbStop: null, _hostTimer: null, lastSend: 0, resultShown: false, _seenRoundStart: 0,
+  seed: 1, t0: 0, roundStart: 0, lanes: null,
+  x: 0, y: 0, row: CR_START_ROW, lives: CR_LIVES_START, score: 0, bestRow: CR_START_ROW, level: 0,
+  state: 'ready', hop: null, lastMoveAt: 0, popup: null
+};
+function crFrogStart() { return { x: 6 * CR_TILE + CR_TILE / 2, y: CR_START_ROW * CR_TILE + CR_TILE / 2 }; }
+function crNow() { return (performance.now() - CR.t0) / 1000; }
+function crReset() {
+  $('#cr-over').hidden = true;
+  CR.seed = (Math.random() * 1e9) | 0; CR.lanes = crLanes(CR.seed); CR.t0 = performance.now();
+  const p = crFrogStart(); CR.x = p.x; CR.y = p.y; CR.row = CR_START_ROW; CR.bestRow = CR_START_ROW;
+  CR.lives = CR_LIVES_START; CR.score = 0; CR.level = 0; CR.state = 'playing'; CR.hop = null; CR.popup = null;
+}
+function crTryMove(dx, dy) {
+  if (CR.state !== 'playing' || CR.hop) return;
+  const now = performance.now(); if (now - CR.lastMoveAt < CR_MOVE_COOLDOWN) return; CR.lastMoveAt = now;
+  const col = Math.round(CR.x / CR_TILE - 0.5), row = CR.row;
+  const nrow = Math.max(CR_HOME_ROW, Math.min(CR_START_ROW, row + dy));
+  const ncol = Math.max(0, Math.min(CR_COLS - 1, col + dx));
+  if (nrow === row && ncol === col) return;
+  CR.hop = { fx: CR.x, fy: CR.y, tx: ncol * CR_TILE + CR_TILE / 2, ty: nrow * CR_TILE + CR_TILE / 2, t: 0, row: nrow };
+  SFX.play('bump');
+}
+function crRoadHit(row, t, x) { const lane = CR.lanes[row]; return crLaneItems(lane, t).some(it => x + 10 > it.x && x - 10 < it.x + it.w); }
+function crLand(t) {
+  if (CR_ROAD_ROWS.includes(CR.row)) { if (crRoadHit(CR.row, t, CR.x)) { crDie('ATROPELLADO'); return; } }
+  if (CR_RIVER_ROWS.includes(CR.row)) { if (!crItemAt(CR.lanes[CR.row], t, CR.x)) { crDie('AGUA'); return; } }
+  if (CR.row === CR_HOME_ROW) {
+    const onSlot = CR_HOME_COLS.some(c => Math.abs(CR.x - (c * CR_TILE + CR_TILE / 2)) < CR_TILE / 2);
+    if (!onSlot) { crDie('AGUA'); return; }
+    crScoreHome(); return;
+  }
+  if (CR.row < CR.bestRow) { CR.score += (CR.bestRow - CR.row) * 10; CR.bestRow = CR.row; }
+}
+function crScoreHome() {
+  CR.score += 50; SFX.play('win');
+  CR.level++; CR.seed = (Math.random() * 1e9) | 0; CR.lanes = crLanes(CR.seed, CR.level); CR.t0 = performance.now();
+  CR.popup = { txt: `¡LLEGASTE! +50 · NIVEL ${CR.level + 1}: ${crTheme().n}`, life: 1.6 };
+  const p = crFrogStart(); CR.x = p.x; CR.y = p.y; CR.row = CR_START_ROW; CR.bestRow = CR_START_ROW;
+}
+function crDie(reason) {
+  SFX.play('lose'); CR.lives--;
+  CR.popup = { txt: reason === 'AGUA' ? '¡TE CAÍSTE AL AGUA!' : '¡TE ATROPELLARON!', life: 1 };
+  if (CR.lives <= 0) {
+    CR.state = CR.mode === 'online' ? 'dead' : 'over';
+    if (CR.mode === 'online') crOnlineSend(true); else crFinish();
+    return;
+  }
+  const p = crFrogStart(); CR.x = p.x; CR.y = p.y; CR.row = CR_START_ROW; CR.bestRow = CR_START_ROW; CR.hop = null;
+}
+function crFinish() {
+  $('#cr-over-p').textContent = `PUNTAJE: ${CR.score}`;
+  $('#cr-over').hidden = false; $('#cr-again').hidden = false;
+  LB.submit('cruce', CR.score, false).then(crLB);
+}
+function crLB() { LB.render($('#cr-lb'), 'cruce', false, r => r.score + ' PTS'); }
+function crStep(dt) {
+  if (CR.mode === 'online') { Object.values(CR.others).forEach(o => { const f = Math.min(1, dt * 10); o.x += (o.tx - o.x) * f; o.y += (o.ty - o.y) * f; }); }
+  if (CR.state !== 'playing') return;
+  const t = CR.mode === 'online' ? (Date.now() - CR.roundStart) / 1000 : crNow();
+  if (CR.hop) {
+    CR.hop.t += dt / (CR_HOP_MS / 1000);
+    const k = Math.min(1, CR.hop.t);
+    CR.x = CR.hop.fx + (CR.hop.tx - CR.hop.fx) * k; CR.y = CR.hop.fy + (CR.hop.ty - CR.hop.fy) * k;
+    if (k >= 1) { CR.row = CR.hop.row; CR.x = CR.hop.tx; CR.y = CR.hop.ty; CR.hop = null; crLand(t); }
+  } else {
+    if (CR_RIVER_ROWS.includes(CR.row)) {
+      const lane = CR.lanes[CR.row], item = crItemAt(lane, t, CR.x);
+      if (!item) { crDie('AGUA'); }
+      else {
+        CR.x += lane.dir * lane.speed * dt;
+        if (CR.x < -CR_TILE / 2 || CR.x > CR_CVW + CR_TILE / 2) crDie('AGUA');
+      }
+    } else if (CR_ROAD_ROWS.includes(CR.row) && crRoadHit(CR.row, t, CR.x)) { crDie('ATROPELLADO'); }
+  }
+  if (CR.mode === 'online' && CR.state === 'playing') crOnlineSend();
+}
+function crDrawLane(ctx, row, lane, t) {
+  const y = row * CR_TILE;
+  crLaneItems(lane, t).forEach(it => {
+    if (lane.kind === 'car') {
+      ctx.fillStyle = lane.color; ctx.fillRect(it.x + 2, y + 5, it.w - 4, CR_TILE - 10);
+      ctx.fillStyle = 'rgba(255,255,255,.5)'; ctx.fillRect(it.x + 4, y + 7, it.w - 8, 4);
+      ctx.fillStyle = '#1a1c2c'; ctx.fillRect(it.x + (lane.dir > 0 ? it.w - 9 : 3), y + 5, 6, CR_TILE - 10);
+    } else if (lane.kind === 'log') {
+      ctx.fillStyle = '#8a5a3c'; ctx.fillRect(it.x, y + 6, it.w, CR_TILE - 12);
+      ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(it.x, y + 6, it.w, 3);
+      ctx.fillStyle = '#a97c4f'; for (let k = it.x + 6; k < it.x + it.w - 4; k += 14) ctx.fillRect(k, y + 9, 3, CR_TILE - 18);
+    } else {
+      const n = Math.max(1, Math.round(it.w / 24));
+      for (let k = 0; k < n; k++) { pxCircle(ctx, it.x + 12 + k * 24, y + CR_TILE / 2, 10, '#38b764'); pxCircle(ctx, it.x + 12 + k * 24, y + CR_TILE / 2, 6, '#2c5c34'); }
+    }
+  });
+}
+function crDrawFrog(ctx, x, y, color) {
+  ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(x, y + 9, 9, 4, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = color; ctx.beginPath(); ctx.arc(x, y, 10, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#1a1c2c'; ctx.fillRect(x - 6, y - 4, 3, 3); ctx.fillRect(x + 3, y - 4, 3, 3);
+}
+function crDraw() {
+  const cv = $('#cr-cv'); if (!cv || !cv.offsetParent || !CR.lanes) return;
+  const ctx = cv.getContext('2d'); ctx.imageSmoothingEnabled = false; ctx.textAlign = 'center';
+  const t = CR.mode === 'online' ? (Date.now() - CR.roundStart) / 1000 : crNow();
+  const th = crTheme();
+  ctx.fillStyle = th.waterHome; ctx.fillRect(0, CR_HOME_ROW * CR_TILE, CR_CVW, CR_TILE);
+  CR_HOME_COLS.forEach(c => { ctx.fillStyle = th.water; ctx.fillRect(c * CR_TILE, 0, CR_TILE, CR_TILE); pxCircle(ctx, c * CR_TILE + CR_TILE / 2, CR_TILE / 2, 8, th.homeSlot); });
+  ctx.fillStyle = th.water; CR_RIVER_ROWS.forEach(r => ctx.fillRect(0, r * CR_TILE, CR_CVW, CR_TILE));
+  ctx.fillStyle = th.grass; ctx.fillRect(0, CR_MEDIAN_ROW * CR_TILE, CR_CVW, CR_TILE);
+  ctx.fillStyle = th.road; CR_ROAD_ROWS.forEach(r => ctx.fillRect(0, r * CR_TILE, CR_CVW, CR_TILE));
+  ctx.fillStyle = th.grass; ctx.fillRect(0, CR_START_ROW * CR_TILE, CR_CVW, CR_TILE);
+  ctx.fillStyle = th.line; CR_ROAD_ROWS.forEach(r => { for (let i = 6; i < CR_CVW; i += 16) ctx.fillRect(i, r * CR_TILE + CR_TILE / 2 - 1, 8, 2); });
+  [...CR_RIVER_ROWS, ...CR_ROAD_ROWS].forEach(r => crDrawLane(ctx, r, CR.lanes[r], t));
+  if (CR.mode === 'online') {
+    const seats = crSeatList();
+    seats.forEach(([uid], i) => {
+      if (uid === UID) return;
+      const o = CR.others[uid]; if (!o || o.finished) return;
+      crDrawFrog(ctx, o.x, o.y, CR_PCOLORS[i] || '#aaaaaa');
+    });
+    if (CR.state === 'playing') { const myIdx = seats.findIndex(([u]) => u === UID); crDrawFrog(ctx, CR.x, CR.y, CR_PCOLORS[myIdx] || '#a7f070'); }
+  } else if (CR.state === 'playing' || CR.state === 'over') {
+    crDrawFrog(ctx, CR.x, CR.y, '#a7f070');
+  }
+  if (CR.popup && CR.popup.life > 0) {
+    ctx.fillStyle = 'rgba(0,0,0,.4)'; ctx.fillRect(0, CR_CVH / 2 - 20, CR_CVW, 32);
+    ctx.fillStyle = '#ffe14d'; ctx.font = '12px "Press Start 2P"'; ctx.fillText(CR.popup.txt, CR_CVW / 2, CR_CVH / 2 + 4);
+  }
+  $('#cr-status').textContent = `VIDAS: ${'❤'.repeat(Math.max(0, CR.lives))} · NIVEL ${CR.level + 1}: ${th.n}`;
+  $('#cr-score').textContent = `PUNTAJE: ${CR.score}`;
+}
+function crTick(dt) {
+  if (CR.popup) { CR.popup.life -= dt; if (CR.popup.life <= 0) CR.popup = null; }
+  crStep(dt);
+}
+['cr-up', 'cr-down', 'cr-left', 'cr-right'].forEach(id => {
+  const dx = id === 'cr-left' ? -1 : id === 'cr-right' ? 1 : 0, dy = id === 'cr-up' ? -1 : id === 'cr-down' ? 1 : 0;
+  $('#' + id).addEventListener('pointerdown', e => { e.preventDefault(); crTryMove(dx, dy); });
+});
+
+/* ---- partida en línea (hasta 4 jugadores, mismo tablero) ---- */
+function crMenuMsg(t, cls = '') { const m = $('#cr-menu-msg'); m.textContent = t; m.className = 'msg ' + cls; m.style.textAlign = 'left'; }
+function crView(v) { $('#cr-menu').hidden = v !== 'menu'; $('#cr-lobby').hidden = v !== 'lobby'; $('#cr-game').hidden = v !== 'game'; fitSoon(); }
+function crSeatList() { return Object.entries(CR.roomPlayers).sort((a, b) => a[1].slot - b[1].slot); }
+function crMeDoc() { return fs.doc(db, 'cruces', CR.room, 'players', UID); }
+function crOnlineSend(force) {
+  if (CR.mode !== 'online' || !CR.room) return;
+  const now = performance.now(); if (!force && now - CR.lastSend < 110) return; CR.lastSend = now;
+  fs.updateDoc(crMeDoc(), { x: Math.round(CR.x * 10) / 10, y: Math.round(CR.y * 10) / 10, lives: CR.lives, score: CR.score, finished: CR.state === 'dead' })
+    .catch(e => force && console.error(e));
+}
+async function crCreate() {
+  if (!(await fbReady)) return crMenuMsg('SIN CONEXIÓN A FIREBASE: SOLO SE PUEDE JUGAR SOLO.', 'lose');
+  crLeaveOnline(); crMenuMsg('CREANDO PARTIDA…');
+  try {
+    let code, ref;
+    for (let k = 0; k < 5; k++) { code = genCode(); ref = fs.doc(db, 'cruces', code); if (!(await fs.getDoc(ref)).exists()) break; }
+    await fs.setDoc(ref, { host: UID, state: 'lobby', seed: 0, roundStartMs: 0, created: fs.serverTimestamp() });
+    CR.room = code;
+    await fs.setDoc(fs.doc(db, 'cruces', code, 'players', UID), { name: playerName(), slot: 0, x: 0, y: 0, lives: CR_LIVES_START, score: 0, finished: false, joined: fs.serverTimestamp() });
+    crEnterLobby();
+  } catch (e) { console.error(e); CR.room = null; crMenuMsg('ERROR AL CREAR PARTIDA: ' + e.message, 'lose'); }
+}
+async function crJoin() {
+  const code = $('#cr-code').value.trim().toUpperCase();
+  if (code.length < 5) return crMenuMsg('ESCRIBE EL CÓDIGO DE 5 LETRAS.', 'lose');
+  if (!(await fbReady)) return crMenuMsg('SIN CONEXIÓN A FIREBASE: SOLO SE PUEDE JUGAR SOLO.', 'lose');
+  crLeaveOnline(); crMenuMsg('ENTRANDO…');
+  try {
+    const d = await fs.getDoc(fs.doc(db, 'cruces', code));
+    if (!d.exists()) throw new Error('ESA PARTIDA NO EXISTE');
+    const ps = await fs.getDocs(fs.collection(db, 'cruces', code, 'players'));
+    const used = new Set(); let mine = false;
+    ps.forEach(p => { if (p.id === UID) mine = true; else used.add(p.data().slot); });
+    if (!mine && used.size >= 4) throw new Error('LA PARTIDA ESTÁ LLENA (MÁX. 4)');
+    if (!mine && d.data().state !== 'lobby') throw new Error('LA PARTIDA YA EMPEZÓ');
+    let slot = 0; while (used.has(slot)) slot++;
+    CR.room = code;
+    await fs.setDoc(fs.doc(db, 'cruces', code, 'players', UID), { name: playerName(), slot, x: 0, y: 0, lives: CR_LIVES_START, score: 0, finished: false, joined: fs.serverTimestamp() });
+    crEnterLobby();
+  } catch (e) { CR.room = null; crMenuMsg(e.message, 'lose'); }
+}
+function crEnterLobby() {
+  CR.mode = 'online'; CR.roomData = null; CR.roomPlayers = {}; CR.others = {}; CR.resultShown = false; CR._seenRoundStart = 0;
+  crMenuMsg(''); $('#cr-room').textContent = (CR.spectating ? '👁 ESPECTADOR · PARTIDA ' : 'PARTIDA ') + CR.room;
+  crView('lobby'); crLobbyRender();
+  CR.unsubs.push(fs.onSnapshot(fs.doc(db, 'cruces', CR.room), s => {
+    if (!s.exists()) { if (CR.spectating) { crMenuMsg('LA PARTIDA SE CERRÓ.', 'lose'); crToMenu(); } return; }
+    CR.roomData = s.data(); crSync();
+  }));
+  CR.unsubs.push(fs.onSnapshot(fs.collection(db, 'cruces', CR.room, 'players'), s => {
+    const m = {}; s.forEach(d => m[d.id] = d.data()); CR.roomPlayers = m;
+    Object.entries(m).forEach(([uid, data]) => {
+      if (uid === UID) return;
+      const o = CR.others[uid] || { x: data.x, y: data.y };
+      CR.others[uid] = { ...o, tx: data.x, ty: data.y, name: data.name, lives: data.lives, score: data.score, finished: data.finished };
+    });
+    crSync();
+  }));
+  if (!CR.spectating) CR.hbStop = presenceLoop(() => fs.updateDoc(fs.doc(db, 'cruces', CR.room, 'players', UID), { lastSeen: fs.serverTimestamp() }).catch(() => {}));
+  CR._hostTimer = setInterval(crHostPoll, 3000);
+}
+async function crSpecOpen(code) { crToMenu(); CR.spectating = true; CR.room = code; $('#cr-spec-list').hidden = true; crEnterLobby(); }
+function crLobbyRender() {
+  if (CR.mode !== 'online') return;
+  const list = crSeatList(), ul = $('#cr-plist'); ul.innerHTML = '';
+  list.forEach(([uid, p], i) => {
+    const li = document.createElement('li');
+    li.innerHTML = `<span class="dot" style="background:${CR_PCOLORS[i] || '#888'}"></span><span>${esc(p.name)}${uid === UID ? ' (TÚ)' : ''}${CR.roomData && uid === CR.roomData.host ? ' ★' : ''}</span>`;
+    ul.appendChild(li);
+  });
+  $('#cr-lobby-msg').textContent = (CR.isHost ? `COMPARTE EL CÓDIGO ${CR.room}. ` : 'ESPERANDO AL ANFITRIÓN (★)… ') + `${list.length}/4 JUGADORES`;
+  $('#cr-go').hidden = !CR.isHost || CR.spectating;
+  $('#cr-go').disabled = list.length < 1;
+}
+async function crOnlineStart() {
+  if (!CR.isHost || CR.spectating) return;
+  const list = crSeatList(); if (!list.length) return;
+  const seed = (Math.random() * 1e9) | 0, roundStartMs = Date.now();
+  try {
+    await fs.updateDoc(fs.doc(db, 'cruces', CR.room), { state: 'play', seed, roundStartMs });
+    await Promise.all(list.map(([uid]) => fs.updateDoc(fs.doc(db, 'cruces', CR.room, 'players', uid), { x: 0, y: 0, lives: CR_LIVES_START, score: 0, finished: false })));
+  } catch (e) { console.error(e); }
+}
+function crSync() {
+  const d = CR.roomData; if (!d || CR.mode !== 'online') return;
+  CR.isHost = d.host === UID;
+  crView(d.state === 'lobby' ? 'lobby' : 'game');
+  if (d.state === 'lobby') { crLobbyRender(); return; }
+  $('#cr-over').hidden = d.state !== 'over';
+  $('#cr-room2').hidden = false; $('#cr-room2').textContent = (CR.spectating ? '👁 ESPECTADOR · PARTIDA ' : 'PARTIDA ') + CR.room;
+  $('#cr-spec-badge').hidden = !CR.spectating;
+  if (!CR.spectating && d.roundStartMs && d.roundStartMs !== CR._seenRoundStart) {
+    CR._seenRoundStart = d.roundStartMs; CR.seed = d.seed; CR.roundStart = d.roundStartMs; CR.level = 0; CR.lanes = crLanes(d.seed, 0);
+    const p = crFrogStart(); CR.x = p.x; CR.y = p.y; CR.row = CR_START_ROW; CR.bestRow = CR_START_ROW;
+    CR.lives = CR_LIVES_START; CR.score = 0; CR.state = 'playing'; CR.hop = null; CR.popup = null;
+  }
+  if (d.state === 'over' && !CR.resultShown) { CR.resultShown = true; crOnlineFinish(); }
+  crRenderPlayers();
+}
+function crRenderPlayers() {
+  const d = CR.roomData; if (!d) return;
+  const ul = $('#cr-players'); ul.hidden = false; ul.innerHTML = '';
+  crSeatList().forEach(([uid, p], i) => {
+    const mine = uid === UID;
+    const st = mine ? { lives: CR.lives, score: CR.score } : (CR.others[uid] || { lives: p.lives, score: p.score });
+    const li = document.createElement('li');
+    li.innerHTML = `<span class="dot" style="background:${CR_PCOLORS[i] || '#888'}"></span><span>${esc(p.name)}${mine ? ' (TÚ)' : ''}</span><small>${'❤'.repeat(Math.max(0, st.lives || 0))} · ${st.score || 0} PTS</small>`;
+    ul.appendChild(li);
+  });
+}
+function crOnlineFinish() {
+  const totals = crSeatList().map(([uid, p]) => ({ uid, name: p.name, score: uid === UID ? CR.score : ((CR.others[uid] || {}).score || p.score || 0) }));
+  totals.sort((a, b) => b.score - a.score);
+  $('#cr-over-p').innerHTML = totals.map((t, i) => `${i + 1}. ${esc(t.name)}${t.uid === UID ? ' (TÚ)' : ''}: ${t.score} PTS`).join('<br>');
+  $('#cr-again').hidden = !CR.isHost || CR.spectating;
+  if (!CR.spectating) LB.submit('cruce', CR.score, false).then(crLB);
+}
+function crHostPoll() {
+  if (CR.mode !== 'online' || !CR.isHost || CR.spectating || !CR.roomData) return;
+  const d = CR.roomData; if (d.state !== 'play') return;
+  const list = crSeatList(); if (!list.length) return;
+  const allDone = list.every(([uid, p]) => (uid === UID ? CR.state === 'dead' : p.finished));
+  if (allDone) fs.updateDoc(fs.doc(db, 'cruces', CR.room), { state: 'over' }).catch(() => {});
+}
+function crLeaveOnline() {
+  CR.unsubs.forEach(u => u()); CR.unsubs = [];
+  if (CR.hbStop) { CR.hbStop(); CR.hbStop = null; }
+  if (CR._hostTimer) { clearInterval(CR._hostTimer); CR._hostTimer = null; }
+  if (CR.room && fs && !CR.spectating) {
+    const room = CR.room, others = Object.keys(CR.roomPlayers).filter(u => u !== UID);
+    if (CR.isHost && others.length) fs.updateDoc(fs.doc(db, 'cruces', room), { host: others[0] }).catch(() => {});
+    fs.deleteDoc(fs.doc(db, 'cruces', room, 'players', UID)).catch(() => {});
+  }
+  CR.room = null; CR.roomData = null; CR.roomPlayers = {}; CR.others = {}; CR.isHost = false; CR.spectating = false;
+}
+function crToMenu() {
+  if (CR.mode === 'online') crLeaveOnline();
+  CR.mode = null; CR.spectating = false; CR.state = 'ready';
+  $('#cr-over').hidden = true;
+  crView('menu');
+}
+$('#cr-spec-btn').onclick = async () => {
+  const list = $('#cr-spec-list');
+  if (!list.hidden) { list.hidden = true; return; }
+  SFX.play('click'); list.hidden = false; list.innerHTML = '<li class="muted">CARGANDO…</li>';
+  const rooms = await liveRooms('cruces');
+  if (rooms === null) { list.innerHTML = '<li class="muted">NO SE PUDO CARGAR</li>'; return; }
+  const stateN = { lobby: 'EN LOBBY', play: 'JUGANDO', over: 'TERMINADA' };
+  list.innerHTML = rooms.length
+    ? rooms.map(r => `<li><span><b>PARTIDA ${r.code}</b><small>${stateN[r.data.state] || r.data.state}</small></span><button class="btn orange" data-code="${r.code}">VER</button></li>`).join('')
+    : '<li class="muted">NO HAY PARTIDAS RECIENTES</li>';
+  list.querySelectorAll('[data-code]').forEach(b => b.onclick = () => { SFX.play('click'); crSpecOpen(b.dataset.code); });
+};
+$('#cr-local').onclick = () => {
+  SFX.play('start'); CR.mode = 'local'; CR.spectating = false;
+  $('#cr-room2').hidden = true; $('#cr-spec-badge').hidden = true; $('#cr-players').hidden = true;
+  crReset(); crView('game');
+};
+$('#cr-create').onclick = crCreate;
+$('#cr-join').onclick = crJoin;
+$('#cr-code').addEventListener('keydown', e => { if (e.key === 'Enter') crJoin(); });
+$('#cr-go').onclick = crOnlineStart;
+$('#cr-leave').onclick = crToMenu;
+$('#cr-quit').onclick = crToMenu;
+$('#cr-again').onclick = () => { if (CR.mode === 'local') { SFX.play('start'); crReset(); } else if (CR.isHost) crOnlineStart(); };
+$('#cr-exit').onclick = () => goTab('menu');
+window.addEventListener('beforeunload', () => { if (CR.mode === 'online') crLeaveOnline(); });
+crLB(); crView('menu');
+
 
 /* ---------- ajuste a la pantalla ---------- */
 function fitAll() {
@@ -5362,6 +5787,18 @@ function drawSplash(g, c) {
     x.fillStyle = '#caa15b'; x.fillRect(127, 6, 2, 22);
     x.fillStyle = '#e83b3b'; x.fillRect(129, 6, 11, 7);
     pxCircle(x, 28, 50, 5, '#f4f4f4');
+  } else if (g === 'cruce') {
+    c.width = 160; c.height = 72;
+    x.fillStyle = '#2f8b93'; x.fillRect(0, 0, 160, 24);
+    x.fillStyle = '#8a5a3c'; x.fillRect(20, 6, 26, 10); x.fillRect(90, 14, 30, 10);
+    x.fillStyle = '#38b764'; x.fillRect(0, 24, 160, 10);
+    x.fillStyle = '#333c57'; x.fillRect(0, 34, 160, 30);
+    x.fillStyle = '#f4f4f4'; for (let i = 6; i < 160; i += 16) x.fillRect(i, 48, 8, 2);
+    x.fillStyle = '#b13e53'; x.fillRect(30, 36, 22, 10); x.fillStyle = '#73eff7'; x.fillRect(32, 37, 6, 4); x.fillRect(42, 37, 6, 4);
+    x.fillStyle = '#41a6f6'; x.fillRect(110, 56, 22, 10); x.fillStyle = '#73eff7'; x.fillRect(112, 57, 6, 4); x.fillRect(122, 57, 6, 4);
+    x.fillStyle = '#38b764'; x.fillRect(0, 64, 160, 8);
+    x.fillStyle = '#4fbf62'; x.fillRect(66, 56, 10, 8); pxCircle(x, 68, 55, 3, '#4fbf62'); pxCircle(x, 74, 55, 3, '#4fbf62');
+    x.fillStyle = '#ffe14d'; x.font = '8px "Press Start 2P"'; x.textAlign = 'center'; x.fillText('CRUZAR LA CALLE', 80, 18);
   }
 }
 document.querySelectorAll('.splash').forEach(sp => {
@@ -5393,6 +5830,7 @@ const GAMES = [
   { g: 'carreras', n: 'CARRERAS' }, { g: 'funciones', n: 'COMBATE DE FUNCIONES' }, { g: '21', n: 'CASINO 21' },
   { g: 'billar', n: 'BILLAR' }, { g: 'duelo', n: 'DUELO DEL OESTE' }, { g: 'runner', n: 'LA HUIDA DEL ZORRO' },
   { g: 'golf', n: 'GOLF' },
+  { g: 'cruce', n: 'CRUZAR LA CALLE' },
 ];
 (() => {
   const grid = $('#menu-grid');
@@ -5409,6 +5847,7 @@ const GAMES = [
 })();
 
 /* ---------- intro: bloques de tetris + moneda ---------- */
+SFX.on && SFX.init(); // listo desde ya para que suenen los bloques al caer, si el navegador lo permite
 const INTRO = (() => {
   const el = $('#intro'), cvI = $('#intro-cv'), g = cvI.getContext('2d');
   const W = 240, H = 150, CELL = 5;
@@ -5530,6 +5969,7 @@ function loop(now) {
   if (tab === 'duelo') dlDraw();
   if (tab === 'runner') { if (RN.state === 'playing' || RN.state === 'transition') rnStep(dt); rnDraw(); }
   if (tab === 'golf') { gfTick(dt); gfDraw(); }
+  if (tab === 'cruce') { crTick(dt); crDraw(); }
 }
 requestAnimationFrame(loop);
 
@@ -5544,6 +5984,12 @@ document.addEventListener('keydown', e => {
   if (tab === 'runner') {
     if ((e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') && !e.repeat) { e.preventDefault(); rnJumpPress(); }
     else if (e.code === 'ArrowDown' || e.code === 'KeyS') { e.preventDefault(); RN.duckHeld = true; }
+  }
+  if (tab === 'cruce') {
+    if (e.code === 'ArrowUp' || e.code === 'KeyW') { e.preventDefault(); crTryMove(0, -1); }
+    else if (e.code === 'ArrowDown' || e.code === 'KeyS') { e.preventDefault(); crTryMove(0, 1); }
+    else if (e.code === 'ArrowLeft' || e.code === 'KeyA') { e.preventDefault(); crTryMove(-1, 0); }
+    else if (e.code === 'ArrowRight' || e.code === 'KeyD') { e.preventDefault(); crTryMove(1, 0); }
   }
 });
 document.addEventListener('keyup', e => {
