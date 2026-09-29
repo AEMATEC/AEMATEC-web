@@ -16,7 +16,7 @@ paso a paso.
   Si una petición contradice el RI, dilo antes de hacerla.
 
 ## Cómo trabajar
-- Nunca subas cambios directo a `main`. Trabaja en una rama y abre un PR. La persona lo revisa y hace merge.
+- Nunca subas cambios directo a `main`. Trabaja en una rama y abre un PR. La persona te da visto bueno y haces el merge.
 - Al hacer merge a `main`:
   - GitHub Pages publica las páginas HTML en <https://aematec.github.io/AEMATEC-web/>.
   - El flujo `.github/workflows/firebase.yml` prueba y publica las reglas y las Cloud Functions.
