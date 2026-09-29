@@ -271,6 +271,7 @@ nav .btn{padding:8px 12px}
     <button class="btn tab" data-t="billar">BILLAR</button>
     <button class="btn tab" data-t="duelo">DUELO DEL OESTE</button>
     <button class="btn tab" data-t="runner">LA HUIDA DEL ZORRO</button>
+    <button class="btn tab" data-t="golf">GOLF</button>
   </nav>
 
   <!-- ============ MENÚ ============ -->
@@ -746,6 +747,63 @@ nav .btn{padding:8px 12px}
       <ol class="lb" id="rn-lb"></ol>
       <h4 style="margin-top:16px">CÓMO SE JUEGA</h4>
       <p class="howto">SALTA LOS OBSTÁCULOS Y LOS HUECOS EN EL SUELO. LOS QUE CUELGAN DESDE ARRIBA NO SE PUEDEN SALTAR: AGÁCHATE PARA PASAR POR DEBAJO. LA VELOCIDAD SUBE CON LA DISTANCIA Y CADA 500 M CAMBIA EL ESCENARIO. SI TE ATRAPAN SE ACABÓ LA HUIDA: LA PUNTUACIÓN SON LOS METROS QUE LOGRASTE ESCAPAR.</p>
+    </aside>
+  </section>
+
+  <!-- ============ GOLF ============ -->
+  <section class="game" id="g-golf">
+    <div class="main px">
+      <div class="splash" data-g="golf"><canvas width="160" height="72"></canvas><h2>GOLF AEMATEC</h2><p>MINIGOLF DE 6 HOYOS. ARRASTRA DESDE LA BOLA HACIA ATRÁS PARA APUNTAR Y SUELTA PARA GOLPEAR. EVITA LA ARENA Y EL AGUA, Y TERMINA CON EL MENOR NÚMERO DE GOLPES POSIBLE.</p><button class="btn red">INICIAR</button></div>
+      <div class="gbody" hidden>
+        <div id="gf-menu">
+          <h4>¿CÓMO QUIERES JUGAR?</h4>
+          <div class="row left"><button class="btn green" id="gf-local">JUGAR SOLO</button></div>
+          <div class="row left">
+            <button class="btn" id="gf-create">CREAR PARTIDA ONLINE</button>
+            <input id="gf-code" class="px-in" placeholder="CÓDIGO" maxlength="5">
+            <button class="btn orange" id="gf-join">UNIRSE</button>
+          </div>
+          <p class="msg" id="gf-menu-msg" style="text-align:left"></p>
+          <div class="row left spec-toggle">
+            <button class="btn gray" id="gf-spec-btn">👁 PARTIDAS EN VIVO</button>
+          </div>
+          <ul class="spec-list" id="gf-spec-list" hidden></ul>
+        </div>
+        <div id="gf-lobby" hidden>
+          <div class="rc-top"><span class="tag" id="gf-room"></span><button class="btn gray" id="gf-leave">SALIR</button></div>
+          <p class="sub" id="gf-lobby-msg"></p>
+          <ul class="plist" id="gf-plist"></ul>
+          <div class="row left"><button class="btn green" id="gf-go">¡EMPEZAR!</button></div>
+        </div>
+        <div id="gf-game" hidden>
+          <div class="rc-top">
+            <span class="tag" id="gf-room2"></span>
+            <span id="gf-spec-badge" class="badge" hidden>👁 ESPECTADOR</span>
+            <button class="btn gray" id="gf-quit">SALIR</button>
+          </div>
+          <div class="fc-bar">
+            <span id="gf-status"></span>
+            <span id="gf-score"></span>
+          </div>
+          <ul class="plist" id="gf-players" hidden></ul>
+          <div class="stage">
+            <canvas id="gf-cv" width="480" height="300"></canvas>
+            <div class="over" id="gf-over" hidden>
+              <h3 style="font-size:16px">¡VUELTA TERMINADA!</h3>
+              <p id="gf-over-p"></p>
+              <div class="row"><button class="btn green" id="gf-again">OTRA VUELTA</button><button class="btn gray" id="gf-exit">MENÚ</button></div>
+            </div>
+          </div>
+          <p class="keys">ARRASTRA DESDE LA BOLA HACIA ATRÁS Y SUELTA PARA GOLPEAR · ENTRE MÁS ESTIRES, MÁS FUERTE · TAMBIÉN FUNCIONA CON EL DEDO</p>
+        </div>
+      </div>
+    </div>
+    <aside class="side px">
+      <h3>TOP 10</h3>
+      <p class="sub">MENOS GOLPES EN LOS 6 HOYOS</p>
+      <ol class="lb" id="gf-lb"></ol>
+      <h4 style="margin-top:16px">CÓMO SE JUEGA</h4>
+      <p class="howto">SOLO O CON HASTA 4 PERSONAS, TURNÁNDOSE EN EL MISMO RECORRIDO. ARRASTRA DESDE TU BOLA HACIA ATRÁS PARA APUNTAR: ENTRE MÁS ESTIRES, MÁS FUERTE EL GOLPE. LA ARENA FRENA LA BOLA Y EL AGUA TE REGRESA AL ÚLTIMO LUGAR SEGURO CON UN GOLPE DE PENALIDAD. SI VAS MUY RÁPIDO, LA BOLA NO ENTRA AL HOYO Y SIGUE DE LARGO: BAJA LA FUERZA CERCA DE LA META.</p>
     </aside>
   </section>
 
@@ -4636,6 +4694,505 @@ $('#rn-again').onclick = () => { SFX.play('start'); rnStart(); };
 $('#rn-exit').onclick = () => goTab('menu');
 rnLB();
 
+/* =========================================================
+   GOLF — minigolf de 6 hoyos, física de arrastre (como Billar)
+   ========================================================= */
+const GF_CVW = 480, GF_CVH = 300, GF_MARGIN = 20;
+const GF_R = 6, GF_HOLE_R = 10;
+const GF_FRICTION = 210, GF_SAND_FRICTION = 950, GF_REST = 0.7;
+const GF_MAXDRAG = 130, GF_MAXV = 620, GF_POWER_SCALE = GF_MAXV / GF_MAXDRAG;
+const GF_STOP_V = 4, GF_SINK_MAXV = 260, GF_MAX_STROKES = 8;
+const GF_BORDER_WALLS = [
+  { x: 0, y: 0, w: GF_CVW, h: GF_MARGIN }, { x: 0, y: GF_CVH - GF_MARGIN, w: GF_CVW, h: GF_MARGIN },
+  { x: 0, y: 0, w: GF_MARGIN, h: GF_CVH }, { x: GF_CVW - GF_MARGIN, y: 0, w: GF_MARGIN, h: GF_CVH },
+];
+const GF_HOLES = [
+  { par: 2, start: { x: 60, y: 150 }, hole: { x: 420, y: 150 }, walls: [], sand: [], water: [] },
+  { par: 3, start: { x: 90, y: 250 }, hole: { x: 430, y: 90 }, walls: [{ x: 160, y: 160, w: 300, h: 120 }], sand: [], water: [] },
+  { par: 3, start: { x: 60, y: 150 }, hole: { x: 430, y: 150 }, walls: [], sand: [{ x: 150, y: 20, w: 60, h: 140 }, { x: 280, y: 140, w: 60, h: 140 }], water: [] },
+  { par: 4, start: { x: 60, y: 150 }, hole: { x: 430, y: 150 }, walls: [], sand: [], water: [{ x: 340, y: 20, w: 120, h: 110 }, { x: 340, y: 190, w: 120, h: 90 }] },
+  { par: 3, start: { x: 60, y: 60 }, hole: { x: 430, y: 250 }, walls: [{ x: 20, y: 150, w: 200, h: 130 }, { x: 260, y: 20, w: 200, h: 130 }], sand: [], water: [] },
+  { par: 4, start: { x: 60, y: 150 }, hole: { x: 440, y: 150 }, walls: [{ x: 150, y: 80, w: 30, h: 30 }, { x: 250, y: 180, w: 30, h: 30 }, { x: 340, y: 70, w: 30, h: 30 }, { x: 200, y: 220, w: 30, h: 30 }], sand: [], water: [] },
+];
+const GF_PCOLORS = ['#f4f4f4', '#e83b3b', '#41a6f6', '#ffcd75'];
+const GF = {
+  mode: null, spectating: false, room: null, isHost: false, roomData: null, roomPlayers: {},
+  unsubs: [], hbStop: null, _hostTimer: null, resultShown: false, replay: null, _lastSeq: 0,
+  state: 'aiming', holeIdx: 0, strokes: 0, totalStrokes: 0, scores: [],
+  ball: { x: 0, y: 0, vx: 0, vy: 0 }, lastSafe: { x: 0, y: 0 },
+  dragging: false, aimPointer: null, popup: null, pauseT: 0, pending: null, _acc: 0
+};
+function gfInZone(ball, zones) { return zones.some(z => ball.x >= z.x && ball.x <= z.x + z.w && ball.y >= z.y && ball.y <= z.y + z.h); }
+function gfCollideRect(ball, rect) {
+  const cx = Math.max(rect.x, Math.min(ball.x, rect.x + rect.w)), cy = Math.max(rect.y, Math.min(ball.y, rect.y + rect.h));
+  const dx = ball.x - cx, dy = ball.y - cy, dist = Math.hypot(dx, dy);
+  if (dist < GF_R && dist > 0.0001) {
+    const nx = dx / dist, ny = dy / dist, overlap = GF_R - dist;
+    ball.x += nx * overlap; ball.y += ny * overlap;
+    const dot = ball.vx * nx + ball.vy * ny;
+    if (dot < 0) { ball.vx -= (1 + GF_REST) * dot * nx; ball.vy -= (1 + GF_REST) * dot * ny; }
+  }
+}
+function gfPhysicsStep(ball, dt, hole) {
+  const sp = Math.hypot(ball.vx, ball.vy);
+  if (sp > 0.5) {
+    const fr = gfInZone(ball, hole.sand) ? GF_SAND_FRICTION : GF_FRICTION;
+    const nsp = Math.max(0, sp - fr * dt), k = nsp / sp;
+    ball.vx *= k; ball.vy *= k;
+  } else { ball.vx = 0; ball.vy = 0; }
+  ball.x += ball.vx * dt; ball.y += ball.vy * dt;
+  if (ball.x < GF_R) { ball.x = GF_R; ball.vx = -ball.vx * GF_REST; }
+  if (ball.x > GF_CVW - GF_R) { ball.x = GF_CVW - GF_R; ball.vx = -ball.vx * GF_REST; }
+  if (ball.y < GF_R) { ball.y = GF_R; ball.vy = -ball.vy * GF_REST; }
+  if (ball.y > GF_CVH - GF_R) { ball.y = GF_CVH - GF_R; ball.vy = -ball.vy * GF_REST; }
+  for (const w of GF_BORDER_WALLS) gfCollideRect(ball, w);
+  for (const w of hole.walls) gfCollideRect(ball, w);
+}
+function gfStep(ball, dt, hole) {
+  gfPhysicsStep(ball, dt, hole);
+  if (gfInZone(ball, hole.water)) return 'water';
+  const dHole = Math.hypot(ball.x - hole.hole.x, ball.y - hole.hole.y);
+  if (dHole < GF_HOLE_R && Math.hypot(ball.vx, ball.vy) < GF_SINK_MAXV) return 'sunk';
+  return null;
+}
+/* ---- física de varias bolas a la vez (en línea): con colisión bola-bola, como Billar ---- */
+function gfBallCollide(a, b) {
+  const dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy);
+  if (d > 0 && d < GF_R * 2) {
+    const nx = dx / d, ny = dy / d, overlap = GF_R * 2 - d;
+    a.x -= nx * overlap / 2; a.y -= ny * overlap / 2; b.x += nx * overlap / 2; b.y += ny * overlap / 2;
+    const approach = (b.vx - a.vx) * nx + (b.vy - a.vy) * ny;
+    if (approach < 0) { a.vx += approach * nx; a.vy += approach * ny; b.vx -= approach * nx; b.vy -= approach * ny; }
+  }
+}
+function gfSimulateAll(simIn, hole) {
+  const uids = Object.keys(simIn);
+  const sim = {}; uids.forEach(u => sim[u] = { x: simIn[u].x, y: simIn[u].y, vx: simIn[u].vx, vy: simIn[u].vy });
+  const events = {}, paths = {}; uids.forEach(u => paths[u] = [{ x: sim[u].x, y: sim[u].y }]);
+  let rec = 0;
+  for (let step = 0; step < 120 * 8; step++) {
+    for (const u of uids) if (!events[u]) gfPhysicsStep(sim[u], 1 / 120, hole);
+    for (let i = 0; i < uids.length; i++) for (let j = i + 1; j < uids.length; j++) {
+      if (!events[uids[i]] && !events[uids[j]]) gfBallCollide(sim[uids[i]], sim[uids[j]]);
+    }
+    for (const u of uids) {
+      if (events[u]) continue;
+      if (gfInZone(sim[u], hole.water)) { events[u] = 'water'; sim[u].vx = 0; sim[u].vy = 0; continue; }
+      const dHole = Math.hypot(sim[u].x - hole.hole.x, sim[u].y - hole.hole.y);
+      if (dHole < GF_HOLE_R && Math.hypot(sim[u].vx, sim[u].vy) < GF_SINK_MAXV) { events[u] = 'sunk'; sim[u].vx = 0; sim[u].vy = 0; }
+    }
+    rec++;
+    if (rec >= 2) { uids.forEach(u => paths[u].push({ x: sim[u].x, y: sim[u].y })); rec = 0; }
+    if (uids.every(u => events[u] || Math.hypot(sim[u].vx, sim[u].vy) < GF_STOP_V)) {
+      uids.forEach(u => { if (!events[u]) { sim[u].vx = 0; sim[u].vy = 0; } });
+      break;
+    }
+  }
+  uids.forEach(u => paths[u].push({ x: sim[u].x, y: sim[u].y }));
+  return { paths, events, finals: sim };
+}
+function gfNextTurn(order, turnIdx, balls) {
+  for (let i = 1; i <= order.length; i++) { const idx = (turnIdx + i) % order.length; if (!balls[order[idx]].done) return idx; }
+  return -1;
+}
+function gfLoadHole(i) {
+  const h = GF_HOLES[i];
+  GF.ball = { x: h.start.x, y: h.start.y, vx: 0, vy: 0 };
+  GF.lastSafe = { x: h.start.x, y: h.start.y };
+  GF.strokes = 0; GF.state = 'aiming'; GF.popup = null; GF._acc = 0;
+}
+function gfStart() {
+  GF.holeIdx = 0; GF.totalStrokes = 0; GF.scores = [];
+  $('#gf-over').hidden = true;
+  gfLoadHole(0);
+}
+function gfSunk(forced) {
+  GF.state = 'sunk'; GF.ball.vx = 0; GF.ball.vy = 0;
+  SFX.play(forced ? 'lose' : 'win');
+  GF.scores[GF.holeIdx] = GF.strokes; GF.totalStrokes += GF.strokes;
+  GF.popup = { txt: forced ? `MÁXIMO DE GOLPES (${GF.strokes})` : `¡HOYO! ${GF.strokes} GOLPE${GF.strokes === 1 ? '' : 'S'}`, life: 1.5 };
+  GF.pauseT = 1.5;
+  GF.pending = GF.holeIdx < GF_HOLES.length - 1 ? 'next' : 'finish';
+}
+function gfWater() {
+  GF.state = 'sunk';
+  GF.ball.x = GF.lastSafe.x; GF.ball.y = GF.lastSafe.y; GF.ball.vx = 0; GF.ball.vy = 0;
+  GF.strokes++;
+  SFX.play('miss');
+  GF.popup = { txt: '¡AL AGUA! +1 GOLPE', life: 1.2 };
+  GF.pauseT = 1.1; GF.pending = 'resume';
+}
+function gfFinish() {
+  GF.state = 'done';
+  const totalPar = GF_HOLES.reduce((s, h) => s + h.par, 0), diff = GF.totalStrokes - totalPar;
+  const diffTxt = diff === 0 ? 'PAR' : (diff > 0 ? '+' + diff : String(diff));
+  $('#gf-over-p').innerHTML = GF_HOLES.map((h, i) => `HOYO ${i + 1}: ${GF.scores[i]} (PAR ${h.par})`).join('<br>') + `<br><br><b>TOTAL: ${GF.totalStrokes} GOLPES (${diffTxt})</b>`;
+  $('#gf-over').hidden = false; $('#gf-again').hidden = false;
+  LB.submit('golf', GF.totalStrokes, true, diffTxt).then(gfLB);
+}
+function gfAdvance() {
+  if (GF.pending === 'next') { GF.holeIdx++; gfLoadHole(GF.holeIdx); }
+  else if (GF.pending === 'finish') gfFinish();
+  else GF.state = 'aiming';
+  GF.pending = null;
+}
+function gfUpdate(dt) {
+  const hole = GF_HOLES[GF.holeIdx];
+  const sub = 1 / 240; GF._acc += Math.min(dt, .08);
+  let result = null;
+  while (GF._acc >= sub && !result) { result = gfStep(GF.ball, sub, hole); GF._acc -= sub; }
+  if (result === 'water') { GF._acc = 0; gfWater(); return; }
+  if (result === 'sunk') { GF._acc = 0; gfSunk(false); return; }
+  if (Math.hypot(GF.ball.vx, GF.ball.vy) < GF_STOP_V) {
+    GF.ball.vx = 0; GF.ball.vy = 0; GF.lastSafe = { x: GF.ball.x, y: GF.ball.y };
+    if (GF.strokes >= GF_MAX_STROKES) gfSunk(true); else GF.state = 'aiming';
+  }
+}
+function gfTick(dt) {
+  if (GF.popup) { GF.popup.life -= dt; if (GF.popup.life <= 0) GF.popup = null; }
+  if (GF.mode === 'online') {
+    if (GF.replay) {
+      GF.replay.acc += dt;
+      const stepDur = 1 / 60, len = Math.max(0, ...Object.values(GF.replay.paths).map(p => p.length));
+      while (GF.replay.acc >= stepDur && GF.replay.i < len - 1) { GF.replay.i++; GF.replay.acc -= stepDur; }
+      if (GF.replay.i >= len - 1) GF.replay = null;
+    }
+    return;
+  }
+  if (GF.state === 'rolling') gfUpdate(dt);
+  else if (GF.pauseT > 0) { GF.pauseT -= dt; if (GF.pauseT <= 0) gfAdvance(); }
+}
+function gfLB() { LB.render($('#gf-lb'), 'golf', true, r => r.score + (r.extra ? ' (' + esc(r.extra) + ')' : '')); }
+function gfDraw() {
+  const cv = $('#gf-cv'); if (!cv || !cv.offsetParent) return;
+  const ctx = cv.getContext('2d'); ctx.imageSmoothingEnabled = false; ctx.textAlign = 'center';
+  const holeIdx = GF.mode === 'online' ? (GF.roomData ? GF.roomData.holeIdx : 0) : GF.holeIdx;
+  const hole = GF_HOLES[holeIdx] || GF_HOLES[0];
+  ctx.fillStyle = '#1f4d3a'; ctx.fillRect(0, 0, GF_CVW, GF_CVH);
+  ctx.fillStyle = '#38b764'; ctx.fillRect(GF_MARGIN, GF_MARGIN, GF_CVW - GF_MARGIN * 2, GF_CVH - GF_MARGIN * 2);
+  ctx.fillStyle = 'rgba(255,255,255,.05)';
+  for (let i = GF_MARGIN; i < GF_CVW - GF_MARGIN; i += 24) ctx.fillRect(i, GF_MARGIN, 10, GF_CVH - GF_MARGIN * 2);
+  ctx.fillStyle = '#e8c170'; hole.sand.forEach(z => ctx.fillRect(z.x, z.y, z.w, z.h));
+  hole.water.forEach(z => {
+    const g = ctx.createLinearGradient(z.x, z.y, z.x, z.y + z.h);
+    g.addColorStop(0, '#3a6ea8'); g.addColorStop(1, '#5aa0d8');
+    ctx.fillStyle = g; ctx.fillRect(z.x, z.y, z.w, z.h);
+    ctx.fillStyle = 'rgba(255,255,255,.3)';
+    for (let i = 0; i < z.w; i += 10) ctx.fillRect(z.x + i, z.y + 6 + (Math.sin(i / 8 + performance.now() / 300) > 0 ? 2 : 0), 5, 2);
+  });
+  hole.walls.forEach(w => {
+    ctx.fillStyle = '#566c86'; ctx.fillRect(w.x, w.y, w.w, w.h);
+    ctx.fillStyle = 'rgba(255,255,255,.25)'; ctx.fillRect(w.x, w.y, w.w, 2); ctx.fillRect(w.x, w.y, 2, w.h);
+    ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.fillRect(w.x, w.y + w.h - 2, w.w, 2); ctx.fillRect(w.x + w.w - 2, w.y, 2, w.h);
+  });
+  pxCircle(ctx, hole.hole.x, hole.hole.y, GF_HOLE_R, '#0a0a0a'); pxCircle(ctx, hole.hole.x, hole.hole.y, GF_HOLE_R - 3, '#123018');
+  ctx.fillStyle = '#caa15b'; ctx.fillRect(hole.hole.x - 1, hole.hole.y - 40, 2, 40);
+  ctx.fillStyle = '#e83b3b'; ctx.beginPath(); ctx.moveTo(hole.hole.x + 1, hole.hole.y - 40); ctx.lineTo(hole.hole.x + 16, hole.hole.y - 34); ctx.lineTo(hole.hole.x + 1, hole.hole.y - 28); ctx.closePath(); ctx.fill();
+  function gfDrawAim(bx, by, dragX, dragY) {
+    const dx0 = bx - dragX, dy0 = by - dragY, dist = Math.min(GF_MAXDRAG, Math.hypot(dx0, dy0));
+    if (dist <= 4) return;
+    const ang = Math.atan2(dy0, dx0), ux = Math.cos(ang), uy = Math.sin(ang);
+    ctx.strokeStyle = 'rgba(244,244,244,.85)'; ctx.lineWidth = 1; ctx.setLineDash([4, 3]);
+    ctx.beginPath(); ctx.moveTo(bx, by); ctx.lineTo(bx + ux * 160, by + uy * 160); ctx.stroke(); ctx.setLineDash([]);
+    ctx.strokeStyle = '#c9a06a'; ctx.lineWidth = 3; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(bx - ux * (dist + 8), by - uy * (dist + 8)); ctx.lineTo(bx - ux * (dist + 40), by - uy * (dist + 40)); ctx.stroke(); ctx.lineCap = 'butt';
+    const pw = dist / GF_MAXDRAG;
+    ctx.fillStyle = '#0f1020'; ctx.fillRect(GF_MARGIN, GF_CVH - 14, GF_CVW - GF_MARGIN * 2, 6);
+    ctx.fillStyle = pw > 0.8 ? '#b13e53' : (pw > 0.5 ? '#ffcd75' : '#a7f070'); ctx.fillRect(GF_MARGIN, GF_CVH - 14, (GF_CVW - GF_MARGIN * 2) * pw, 6);
+  }
+  if (GF.mode === 'online') {
+    const d = GF.roomData;
+    if (d && d.order) {
+      d.order.forEach((uid, i) => {
+        const b = d.balls[uid]; if (!b) return;
+        if (b.done) return; // ya está en el hoyo, no se dibuja encima
+        let pos = b;
+        if (GF.replay && GF.replay.paths[uid]) { const path = GF.replay.paths[uid]; pos = path[Math.min(GF.replay.i, path.length - 1)]; }
+        pxCircle(ctx, pos.x, pos.y, GF_R, GF_PCOLORS[i] || '#aaaaaa');
+        if (uid === UID) { ctx.strokeStyle = 'rgba(0,0,0,.6)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(pos.x, pos.y, GF_R + 1.5, 0, Math.PI * 2); ctx.stroke(); }
+      });
+      const myTurn = !GF.spectating && d.state === 'play' && !GF.replay && d.order[d.turnIdx] === UID;
+      if (myTurn && GF.dragging && GF.aimPointer) { const mine = d.balls[UID]; gfDrawAim(mine.x, mine.y, GF.aimPointer.x, GF.aimPointer.y); }
+      else if (!GF.spectating && d.state === 'play' && !GF.replay && d.order[d.turnIdx] !== UID) {
+        ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.fillRect(0, 0, GF_CVW, GF_CVH);
+        ctx.fillStyle = '#fff4e0'; ctx.font = '10px "Press Start 2P"'; ctx.fillText('ESPERANDO TURNO…', GF_CVW / 2, GF_CVH / 2);
+      }
+    }
+    if (GF.popup && GF.popup.life > 0) {
+      ctx.fillStyle = 'rgba(0,0,0,.4)'; ctx.fillRect(0, GF_CVH / 2 - 20, GF_CVW, 32);
+      ctx.fillStyle = '#ffe14d'; ctx.font = '12px "Press Start 2P"'; ctx.fillText(GF.popup.txt, GF_CVW / 2, GF_CVH / 2 + 4);
+    }
+    if (d) {
+      $('#gf-status').textContent = `HOYO ${d.holeIdx + 1}/${GF_HOLES.length} · PAR ${hole.par}`;
+      const turnUid = d.order && d.order[d.turnIdx], turnName = turnUid ? ((GF.roomPlayers[turnUid] || {}).name || '?') : '';
+      $('#gf-score').textContent = d.state === 'play' ? (turnUid === UID ? 'TU TURNO' : `TURNO DE ${esc(turnName)}`) : '';
+    }
+    return;
+  }
+  pxCircle(ctx, GF.ball.x, GF.ball.y, GF_R, '#f4f4f4');
+  if (GF.state === 'aiming' && GF.dragging && GF.aimPointer) gfDrawAim(GF.ball.x, GF.ball.y, GF.aimPointer.x, GF.aimPointer.y);
+  if (GF.popup && GF.popup.life > 0) {
+    ctx.fillStyle = 'rgba(0,0,0,.4)'; ctx.fillRect(0, GF_CVH / 2 - 20, GF_CVW, 32);
+    ctx.fillStyle = '#ffe14d'; ctx.font = '12px "Press Start 2P"'; ctx.fillText(GF.popup.txt, GF_CVW / 2, GF_CVH / 2 + 4);
+  }
+  $('#gf-status').textContent = `HOYO ${GF.holeIdx + 1}/${GF_HOLES.length} · PAR ${hole.par}`;
+  $('#gf-score').textContent = `GOLPES: ${GF.strokes} · TOTAL: ${GF.totalStrokes}`;
+}
+function gfCanvasPos(e) {
+  const r = gfcv.getBoundingClientRect();
+  return { x: (e.clientX - r.left) / r.width * GF_CVW, y: (e.clientY - r.top) / r.height * GF_CVH };
+}
+const gfcv = $('#gf-cv');
+gfcv.addEventListener('pointerdown', e => {
+  e.preventDefault();
+  if (GF.mode === 'online') {
+    const d = GF.roomData;
+    if (GF.spectating || !d || d.state !== 'play' || GF.replay || d.order[d.turnIdx] !== UID) return;
+    GF.dragging = true; GF.aimPointer = gfCanvasPos(e); gfDraw();
+    return;
+  }
+  if (GF.state !== 'aiming') return;
+  GF.dragging = true; GF.aimPointer = gfCanvasPos(e); gfDraw();
+});
+gfcv.addEventListener('pointermove', e => { if (GF.dragging) { GF.aimPointer = gfCanvasPos(e); gfDraw(); } });
+window.addEventListener('pointerup', () => {
+  if (!GF.dragging) return;
+  GF.dragging = false;
+  const p = GF.aimPointer; GF.aimPointer = null;
+  if (!p) { gfDraw(); return; }
+  if (GF.mode === 'online') {
+    const d = GF.roomData; if (!d || !d.balls || !d.balls[UID]) { gfDraw(); return; }
+    const mine = d.balls[UID], dx = mine.x - p.x, dy = mine.y - p.y, dist = Math.hypot(dx, dy);
+    if (!(dist >= 6)) { gfDraw(); return; }
+    const angle = Math.atan2(dy, dx), power = Math.min(GF_MAXV, Math.min(dist, GF_MAXDRAG) * GF_POWER_SCALE);
+    SFX.play('throw'); gfOnlineShoot(Math.cos(angle) * power, Math.sin(angle) * power);
+    return;
+  }
+  if (GF.state !== 'aiming') { gfDraw(); return; }
+  const dx = GF.ball.x - p.x, dy = GF.ball.y - p.y, dist = Math.hypot(dx, dy);
+  if (!(dist >= 6)) { gfDraw(); return; }
+  const angle = Math.atan2(dy, dx), power = Math.min(GF_MAXV, Math.min(dist, GF_MAXDRAG) * GF_POWER_SCALE);
+  GF.ball.vx = Math.cos(angle) * power; GF.ball.vy = Math.sin(angle) * power;
+  GF.strokes++; GF.state = 'rolling'; SFX.play('throw');
+});
+
+/* ---- partida en línea (hasta 4 jugadores, mismo recorrido) ---- */
+function gfMenuMsg(t, cls = '') { const m = $('#gf-menu-msg'); m.textContent = t; m.className = 'msg ' + cls; m.style.textAlign = 'left'; }
+function gfView(v) { $('#gf-menu').hidden = v !== 'menu'; $('#gf-lobby').hidden = v !== 'lobby'; $('#gf-game').hidden = v !== 'game'; fitSoon(); }
+function gfSeatList() { return Object.entries(GF.roomPlayers).sort((a, b) => a[1].slot - b[1].slot); }
+async function gfCreate() {
+  if (!(await fbReady)) return gfMenuMsg('SIN CONEXIÓN A FIREBASE: SOLO SE PUEDE JUGAR SOLO.', 'lose');
+  gfLeaveOnline(); gfMenuMsg('CREANDO PARTIDA…');
+  try {
+    let code, ref;
+    for (let k = 0; k < 5; k++) { code = genCode(); ref = fs.doc(db, 'golf', code); if (!(await fs.getDoc(ref)).exists()) break; }
+    await fs.setDoc(ref, { host: UID, state: 'lobby', holeIdx: 0, order: [], turnIdx: 0, balls: {}, scores: {}, lastShot: null, created: fs.serverTimestamp() });
+    GF.room = code;
+    await fs.setDoc(fs.doc(db, 'golf', code, 'players', UID), { name: playerName(), slot: 0, joined: fs.serverTimestamp() });
+    gfEnterLobby();
+  } catch (e) { console.error(e); GF.room = null; gfMenuMsg('ERROR AL CREAR PARTIDA: ' + e.message, 'lose'); }
+}
+async function gfJoin() {
+  const code = $('#gf-code').value.trim().toUpperCase();
+  if (code.length < 5) return gfMenuMsg('ESCRIBE EL CÓDIGO DE 5 LETRAS.', 'lose');
+  if (!(await fbReady)) return gfMenuMsg('SIN CONEXIÓN A FIREBASE: SOLO SE PUEDE JUGAR SOLO.', 'lose');
+  gfLeaveOnline(); gfMenuMsg('ENTRANDO…');
+  try {
+    const d = await fs.getDoc(fs.doc(db, 'golf', code));
+    if (!d.exists()) throw new Error('ESA PARTIDA NO EXISTE');
+    const ps = await fs.getDocs(fs.collection(db, 'golf', code, 'players'));
+    const used = new Set(); let mine = false;
+    ps.forEach(p => { if (p.id === UID) mine = true; else used.add(p.data().slot); });
+    if (!mine && used.size >= 4) throw new Error('LA PARTIDA ESTÁ LLENA (MÁX. 4)');
+    if (!mine && d.data().state !== 'lobby') throw new Error('LA PARTIDA YA EMPEZÓ');
+    let slot = 0; while (used.has(slot)) slot++;
+    GF.room = code;
+    await fs.setDoc(fs.doc(db, 'golf', code, 'players', UID), { name: playerName(), slot, joined: fs.serverTimestamp() });
+    gfEnterLobby();
+  } catch (e) { GF.room = null; gfMenuMsg(e.message, 'lose'); }
+}
+function gfEnterLobby() {
+  GF.mode = 'online'; GF.roomData = null; GF.roomPlayers = {}; GF.resultShown = false; GF._lastSeq = 0; GF.replay = null;
+  gfMenuMsg(''); $('#gf-room').textContent = (GF.spectating ? '👁 ESPECTADOR · PARTIDA ' : 'PARTIDA ') + GF.room;
+  gfView('lobby'); gfLobbyRender();
+  GF.unsubs.push(fs.onSnapshot(fs.doc(db, 'golf', GF.room), s => {
+    if (!s.exists()) { if (GF.spectating) { gfMenuMsg('LA PARTIDA SE CERRÓ.', 'lose'); gfToMenu(); } return; }
+    GF.roomData = s.data(); gfSync();
+  }));
+  GF.unsubs.push(fs.onSnapshot(fs.collection(db, 'golf', GF.room, 'players'), s => {
+    const m = {}; s.forEach(d => m[d.id] = d.data()); GF.roomPlayers = m; gfSync();
+  }));
+  if (!GF.spectating) GF.hbStop = presenceLoop(() => fs.updateDoc(fs.doc(db, 'golf', GF.room, 'players', UID), { lastSeen: fs.serverTimestamp() }).catch(() => {}));
+  GF._hostTimer = setInterval(gfHostPoll, 3000);
+}
+async function gfSpecOpen(code) {
+  gfToMenu();
+  GF.spectating = true; GF.room = code;
+  $('#gf-spec-list').hidden = true;
+  gfEnterLobby();
+}
+function gfLobbyRender() {
+  if (GF.mode !== 'online') return;
+  const list = gfSeatList(), ul = $('#gf-plist'); ul.innerHTML = '';
+  list.forEach(([uid, p], i) => {
+    const li = document.createElement('li');
+    li.innerHTML = `<span class="dot" style="background:${GF_PCOLORS[i] || '#888'}"></span><span>${esc(p.name)}${uid === UID ? ' (TÚ)' : ''}${GF.roomData && uid === GF.roomData.host ? ' ★' : ''}</span>`;
+    ul.appendChild(li);
+  });
+  $('#gf-lobby-msg').textContent = (GF.isHost ? `COMPARTE EL CÓDIGO ${GF.room}. ` : 'ESPERANDO AL ANFITRIÓN (★)… ') + `${list.length}/4 JUGADORES`;
+  $('#gf-go').hidden = !GF.isHost || GF.spectating;
+  $('#gf-go').disabled = list.length < 1;
+}
+async function gfOnlineStart() {
+  if (!GF.isHost || GF.spectating) return;
+  const list = gfSeatList(); if (!list.length) return;
+  const order = list.map(([uid]) => uid), h = GF_HOLES[0], balls = {};
+  order.forEach(uid => balls[uid] = { x: h.start.x, y: h.start.y, strokes: 0, done: false, lastSafeX: h.start.x, lastSafeY: h.start.y });
+  try {
+    await fs.updateDoc(fs.doc(db, 'golf', GF.room), { state: 'play', order, turnIdx: 0, holeIdx: 0, balls, scores: {}, lastShot: null });
+  } catch (e) { console.error(e); }
+}
+function gfSync() {
+  const d = GF.roomData; if (!d || GF.mode !== 'online') return;
+  GF.isHost = d.host === UID;
+  gfView(d.state === 'lobby' ? 'lobby' : 'game');
+  if (d.state === 'lobby') { gfLobbyRender(); return; }
+  $('#gf-over').hidden = d.state !== 'over';
+  $('#gf-room2').hidden = false; $('#gf-room2').textContent = (GF.spectating ? '👁 ESPECTADOR · PARTIDA ' : 'PARTIDA ') + GF.room;
+  $('#gf-spec-badge').hidden = !GF.spectating;
+  if (d.lastShot && d.lastShot.seq !== GF._lastSeq) {
+    GF._lastSeq = d.lastShot.seq;
+    if (d.lastShot.uid !== UID) GF.replay = { paths: d.lastShot.paths, i: 0, acc: 0 };
+  }
+  if (d.state === 'over' && !GF.resultShown) { GF.resultShown = true; gfOnlineFinish(); }
+  gfRenderPlayers();
+}
+function gfRenderPlayers() {
+  const d = GF.roomData; if (!d || !d.order) return;
+  const ul = $('#gf-players'); ul.hidden = false; ul.innerHTML = '';
+  d.order.forEach((uid, i) => {
+    const p = GF.roomPlayers[uid] || { name: '?' }, b = (d.balls && d.balls[uid]) || { strokes: 0, done: false };
+    const li = document.createElement('li');
+    const turn = i === d.turnIdx && d.state === 'play';
+    li.innerHTML = `<span class="dot" style="background:${GF_PCOLORS[i] || '#888'}"></span><span>${esc(p.name)}${uid === UID ? ' (TÚ)' : ''}${turn ? ' 👉' : ''}${b.done ? ' ✓' : ''}</span><small>${b.strokes} GOLPE${b.strokes === 1 ? '' : 'S'}</small>`;
+    ul.appendChild(li);
+  });
+}
+function gfOnlineFinish() {
+  const d = GF.roomData;
+  const totalPar = GF_HOLES.reduce((s, h) => s + h.par, 0);
+  const totals = d.order.map(uid => ({ uid, name: (GF.roomPlayers[uid] || {}).name || '?', total: (d.scores[uid] || []).reduce((a, b) => a + b, 0) }));
+  totals.sort((a, b) => a.total - b.total);
+  $('#gf-over-p').innerHTML = totals.map((t, i) => `${i + 1}. ${esc(t.name)}${t.uid === UID ? ' (TÚ)' : ''}: ${t.total} GOLPES`).join('<br>') + `<br><br>PAR DEL RECORRIDO: ${totalPar}`;
+  $('#gf-over').hidden = false;
+  $('#gf-again').hidden = !GF.isHost || GF.spectating;
+  if (!GF.spectating) {
+    const mine = totals.find(t => t.uid === UID);
+    if (mine) { const diff = mine.total - totalPar; LB.submit('golf', mine.total, true, diff === 0 ? 'PAR' : (diff > 0 ? '+' + diff : String(diff))).then(gfLB); }
+  }
+}
+async function gfOnlineShoot(vx, vy) {
+  try {
+    await fs.runTransaction(db, async tx => {
+      const ref = fs.doc(db, 'golf', GF.room);
+      const snap = await tx.get(ref); if (!snap.exists()) return;
+      const d = snap.data();
+      if (!d.order || d.order[d.turnIdx] !== UID || d.state !== 'play') return;
+      const hole = GF_HOLES[d.holeIdx], simIn = {};
+      d.order.forEach(uid => { const b = d.balls[uid]; if (!b.done) simIn[uid] = { x: b.x, y: b.y, vx: uid === UID ? vx : 0, vy: uid === UID ? vy : 0 }; });
+      const { paths, events, finals } = gfSimulateAll(simIn, hole);
+      GF.replay = { paths, i: 0, acc: 0 };
+      const balls = { ...d.balls };
+      Object.keys(finals).forEach(u => {
+        const b = { ...balls[u] };
+        let x = finals[u].x, y = finals[u].y, strokes = b.strokes, done = b.done, lastSafeX = b.lastSafeX, lastSafeY = b.lastSafeY;
+        if (u === UID) strokes++;
+        if (events[u] === 'water') { x = b.lastSafeX; y = b.lastSafeY; strokes++; }
+        else if (events[u] === 'sunk') { done = true; lastSafeX = x; lastSafeY = y; }
+        else { lastSafeX = x; lastSafeY = y; }
+        if (!done && strokes >= GF_MAX_STROKES) done = true;
+        balls[u] = { x, y, strokes, done, lastSafeX, lastSafeY };
+      });
+      let holeIdx = d.holeIdx, scores = d.scores || {};
+      const nextIdx = gfNextTurn(d.order, d.turnIdx, balls);
+      const shotMeta = { uid: UID, seq: ((d.lastShot && d.lastShot.seq) || 0) + 1, paths, events };
+      if (nextIdx === -1) {
+        scores = { ...scores };
+        d.order.forEach(uid => { scores[uid] = [...(scores[uid] || []), balls[uid].strokes]; });
+        if (holeIdx < GF_HOLES.length - 1) {
+          holeIdx++;
+          const nh = GF_HOLES[holeIdx], freshBalls = {};
+          d.order.forEach(uid => { freshBalls[uid] = { x: nh.start.x, y: nh.start.y, strokes: 0, done: false, lastSafeX: nh.start.x, lastSafeY: nh.start.y }; });
+          tx.update(ref, { balls: freshBalls, holeIdx, scores, turnIdx: 0, lastShot: shotMeta });
+        } else {
+          tx.update(ref, { balls, holeIdx, scores, state: 'over', lastShot: shotMeta });
+        }
+      } else {
+        tx.update(ref, { balls, turnIdx: nextIdx, lastShot: shotMeta });
+      }
+    });
+  } catch (e) { console.error(e); }
+}
+function gfHostPoll() {
+  if (GF.mode !== 'online' || !GF.isHost || GF.spectating || !GF.roomData) return;
+  const d = GF.roomData; if (d.state !== 'play' || !d.order) return;
+  const uid = d.order[d.turnIdx], p = GF.roomPlayers[uid];
+  if (p && isStale(p.lastSeen, Date.now())) {
+    const balls = { ...d.balls, [uid]: { ...d.balls[uid], done: true } };
+    const nextIdx = gfNextTurn(d.order, d.turnIdx, balls);
+    if (nextIdx === -1) {
+      const scores = { ...d.scores }; d.order.forEach(u => { scores[u] = [...(scores[u] || []), balls[u].strokes]; });
+      fs.updateDoc(fs.doc(db, 'golf', GF.room), { balls, scores, state: 'over' }).catch(() => {});
+    } else {
+      fs.updateDoc(fs.doc(db, 'golf', GF.room), { balls, turnIdx: nextIdx }).catch(() => {});
+    }
+  }
+}
+function gfLeaveOnline() {
+  GF.unsubs.forEach(u => u()); GF.unsubs = [];
+  if (GF.hbStop) { GF.hbStop(); GF.hbStop = null; }
+  if (GF._hostTimer) { clearInterval(GF._hostTimer); GF._hostTimer = null; }
+  if (GF.room && fs && !GF.spectating) {
+    const room = GF.room, others = Object.keys(GF.roomPlayers).filter(u => u !== UID);
+    if (GF.isHost && others.length) fs.updateDoc(fs.doc(db, 'golf', room), { host: others[0] }).catch(() => {});
+    fs.deleteDoc(fs.doc(db, 'golf', room, 'players', UID)).catch(() => {});
+  }
+  GF.room = null; GF.roomData = null; GF.roomPlayers = {}; GF.isHost = false; GF.spectating = false; GF.replay = null;
+}
+function gfToMenu() {
+  if (GF.mode === 'online') gfLeaveOnline();
+  GF.mode = null; GF.spectating = false;
+  $('#gf-over').hidden = true;
+  gfView('menu');
+}
+$('#gf-spec-btn').onclick = async () => {
+  const list = $('#gf-spec-list');
+  if (!list.hidden) { list.hidden = true; return; }
+  SFX.play('click'); list.hidden = false; list.innerHTML = '<li class="muted">CARGANDO…</li>';
+  const rooms = await liveRooms('golf');
+  if (rooms === null) { list.innerHTML = '<li class="muted">NO SE PUDO CARGAR</li>'; return; }
+  const stateN = { lobby: 'EN LOBBY', play: 'JUGANDO', over: 'TERMINADA' };
+  list.innerHTML = rooms.length
+    ? rooms.map(r => `<li><span><b>PARTIDA ${r.code}</b><small>${stateN[r.data.state] || r.data.state}</small></span><button class="btn orange" data-code="${r.code}">VER</button></li>`).join('')
+    : '<li class="muted">NO HAY PARTIDAS RECIENTES</li>';
+  list.querySelectorAll('[data-code]').forEach(b => b.onclick = () => { SFX.play('click'); gfSpecOpen(b.dataset.code); });
+};
+$('#gf-local').onclick = () => {
+  SFX.play('start'); GF.mode = 'local'; GF.spectating = false;
+  $('#gf-room2').hidden = true; $('#gf-spec-badge').hidden = true; $('#gf-players').hidden = true;
+  gfStart(); gfView('game');
+};
+$('#gf-create').onclick = gfCreate;
+$('#gf-join').onclick = gfJoin;
+$('#gf-code').addEventListener('keydown', e => { if (e.key === 'Enter') gfJoin(); });
+$('#gf-go').onclick = gfOnlineStart;
+$('#gf-leave').onclick = gfToMenu;
+$('#gf-quit').onclick = gfToMenu;
+$('#gf-again').onclick = () => { if (GF.mode === 'local') { SFX.play('start'); gfStart(); } else if (GF.isHost) gfOnlineStart(); };
+$('#gf-exit').onclick = () => goTab('menu');
+window.addEventListener('beforeunload', () => { if (GF.mode === 'online') gfLeaveOnline(); });
+gfLB(); gfView('menu');
+
 
 /* ---------- ajuste a la pantalla ---------- */
 function fitAll() {
@@ -4796,6 +5353,15 @@ function drawSplash(g, c) {
     x.fillRect(fx - 4, fy + 22, 5, 8); x.fillRect(fx + 4, fy + 22, 5, 5);
     x.fillStyle = '#1a1c2c'; x.fillRect(fx + 13, fy + 3, 2, 2);
     x.fillStyle = '#ffe14d'; x.font = '8px "Press Start 2P"'; x.textAlign = 'center'; x.fillText('LA HUIDA DEL ZORRO', 80, 16);
+  } else if (g === 'golf') {
+    c.width = 160; c.height = 72;
+    x.fillStyle = '#1f4d3a'; x.fillRect(0, 0, 160, 72);
+    x.fillStyle = '#38b764'; x.fillRect(8, 8, 144, 56);
+    x.fillStyle = '#e8c170'; x.fillRect(58, 42, 26, 16);
+    pxCircle(x, 128, 28, 8, '#0a0a0a'); pxCircle(x, 128, 28, 6, '#123018');
+    x.fillStyle = '#caa15b'; x.fillRect(127, 6, 2, 22);
+    x.fillStyle = '#e83b3b'; x.fillRect(129, 6, 11, 7);
+    pxCircle(x, 28, 50, 5, '#f4f4f4');
   }
 }
 document.querySelectorAll('.splash').forEach(sp => {
@@ -4826,6 +5392,7 @@ const GAMES = [
   { g: 'minas', n: 'BUSCAMINAS' }, { g: 'batalla', n: 'BATALLA NAVAL' }, { g: 'tiro', n: 'ANIMAL AL TIRO' },
   { g: 'carreras', n: 'CARRERAS' }, { g: 'funciones', n: 'COMBATE DE FUNCIONES' }, { g: '21', n: 'CASINO 21' },
   { g: 'billar', n: 'BILLAR' }, { g: 'duelo', n: 'DUELO DEL OESTE' }, { g: 'runner', n: 'LA HUIDA DEL ZORRO' },
+  { g: 'golf', n: 'GOLF' },
 ];
 (() => {
   const grid = $('#menu-grid');
@@ -4962,6 +5529,7 @@ function loop(now) {
   if (tab === 'billar') blDraw();
   if (tab === 'duelo') dlDraw();
   if (tab === 'runner') { if (RN.state === 'playing' || RN.state === 'transition') rnStep(dt); rnDraw(); }
+  if (tab === 'golf') { gfTick(dt); gfDraw(); }
 }
 requestAnimationFrame(loop);
 
