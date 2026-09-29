@@ -50,6 +50,14 @@ button,input{font-family:inherit;font-size:10px;color:var(--ink)}
 .btn.red{background:var(--red)} .btn.green{background:var(--green)} .btn.gray{background:var(--gray)}
 .btn.orange{background:var(--orange);color:var(--dark)} .btn.on{background:var(--yellow);color:var(--dark)}
 .btn:disabled{opacity:.45;cursor:not-allowed}
+.btn-back{
+  border:0;cursor:pointer;background:var(--gray);color:var(--ink);flex:none;
+  width:40px;height:40px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;
+  box-shadow:0 -3px 0 0 var(--dark),0 3px 0 0 var(--dark),-3px 0 0 0 var(--dark),3px 0 0 0 var(--dark),
+             inset -3px -3px 0 0 rgba(0,0,0,.3),inset 3px 3px 0 0 rgba(255,255,255,.22);
+}
+.btn-back:hover{filter:brightness(1.15)}
+.btn-back:active{transform:translateY(2px);box-shadow:0 -3px 0 0 var(--dark),0 3px 0 0 var(--dark),-3px 0 0 0 var(--dark),3px 0 0 0 var(--dark),inset 3px 3px 0 0 rgba(0,0,0,.3)}
 .px-in{
   background:var(--dark);border:0;padding:10px;outline:none;width:150px;text-transform:uppercase;margin:6px;
   box-shadow:0 -4px 0 0 var(--gray),0 4px 0 0 var(--gray),-4px 0 0 0 var(--gray),4px 0 0 0 var(--gray);
@@ -250,9 +258,9 @@ nav .btn{padding:8px 12px}
 <body>
 <div class="wrap">
   <header>
+    <button class="btn-back" id="arcade-volver" type="button" title="Volver a la página principal de AEMATEC" aria-label="Volver a la página principal de AEMATEC">◄</button>
     <h1><img class="logo" alt="" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAwCAYAAAAGlsrkAAABvklEQVR4nNVYsbGDMAyVOWoKaDguK/wid5mAlh0yXHZIywq/yAocRwMFC/CbL84IGWQFAnlVMJaeJD/LJgBKNF0/NF0/aO3VpIG5DYG5qckDDWmW5ONzluSgIfcm3grfQUzLjNCU22hI67acEeN4Gkcin96lRtKirqCoK19zPTGS2r9pBXYj3gLexFmSwzO7jM/P7AKc4NYQelv8k2N5NaQAHqoGcG8nxC6qpqR1W6pE5U3MIY0joyUXEXPZciX16WCHbadV2Gev6/yVzKH4jgbiWluNyBaJ1/atCxKRnU9cGsH42IS2kcSxPHTeBjUS4sulQ/36eogP/evrAb8/dwAA1qbp+iGNI2PsAXsC7VRSFHU1EmMgADAepZOM7QEuCPp+CU3XD9CWY+CUEDFTtbQvu0DnurbjObaTZgtpfZ2vV/uuLcVa/x6JtX1ZCtq/jxXXlqKS+j5OXO82jDW4RPaRjDnyCfHW2XJAdR/fQPbOll3rT/5ZhjyhffvAwT0yp77DNI4MDtIA3g3C9mP7nlx9cJDek+yvfxs0IG6pOF9oN8uGZu8CDWhpPnf9cZaRK5MUNChuueQXOA9IdPEHsDN7ohq8EwcAAAAASUVORK5CYII="><span>ARCADE AEMATEC</span></h1>
     <div class="who">
-      <button class="btn gray" id="arcade-volver" type="button" title="Volver a la página principal de AEMATEC">← AEMATEC</button>
       <label for="name">JUGADOR</label>
       <input id="name" class="px-in" maxlength="10" placeholder="TU NOMBRE">
       <button class="btn snd" id="snd" title="Sonido">♪ SÍ</button>
@@ -4542,10 +4550,15 @@ function rnGameOver() {
 function rnSpawnPlatformSection() {
   let x = RN_CVW + 10;
   const count = 3 + ((Math.random() * 3) | 0);
+  // Un salto completo recorre esta distancia a la velocidad actual: la plataforma entre
+  // huecos tiene que ser al menos así de ancha, si no, el salto que libra un hueco cae
+  // directo en el siguiente (obligaría a saltar con precisión de cuadro por cuadro).
+  const jumpDist = RN.speed * (2 * RN_JUMP_V / RN_GRAVITY);
   for (let i = 0; i < count; i++) {
     const gapW = 46 + Math.random() * 18;
     RN.obstacles.push({ type: 'pit', x, w: gapW });
-    x += gapW + 42 + Math.random() * 16;
+    const platformW = Math.max(90, jumpDist - gapW + 30 + Math.random() * 20);
+    x += gapW + platformW;
   }
   RN.spawnCd = (x - RN_CVW) + 120;
 }
@@ -4713,8 +4726,12 @@ function rnDrawChar(ctx) {
     ctx.fillStyle = '#1a1c2c'; ctx.fillRect(x + 13, top + 3 + bob, 2, 2);
     ctx.fillStyle = '#5c3a1e';
     const legY = RN_GROUND + RN.y - 8;
-    if (legPhase === -1) { ctx.fillRect(x - 4, legY, 5, 8); ctx.fillRect(x + 4, legY, 5, 8); }
-    else { ctx.fillRect(x - 4, legY, 5, legPhase ? 8 : 5); ctx.fillRect(x + 4, legY, 5, legPhase ? 5 : 8); }
+    const legXs = [x - 10, x - 3, x + 4, x + 11];
+    if (legPhase === -1) {
+      legXs.forEach(lx => ctx.fillRect(lx, legY, 4, 8));
+    } else {
+      legXs.forEach((lx, i) => { const corto = (i % 2) === legPhase; ctx.fillRect(lx, legY, 4, corto ? 5 : 8); });
+    }
   }
 }
 function rnDraw() {
@@ -5404,9 +5421,15 @@ function crDrawLane(ctx, row, lane, t) {
   });
 }
 function crDrawFrog(ctx, x, y, color) {
-  ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(x, y + 9, 9, 4, 0, 0, Math.PI * 2); ctx.fill();
-  ctx.fillStyle = color; ctx.beginPath(); ctx.arc(x, y, 10, 0, Math.PI * 2); ctx.fill();
-  ctx.fillStyle = '#1a1c2c'; ctx.fillRect(x - 6, y - 4, 3, 3); ctx.fillRect(x + 3, y - 4, 3, 3);
+  const gx = Math.round(x), gy = Math.round(y);
+  ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(gx - 9, gy + 6, 18, 4);
+  ctx.fillStyle = color;
+  ctx.fillRect(gx - 11, gy + 1, 5, 6); ctx.fillRect(gx + 6, gy + 1, 5, 6);
+  ctx.fillRect(gx - 9, gy - 7, 5, 6); ctx.fillRect(gx + 4, gy - 7, 5, 6);
+  pxCircle(ctx, gx, gy, 8, color);
+  pxCircle(ctx, gx - 4, gy - 6, 3, color); pxCircle(ctx, gx + 4, gy - 6, 3, color);
+  ctx.fillStyle = '#1a1c2c';
+  ctx.fillRect(gx - 5, gy - 7, 2, 2); ctx.fillRect(gx + 3, gy - 7, 2, 2);
 }
 function crDraw() {
   const cv = $('#cr-cv'); if (!cv || !cv.offsetParent || !CR.lanes) return;
@@ -5797,7 +5820,7 @@ function drawSplash(g, c) {
     x.fillStyle = '#b13e53'; x.fillRect(30, 36, 22, 10); x.fillStyle = '#73eff7'; x.fillRect(32, 37, 6, 4); x.fillRect(42, 37, 6, 4);
     x.fillStyle = '#41a6f6'; x.fillRect(110, 56, 22, 10); x.fillStyle = '#73eff7'; x.fillRect(112, 57, 6, 4); x.fillRect(122, 57, 6, 4);
     x.fillStyle = '#38b764'; x.fillRect(0, 64, 160, 8);
-    x.fillStyle = '#4fbf62'; x.fillRect(66, 56, 10, 8); pxCircle(x, 68, 55, 3, '#4fbf62'); pxCircle(x, 74, 55, 3, '#4fbf62');
+    crDrawFrog(x, 70, 51, '#a7f070');
     x.fillStyle = '#ffe14d'; x.font = '8px "Press Start 2P"'; x.textAlign = 'center'; x.fillText('CRUZAR LA CALLE', 80, 18);
   }
 }
