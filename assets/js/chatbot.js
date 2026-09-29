@@ -47,6 +47,7 @@ function crearWidget() {
             </div>
           </form>
           <p class="chatbot-confirmacion" hidden>¡Gracias! Le avisamos a los moderadores.</p>
+          <button type="button" class="chatbot-link chatbot-volver-tras-reporte" hidden>Volver a buscar</button>
         </div>
       </div>
     </section>`;
@@ -73,10 +74,21 @@ function iniciarWidget() {
     if (abrir) wrap.querySelector('.chatbot-view:not([hidden]) input, .chatbot-view:not([hidden]) textarea')?.focus();
   };
 
+  const formReporte = wrap.querySelector(".chatbot-report-form");
+  const confirmacion = wrap.querySelector(".chatbot-confirmacion");
+  const volverTrasReporte = wrap.querySelector(".chatbot-volver-tras-reporte");
+  const reiniciarVistaReportar = () => {
+    formReporte.reset();
+    formReporte.hidden = false;
+    confirmacion.hidden = true;
+    volverTrasReporte.hidden = true;
+  };
+
   fab.addEventListener("click", () => alternarPanel(!abierto));
   wrap.querySelector(".chatbot-close").addEventListener("click", () => alternarPanel(false));
-  wrap.querySelector(".chatbot-ir-reportar").addEventListener("click", () => mostrarVista("reportar"));
+  wrap.querySelector(".chatbot-ir-reportar").addEventListener("click", () => { reiniciarVistaReportar(); mostrarVista("reportar"); });
   wrap.querySelector(".chatbot-ir-buscar").addEventListener("click", () => mostrarVista("buscar"));
+  volverTrasReporte.addEventListener("click", () => { reiniciarVistaReportar(); mostrarVista("buscar"); });
 
   document.addEventListener("keydown", event => {
     if (event.key === "Escape" && abierto) alternarPanel(false);
@@ -107,7 +119,8 @@ function iniciarWidget() {
         createdAt: serverTimestamp()
       });
       form.hidden = true;
-      wrap.querySelector(".chatbot-confirmacion").hidden = false;
+      confirmacion.hidden = false;
+      volverTrasReporte.hidden = false;
     } catch (error) {
       console.error("No se pudo enviar el reporte del chatbot:", error);
       window.alert("No se pudo enviar el reporte. Intenta de nuevo en unos minutos.");
