@@ -245,6 +245,23 @@ nav .btn{padding:8px 12px}
 #egg img{height:min(72vh,120vw);image-rendering:pixelated;box-shadow:0 0 0 6px var(--dark),0 0 0 10px var(--yellow);animation:eggIn .35s steps(4)}
 #egg p{color:var(--yellow);font-size:14px;margin:0;text-shadow:3px 3px 0 var(--red)}
 @keyframes eggIn{from{transform:scale(.2) rotate(-12deg)}to{transform:none}}
+/* === COMBATE DE FUNCIONES v2 === */
+#fc-time > span{display:inline-block;transform-origin:center}
+#fc-mov.shake{animation:fcShake .2s steps(4)}
+@keyframes fcShake{0%{transform:translate(0,0)}25%{transform:translate(-3px,2px);color:var(--yellow)}50%{transform:translate(3px,-2px);color:var(--red)}75%{transform:translate(-2px,-1px);color:var(--yellow)}100%{transform:translate(0,0)}}
+#fc-clock.pulse{animation:fcPulse 1s steps(8)}
+@keyframes fcPulse{0%{transform:scale(1)}25%{transform:scale(1.2)}55%,100%{transform:scale(1)}}
+.fc-team{display:flex;flex-wrap:wrap;align-items:center;gap:2px;margin:2px 0}
+.fc-team b{font-weight:normal;font-size:9px;min-width:84px}
+.fc-team .btn{padding:8px 10px;font-size:9px;min-width:92px}
+.fc-team .btn.bot{background:var(--purple)}
+.fc-team .btn.empty{background:var(--dark);color:var(--mute)}
+.fc-opts{display:flex;flex-wrap:wrap;gap:4px 28px}
+.fc-step{display:flex;align-items:center;gap:2px}
+.fc-step .btn{padding:8px 12px;font-size:12px}
+.fc-step .tag{min-width:64px;text-align:center}
+#fc-help button{text-transform:none}
+@media (max-width:600px){.fc-team b{min-width:0;width:100%}.fc-team .btn{min-width:0}}
 </style>
 </head>
 <body>
@@ -497,6 +514,12 @@ nav .btn{padding:8px 12px}
         <div id="fc-setup">
           <div class="rc-sec"><h4>FORMATO</h4><div class="pick" id="fc-fmt"></div></div>
           <div class="rc-sec"><h4>PISTA</h4><div class="pick" id="fc-track"></div></div>
+          <div class="rc-sec" id="fc-seats-sec"><h4>JUGADORES (SOLO PARTIDA LOCAL)</h4><div id="fc-seats"></div><p class="sub" id="fc-seats-lbl"></p></div>
+          <div class="rc-sec" id="fc-bot-sec"><h4>DIFICULTAD DE LOS BOTS</h4><div class="pick" id="fc-bot"></div></div>
+          <div class="rc-sec fc-opts">
+            <div><h4>TIEMPO POR TURNO</h4><div class="fc-step"><button class="btn" id="fc-ts-m" aria-label="Menos tiempo">−</button><span id="fc-ts-v" class="tag">20 s</span><button class="btn" id="fc-ts-p" aria-label="Más tiempo">+</button></div></div>
+            <div><h4>VISTA PREVIA DEL DISPARO</h4><button class="btn gray" id="fc-prev-t">NO</button></div>
+          </div>
         </div>
         <div id="fc-menu">
           <h4>¿CÓMO QUIERES JUGAR?</h4>
@@ -519,7 +542,7 @@ nav .btn{padding:8px 12px}
           <div class="row left"><button class="btn green" id="fc-go">¡EMPEZAR!</button></div>
         </div>
         <div id="fc-game" hidden>
-          <div class="fc-bar"><span id="fc-turn"></span><span id="fc-time"></span></div>
+          <div class="fc-bar"><span id="fc-turn"></span><span id="fc-time"><span id="fc-clock"></span> <span id="fc-mov"></span></span></div>
           <div class="stage">
             <canvas id="fc-cv" width="400" height="240"></canvas>
             <div class="over" id="fc-over" hidden>
@@ -538,12 +561,12 @@ nav .btn{padding:8px 12px}
             </div>
             <div class="fc-row">
               <span class="mv"><button class="btn" data-m="l">◀</button><button class="btn" data-m="u">▲</button><button class="btn" data-m="d">▼</button><button class="btn" data-m="r">▶</button></span>
-              <span class="ex" id="fc-help">EJEMPLOS:
-                <button data-ex="0.5x">0.5x</button><button data-ex="-x/3">-x/3</button><button data-ex="3sin(x)">3sin(x)</button><button data-ex="x^2/20">x^2/20</button><button data-ex="4cos(x/2)">4cos(x/2)</button><button data-ex="sqrt(abs(x))">sqrt(abs(x))</button>
+              <span class="ex" id="fc-help">FUNCIONES BÁSICAS:
+                <button data-ex="x">x</button><button data-ex="x^2">x^2</button><button data-ex="ln(x)">ln(x)</button><button data-ex="e^x">e^x</button><button data-ex="sin(x)">sin(x)</button><button data-ex="cos(x)">cos(x)</button><button data-ex="abs(x)">abs(x)</button>
               </span>
             </div>
           </div>
-          <div class="fc-row"><span id="fc-msg" class="sub"></span><button class="btn gray" id="fc-quit">ABANDONAR</button></div>
+          <div class="fc-row"><span id="fc-msg" class="sub"></span><button class="btn gray" id="fc-pi">CAMBIAR A π</button><button class="btn gray" id="fc-quit">ABANDONAR</button></div>
         </div>
       </div>
     </div>
@@ -552,7 +575,7 @@ nav .btn{padding:8px 12px}
       <p class="sub">VICTORIAS</p>
       <ol class="lb" id="fc-lb"></ol>
       <h4 style="margin-top:16px">CÓMO SE JUEGA</h4>
-      <p class="howto">1. CADA EQUIPO COLOCA 4 PERSONAJES EN SU ZONA.<br>2. EN TU TURNO (30 s) PUEDES MOVERTE UN POCO O DISPARAR.<br>3. ESCRIBE y = f(x): LA GRÁFICA SALE DESDE TU PERSONAJE.<br>4. SI TOCA A ALGUIEN, QUEDA ELIMINADO (¡TAMBIÉN TUS AMIGOS!).<br>5. LOS OBSTÁCULOS FRENAN LA CURVA Y SE ROMPEN.<br>6. GANA EL ÚLTIMO EQUIPO EN PIE.</p>
+      <p class="howto">1. CADA EQUIPO COLOCA 4 PERSONAJES EN SU ZONA (SI SON 2 JUGADORES, 2 CADA UNO).<br>2. EN TU TURNO (20 s O LO QUE ELIJAN) PUEDES MOVERTE UN POCO Y DISPARAR.<br>3. ESCRIBE y = f(x). LA GRÁFICA SE SUBE O BAJA PARA PASAR POR TU PERSONAJE Y AVANZA HACIA DONDE APUNTAS. x ES LA POSICIÓN REAL EN EL MAPA: x^2 TIENE SU VÉRTICE EN x = 0, NO EN TI. PARA MOVERLO USA (x−a)^2.<br>4. SI SE ACABA EL TIEMPO, SE DISPARA LO QUE ESCRIBISTE. SI ESTÁ VACÍO O TIENE ERRORES, PIERDES EL TURNO.<br>5. SI TOCA A ALGUIEN, QUEDA ELIMINADO (¡TAMBIÉN TUS AMIGOS!).<br>6. LOS OBSTÁCULOS FRENAN LA CURVA Y SE ROMPEN.<br>7. «CAMBIAR A π» SOLO CAMBIA LOS RÓTULOS DEL EJE X (π ≈ 3.14). LA ESCALA ES LA MISMA: sin(x) CORTA EL EJE EN CADA π.<br>8. GANA EL ÚLTIMO EQUIPO EN PIE. CONTRA BOTS SOLO SUMAN AL TOP 10 LAS VICTORIAS EN DIFÍCIL.</p>
     </aside>
   </section>
 
@@ -2524,9 +2547,21 @@ const FC_FN = {
   exp: Math.exp, log: Math.log10, ln: Math.log, floor: Math.floor, ceil: Math.ceil, round: Math.round, sign: Math.sign
 };
 const FC_NAMES = [...Object.keys(FC_FN), 'pi', 'x', 'e'].sort((a, b) => b.length - a.length);
+// sen = sin, ln = logaritmo natural, log = base 10, e^x = exp(x), abs(x) = |x|
+const fcNorm = src => String(src).toLowerCase().replace(/\s+/g, '').replace(/π/g, 'pi').replace(/[·×]/g, '*').replace(/÷/g, '/').replace(/,/g, '.').replace(/²/g, '^2').replace(/³/g, '^3').replace(/√/g, 'sqrt').replace(/[−–]/g, '-').replace(/^(y|f\(x\))=/, '');
+// Reflejo sobre el eje Y: cambia cada x por (-x). Devuelve null si no entiende la expresión.
+function fcReflect(src) {
+  const s = fcNorm(src); let out = '';
+  for (let i = 0; i < s.length;) {
+    if (/[a-z]/.test(s[i])) {
+      const n = FC_NAMES.find(k => s.startsWith(k, i)); if (!n) return null;
+      out += n === 'x' ? '(-x)' : n; i += n.length;
+    } else out += s[i++];
+  }
+  return out.replace(/\(\(-x\)\)/g, '(-x)');
+}
 function fcCompile(src) {
-  let s = String(src).toLowerCase().replace(/\s+/g, '').replace(/π/g, 'pi').replace(/[·×]/g, '*').replace(/÷/g, '/').replace(/,/g, '.').replace(/²/g, '^2').replace(/³/g, '^3').replace(/√/g, 'sqrt');
-  s = s.replace(/^(y|f\(x\))=/, '');
+  const s = fcNorm(src);
   if (!s) throw new Error('ESCRIBE UNA FUNCIÓN');
   if (s.length > 80) throw new Error('FUNCIÓN DEMASIADO LARGA');
   let i = 0;
@@ -2590,8 +2625,17 @@ function fcCompile(src) {
    COMBATE DE FUNCIONES
    Plano: x ∈ [-25, 25], y ∈ [-15, 15]. La curva y = f(x) se desplaza
    verticalmente para salir del personaje: y = f(x) − f(x₀) + y₀
+   (igual que Graph War; ver docs/arcade-combate-disparo.md)
    ========================================================= */
-const FW = 400, FH = 240, SC = 8, XR = 25, YR = 15, TURN_S = 30, MOVE = 5, URAD = .9, HOLE = 1.6;
+const FW = 400, FH = 240, SC = 8, XR = 25, YR = 15, TURN_S = 20, MOVE = 5, URAD = .9, HOLE = 1.6;
+// Trazado del disparo: paso normal en x, subida máxima por paso (se achica el paso si la curva es empinada),
+// paso mínimo y salto máximo que se une con una línea vertical (más grande = asíntota: el disparo termina).
+const FC_DX = .01, FC_DY = .25, FC_DXMIN = 1e-6, FC_JUMP = 3;
+// Sprite de 7×9 dibujado al doble (14×18 px); el impacto sigue siendo un círculo de radio URAD (7.2 px).
+const FC_SPR = 2;
+const FC_BOT = [{ n: 'FÁCIL', miss: .3 }, { n: 'MEDIO', miss: .2 }, { n: 'DIFÍCIL', miss: .1 }];
+const FC_TINT = ['rgba(100,150,255,.15)', 'rgba(255,100,100,.15)', 'rgba(120,240,120,.12)', 'rgba(255,215,110,.12)'];
+const fcClampT = v => { v = Math.round(Number(v)); return v >= 10 && v <= 60 ? v : TURN_S; };
 const wx2p = x => (x + XR) * SC, wy2p = y => (YR - y) * SC;
 const p2wx = px => px / SC - XR, p2wy = py => YR - py / SC;
 const FC_TRACKS = [
@@ -2622,7 +2666,7 @@ function soldier(team) {
   f(col, 1, 5, 5, 2); f('#f4f4f4', 5, 5, 2, 1); f('#333c57', 1, 7, 2, 2); f('#333c57', 4, 7, 2, 2);
   return SOLD[team] = c;
 }
-const DIG = { '0': '111101101101111', '1': '010110010010111', '2': '111001111100111', '3': '111001111001111', '4': '101101111001001', '5': '111100111001111', '6': '111100111101111', '7': '111001010010010', '8': '111101111101111', '9': '111101111001111', '-': '000000111000000', 'x': '000101010101000', 'y': '101101111001111' };
+const DIG = { '0': '111101101101111', '1': '010110010010111', '2': '111001111100111', '3': '111001111001111', '4': '101101111001001', '5': '111100111001111', '6': '111100111101111', '7': '111001010010010', '8': '111101111101111', '9': '111101111001111', '-': '000000111000000', 'x': '000101010101000', 'y': '101101111001111', 'π': '111101101101101', '/': '001001010100100' };
 function tinyText(g, str, x, y, col) {
   g.fillStyle = col;
   [...str].forEach((ch, k) => { const b = DIG[ch]; if (!b) return; for (let i = 0; i < 15; i++) if (b[i] === '1') g.fillRect(x + k * 4 + (i % 3), y + ((i / 3) | 0), 1, 1); });
@@ -2632,9 +2676,19 @@ const FC = {
   mode: null, fmt: store.get('pa_fc_fmt', '1v1'), ffaN: 4, track: store.get('pa_fc_track', 0), phase: 'menu',
   seats: [], turn: null, ptr: [], turnN: 0, tEnd: 0, moveLeft: MOVE, dir: 1, holes: [], terrain: null, img: null,
   anim: null, fx: [], placeSeat: 0, mv: {}, mouse: null, room: null, roomData: null, roomPlayers: {}, unsubs: [], me: 0,
-  isHost: false, lastSend: 0, turnSeenAt: 0, won: false, hbStop: null, spectating: false, elimSent: null
+  isHost: false, lastSend: 0, turnSeenAt: 0, won: false, hbStop: null, spectating: false, elimSent: null,
+  turnS: fcClampT(store.get('pa_fc_ts', TURN_S)), preview: store.get('pa_fc_prev', false) === true, botLvl: store.get('pa_fc_bot', 1),
+  lseats: store.get('pa_fc_lseats', null), sched: null, piAxis: store.get('pa_fc_pi', false) === true, localLbl: '',
+  prev: null, prevAt: 0, prevDirty: false, hint: false, bot: null, lostWhy: '', autoFired: false, shakeUntil: 0, lastLeft: -1
 };
 if (!FC_FMT[FC.fmt]) FC.fmt = '1v1';
+if (!FC_BOT[FC.botLvl]) FC.botLvl = 1;
+{ // asientos del modo local: 'h' humano, 'b' bot, '-' vacío (a = equipo azul, b = naranja, f = todos contra todos)
+  const L = FC.lseats && typeof FC.lseats === 'object' ? FC.lseats : {}, ok = (v, e) => v === 'h' || v === 'b' || (e && v === '-');
+  const arr = (a, n, e, d) => [...Array(n)].map((_, i) => Array.isArray(a) && ok(a[i], e && i > 0) ? a[i] : d[i]);
+  FC.lseats = { a: arr(L.a, 2, true, ['h', '-']), b: arr(L.b, 2, true, ['b', '-']), f: arr(L.f, 4, false, ['h', 'b', 'b', 'b']) };
+  FC.lseats.a[0] = 'h'; FC.lseats.f[0] = 'h';
+}
 const fcv = $('#fc-cv'), fx = fcv.getContext('2d');
 fx.imageSmoothingEnabled = false;
 
@@ -2651,7 +2705,7 @@ function fcBuildTerrain(track, holes) {
   }
   return m;
 }
-function fcRenderTerrain(track, m, img) {
+function fcRenderTerrain(track, m, img, pi) {
   img.width = FW; img.height = FH;
   const g = img.getContext('2d'), id = g.createImageData(FW, FH), p = FC_TRACKS[track].pal;
   const hex = h => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
@@ -2668,7 +2722,17 @@ function fcRenderTerrain(track, m, img) {
     id.data.set([c[0], c[1], c[2], 255], q * 4);
   }
   g.putImageData(id, 0, 0);
-  for (const v of [-20, -15, -10, -5, 5, 10, 15, 20]) {
+  if (pi) {
+    // Solo cambian los rótulos: la escala es la misma (x = 3.14 cae en «π»). Marca cada π/2 y rotula cada π.
+    for (let k = -15; k <= 15; k++) {
+      const v = k * Math.PI / 2; if (!k || Math.abs(v) > XR - 1) continue;
+      const px = Math.round(wx2p(v)), big = k % 2 === 0;
+      if (!m[121 * FW + px]) { g.fillStyle = p.axis; g.fillRect(px, big ? 118 : 119, 1, big ? 5 : 3); }
+      const t = big ? (k === 2 ? 'π' : k === -2 ? '-π' : k / 2 + 'π') : k === 1 ? 'π/2' : k === -1 ? '-π/2' : '';
+      // π/2 y -π/2 van encima del eje para no chocar con «π» y «-π»
+      if (t) tinyText(g, t, px - [...t].length * 2 + 1, big ? 124 : 112, p.axis);
+    }
+  } else for (const v of [-20, -15, -10, -5, 5, 10, 15, 20]) {
     const px = wx2p(v); if (!m[121 * FW + px]) { g.fillStyle = p.axis; g.fillRect(px, 118, 1, 5); }
     tinyText(g, String(v), px - String(v).length * 2 + 1, 124, p.axis);
   }
@@ -2681,7 +2745,7 @@ function fcRenderTerrain(track, m, img) {
 function fcTerrain() {
   FC.terrain = fcBuildTerrain(FC.track, FC.holes);
   FC.img = FC.img || document.createElement('canvas');
-  fcRenderTerrain(FC.track, FC.terrain, FC.img);
+  fcRenderTerrain(FC.track, FC.terrain, FC.img, FC.piAxis);
 }
 const fcSolid = (x, y) => { const px = Math.floor(wx2p(x)), py = Math.floor(wy2p(y)); if (px < 0 || py < 0 || px >= FW || py >= FH) return 1; return FC.terrain[py * FW + px]; };
 function fcFree(x, y, r = .6) {
@@ -2691,20 +2755,26 @@ function fcFree(x, y, r = .6) {
   return true;
 }
 
-/* ---- simulación del disparo ---- */
+/* ---- simulación del disparo ----
+   Como en Graph War: y = f(x) − f(x₀) + y₀ (la gráfica se sube o baja hasta pasar por el personaje)
+   y se recorre desde x₀ hacia la dirección elegida; x es la coordenada real del mapa.
+   El paso en x se achica donde la curva es muy empinada (antes, una subida de más de 25 unidades
+   en un paso de 0.01 cortaba el disparo sin dibujarlo): así una parte casi vertical también choca.
+   Un salto que no se achica al reducir el paso es una asíntota (1/x, tan x): ahí termina el disparo. */
 function fcSim(fn, x0, y0, dir, shooter) {
   const c = fn(x0);
-  if (!isFinite(c)) throw new Error('LA FUNCIÓN NO ESTÁ DEFINIDA EN x = ' + x0.toFixed(1));
+  if (!isFinite(c)) { const e = new Error('LA FUNCIÓN NO ESTÁ DEFINIDA EN x = ' + x0.toFixed(1)); e.undef = true; throw e; }
   const F = x => fn(x) - c + y0;
-  let px = x0, py = y0;
+  let px = x0, py = y0, dx = FC_DX;
   const pts = [[px, py]], kills = [], killed = new Set();
   let lastPt = [px, py];
   const push = (x, y, force) => { if (force || Math.hypot(x - lastPt[0], y - lastPt[1]) > .12) { pts.push([x, y]); lastPt = [x, y]; } };
-  for (let it = 0; it < 6000; it++) {
-    const nx = px + .01 * dir, ny = F(nx);
-    if (!isFinite(ny)) { push(px, py, true); return { pts, kills, end: null }; }
+  for (let it = 0; it < 60000; it++) {
+    let d = dx, nx = px + d * dir, ny = F(nx);
+    while (!(isFinite(ny) && Math.abs(ny - py) <= FC_DY) && d > FC_DXMIN) { d /= 2; nx = px + d * dir; ny = F(nx); }
+    if (!isFinite(ny) || Math.abs(ny - py) > FC_JUMP) { push(px, py, true); return { pts, kills, end: null }; }
+    dx = Math.min(FC_DX, d * 2);
     const len = Math.hypot(nx - px, ny - py);
-    if (len > 25) { push(px, py, true); return { pts, kills, end: null }; }
     const sub = Math.max(1, Math.ceil(len / .08));
     for (let k = 1; k <= sub; k++) {
       const x = px + (nx - px) * k / sub, y = py + (ny - py) * k / sub;
@@ -2724,21 +2794,29 @@ function fcSim(fn, x0, y0, dir, shooter) {
 }
 
 /* ---- turnos ---- */
-function fcNextTurn(seats, ptr, turn) {
-  const n = seats.length; ptr = [...ptr];
+// sched (solo local): orden de asientos por ronda; un jugador solo contra dos aparece dos veces
+// (p. ej. [0, 1, 0, 2]) para que cada equipo dispare lo mismo. Sin sched: 0, 1, 2, 3… como antes.
+function fcNextTurn(seats, ptr, turn, sched) {
+  const order = sched || seats.map((_, i) => i), n = order.length; ptr = [...ptr];
+  let k0 = turn.k != null ? turn.k : order.lastIndexOf(turn.seat);
+  if (k0 < -1) k0 = -1;
   for (let k = 1; k <= n; k++) {
-    const s = (turn.seat + k) % n, alive = [];
+    const kk = (k0 + k) % n, s = order[kk], alive = [];
     seats[s].units.forEach((u, i) => u.alive && alive.push(i));
     if (!alive.length) continue;
     let j = alive.find(i => i > ptr[s]); if (j === undefined) j = alive[0];
     ptr[s] = j;
-    return { turn: { seat: s, unit: j }, ptr };
+    const t = { seat: s, unit: j }; if (sched) t.k = kk;
+    return { turn: t, ptr };
   }
   return { turn: null, ptr };
 }
 const fcTeamsAlive = seats => new Set(seats.filter(s => s.units.some(u => u.alive)).map(s => s.team));
 const fcCur = () => FC.turn ? FC.seats[FC.turn.seat].units[FC.turn.unit] : null;
-const fcMine = () => FC.phase === 'play' && FC.turn && (FC.mode === 'local' || FC.turn.seat === FC.me);
+const fcMine = () => FC.phase === 'play' && FC.turn && (FC.mode === 'local' ? !FC.seats[FC.turn.seat].bot : FC.turn.seat === FC.me);
+const fcBotTurn = () => FC.mode === 'local' && FC.turn && FC.seats[FC.turn.seat] && FC.seats[FC.turn.seat].bot;
+const fcPer = s => (FC.seats[s] && FC.seats[s].per) || FC_FMT[FC.fmt].per;
+const fcSeatZone = s => (FC.seats[s] && FC.seats[s].zone) || fcZone(FC.fmt, s);
 
 /* ---- interfaz ---- */
 function fcSetupRender() {
@@ -2750,11 +2828,15 @@ function fcSetupRender() {
     { k: 'ffa3', html: 'TODOS VS TODOS<br><small>3 JUGADORES</small>' },
     { k: 'ffa4', html: 'TODOS VS TODOS<br><small>4 JUGADORES</small>' },
   ].filter(it => !(online && it.k === 'ffa3'));
-  const curK = FC.fmt === 'ffa' ? (online ? 'ffa4' : 'ffa' + FC.ffaN) : FC.fmt;
+  const L = FC.lseats, na = L.a.filter(v => v !== '-').length, nb = L.b.filter(v => v !== '-').length;
+  // en el menú, si los equipos locales son desiguales (1 VS 2…) no se marca 1 VS 1 ni 2 VS 2
+  const curK = FC.fmt === 'ffa' ? (online ? 'ffa4' : 'ffa' + FC.ffaN) : !online && na !== nb ? '' : FC.fmt;
   pickRow($('#fc-fmt'), fmtItems.map(it => ({ html: online && it.k === 'ffa4' ? 'TODOS VS TODOS<br><small>3 O 4 JUGADORES</small>' : it.html })),
     fmtItems.findIndex(it => it.k === curK), i => {
       const k = fmtItems[i].k; SFX.play('click');
       if (k.startsWith('ffa')) { FC.fmt = 'ffa'; FC.ffaN = +k[3]; } else FC.fmt = k;
+      if (!online && k === '1v1') { L.a[1] = '-'; L.b[1] = '-'; }
+      if (!online && k === '2v2') { if (L.a[1] === '-') L.a[1] = 'h'; if (L.b[1] === '-') L.b[1] = L.b[0]; }
       if (online) fs.updateDoc(fs.doc(db, 'fights', FC.room), { fmt: FC.fmt }).catch(console.error);
       fcSetupRender(); fcLobbyRender();
     });
@@ -2769,6 +2851,50 @@ function fcSetupRender() {
   });
   $('#fc-fmt').querySelectorAll('.btn').forEach(b => b.disabled = lock);
   $('#fc-track').querySelectorAll('.btn').forEach(b => b.disabled = lock);
+  if (!online) { store.set('pa_fc_ts', FC.turnS); store.set('pa_fc_prev', FC.preview); store.set('pa_fc_bot', FC.botLvl); store.set('pa_fc_lseats', FC.lseats); }
+  $('#fc-ts-v').textContent = FC.turnS + ' s';
+  $('#fc-ts-m').disabled = lock || FC.turnS <= 10; $('#fc-ts-p').disabled = lock || FC.turnS >= 60;
+  const pv = $('#fc-prev-t'); pv.textContent = FC.preview ? 'SÍ' : 'NO'; pv.className = 'btn ' + (FC.preview ? 'on' : 'gray'); pv.disabled = lock;
+  fcSeatsRender();
+}
+// Editor de asientos del modo local: cada botón cambia HUMANO → BOT → VACÍO. El primer asiento azul eres tú.
+function fcSeatsRender() {
+  const online = FC.mode === 'online', L = FC.lseats, box = $('#fc-seats'), ffa = FC.fmt === 'ffa';
+  $('#fc-seats-sec').hidden = online;
+  box.innerHTML = '';
+  const row = (title, color, key, n) => {
+    const d = document.createElement('div'); d.className = 'fc-team';
+    const b = document.createElement('b'); b.textContent = title; b.style.color = color; d.appendChild(b);
+    for (let i = 0; i < n; i++) {
+      const v = L[key][i], you = i === 0 && key !== 'b', btn = document.createElement('button');
+      btn.className = 'btn' + (you ? ' on' : v === 'b' ? ' bot' : v === '-' ? ' empty' : '');
+      btn.textContent = you ? 'TÚ' : v === 'b' ? 'BOT' : v === '-' ? '+ AGREGAR' : 'HUMANO';
+      btn.disabled = you;
+      btn.onclick = () => {
+        SFX.play('click');
+        const cyc = i === 0 || key === 'f' ? { h: 'b', b: 'h' } : { '-': 'h', h: 'b', b: '-' };
+        L[key][i] = cyc[v] || 'h';
+        const na = L.a.filter(q => q !== '-').length, nb = L.b.filter(q => q !== '-').length;
+        if (key !== 'f' && na === nb) FC.fmt = na === 1 ? '1v1' : '2v2';
+        fcSetupRender();
+      };
+      d.appendChild(btn);
+    }
+    box.appendChild(d);
+  };
+  let bots;
+  if (ffa) { row('TODOS VS TODOS', TEAMC[3], 'f', FC.ffaN); bots = L.f.slice(0, FC.ffaN).filter(v => v === 'b').length; }
+  else { row('EQUIPO AZUL', TEAMC[0], 'a', 2); row('EQUIPO NARANJA', TEAMC[1], 'b', 2); bots = [...L.a, ...L.b].filter(v => v === 'b').length; }
+  const na = L.a.filter(v => v !== '-').length, nb = L.b.filter(v => v !== '-').length;
+  $('#fc-seats-lbl').textContent = (ffa ? `${FC.ffaN} JUGADORES, 4 PERSONAJES C/U` : `PARTIDA LOCAL: ${na} VS ${nb} (4 PERSONAJES POR EQUIPO)`) + (bots ? ` · ${bots} BOT${bots > 1 ? 'S' : ''}` : '');
+  $('#fc-bot-sec').hidden = online || !bots;
+  pickRow($('#fc-bot'), FC_BOT.map((b, i) => ({ html: `${b.n}<br><small>FALLA ~${Math.round(b.miss * 100)}%${i === 2 ? ' · SUMA AL TOP' : ''}</small>` })), FC.botLvl, i => { SFX.play('click'); FC.botLvl = i; fcSetupRender(); });
+}
+function fcSetTurnS(v) {
+  const online = FC.mode === 'online'; if (online && !FC.isHost) return;
+  FC.turnS = Math.max(10, Math.min(60, v)); SFX.play('click');
+  if (online) fs.updateDoc(fs.doc(db, 'fights', FC.room), { turnS: FC.turnS }).catch(console.error);
+  fcSetupRender(); fcLobbyRender();
 }
 function fcView(v) {
   $('#fc-setup').hidden = !(v === 'menu' || v === 'lobby');
@@ -2793,14 +2919,15 @@ function fcUI() {
   if (FC.spectating && FC.phase === 'place') {
     turnTxt = '👁 MODO ESPECTADOR: LOS JUGADORES ESTÁN COLOCANDO SUS PERSONAJES…';
   } else if (place) {
-    const s = FC.mode === 'local' ? FC.placeSeat : FC.me, seat = FC.seats[s], per = FC_FMT[FC.fmt].per;
-    turnTxt = `<span style="color:${TEAMC[seat.team]}">${esc(seat.name)}</span>: COLOCA ${per - seat.units.length} PERSONAJE(S) EN TU ZONA`;
+    const s = FC.mode === 'local' ? FC.placeSeat : FC.me, seat = FC.seats[s], per = fcPer(s);
+    turnTxt = `<span style="color:${TEAMC[seat.team]}">${esc(seat.name)}</span>: ${seat.bot ? 'COLOCANDO PERSONAJES…' : `COLOCA ${per - seat.units.length} PERSONAJE(S) EN TU ZONA`}`;
+    $('#fc-place').hidden = !!seat.bot;
     $('#fc-ready').hidden = FC.mode === 'local';
     $('#fc-ready').disabled = seat.units.length < per || seat.ready;
     if (FC.mode === 'online' && seat.ready) turnTxt = 'ESPERANDO A QUE LOS DEMÁS COLOQUEN SUS PERSONAJES…';
   } else if (FC.turn) {
     const seat = FC.seats[FC.turn.seat];
-    turnTxt = `TURNO: <span style="color:${TEAMC[seat.team]}">${esc(seat.name)}</span> · PERSONAJE ${FC.turn.unit + 1}${mine && FC.mode === 'online' ? ' (TÚ)' : ''}`;
+    turnTxt = `TURNO: <span style="color:${TEAMC[seat.team]}">${seat.bot ? '🤖 ' : ''}${esc(seat.name)}</span> · PERSONAJE ${FC.turn.unit + 1}${mine && FC.mode === 'online' ? ' (TÚ)' : ''}`;
   }
   if (FC.mode === 'online' && FC.roomData && FC.roomData.order && FC.phase !== 'place') {
     const now = Date.now();
@@ -2815,9 +2942,28 @@ function fcUI() {
 }
 function fcStartLocal() {
   fcLeaveOnline();
-  const n = FC.fmt === 'ffa' ? FC.ffaN : FC_FMT[FC.fmt].seats;
-  FC.mode = 'local'; FC.me = 0;
-  FC.seats = [...Array(n)].map((_, i) => ({ name: i === 0 ? playerName() : 'JUGADOR ' + (i + 1), team: teamOf(FC.fmt, i), units: [] }));
+  FC.mode = 'local'; FC.me = 0; FC.sched = null;
+  const L = FC.lseats; let hn = 0, bn = 0;
+  const mk = (v, team, per, zone) => v === 'b'
+    ? { name: 'BOT ' + (++bn), bot: true, lvl: FC.botLvl, team, per, zone, units: [] }
+    : { name: hn++ === 0 ? playerName() : 'JUGADOR ' + hn, bot: false, team, per, zone, units: [] };
+  if (FC.fmt === 'ffa') {
+    FC.seats = L.f.slice(0, FC.ffaN).map((v, i) => mk(i === 0 ? 'h' : v, i, 4, fcZone('ffa', i)));
+    FC.localLbl = 'FFA ' + FC.ffaN;
+  } else {
+    // Cada equipo tiene 4 personajes: 1 jugador = 4, 2 jugadores = 2 cada uno. Asientos intercalados A, B, A, B.
+    const A = L.a.filter(v => v !== '-'), B = L.b.filter(v => v !== '-'), ia = [], ib = [];
+    FC.seats = [];
+    for (let i = 0; i < 2; i++) {
+      if (A[i]) { ia.push(FC.seats.length); FC.seats.push(mk(i === 0 ? 'h' : A[i], 0, 4 / A.length, fcZone('1v1', 0))); }
+      if (B[i]) { ib.push(FC.seats.length); FC.seats.push(mk(B[i], 1, 4 / B.length, fcZone('1v1', 1))); }
+    }
+    // orden de turnos: los equipos se alternan; el jugador solo juega dos veces por ronda en 1 VS 2
+    FC.sched = [];
+    for (let i = 0; i < Math.max(A.length, B.length); i++) FC.sched.push(ia[i % ia.length], ib[i % ib.length]);
+    if (A.length === B.length) FC.fmt = A.length === 1 ? '1v1' : '2v2';
+    FC.localLbl = `${A.length} VS ${B.length}`;
+  }
   fcBeginPlacement();
 }
 function fcBeginPlacement() {
@@ -2828,9 +2974,9 @@ function fcBeginPlacement() {
   fcMsg('TOCA EL MAPA DENTRO DE LA ZONA ILUMINADA PARA COLOCAR CADA PERSONAJE.');
 }
 function fcTryPlace(x, y) {
-  const s = FC.mode === 'local' ? FC.placeSeat : FC.me, seat = FC.seats[s], per = FC_FMT[FC.fmt].per;
-  if (seat.units.length >= per || seat.ready) return false;
-  const z = fcZone(FC.fmt, s);
+  const s = FC.mode === 'local' ? FC.placeSeat : FC.me, seat = FC.seats[s], per = fcPer(s);
+  if (seat.units.length >= per || seat.ready || seat.bot) return false;
+  const z = fcSeatZone(s);
   if (x < z[0] || x > z[1] || y < z[2] || y > z[3]) { fcMsg('FUERA DE TU ZONA', 'lose'); SFX.play('miss'); return false; }
   if (!fcFree(x, y, 1)) { fcMsg('HAY UN OBSTÁCULO AHÍ', 'lose'); SFX.play('miss'); return false; }
   if (FC.seats.some(q => q.units.some(u => Math.hypot(u.x - x, u.y - y) < 2.2))) { fcMsg('MUY CERCA DE OTRO PERSONAJE', 'lose'); SFX.play('miss'); return false; }
@@ -2841,48 +2987,143 @@ function fcTryPlace(x, y) {
   return true;
 }
 function fcRandomPlace() {
-  const s = FC.mode === 'local' ? FC.placeSeat : FC.me, seat = FC.seats[s], z = fcZone(FC.fmt, s);
+  const s = FC.mode === 'local' ? FC.placeSeat : FC.me, seat = FC.seats[s], z = fcSeatZone(s), per = fcPer(s);
   let guard = 0;
-  while (seat.units.length < FC_FMT[FC.fmt].per && guard++ < 2000 && FC.phase === 'place' && (FC.mode === 'local' ? FC.placeSeat === s : true)) {
+  while (seat.units.length < per && guard++ < 2000 && FC.phase === 'place' && (FC.mode === 'local' ? FC.placeSeat === s : true)) {
     const x = z[0] + Math.random() * (z[1] - z[0]), y = z[2] + Math.random() * (z[3] - z[2]);
     if (!fcFree(x, y, 1) || FC.seats.some(q => q.units.some(u => Math.hypot(u.x - x, u.y - y) < 2.2))) continue;
     seat.units.push({ x: Math.round(x * 10) / 10, y: Math.round(y * 10) / 10, alive: true });
-    if (seat.units.length >= FC_FMT[FC.fmt].per) { fcPlacedSeat(); break; }
+    if (seat.units.length >= per) { fcPlacedSeat(); break; }
   }
   SFX.play('click'); fcUI();
 }
 function fcPlacedSeat() {
   if (FC.mode === 'local') {
-    if (FC.placeSeat < FC.seats.length - 1) { FC.placeSeat++; fcMsg('SIGUIENTE JUGADOR: COLOCA TUS PERSONAJES.'); }
-    else fcBeginPlay();
+    if (FC.placeSeat < FC.seats.length - 1) {
+      FC.placeSeat++;
+      if (FC.seats[FC.placeSeat].bot) {
+        fcMsg('EL BOT ESTÁ COLOCANDO SUS PERSONAJES…');
+        const s = FC.placeSeat; setTimeout(() => { if (FC.phase === 'place' && FC.placeSeat === s) fcRandomPlace(); }, 450);
+      } else fcMsg('SIGUIENTE JUGADOR: COLOCA TUS PERSONAJES.');
+    } else fcBeginPlay();
   }
 }
 function fcBeginPlay() {
   FC.ptr = FC.seats.map(() => -1);
-  const r = fcNextTurn(FC.seats, FC.ptr, { seat: FC.seats.length - 1 });
+  const r = fcNextTurn(FC.seats, FC.ptr, { seat: FC.seats.length - 1, k: -1 }, FC.sched);
   FC.turn = r.turn; FC.ptr = r.ptr; FC.turnN = 1;
   fcStartTurn();
 }
+const FC_HELLO = 'ESCRIBE TU FUNCIÓN Y DISPARA, O MUÉVETE UN POCO (FLECHAS/WASD)';
 function fcStartTurn() {
-  FC.phase = 'play'; FC.tEnd = performance.now() + TURN_S * 1000; FC.turnSeenAt = performance.now();
-  FC.moveLeft = MOVE; FC.mv = {};
+  const now = performance.now();
+  FC.phase = 'play'; FC.tEnd = now + FC.turnS * 1000; FC.turnSeenAt = now;
+  FC.moveLeft = MOVE; FC.mv = {}; FC.prev = null; FC.prevDirty = true; FC.hint = false; FC.lastLeft = -1;
   const u = fcCur(); FC.dir = u && u.x > 0 ? -1 : 1;
-  fcMsg(fcMine() ? 'ESCRIBE TU FUNCIÓN Y DISPARA, O MUÉVETE UN POCO (FLECHAS/WASD)' : 'ESPERA TU TURNO…');
+  // El cuadro empieza vacío en cada turno (si no, al acabarse el tiempo se dispararía la función de otro).
+  // Con ↑ se recupera la última función de este jugador.
+  const seat = FC.turn && FC.seats[FC.turn.seat], inp = $('#fc-fx');
+  inp.value = ''; inp.placeholder = fcMine() && seat.lastExpr ? '↑ ' + seat.lastExpr : '0.5x + sin(x)';
+  FC.bot = fcBotTurn() ? { t: now + 900 + Math.random() * 700, plan: null } : null;
+  fcMsg(FC.bot ? `🤖 ${seat.name} (${FC_BOT[seat.lvl].n}) ESTÁ PENSANDO…` : fcMine() ? FC_HELLO : 'ESPERA TU TURNO…');
   SFX.play('beep');
   fcUI();
 }
+// Simula y envía el disparo del personaje en turno. Devuelve el error si la función no sirve.
+function fcShoot(expr) {
+  const u = fcCur();
+  let res;
+  try { res = fcSim(fcCompile(expr), u.x, u.y, FC.dir, FC.turn.seat + ':' + FC.turn.unit); } catch (e) { return e; }
+  FC.seats[FC.turn.seat].lastExpr = expr; FC.prev = null;
+  fcCommit({ expr, dir: FC.dir, seat: FC.turn.seat, unit: FC.turn.unit, x0: u.x, y0: u.y, end: res.end, kills: res.kills });
+  return null;
+}
+// Si f no está definida donde está el personaje, sugiere el reflejo f(-x) (la gráfica espejada sobre el eje Y),
+// que sí está definida ahí cuando el dominio de f queda del otro lado: ln(x) en x = -20 → ln(-x).
+function fcSuggest(expr) {
+  const u = fcCur(), t = `FUNCIÓN NO DEFINIDA EN x=${u.x.toFixed(1)}`, r = fcReflect(expr);
+  try { if (r && isFinite(fcCompile(r)(u.x))) return `${t} ¿PRUEBA f(-x)? → y = ${r}`; } catch (e) { /* sin sugerencia */ }
+  return `${t}. MUÉVETE O CAMBIA LA FUNCIÓN.`;
+}
+const fcErrText = (e, expr) => e.undef ? fcSuggest(expr) : e.message;
 function fcFire() {
   if (!fcMine()) return;
-  const u = fcCur(), expr = $('#fc-fx').value.trim();
-  let fn, res;
-  try { fn = fcCompile(expr); res = fcSim(fn, u.x, u.y, FC.dir, FC.turn.seat + ':' + FC.turn.unit); }
-  catch (e) { fcMsg(e.message, 'lose'); SFX.play('miss'); return; }
-  fcCommit({ expr, dir: FC.dir, seat: FC.turn.seat, unit: FC.turn.unit, x0: u.x, y0: u.y, end: res.end, kills: res.kills });
+  const expr = $('#fc-fx').value.trim(), err = fcShoot(expr);
+  if (err) { fcMsg(fcErrText(err, expr), 'lose'); SFX.play('miss'); }
+}
+// Se acabó el tiempo: se dispara lo escrito aunque no se haya presionado Enter; si está vacío o no sirve, turno perdido.
+function fcTimeUp() {
+  if (FC.mode === 'online') fcSendUnits();
+  const expr = $('#fc-fx').value.trim();
+  if (expr) {
+    FC.autoFired = true;
+    const err = fcShoot(expr);
+    if (!err) return;
+    FC.autoFired = false;
+    FC.lostWhy = `LA FUNCIÓN NO SIRVE (${fcErrText(err, expr)}). TURNO PERDIDO`;
+  } else FC.lostWhy = 'NO ESCRIBISTE NINGUNA FUNCIÓN. TURNO PERDIDO';
+  fcCommit(null);
+}
+// Sugerencia en vivo mientras se escribe (solo si la función se entiende y no está definida en tu x).
+function fcHint() {
+  if (!fcMine()) return;
+  const expr = $('#fc-fx').value.trim(), u = fcCur();
+  let bad = false;
+  try { bad = !!expr && !isFinite(fcCompile(expr)(u.x)); } catch (e) { bad = false; }
+  if (bad) { fcMsg(fcSuggest(expr), 'lose'); FC.hint = true; }
+  else if (FC.hint) { fcMsg(FC_HELLO); FC.hint = false; }
+}
+
+/* ---- bots (solo local): prueban funciones candidatas con fcSim y eligen una que dé a un rival sin fuego amigo ---- */
+function fcBotMove() {
+  const si = FC.turn.seat, me = FC.seats[si], u = fcCur(), id = si + ':' + FC.turn.unit, lvl = FC_BOT[me.lvl] ? me.lvl : 1;
+  const foes = [], foeIds = new Set();
+  FC.seats.forEach((s, i) => { if (s.team !== me.team) s.units.forEach((v, j) => { foeIds.add(i + ':' + j); if (v.alive) foes.push(v); }); });
+  foes.sort((a, b) => Math.hypot(a.x - u.x, a.y - u.y) - Math.hypot(b.x - u.x, b.y - u.y));
+  const r3 = v => Math.round(v * 1000) / 1000;
+  const poly = terms => terms.filter(t => r3(t[0]) !== 0).map((t, i) => {
+    const c = r3(t[0]), a = Math.abs(c), body = (a === 1 ? '' : String(a)) + t[1];
+    return i ? (c < 0 ? ' - ' : ' + ') + body : (c < 0 ? '-' : '') + body;
+  }).join('') || '0';
+  // Candidatas que pasan por (tx, ty): recta, parábolas (arcos para saltar obstáculos) y senos.
+  const gen = (tx, ty) => {
+    const dx = tx - u.x, dy = ty - u.y; if (Math.abs(dx) < .8) return [];
+    const dir = dx > 0 ? 1 : -1, out = [{ dir, expr: poly([[dy / dx, 'x']]) }];
+    for (const a of [-.1, -.05, -.02, .02, .05, .1]) out.push({ dir, expr: poly([[a, 'x^2'], [(dy - a * (tx * tx - u.x * u.x)) / dx, 'x']]) });
+    for (const A of [2, 4]) for (const w of [.5, 1]) out.push({ dir, expr: poly([[A, `sin(${w}x)`], [(dy - A * (Math.sin(w * tx) - Math.sin(w * u.x))) / dx, 'x']]) });
+    return out;
+  };
+  const test = list => list.map(c => {
+    try { const r = fcSim(fcCompile(c.expr), u.x, u.y, c.dir, id), ek = r.kills.filter(k => foeIds.has(k)).length; return { ...c, ek, fk: r.kills.length - ek }; }
+    catch (e) { return null; }
+  }).filter(Boolean);
+  const any = a => a[Math.random() * a.length | 0];
+  const ev = test(foes.slice(0, 4).flatMap(t => gen(t.x, t.y)));
+  const hits = ev.filter(c => c.ek > 0 && !c.fk).sort((a, b) => b.ek - a.ek);
+  if (hits.length && Math.random() >= FC_BOT[lvl].miss) return any(hits.filter(c => c.ek === hits[0].ek));
+  // Falla a propósito (o no encontró tiro): apunta un poco arriba o abajo de un rival, sin tocar a nadie.
+  const near = test(foes.slice(0, 3).flatMap(t => gen(t.x, t.y + (Math.random() < .5 ? -1 : 1) * (2 + Math.random() * 2))));
+  const safe = near.concat(ev).filter(c => !c.ek && !c.fk);
+  if (safe.length) return any(safe.slice(0, 12));
+  if (hits.length) return hits[0];
+  const noFriend = ev.filter(c => !c.fk);
+  if (noFriend.length) return any(noFriend);
+  return { dir: foes.length && foes[0].x < u.x ? -1 : 1, expr: '0' };
+}
+function fcBotStep(now) {
+  const b = FC.bot; if (!b || now < b.t || !fcBotTurn()) return;
+  if (!b.plan) {
+    b.plan = fcBotMove(); FC.dir = b.plan.dir;
+    $('#fc-fx').value = b.plan.expr; fcUI();
+    b.t = now + 800; return;
+  }
+  FC.bot = null;
+  if (fcShoot(b.plan.expr)) { FC.lostWhy = 'EL BOT SE EQUIVOCÓ'; fcCommit(null); }
 }
 function fcCommit(shot) {
   const seats = FC.seats.map(s => ({ ...s, units: s.units.map(u => ({ ...u })) }));
   if (shot) shot.kills.forEach(k => { const [a, b] = k.split(':').map(Number); seats[a].units[b].alive = false; });
-  const { turn, ptr } = fcNextTurn(seats, FC.ptr, FC.turn);
+  const { turn, ptr } = fcNextTurn(seats, FC.ptr, FC.turn, FC.mode === 'local' ? FC.sched : null);
   const teams = fcTeamsAlive(seats), over = teams.size <= 1;
   const winner = over ? (teams.size ? [...teams][0] : -1) : null;
   if (FC.mode === 'local') {
@@ -2906,7 +3147,7 @@ function fcApplyKills(kills) {
 }
 function fcAnimate(shot, done) {
   if (shot && shot.disco) { SFX.play('miss'); fcMsg(`⚠ ${shot.seatName} SE DESCONECTÓ Y FUE ELIMINADO`, 'lose'); setTimeout(done, 900); return; }
-  if (!shot) { SFX.play('miss'); fcMsg('¡SE ACABÓ EL TIEMPO!'); setTimeout(done, 500); return; }
+  if (!shot) { SFX.play('miss'); const why = FC.lostWhy; FC.lostWhy = ''; fcMsg('⏱ ¡SE ACABÓ EL TIEMPO! ' + (why || 'TURNO PERDIDO'), 'lose'); setTimeout(done, why ? 1600 : 700); return; }
   let pts = [[shot.x0, shot.y0]];
   try {
     const fn = fcCompile(shot.expr);
@@ -2917,7 +3158,8 @@ function fcAnimate(shot, done) {
   if (shot.end) { const L = pts[pts.length - 1]; if (Math.hypot(L[0] - shot.end[0], L[1] - shot.end[1]) > .5) pts.push(shot.end); }
   let len = 0; for (let i = 1; i < pts.length; i++) len += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]);
   FC.anim = { pts, shot, t0: performance.now(), dur: Math.min(2600, Math.max(700, len * 45)), done, team: FC.seats[shot.seat].team, fin: false };
-  fcMsg(`${FC.seats[shot.seat].name}: y = ${shot.expr}`);
+  fcMsg(`${FC.autoFired ? '⏱ DISPARO AUTOMÁTICO · ' : ''}${FC.seats[shot.seat].name}: y = ${shot.expr}`);
+  FC.autoFired = false;
   SFX.play('spit');
 }
 function fcHostCheckDisconnects(now) {
@@ -2956,7 +3198,10 @@ function fcOver(winner) {
   $('#fc-over').hidden = false;
   if (winner >= 0 && winner === myTeam && !FC.won) {
     FC.won = true; SFX.play('win');
-    LB.increment('funciones', FC_FMT[FC.fmt].n).then(fcLB);
+    // Contra bots: solo cuentan las victorias en DIFÍCIL (si algún rival es humano, cuenta como siempre).
+    const foes = FC.seats.filter(s => s.team !== myTeam), vsBots = FC.mode === 'local' && foes.length && foes.every(s => s.bot);
+    if (vsBots && !foes.every(s => s.lvl === 2)) $('#fc-over-p').textContent = (names ? names + ' · ' : '') + 'LAS VICTORIAS CONTRA BOTS FÁCIL O MEDIO NO SUMAN AL TOP 10.';
+    else LB.increment('funciones', FC.mode === 'local' ? (vsBots ? 'BOT DIFÍCIL · ' : '') + FC.localLbl : FC_FMT[FC.fmt].n).then(fcLB);
   } else SFX.play(winner < 0 ? 'miss' : 'lose');
 }
 
@@ -2968,19 +3213,25 @@ function fcUpdate(dt, now) {
     const u = FC.mv.u || (!typing && (K.ArrowUp || K.KeyW)), d = FC.mv.d || (!typing && (K.ArrowDown || K.KeyS));
     const mx = (r ? 1 : 0) - (l ? 1 : 0), my = (u ? 1 : 0) - (d ? 1 : 0);
     if ((mx || my) && FC.moveLeft > 0) {
-      const c = fcCur(), sp = 1.6 * dt / Math.hypot(mx, my), nx = c.x + mx * sp, ny = c.y + my * sp;
+      const c = fcCur(), sp = 1.6 * dt / Math.hypot(mx, my), nx = c.x + mx * sp, ny = c.y + my * sp, before = FC.moveLeft;
       if (fcFree(nx, ny)) { FC.moveLeft -= Math.hypot(nx - c.x, ny - c.y); c.x = nx; c.y = ny; }
       else if (fcFree(nx, c.y)) { FC.moveLeft -= Math.abs(nx - c.x); c.x = nx; }
       else if (fcFree(c.x, ny)) { FC.moveLeft -= Math.abs(ny - c.y); c.y = ny; }
-      if (mx) FC.dir = mx;
+      if (mx && FC.dir !== mx) { FC.dir = mx; fcUI(); }
+      if (FC.moveLeft < before) {
+        FC.prevDirty = true;
+        if (now >= FC.shakeUntil) { FC.shakeUntil = now + 200; fcMovEl.classList.remove('shake'); void fcMovEl.offsetWidth; fcMovEl.classList.add('shake'); }
+      }
       if (FC.mode === 'online' && now - FC.lastSend > 200) { FC.lastSend = now; fcSendUnits(); }
     }
-    if (now >= FC.tEnd) { if (FC.mode === 'online') fcSendUnits(); fcCommit(null); }
-  }
+    fcPreview(now);
+    if (now >= FC.tEnd) fcTimeUp();
+  } else if (FC.phase === 'play' && FC.bot) fcBotStep(now);
+  if (FC.phase !== 'play') FC.prev = null;
   if (FC.mode === 'online' && FC.isHost && FC.phase === 'play' && FC.turn) {
     const uid = FC.roomData && FC.roomData.order ? FC.roomData.order[FC.turn.seat] : null;
     const gone = uid && !FC.roomPlayers[uid];
-    if (FC.turn.seat !== FC.me && (gone && now - FC.turnSeenAt > 1500 || now - FC.turnSeenAt > (TURN_S + 8) * 1000)) { FC.turnSeenAt = now; fcCommit(null); }
+    if (FC.turn.seat !== FC.me && (gone && now - FC.turnSeenAt > 1500 || now - FC.turnSeenAt > (FC.turnS + 8) * 1000)) { FC.turnSeenAt = now; fcCommit(null); }
   }
   fcHostCheckDisconnects(now);
   if (FC.anim && !FC.anim.fin && now - FC.anim.t0 >= FC.anim.dur) {
@@ -2990,18 +3241,46 @@ function fcUpdate(dt, now) {
     if (a.shot.kills.length) SFX.play('hitship');
     setTimeout(() => { FC.anim = null; a.done(); }, 650);
   }
-  const t = $('#fc-time');
   if (FC.phase === 'play') {
     const left = Math.max(0, Math.ceil((FC.tEnd - now) / 1000));
-    t.textContent = `⏱ ${left}s · MOV ${Math.max(0, FC.moveLeft).toFixed(1)}`;
-    t.style.color = left <= 5 ? 'var(--orange)' : '';
-  } else t.textContent = '';
+    fcClockEl.textContent = `⏱ ${left}s`; fcMovEl.textContent = `· MOV ${Math.max(0, FC.moveLeft).toFixed(1)}`;
+    fcClockEl.style.color = left <= 5 ? 'var(--orange)' : '';
+    // últimos 5 s: el número crece a 120 % y vuelve, una vez por segundo
+    if (left !== FC.lastLeft) { FC.lastLeft = left; fcClockEl.classList.remove('pulse'); if (left <= 5 && left > 0) { void fcClockEl.offsetWidth; fcClockEl.classList.add('pulse'); } }
+  } else { fcClockEl.textContent = ''; fcMovEl.textContent = ''; FC.lastLeft = -1; }
+}
+const fcClockEl = $('#fc-clock'), fcMovEl = $('#fc-mov');
+// Vista previa: la misma simulación del disparo, solo para dibujar la curva punteada (no cambia nada del juego).
+function fcPreview(now) {
+  if (!FC.preview || !fcMine()) { FC.prev = null; return; }
+  if (!FC.prevDirty || now - FC.prevAt < 90) return;
+  FC.prevDirty = false; FC.prevAt = now; FC.prev = null;
+  const u = fcCur(), expr = $('#fc-fx').value.trim();
+  if (!expr) return;
+  const alive = FC.seats.map(s => s.units.map(v => v.alive));
+  try { FC.prev = fcSim(fcCompile(expr), u.x, u.y, FC.dir, FC.turn.seat + ':' + FC.turn.unit).pts; } catch (e) { FC.prev = null; }
+  FC.seats.forEach((s, i) => s.units.forEach((v, j) => v.alive = alive[i][j]));
 }
 function fcDraw(now) {
   if (!FC.img) return;
   fx.drawImage(FC.img, 0, 0);
+  // tinte del equipo en turno (rojizo, azulado…), translúcido para que todo se siga viendo
+  if (FC.turn && FC.seats[FC.turn.seat] && (FC.phase === 'play' || FC.phase === 'anim' || FC.phase === 'wait')) {
+    fx.fillStyle = FC_TINT[FC.seats[FC.turn.seat].team] || FC_TINT[0]; fx.fillRect(0, 0, FW, FH);
+  }
+  // vista previa punteada
+  if (FC.prev && FC.phase === 'play') {
+    const pts = FC.prev; let n0 = 0;
+    fx.fillStyle = '#f4f4f4'; fx.globalAlpha = .85;
+    for (let i = 1; i < pts.length; i++) {
+      const x0 = wx2p(pts[i - 1][0]), y0 = wy2p(pts[i - 1][1]), x1 = wx2p(pts[i][0]), y1 = wy2p(pts[i][1]);
+      const n = Math.max(1, Math.ceil(Math.hypot(x1 - x0, y1 - y0)));
+      for (let j = 0; j < n; j++, n0++) if ((n0 >> 2) % 2 === 0) fx.fillRect(Math.round(x0 + (x1 - x0) * j / n) - 1, Math.round(y0 + (y1 - y0) * j / n) - 1, 2, 2);
+    }
+    fx.globalAlpha = 1;
+  }
   if (FC.phase === 'place' && !FC.spectating) {
-    const s = FC.mode === 'local' ? FC.placeSeat : FC.me, z = fcZone(FC.fmt, s);
+    const s = FC.mode === 'local' ? FC.placeSeat : FC.me, z = fcSeatZone(s);
     fx.fillStyle = TEAMC[FC.seats[s].team]; fx.globalAlpha = .16 + .06 * Math.sin(now / 250);
     fx.fillRect(wx2p(z[0]), wy2p(z[3]), (z[1] - z[0]) * SC, (z[3] - z[2]) * SC);
     fx.globalAlpha = 1;
@@ -3029,12 +3308,15 @@ function fcDraw(now) {
     if (!u.alive) return;
     const px = Math.round(wx2p(u.x)), py = Math.round(wy2p(u.y));
     const act = FC.turn && FC.turn.seat === si && FC.turn.unit === ui && FC.phase !== 'over';
-    if (act) { fx.fillStyle = 'rgba(244,244,244,.25)'; fx.fillRect(px - 7, py - 7, 15, 15); }
+    // sprite al doble (14×18), centrado en el punto del personaje; el impacto sigue siendo radio URAD
+    const hw = 3.5 * FC_SPR, hh = 4.5 * FC_SPR;
+    if (act) { fx.fillStyle = 'rgba(244,244,244,.25)'; fx.fillRect(px - hw - 3, py - hh - 3, 2 * hw + 6, 2 * hh + 6); }
     fx.save(); fx.translate(px, py);
     if (act ? FC.dir < 0 : u.x > 0) fx.scale(-1, 1);
-    fx.drawImage(soldier(s.team), -3, -5);
+    fx.imageSmoothingEnabled = false;
+    fx.drawImage(soldier(s.team), -hw, -hh, 2 * hw, 2 * hh);
     fx.restore();
-    if (act && blink) { fx.fillStyle = TEAMC[s.team]; fx.fillRect(px - 2, py - 11, 5, 1); fx.fillRect(px - 1, py - 10, 3, 1); fx.fillRect(px, py - 9, 1, 1); }
+    if (act && blink) { const ay = py - hh - 8; fx.fillStyle = TEAMC[s.team]; fx.fillRect(px - 2, ay, 5, 1); fx.fillRect(px - 1, ay + 1, 3, 1); fx.fillRect(px, ay + 2, 1, 1); }
   }));
   // cuadro de diálogo: el personaje "grita" su función al disparar
   if (FC.anim && FC.anim.shot && !FC.anim.shot.disco) {
@@ -3044,7 +3326,7 @@ function fcDraw(now) {
     fx.font = '8px "Press Start 2P"';
     const bw = Math.min(180, fx.measureText(text).width + 10), bh = 14;
     let bx = px - bw / 2; bx = Math.max(2, Math.min(FW - bw - 2, bx));
-    const by = Math.max(2, py - bh - 12);
+    const by = Math.max(2, py - bh - 16);
     fx.save();
     fx.translate(bx + bw / 2, by + bh); fx.scale(s, s); fx.translate(-(bx + bw / 2), -(by + bh));
     fx.fillStyle = '#f4f4f4'; fx.fillRect(bx, by, bw, bh);
@@ -3066,9 +3348,9 @@ function fcDraw(now) {
     fx.globalAlpha = 1;
   });
   // coordenadas
-  const c = fcCur(), lines = [];
-  if (c && FC.phase !== 'place') lines.push(`(${c.x.toFixed(1)}, ${c.y.toFixed(1)})`);
-  if (FC.mouse) lines.push(`x ${FC.mouse[0].toFixed(1)}  y ${FC.mouse[1].toFixed(1)}`);
+  const c = fcCur(), lines = [], xs = v => FC.piAxis ? (v / Math.PI).toFixed(2) + 'π' : v.toFixed(1);
+  if (c && FC.phase !== 'place') lines.push(`(${xs(c.x)}, ${c.y.toFixed(1)})`);
+  if (FC.mouse) lines.push(`x ${xs(FC.mouse[0])}  y ${FC.mouse[1].toFixed(1)}`);
   fx.font = '8px "Press Start 2P"'; fx.textAlign = 'left';
   lines.forEach((l, i) => {
     const w = fx.measureText(l).width + 6;
@@ -3094,7 +3376,7 @@ async function fcCreate() {
   try {
     let code, ref;
     for (let k = 0; k < 5; k++) { code = genCode(); ref = fs.doc(db, 'fights', code); if (!(await fs.getDoc(ref)).exists()) break; }
-    await fs.setDoc(ref, { host: UID, fmt: FC.fmt, track: FC.track, state: 'lobby', order: [], turnN: 0, turn: null, ptr: [], dead: [], holes: [], shot: null, winner: null, created: fs.serverTimestamp() });
+    await fs.setDoc(ref, { host: UID, fmt: FC.fmt, track: FC.track, turnS: FC.turnS, preview: FC.preview, state: 'lobby', order: [], turnN: 0, turn: null, ptr: [], dead: [], holes: [], shot: null, winner: null, created: fs.serverTimestamp() });
     FC.room = code;
     await fs.setDoc(fs.doc(db, 'fights', code, 'players', UID), { name: playerName(), slot: 0, units: [], ready: false, joined: fs.serverTimestamp() });
     fcEnterLobby();
@@ -3120,7 +3402,7 @@ async function fcJoin() {
   } catch (e) { FC.room = null; fcMenuMsg(e.message, 'lose'); }
 }
 function fcEnterLobby() {
-  FC.mode = 'online'; FC.phase = 'lobby'; FC.roomData = null; FC.roomPlayers = {};
+  FC.mode = 'online'; FC.phase = 'lobby'; FC.roomData = null; FC.roomPlayers = {}; FC.sched = null;
   fcMenuMsg(''); $('#fc-room').textContent = (FC.spectating ? '👁 ESPECTADOR · SALA ' : 'SALA ') + FC.room;
   fcView('lobby'); fcSetupRender(); fcLobbyRender();
   FC.unsubs.push(fs.onSnapshot(fs.doc(db, 'fights', FC.room), s => { if (s.exists()) { FC.roomData = s.data(); fcSync(); } else if (FC.spectating) { fcMenuMsg('LA SALA SE CERRÓ.', 'lose'); fcToMenu(); } }));
@@ -3154,7 +3436,12 @@ function fcSyncPlayers() {
 function fcSync() {
   const d = FC.roomData; if (!d || FC.mode !== 'online') return;
   const prevHost = FC.isHost; FC.isHost = d.host === UID;
-  if (d.fmt !== FC.fmt || d.track !== FC.track || prevHost !== FC.isHost) { FC.fmt = d.fmt; FC.track = d.track; if (FC.phase === 'lobby') fcSetupRender(); }
+  // turnS y preview pueden faltar (salas de la versión anterior): 20 s y sin vista previa
+  const ts = fcClampT(d.turnS), pv = d.preview === true;
+  if (d.fmt !== FC.fmt || d.track !== FC.track || prevHost !== FC.isHost || ts !== FC.turnS || pv !== FC.preview) {
+    FC.fmt = d.fmt; FC.track = d.track; FC.turnS = ts; FC.preview = pv;
+    if (FC.phase === 'lobby') { fcSetupRender(); fcLobbyRender(); }
+  }
   if (d.state === 'lobby') {
     if (FC.phase !== 'lobby') {
       FC.phase = 'lobby'; FC.seats = []; FC.anim = null;
@@ -3211,7 +3498,7 @@ function fcLobbyRender() {
   });
   const n = list.length, ok = FC.fmt === '1v1' ? n === 2 : FC.fmt === '2v2' ? n === 4 : n >= 3;
   const need = FC.fmt === '1v1' ? 'SE NECESITAN 2 JUGADORES' : FC.fmt === '2v2' ? 'SE NECESITAN 4 JUGADORES' : 'SE NECESITAN 3 O 4 JUGADORES';
-  $('#fc-lobby-msg').textContent = (FC.isHost ? `COMPARTE EL CÓDIGO ${FC.room}. ` : 'ESPERANDO AL ANFITRIÓN (★)… ') + `${FC_FMT[FC.fmt].n} · ${FC_TRACKS[FC.track].n} · ${n}/${cap} · ${ok ? 'LISTOS' : need}`;
+  $('#fc-lobby-msg').textContent = (FC.isHost ? `COMPARTE EL CÓDIGO ${FC.room}. ` : 'ESPERANDO AL ANFITRIÓN (★)… ') + `${FC_FMT[FC.fmt].n} · ${FC_TRACKS[FC.track].n} · ${FC.turnS} s${FC.preview ? ' · VISTA PREVIA' : ''} · ${n}/${cap} · ${ok ? 'LISTOS' : need}`;
   $('#fc-go').hidden = !FC.isHost; $('#fc-go').disabled = !ok || n > cap;
 }
 async function fcGoOnline() {
@@ -3232,7 +3519,9 @@ function fcLeaveOnline() {
 }
 function fcToMenu() {
   if (FC.mode === 'online') fcLeaveOnline();
-  FC.mode = null; FC.phase = 'menu'; FC.seats = []; FC.turn = null; FC.anim = null; FC.spectating = false;
+  FC.mode = null; FC.phase = 'menu'; FC.seats = []; FC.turn = null; FC.anim = null; FC.spectating = false; FC.bot = null; FC.sched = null;
+  // al salir de una sala se vuelve a las opciones propias (la sala pudo cambiarlas)
+  FC.turnS = fcClampT(store.get('pa_fc_ts', TURN_S)); FC.preview = store.get('pa_fc_prev', false) === true;
   $('#fc-over').hidden = true;
   fcView('menu'); fcSetupRender();
 }
@@ -3262,11 +3551,29 @@ $('#fc-again').onclick = () => {
   else if (FC.isHost) fs.updateDoc(fs.doc(db, 'fights', FC.room), { state: 'lobby' }).catch(console.error);
 };
 $('#fc-fire').onclick = fcFire;
-$('#fc-fx').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); fcFire(); } });
-$('#fc-dir').onclick = () => { FC.dir = -FC.dir; SFX.play('click'); fcUI(); };
+$('#fc-fx').addEventListener('keydown', e => {
+  if (e.key === 'Enter') { e.preventDefault(); fcFire(); }
+  else if (e.key === 'ArrowUp' && fcMine()) { const last = FC.seats[FC.turn.seat].lastExpr; if (last) { e.preventDefault(); e.target.value = last; FC.prevDirty = true; fcHint(); } }
+});
+$('#fc-fx').addEventListener('input', () => { FC.prevDirty = true; fcHint(); });
+$('#fc-dir').onclick = () => { FC.dir = -FC.dir; FC.prevDirty = true; SFX.play('click'); fcUI(); };
+$('#fc-ts-m').onclick = () => fcSetTurnS(FC.turnS - 5);
+$('#fc-ts-p').onclick = () => fcSetTurnS(FC.turnS + 5);
+$('#fc-prev-t').onclick = () => {
+  const online = FC.mode === 'online'; if (online && !FC.isHost) return;
+  FC.preview = !FC.preview; SFX.play('click');
+  if (online) fs.updateDoc(fs.doc(db, 'fights', FC.room), { preview: FC.preview }).catch(console.error);
+  fcSetupRender(); fcLobbyRender();
+};
+function fcPiBtn() { $('#fc-pi').textContent = FC.piAxis ? 'CAMBIAR A NÚMEROS' : 'CAMBIAR A π'; }
+$('#fc-pi').onclick = () => {
+  FC.piAxis = !FC.piAxis; store.set('pa_fc_pi', FC.piAxis); SFX.play('click'); fcPiBtn();
+  if (FC.terrain && FC.img) fcRenderTerrain(FC.track, FC.terrain, FC.img, FC.piAxis);
+};
+fcPiBtn();
 $('#fc-rand').onclick = fcRandomPlace;
 $('#fc-ready').onclick = () => {
-  const me = FC.seats[FC.me]; if (!me || me.units.length < FC_FMT[FC.fmt].per) return;
+  const me = FC.seats[FC.me]; if (!me || me.units.length < fcPer(FC.me)) return;
   me.ready = true; SFX.play('click'); fcUI();
   fs.updateDoc(fs.doc(db, 'fights', FC.room, 'players', UID), { units: me.units.map(u => ({ x: u.x, y: u.y })), ready: true }).catch(console.error);
 };
@@ -3275,7 +3582,15 @@ document.querySelectorAll('#fc-ctrl [data-m]').forEach(b => {
   b.addEventListener('pointerdown', e => { e.preventDefault(); FC.mv[k] = true; });
   ['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => b.addEventListener(ev, () => { FC.mv[k] = false; if (FC.mode === 'online') fcSendUnits(); }));
 });
-document.querySelectorAll('#fc-help [data-ex]').forEach(b => b.onclick = () => { if (!$('#fc-fx').disabled) { $('#fc-fx').value = b.dataset.ex; SFX.play('click'); } });
+// «Funciones básicas»: insertan el texto donde está el cursor (o reemplazan lo seleccionado)
+document.querySelectorAll('#fc-help [data-ex]').forEach(b => b.onclick = () => {
+  const inp = $('#fc-fx'); if (inp.disabled) return;
+  const t = b.dataset.ex, a = inp.selectionStart ?? inp.value.length, z = inp.selectionEnd ?? a;
+  inp.value = inp.value.slice(0, a) + t + inp.value.slice(z);
+  if (!matchMedia('(pointer:coarse)').matches) inp.focus();
+  inp.setSelectionRange(a + t.length, a + t.length);
+  FC.prevDirty = true; fcHint(); SFX.play('click');
+});
 window.addEventListener('beforeunload', () => { if (FC.mode === 'online') fcLeaveOnline(); });
 fcSetupRender(); fcLB(); fcView('menu');
 
