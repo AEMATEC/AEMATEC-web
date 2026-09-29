@@ -6825,13 +6825,7 @@ function drawSplash(g, c) {
     x.fillStyle = '#3f7d44';
     x.fillRect(110, 30, 6, 26); x.fillRect(104, 38, 6, 7); x.fillRect(116, 34, 6, 7);
     x.fillStyle = '#2c5c34'; x.fillRect(112, 34, 2, 2); x.fillRect(112, 44, 2, 2);
-    const fx = 32, fy = 40;
-    x.fillStyle = '#e8823c';
-    x.fillRect(fx - 13, fy + 6, 8, 6); x.fillRect(fx - 8, fy + 8, 18, 14); x.fillRect(fx + 6, fy, 12, 12);
-    x.fillStyle = '#fff3d6'; x.fillRect(fx - 6, fy + 16, 14, 6);
-    x.fillStyle = '#5c3a1e'; x.fillRect(fx + 15, fy + 4, 5, 4); x.fillRect(fx + 7, fy - 5, 4, 6); x.fillRect(fx + 13, fy - 5, 4, 6);
-    x.fillRect(fx - 4, fy + 22, 5, 8); x.fillRect(fx + 4, fy + 22, 5, 5);
-    x.fillStyle = '#1a1c2c'; x.fillRect(fx + 13, fy + 3, 2, 2);
+    const fox = RN_FOX_SPR.b; x.drawImage(fox, 34 - fox.width / 2, 58 - fox.height); // mismo zorro que en el juego
     x.fillStyle = '#ffe14d'; x.font = '8px "Press Start 2P"'; x.textAlign = 'center'; x.fillText('LA HUIDA DEL ZORRO', 80, 16);
   } else if (g === 'golf') {
     c.width = 160; c.height = 72;
