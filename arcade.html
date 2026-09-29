@@ -811,7 +811,7 @@ nav .btn{padding:8px 12px}
   <!-- ============ CRUZAR LA CALLE ============ -->
   <section class="game" id="g-cruce">
     <div class="main px">
-      <div class="splash" data-g="cruce"><canvas width="160" height="72"></canvas><h2>CRUZAR LA CALLE</h2><p>ESQUIVA LOS CARROS Y CRUZA EL RÍO SUBIDO EN TRONCOS Y TORTUGAS. LLEGA A LA META SIN CAER AL AGUA NI QUE TE ATROPELLEN. TIENES 3 VIDAS.</p><button class="btn red">INICIAR</button></div>
+      <div class="splash" data-g="cruce"><canvas width="160" height="72"></canvas><h2>CRUZAR LA CALLE</h2><p>ESQUIVA LOS CARROS Y LOS CAMIONES Y CRUZA EL RÍO SUBIDO EN TRONCOS Y TORTUGAS. LLEGA A LA META SIN CAER AL AGUA NI QUE TE ATROPELLEN. TIENES 3 VIDAS.</p><button class="btn red">INICIAR</button></div>
       <div class="gbody" hidden>
         <div id="cr-menu">
           <h4>¿CÓMO QUIERES JUGAR?</h4>
@@ -867,7 +867,7 @@ nav .btn{padding:8px 12px}
       <p class="sub">MEJOR PUNTAJE</p>
       <ol class="lb" id="cr-lb"></ol>
       <h4 style="margin-top:16px">CÓMO SE JUEGA</h4>
-      <p class="howto">MUEVE CASILLA POR CASILLA CON LAS FLECHAS. LOS CARROS TE QUITAN UNA VIDA. EN EL RÍO SOLO SOBREVIVES SUBIDO EN UN TRONCO O TORTUGA: SI CAES AL AGUA, PIERDES UNA VIDA. LLEGAR A UNA META SUMA PUNTOS, SUBE DE NIVEL (DÍA, NOCHE, DESIERTO O CIUDAD, CADA VEZ UN POCO MÁS RÁPIDO) Y TE MANDA OTRA VEZ AL INICIO. SE ACABA CON 3 VIDAS PERDIDAS. EN LÍNEA, HASTA 4 PERSONAS JUEGAN A LA VEZ EN EL MISMO TABLERO.</p>
+      <p class="howto">MUEVE CASILLA POR CASILLA CON LAS FLECHAS. LOS CARROS Y LOS CAMIONES BLANCOS (LARGOS PERO MÁS LENTOS) TE QUITAN UNA VIDA. CADA CARRIL TIENE SU PROPIA VELOCIDAD Y CANTIDAD DE CARROS, Y CON CADA NIVEL HAY MÁS Y VAN MÁS RÁPIDO. EN EL RÍO SOLO SOBREVIVES SUBIDO EN UN TRONCO O TORTUGA: SI CAES AL AGUA, PIERDES UNA VIDA. LLEGAR A UNA META SUMA PUNTOS, SUBE DE NIVEL (DÍA, NOCHE, DESIERTO O CIUDAD, CADA VEZ UN POCO MÁS RÁPIDO) Y TE MANDA OTRA VEZ AL INICIO. SE ACABA CON 3 VIDAS PERDIDAS. EN LÍNEA, HASTA 4 PERSONAS JUEGAN A LA VEZ: EN EL MISMO NIVEL TODAS VEN LOS MISMOS CARRILES (LAS RANAS QUE VAN EN OTRO NIVEL SE VEN TRANSPARENTES).</p>
     </aside>
   </section>
 
@@ -5277,31 +5277,62 @@ const CR_THEMES = [
 ];
 function crTheme() { return CR_THEMES[CR.level % CR_THEMES.length]; }
 function crRng(seed) { let s = (seed >>> 0) || 1; return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; }
+/* Carriles de la calle: cada uno tiene { velocidad, densidad }.
+   - velocidad 1–8 en "unidades" de CR_VEL_UNIT px/s (1 unidad = 30 px/s ≈ 0,5 px por cuadro a 60 FPS).
+   - densidad = cuántos vehículos hay en el carril (1–5).
+   Una fila de la tabla por nivel; dentro del nivel va del carril de abajo (fila 1) al de arriba (fila 5).
+   Del último nivel de la tabla en adelante se repite esa fila (solo cambia el tema). */
+const CR_VEL_UNIT = 30, CR_MIN_GAP = 48;   // CR_MIN_GAP: hueco mínimo (px) entre vehículos: siempre se puede pasar
+const CR_ROAD_TABLE = [
+  [[2, 2], [3, 2], [2, 3], [4, 3], [3, 4]],
+  [[3, 3], [4, 3], [3, 4], [5, 3], [4, 4]],
+  [[4, 3], [5, 3], [4, 4], [6, 3], [5, 4]],
+  [[5, 4], [6, 3], [4, 5], [7, 3], [6, 4]],
+  [[6, 4], [7, 3], [5, 5], [8, 3], [7, 4]],
+];
+const CR_DEATH_MS = 1500;                  // cuánto se ve la rana con ojos en X antes del fin
+/* Qué carriles son de camión: cada 3 o 4 carriles de autos (contando seguido entre niveles) sale uno.
+   Sale solo de la semilla, así que en línea todos ven los mismos camiones en el mismo nivel. */
+function crTruckLanes(seed, level) {
+  const rng = crRng(seed ^ 0x5bd1e995), out = [];
+  let cars = 3 + (rng() < .5 ? 0 : 1);
+  for (let g = 0; g < (level + 1) * CR_ROAD_ROWS.length; g++) {
+    if (cars === 0) { out.push(true); cars = 3 + (rng() < .5 ? 0 : 1); } else { out.push(false); cars--; }
+  }
+  return out.slice(level * CR_ROAD_ROWS.length);
+}
+function crLane(o) {
+  // separación pareja entre vehículos, con hueco >= CR_MIN_GAP y sin que aparezcan de golpe en el borde
+  let spacing = Math.max(CR_CVW / o.count, o.w + CR_MIN_GAP), span = spacing * o.count;
+  if (span < CR_CVW + o.w) { span = CR_CVW + o.w; spacing = span / o.count; }
+  return { ...o, spacing, span, phase: o.phase * span };
+}
 function crLanes(seed, level = 0) {
-  const rng = crRng(seed), lanes = {}, boost = 1 + Math.min(level, 6) * 0.1;
-  CR_ROAD_ROWS.forEach((row, i) => {
-    const count = 3 + (rng() < .5 ? 0 : 1);
-    lanes[row] = {
-      dir: i % 2 === 0 ? 1 : -1, speed: (55 + rng() * 65) * boost, w: 26 + (rng() < .5 ? 0 : 12),
-      count, spacing: CR_CVW / count, phase: rng() * CR_CVW, kind: 'car',
-      color: CR_CAR_COLORS[(i * 2 + Math.floor(rng() * 5)) % CR_CAR_COLORS.length]
-    };
-  });
+  const rng = crRng((seed + level * 7919) >>> 0), lanes = {}, boost = 1 + Math.min(level, 6) * 0.1;
+  const trucks = crTruckLanes(seed, level), tbl = CR_ROAD_TABLE[Math.min(level, CR_ROAD_TABLE.length - 1)];
+  for (let i = 0; i < CR_ROAD_ROWS.length; i++) {
+    const row = CR_ROAD_ROWS[CR_ROAD_ROWS.length - 1 - i], [vel, dens] = tbl[i], dir = i % 2 === 0 ? 1 : -1;
+    const phase = rng(), big = rng() < .5, color = CR_CAR_COLORS[(i * 2 + Math.floor(rng() * 5)) % CR_CAR_COLORS.length];
+    lanes[row] = trucks[i]
+      // camión: blanco, 3–4 veces el largo de un auto, a la mitad de la velocidad, 1 o 2 por carril
+      ? crLane({ kind: 'truck', dir, vel, dens: dens <= 2 ? 1 : 2, count: dens <= 2 ? 1 : 2, speed: vel * CR_VEL_UNIT / 2, w: CR_TILE * (big ? 4 : 3), phase, color: '#f4f4f4' })
+      : crLane({ kind: 'car', dir, vel, dens, count: dens, speed: vel * CR_VEL_UNIT, w: big ? 38 : 26, phase, color });
+  }
   CR_RIVER_ROWS.forEach((row, i) => {
     const count = 2 + (rng() < .5 ? 0 : 1);
-    lanes[row] = {
+    lanes[row] = crLane({
       dir: i % 2 === 0 ? -1 : 1, speed: (35 + rng() * 45) * boost, w: 46 + (rng() < .5 ? 0 : 26),
-      count, spacing: CR_CVW / count, phase: rng() * CR_CVW, kind: i % 2 === 0 ? 'log' : 'turtle'
-    };
+      count, phase: rng(), kind: i % 2 === 0 ? 'log' : 'turtle'
+    });
   });
   return lanes;
 }
 function crLaneItems(lane, t) {
-  const items = [], span = CR_CVW + lane.spacing;
+  const items = [];
   for (let i = 0; i < lane.count; i++) {
-    let x = (lane.phase + i * lane.spacing + lane.dir * lane.speed * t) % span;
-    if (x < 0) x += span;
-    x -= lane.spacing;
+    let x = (lane.phase + i * lane.spacing + lane.dir * lane.speed * t) % lane.span;
+    if (x < 0) x += lane.span;
+    x -= lane.w;
     items.push({ x, w: lane.w });
   }
   return items;
@@ -5312,13 +5343,13 @@ const CR = {
   unsubs: [], hbStop: null, _hostTimer: null, lastSend: 0, resultShown: false, _seenRoundStart: 0,
   seed: 1, t0: 0, roundStart: 0, lanes: null,
   x: 0, y: 0, row: CR_START_ROW, lives: CR_LIVES_START, score: 0, bestRow: CR_START_ROW, level: 0,
-  state: 'ready', hop: null, lastMoveAt: 0, popup: null
+  state: 'ready', hop: null, lastMoveAt: 0, popup: null, deadT: 0, deadX: 0, deadY: 0, _sentLevel: null
 };
 function crFrogStart() { return { x: 6 * CR_TILE + CR_TILE / 2, y: CR_START_ROW * CR_TILE + CR_TILE / 2 }; }
 function crNow() { return (performance.now() - CR.t0) / 1000; }
 function crReset() {
   $('#cr-over').hidden = true;
-  CR.seed = (Math.random() * 1e9) | 0; CR.lanes = crLanes(CR.seed); CR.t0 = performance.now();
+  CR.seed = (Math.random() * 1e9) | 0; CR.lanes = crLanes(CR.seed, 0); CR.t0 = performance.now();
   const p = crFrogStart(); CR.x = p.x; CR.y = p.y; CR.row = CR_START_ROW; CR.bestRow = CR_START_ROW;
   CR.lives = CR_LIVES_START; CR.score = 0; CR.level = 0; CR.state = 'playing'; CR.hop = null; CR.popup = null;
 }
@@ -5345,7 +5376,8 @@ function crLand(t) {
 }
 function crScoreHome() {
   CR.score += 50; SFX.play('win');
-  CR.level++; CR.seed = (Math.random() * 1e9) | 0; CR.lanes = crLanes(CR.seed, CR.level); CR.t0 = performance.now();
+  // misma semilla toda la partida: los carriles de cada nivel salen de (semilla, nivel), igual para todos en línea
+  CR.level++; CR.lanes = crLanes(CR.seed, CR.level);
   CR.popup = { txt: `¡LLEGASTE! +50 · NIVEL ${CR.level + 1}: ${crTheme().n}`, life: 1.6 };
   const p = crFrogStart(); CR.x = p.x; CR.y = p.y; CR.row = CR_START_ROW; CR.bestRow = CR_START_ROW;
 }
@@ -5353,11 +5385,17 @@ function crDie(reason) {
   SFX.play('lose'); CR.lives--;
   CR.popup = { txt: reason === 'AGUA' ? '¡TE CAÍSTE AL AGUA!' : '¡TE ATROPELLARON!', life: 1 };
   if (CR.lives <= 0) {
-    CR.state = CR.mode === 'online' ? 'dead' : 'over';
-    if (CR.mode === 'online') crOnlineSend(true); else crFinish();
+    // última vida: se ve la rana con ojos en X un momento y luego sale la pantalla de fin
+    CR.state = 'dying'; CR.deadT = CR_DEATH_MS / 1000; CR.hop = null;
+    CR.deadX = Math.max(16, Math.min(CR_CVW - 16, CR.x)); CR.deadY = CR.y;
+    CR.popup = { txt: 'GAME OVER', life: CR_DEATH_MS / 1000 };
     return;
   }
   const p = crFrogStart(); CR.x = p.x; CR.y = p.y; CR.row = CR_START_ROW; CR.bestRow = CR_START_ROW; CR.hop = null;
+}
+function crGameOver() {
+  if (CR.mode === 'online') { CR.state = 'dead'; crOnlineSend(true); }
+  else { CR.state = 'over'; crFinish(); }
 }
 function crFinish() {
   $('#cr-over-p').textContent = `PUNTAJE: ${CR.score}`;
@@ -5367,6 +5405,7 @@ function crFinish() {
 function crLB() { LB.render($('#cr-lb'), 'cruce', false, r => r.score + ' PTS'); }
 function crStep(dt) {
   if (CR.mode === 'online') { Object.values(CR.others).forEach(o => { const f = Math.min(1, dt * 10); o.x += (o.tx - o.x) * f; o.y += (o.ty - o.y) * f; }); }
+  if (CR.state === 'dying') { CR.deadT -= dt; if (CR.deadT <= 0) crGameOver(); return; }
   if (CR.state !== 'playing') return;
   const t = CR.mode === 'online' ? (Date.now() - CR.roundStart) / 1000 : crNow();
   if (CR.hop) {
@@ -5393,6 +5432,8 @@ function crDrawLane(ctx, row, lane, t) {
       ctx.fillStyle = lane.color; ctx.fillRect(it.x + 2, y + 5, it.w - 4, CR_TILE - 10);
       ctx.fillStyle = 'rgba(255,255,255,.5)'; ctx.fillRect(it.x + 4, y + 7, it.w - 8, 4);
       ctx.fillStyle = '#1a1c2c'; ctx.fillRect(it.x + (lane.dir > 0 ? it.w - 9 : 3), y + 5, 6, CR_TILE - 10);
+    } else if (lane.kind === 'truck') {
+      crDrawTruck(ctx, Math.round(it.x), y, it.w, lane.dir);
     } else if (lane.kind === 'log') {
       ctx.fillStyle = '#8a5a3c'; ctx.fillRect(it.x, y + 6, it.w, CR_TILE - 12);
       ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(it.x, y + 6, it.w, 3);
@@ -5402,6 +5443,45 @@ function crDrawLane(ctx, row, lane, t) {
       for (let k = 0; k < n; k++) { pxCircle(ctx, it.x + 12 + k * 24, y + CR_TILE / 2, 10, '#38b764'); pxCircle(ctx, it.x + 12 + k * 24, y + CR_TILE / 2, 6, '#2c5c34'); }
     }
   });
+}
+/* camión blanco pixelado: remolque largo + cabina al frente (según la dirección) */
+function crDrawTruck(ctx, x, y, w, dir) {
+  const cab = 24, gap = 2, tw = w - cab - gap, tx = dir > 0 ? x : x + cab + gap, cx = dir > 0 ? x + tw + gap : x;
+  ctx.fillStyle = '#1a1c2c';                                   // llantas
+  for (let k = 8; k < w - 6; k += (k < tw - 12 ? 14 : 10)) { ctx.fillRect(x + k, y + 3, 6, 3); ctx.fillRect(x + k, y + CR_TILE - 6, 6, 3); }
+  ctx.fillStyle = '#94b0c2'; ctx.fillRect(tx, y + 5, tw, CR_TILE - 10);   // sombra del remolque
+  ctx.fillStyle = '#f4f4f4'; ctx.fillRect(tx, y + 5, tw, CR_TILE - 13);   // remolque
+  ctx.fillStyle = '#c2c3c7'; for (let k = tx + 8; k < tx + tw - 4; k += 12) ctx.fillRect(k, y + 7, 2, CR_TILE - 17);
+  ctx.fillStyle = '#566c86'; ctx.fillRect(tx, y + 5, tw, 1); ctx.fillRect(tx, y + CR_TILE - 6, tw, 1);
+  ctx.fillStyle = '#566c86'; ctx.fillRect(dir > 0 ? cx - gap : cx + cab, y + 13, gap, 6); // enganche
+  ctx.fillStyle = '#f4f4f4'; ctx.fillRect(cx, y + 7, cab, CR_TILE - 14);   // cabina
+  ctx.fillStyle = '#94b0c2'; ctx.fillRect(cx, y + CR_TILE - 10, cab, 3);
+  ctx.fillStyle = '#41a6f6'; ctx.fillRect(dir > 0 ? cx + cab - 9 : cx + 3, y + 9, 6, CR_TILE - 18); // parabrisas
+  ctx.fillStyle = '#ffcd75'; ctx.fillRect(dir > 0 ? cx + cab - 2 : cx, y + 8, 2, 3); ctx.fillRect(dir > 0 ? cx + cab - 2 : cx, y + CR_TILE - 11, 2, 3); // luces
+}
+/* rana "muerta" de caricatura: ojos en X y lengua afuera (8-bit, un sprite por color) */
+const CR_DEAD_ROWS = [
+  ".22222....22222.",
+  "2343432..2343432",
+  "2334332112334332",
+  "2343432112343432",
+  ".22222111122222.",
+  "2111111111111112",
+  "2111111111111112",
+  "2111222222221112",
+  "2111111551111112",
+  ".21111155111112.",
+  "22.2222552222.22",
+  "2...22....22...2",
+];
+const CR_DEAD_SPR = {};
+function crDeadSprite(color) {
+  return CR_DEAD_SPR[color] || (CR_DEAD_SPR[color] = sprite(CR_DEAD_ROWS, { 1: color, 2: '#1a1c2c', 3: '#f4f4f4', 4: '#1a1c2c', 5: '#b13e53' }, 2));
+}
+function crDrawDeadFrog(ctx, x, y, color) {
+  const s = crDeadSprite(color);
+  ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.fillRect(Math.round(x - 12), Math.round(y + 10), 24, 4);
+  ctx.drawImage(s, Math.round(x - s.width / 2), Math.round(y - s.height / 2));
 }
 function crDrawFrog(ctx, x, y, color) {
   ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(x, y + 9, 9, 4, 0, 0, Math.PI * 2); ctx.fill();
@@ -5425,12 +5505,20 @@ function crDraw() {
     const seats = crSeatList();
     seats.forEach(([uid], i) => {
       if (uid === UID) return;
-      const o = CR.others[uid]; if (!o || o.finished) return;
-      crDrawFrog(ctx, o.x, o.y, CR_PCOLORS[i] || '#aaaaaa');
+      const o = CR.others[uid]; if (!o) return;
+      // si va en otro nivel su tablero es distinto: se dibuja como "fantasma"
+      ctx.globalAlpha = o.level != null && o.level !== CR.level ? .35 : 1;
+      if (o.finished) crDrawDeadFrog(ctx, Math.max(16, Math.min(CR_CVW - 16, o.x)), o.y, CR_PCOLORS[i] || '#aaaaaa');
+      else crDrawFrog(ctx, o.x, o.y, CR_PCOLORS[i] || '#aaaaaa');
+      ctx.globalAlpha = 1;
     });
-    if (CR.state === 'playing') { const myIdx = seats.findIndex(([u]) => u === UID); crDrawFrog(ctx, CR.x, CR.y, CR_PCOLORS[myIdx] || '#a7f070'); }
-  } else if (CR.state === 'playing' || CR.state === 'over') {
+    const myCol = CR_PCOLORS[seats.findIndex(([u]) => u === UID)] || '#a7f070';
+    if (CR.state === 'playing') crDrawFrog(ctx, CR.x, CR.y, myCol);
+    else if (CR.state === 'dying' || CR.state === 'dead') crDrawDeadFrog(ctx, CR.deadX, CR.deadY, myCol);
+  } else if (CR.state === 'playing') {
     crDrawFrog(ctx, CR.x, CR.y, '#a7f070');
+  } else if (CR.state === 'dying' || CR.state === 'over') {
+    crDrawDeadFrog(ctx, CR.deadX, CR.deadY, '#a7f070');
   }
   if (CR.popup && CR.popup.life > 0) {
     ctx.fillStyle = 'rgba(0,0,0,.4)'; ctx.fillRect(0, CR_CVH / 2 - 20, CR_CVW, 32);
@@ -5458,6 +5546,8 @@ function crOnlineSend(force) {
   const now = performance.now(); if (!force && now - CR.lastSend < 110) return; CR.lastSend = now;
   fs.updateDoc(crMeDoc(), { x: Math.round(CR.x * 10) / 10, y: Math.round(CR.y * 10) / 10, lives: CR.lives, score: CR.score, finished: CR.state === 'dead' })
     .catch(e => force && console.error(e));
+  // el nivel va aparte y solo cuando cambia: si fallara, no frena el envío de la posición
+  if (CR.level !== CR._sentLevel) { CR._sentLevel = CR.level; fs.updateDoc(crMeDoc(), { level: CR.level }).catch(() => {}); }
 }
 async function crCreate() {
   if (!(await fbReady)) return crMenuMsg('SIN CONEXIÓN A FIREBASE: SOLO SE PUEDE JUGAR SOLO.', 'lose');
@@ -5503,7 +5593,7 @@ function crEnterLobby() {
     Object.entries(m).forEach(([uid, data]) => {
       if (uid === UID) return;
       const o = CR.others[uid] || { x: data.x, y: data.y };
-      CR.others[uid] = { ...o, tx: data.x, ty: data.y, name: data.name, lives: data.lives, score: data.score, finished: data.finished };
+      CR.others[uid] = { ...o, tx: data.x, ty: data.y, name: data.name, lives: data.lives, score: data.score, finished: data.finished, level: typeof data.level === 'number' ? data.level : null };
     });
     crSync();
   }));
@@ -5540,13 +5630,23 @@ function crSync() {
   $('#cr-over').hidden = d.state !== 'over';
   $('#cr-room2').hidden = false; $('#cr-room2').textContent = (CR.spectating ? '👁 ESPECTADOR · PARTIDA ' : 'PARTIDA ') + CR.room;
   $('#cr-spec-badge').hidden = !CR.spectating;
-  if (!CR.spectating && d.roundStartMs && d.roundStartMs !== CR._seenRoundStart) {
+  if (d.roundStartMs && d.roundStartMs !== CR._seenRoundStart) {
+    // todos arman los mismos carriles con la semilla y la hora de inicio de la partida
     CR._seenRoundStart = d.roundStartMs; CR.seed = d.seed; CR.roundStart = d.roundStartMs; CR.level = 0; CR.lanes = crLanes(d.seed, 0);
-    const p = crFrogStart(); CR.x = p.x; CR.y = p.y; CR.row = CR_START_ROW; CR.bestRow = CR_START_ROW;
-    CR.lives = CR_LIVES_START; CR.score = 0; CR.state = 'playing'; CR.hop = null; CR.popup = null;
+    if (!CR.spectating) {
+      const p = crFrogStart(); CR.x = p.x; CR.y = p.y; CR.row = CR_START_ROW; CR.bestRow = CR_START_ROW;
+      CR.lives = CR_LIVES_START; CR.score = 0; CR.state = 'playing'; CR.hop = null; CR.popup = null; CR._sentLevel = null;
+    }
   }
+  if (CR.spectating && CR.lanes) crSpecLevel();
   if (d.state === 'over' && !CR.resultShown) { CR.resultShown = true; crOnlineFinish(); }
   crRenderPlayers();
+}
+/* quien mira sigue el tablero de la primera rana que siga viva */
+function crSpecLevel() {
+  const alive = crSeatList().map(([uid]) => CR.others[uid]).filter(o => o && !o.finished && o.level != null);
+  const lv = alive.length ? alive[0].level : CR.level;
+  if (lv !== CR.level) { CR.level = lv; CR.lanes = crLanes(CR.seed, lv); }
 }
 function crRenderPlayers() {
   const d = CR.roomData; if (!d) return;
