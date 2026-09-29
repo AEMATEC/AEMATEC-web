@@ -69,6 +69,8 @@ exports.notifyProblemReport = onDocumentCreated(
   async event => {
     const reporte = event.data?.data();
     if (!reporte) return;
+    const destinatarios = await correosDe("moderators");
+    logger.info("Reporte del asistente recibido, enviando correo", { reporteId: event.params.reporteId, destinatarios: destinatarios.length });
     await sendEmail(
       "Nuevo reporte desde el asistente del sitio — AEMATEC",
       `<p>Alguien reportó un problema desde el asistente básico del sitio:</p>
@@ -77,7 +79,7 @@ exports.notifyProblemReport = onDocumentCreated(
          <li>Página: ${escapeHtml(reporte.pagina || "No indicada")}</li>
          <li>Contacto: ${escapeHtml(reporte.contacto || "No indicado")}</li>
        </ul>`,
-      await correosDe("moderators")
+      destinatarios
     );
     logger.info("Notificación de reporte del asistente enviada", { reporteId: event.params.reporteId });
   }
