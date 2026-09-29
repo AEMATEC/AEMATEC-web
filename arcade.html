@@ -809,7 +809,7 @@ nav .btn{padding:8px 12px}
       <p class="sub">MEJOR PUNTAJE</p>
       <ol class="lb" id="cr-lb"></ol>
       <h4 style="margin-top:16px">CÓMO SE JUEGA</h4>
-      <p class="howto">MUEVE CASILLA POR CASILLA CON LAS FLECHAS. LOS CARROS TE QUITAN UNA VIDA. EN EL RÍO SOLO SOBREVIVES SUBIDO EN UN TRONCO O TORTUGA: SI CAES AL AGUA, PIERDES UNA VIDA. LLEGAR A UNA META SUMA PUNTOS Y TE MANDA OTRA VEZ AL INICIO. SE ACABA CON 3 VIDAS PERDIDAS. EN LÍNEA, HASTA 4 PERSONAS JUEGAN A LA VEZ EN EL MISMO TABLERO.</p>
+      <p class="howto">MUEVE CASILLA POR CASILLA CON LAS FLECHAS. LOS CARROS TE QUITAN UNA VIDA. EN EL RÍO SOLO SOBREVIVES SUBIDO EN UN TRONCO O TORTUGA: SI CAES AL AGUA, PIERDES UNA VIDA. LLEGAR A UNA META SUMA PUNTOS, SUBE DE NIVEL (DÍA, NOCHE, DESIERTO O CIUDAD, CADA VEZ UN POCO MÁS RÁPIDO) Y TE MANDA OTRA VEZ AL INICIO. SE ACABA CON 3 VIDAS PERDIDAS. EN LÍNEA, HASTA 4 PERSONAS JUEGAN A LA VEZ EN EL MISMO TABLERO.</p>
     </aside>
   </section>
 
@@ -4712,13 +4712,20 @@ const CR_HOME_COLS = [1, 4, 7, 10];
 const CR_LIVES_START = 3, CR_HOP_MS = 140, CR_MOVE_COOLDOWN = 150;
 const CR_CAR_COLORS = ['#b13e53', '#41a6f6', '#ef7d57', '#5d275d', '#e3b619'];
 const CR_PCOLORS = ['#a7f070', '#e83b3b', '#41a6f6', '#ffcd75'];
+const CR_THEMES = [
+  { n: 'DÍA', water: '#2f8b93', waterHome: '#0b5c66', grass: '#38b764', road: '#333c57', line: '#f4f4f4', homeSlot: '#a7f070' },
+  { n: 'NOCHE', water: '#1c3c5a', waterHome: '#0a1f33', grass: '#1f4d3a', road: '#141522', line: '#8fa0c0', homeSlot: '#73eff7' },
+  { n: 'DESIERTO', water: '#3a6ea8', waterHome: '#254b78', grass: '#c9a15a', road: '#7a5a3a', line: '#fff1c4', homeSlot: '#ffcd75' },
+  { n: 'CIUDAD', water: '#345b7a', waterHome: '#1c3348', grass: '#4a5568', road: '#22242f', line: '#ffe14d', homeSlot: '#41a6f6' },
+];
+function crTheme() { return CR_THEMES[CR.level % CR_THEMES.length]; }
 function crRng(seed) { let s = (seed >>> 0) || 1; return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; }
-function crLanes(seed) {
-  const rng = crRng(seed), lanes = {};
+function crLanes(seed, level = 0) {
+  const rng = crRng(seed), lanes = {}, boost = 1 + Math.min(level, 6) * 0.1;
   CR_ROAD_ROWS.forEach((row, i) => {
     const count = 3 + (rng() < .5 ? 0 : 1);
     lanes[row] = {
-      dir: i % 2 === 0 ? 1 : -1, speed: 55 + rng() * 65, w: 26 + (rng() < .5 ? 0 : 12),
+      dir: i % 2 === 0 ? 1 : -1, speed: (55 + rng() * 65) * boost, w: 26 + (rng() < .5 ? 0 : 12),
       count, spacing: CR_CVW / count, phase: rng() * CR_CVW, kind: 'car',
       color: CR_CAR_COLORS[(i * 2 + Math.floor(rng() * 5)) % CR_CAR_COLORS.length]
     };
@@ -4726,7 +4733,7 @@ function crLanes(seed) {
   CR_RIVER_ROWS.forEach((row, i) => {
     const count = 2 + (rng() < .5 ? 0 : 1);
     lanes[row] = {
-      dir: i % 2 === 0 ? -1 : 1, speed: 35 + rng() * 45, w: 46 + (rng() < .5 ? 0 : 26),
+      dir: i % 2 === 0 ? -1 : 1, speed: (35 + rng() * 45) * boost, w: 46 + (rng() < .5 ? 0 : 26),
       count, spacing: CR_CVW / count, phase: rng() * CR_CVW, kind: i % 2 === 0 ? 'log' : 'turtle'
     };
   });
@@ -4747,7 +4754,7 @@ const CR = {
   mode: null, spectating: false, room: null, isHost: false, roomData: null, roomPlayers: {}, others: {},
   unsubs: [], hbStop: null, _hostTimer: null, lastSend: 0, resultShown: false, _seenRoundStart: 0,
   seed: 1, t0: 0, roundStart: 0, lanes: null,
-  x: 0, y: 0, row: CR_START_ROW, lives: CR_LIVES_START, score: 0, bestRow: CR_START_ROW,
+  x: 0, y: 0, row: CR_START_ROW, lives: CR_LIVES_START, score: 0, bestRow: CR_START_ROW, level: 0,
   state: 'ready', hop: null, lastMoveAt: 0, popup: null
 };
 function crFrogStart() { return { x: 6 * CR_TILE + CR_TILE / 2, y: CR_START_ROW * CR_TILE + CR_TILE / 2 }; }
@@ -4756,7 +4763,7 @@ function crReset() {
   $('#cr-over').hidden = true;
   CR.seed = (Math.random() * 1e9) | 0; CR.lanes = crLanes(CR.seed); CR.t0 = performance.now();
   const p = crFrogStart(); CR.x = p.x; CR.y = p.y; CR.row = CR_START_ROW; CR.bestRow = CR_START_ROW;
-  CR.lives = CR_LIVES_START; CR.score = 0; CR.state = 'playing'; CR.hop = null; CR.popup = null;
+  CR.lives = CR_LIVES_START; CR.score = 0; CR.level = 0; CR.state = 'playing'; CR.hop = null; CR.popup = null;
 }
 function crTryMove(dx, dy) {
   if (CR.state !== 'playing' || CR.hop) return;
@@ -4781,7 +4788,8 @@ function crLand(t) {
 }
 function crScoreHome() {
   CR.score += 50; SFX.play('win');
-  CR.popup = { txt: '¡LLEGASTE! +50', life: 1 };
+  CR.level++; CR.seed = (Math.random() * 1e9) | 0; CR.lanes = crLanes(CR.seed, CR.level); CR.t0 = performance.now();
+  CR.popup = { txt: `¡LLEGASTE! +50 · NIVEL ${CR.level + 1}: ${crTheme().n}`, life: 1.6 };
   const p = crFrogStart(); CR.x = p.x; CR.y = p.y; CR.row = CR_START_ROW; CR.bestRow = CR_START_ROW;
 }
 function crDie(reason) {
@@ -4847,13 +4855,14 @@ function crDraw() {
   const cv = $('#cr-cv'); if (!cv || !cv.offsetParent || !CR.lanes) return;
   const ctx = cv.getContext('2d'); ctx.imageSmoothingEnabled = false; ctx.textAlign = 'center';
   const t = CR.mode === 'online' ? (Date.now() - CR.roundStart) / 1000 : crNow();
-  ctx.fillStyle = '#0b5c66'; ctx.fillRect(0, CR_HOME_ROW * CR_TILE, CR_CVW, CR_TILE);
-  CR_HOME_COLS.forEach(c => { ctx.fillStyle = '#2f8b93'; ctx.fillRect(c * CR_TILE, 0, CR_TILE, CR_TILE); pxCircle(ctx, c * CR_TILE + CR_TILE / 2, CR_TILE / 2, 8, '#a7f070'); });
-  ctx.fillStyle = '#2f8b93'; CR_RIVER_ROWS.forEach(r => ctx.fillRect(0, r * CR_TILE, CR_CVW, CR_TILE));
-  ctx.fillStyle = '#38b764'; ctx.fillRect(0, CR_MEDIAN_ROW * CR_TILE, CR_CVW, CR_TILE);
-  ctx.fillStyle = '#333c57'; CR_ROAD_ROWS.forEach(r => ctx.fillRect(0, r * CR_TILE, CR_CVW, CR_TILE));
-  ctx.fillStyle = '#38b764'; ctx.fillRect(0, CR_START_ROW * CR_TILE, CR_CVW, CR_TILE);
-  ctx.fillStyle = '#f4f4f4'; CR_ROAD_ROWS.forEach(r => { for (let i = 6; i < CR_CVW; i += 16) ctx.fillRect(i, r * CR_TILE + CR_TILE / 2 - 1, 8, 2); });
+  const th = crTheme();
+  ctx.fillStyle = th.waterHome; ctx.fillRect(0, CR_HOME_ROW * CR_TILE, CR_CVW, CR_TILE);
+  CR_HOME_COLS.forEach(c => { ctx.fillStyle = th.water; ctx.fillRect(c * CR_TILE, 0, CR_TILE, CR_TILE); pxCircle(ctx, c * CR_TILE + CR_TILE / 2, CR_TILE / 2, 8, th.homeSlot); });
+  ctx.fillStyle = th.water; CR_RIVER_ROWS.forEach(r => ctx.fillRect(0, r * CR_TILE, CR_CVW, CR_TILE));
+  ctx.fillStyle = th.grass; ctx.fillRect(0, CR_MEDIAN_ROW * CR_TILE, CR_CVW, CR_TILE);
+  ctx.fillStyle = th.road; CR_ROAD_ROWS.forEach(r => ctx.fillRect(0, r * CR_TILE, CR_CVW, CR_TILE));
+  ctx.fillStyle = th.grass; ctx.fillRect(0, CR_START_ROW * CR_TILE, CR_CVW, CR_TILE);
+  ctx.fillStyle = th.line; CR_ROAD_ROWS.forEach(r => { for (let i = 6; i < CR_CVW; i += 16) ctx.fillRect(i, r * CR_TILE + CR_TILE / 2 - 1, 8, 2); });
   [...CR_RIVER_ROWS, ...CR_ROAD_ROWS].forEach(r => crDrawLane(ctx, r, CR.lanes[r], t));
   if (CR.mode === 'online') {
     const seats = crSeatList();
@@ -4870,7 +4879,7 @@ function crDraw() {
     ctx.fillStyle = 'rgba(0,0,0,.4)'; ctx.fillRect(0, CR_CVH / 2 - 20, CR_CVW, 32);
     ctx.fillStyle = '#ffe14d'; ctx.font = '12px "Press Start 2P"'; ctx.fillText(CR.popup.txt, CR_CVW / 2, CR_CVH / 2 + 4);
   }
-  $('#cr-status').textContent = `VIDAS: ${'❤'.repeat(Math.max(0, CR.lives))}`;
+  $('#cr-status').textContent = `VIDAS: ${'❤'.repeat(Math.max(0, CR.lives))} · NIVEL ${CR.level + 1}: ${th.n}`;
   $('#cr-score').textContent = `PUNTAJE: ${CR.score}`;
 }
 function crTick(dt) {
@@ -4975,7 +4984,7 @@ function crSync() {
   $('#cr-room2').hidden = false; $('#cr-room2').textContent = (CR.spectating ? '👁 ESPECTADOR · PARTIDA ' : 'PARTIDA ') + CR.room;
   $('#cr-spec-badge').hidden = !CR.spectating;
   if (!CR.spectating && d.roundStartMs && d.roundStartMs !== CR._seenRoundStart) {
-    CR._seenRoundStart = d.roundStartMs; CR.seed = d.seed; CR.roundStart = d.roundStartMs; CR.lanes = crLanes(d.seed);
+    CR._seenRoundStart = d.roundStartMs; CR.seed = d.seed; CR.roundStart = d.roundStartMs; CR.level = 0; CR.lanes = crLanes(d.seed, 0);
     const p = crFrogStart(); CR.x = p.x; CR.y = p.y; CR.row = CR_START_ROW; CR.bestRow = CR_START_ROW;
     CR.lives = CR_LIVES_START; CR.score = 0; CR.state = 'playing'; CR.hop = null; CR.popup = null;
   }
@@ -5271,6 +5280,7 @@ const GAMES = [
 })();
 
 /* ---------- intro: bloques de tetris + moneda ---------- */
+SFX.on && SFX.init(); // listo desde ya para que suenen los bloques al caer, si el navegador lo permite
 const INTRO = (() => {
   const el = $('#intro'), cvI = $('#intro-cv'), g = cvI.getContext('2d');
   const W = 240, H = 150, CELL = 5;
