@@ -30,10 +30,8 @@ h3{margin:0 0 6px;color:var(--yellow);font-size:13px}
 h4{margin:0 0 8px;font-size:10px;color:var(--cyan)}
 .logo{height:48px;width:auto;image-rendering:pixelated;filter:drop-shadow(3px 3px 0 var(--dark));-webkit-user-drag:none}
 .who{margin-left:auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-/* Botón para volver al sitio: logo normal de AEMATEC (no pixelado), siempre arriba a la izquierda */
-#arcade-volver{display:flex;align-items:center;gap:6px;height:48px;padding:4px 12px 4px 8px;border:0;border-radius:10px;background:#fff;cursor:pointer;font-family:system-ui,sans-serif;font-size:20px;font-weight:700;color:#1d3f8f;box-shadow:0 2px 6px rgba(0,0,0,.35)}
-#arcade-volver img{height:36px;width:auto;display:block}
-#arcade-volver:hover{filter:brightness(.94)}
+/* Botón para volver al sitio: mismo estilo pixel-art que los demás botones, junto al resto de controles */
+#arcade-volver{font-size:10px}
 #arcade-volver:focus-visible{outline:3px solid var(--yellow);outline-offset:2px}
 /* Aviso de "falta tu nombre" al crear o unirse a una sala en línea */
 .who label.falta,.px-in.falta::placeholder{color:var(--red)}
@@ -69,7 +67,7 @@ button,input{font-family:inherit;font-size:10px;color:var(--ink)}
 
 nav{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:14px}
 nav .btn{padding:8px 12px}
-@media (max-width:700px){nav{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding:4px 2px;margin-bottom:10px}nav::-webkit-scrollbar{display:none}nav .btn{flex:none;font-size:9px}h1{font-size:14px}.logo{height:34px}.who label{display:none}.who label.falta{display:inline}#arcade-volver{height:44px}#arcade-volver img{height:32px}}
+@media (max-width:700px){nav{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding:4px 2px;margin-bottom:10px}nav::-webkit-scrollbar{display:none}nav .btn{flex:none;font-size:9px}h1{font-size:14px}.logo{height:34px}.who label{display:none}.who label.falta{display:inline}}
 .tab{background:var(--panel)}
 .tab.on{background:var(--orange);color:var(--dark)}
 
@@ -300,9 +298,9 @@ nav .btn{padding:8px 12px}
 <body>
 <div class="wrap">
   <header>
-    <button id="arcade-volver" type="button" title="Volver a la página principal de AEMATEC" aria-label="Volver a la página principal de AEMATEC"><span aria-hidden="true">←</span><img src="assets/logo-aematec.svg" alt=""></button>
     <h1><img class="logo" alt="" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAwCAYAAAAGlsrkAAABvklEQVR4nNVYsbGDMAyVOWoKaDguK/wid5mAlh0yXHZIywq/yAocRwMFC/CbL84IGWQFAnlVMJaeJD/LJgBKNF0/NF0/aO3VpIG5DYG5qckDDWmW5ONzluSgIfcm3grfQUzLjNCU22hI67acEeN4Gkcin96lRtKirqCoK19zPTGS2r9pBXYj3gLexFmSwzO7jM/P7AKc4NYQelv8k2N5NaQAHqoGcG8nxC6qpqR1W6pE5U3MIY0joyUXEXPZciX16WCHbadV2Gev6/yVzKH4jgbiWluNyBaJ1/atCxKRnU9cGsH42IS2kcSxPHTeBjUS4sulQ/36eogP/evrAb8/dwAA1qbp+iGNI2PsAXsC7VRSFHU1EmMgADAepZOM7QEuCPp+CU3XD9CWY+CUEDFTtbQvu0DnurbjObaTZgtpfZ2vV/uuLcVa/x6JtX1ZCtq/jxXXlqKS+j5OXO82jDW4RPaRjDnyCfHW2XJAdR/fQPbOll3rT/5ZhjyhffvAwT0yp77DNI4MDtIA3g3C9mP7nlx9cJDek+yvfxs0IG6pOF9oN8uGZu8CDWhpPnf9cZaRK5MUNChuueQXOA9IdPEHsDN7ohq8EwcAAAAASUVORK5CYII="><span>ARCADE AEMATEC</span></h1>
     <div class="who">
+      <button id="arcade-volver" type="button" class="btn gray" title="Volver a la página principal de AEMATEC" aria-label="Volver a la página principal de AEMATEC">← AEMATEC</button>
       <label for="name">JUGADOR</label>
       <input id="name" class="px-in" maxlength="10" placeholder="TU NOMBRE">
       <button class="btn snd" id="snd" title="Sonido">♪ SÍ</button>
