@@ -172,6 +172,15 @@ nav .btn{padding:8px 12px}
 .touch .btn{min-width:60px;padding:14px 10px;touch-action:none}
 @media (pointer:coarse){.touch{display:flex}}
 .keys{color:var(--mute);font-size:8px;text-align:center;margin-top:10px}
+.shot-bar{display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap;justify-content:center}
+.shot-bar label{color:var(--yellow);font-size:9px}
+.power-slider{-webkit-appearance:none;appearance:none;width:180px;height:14px;background:var(--dark);cursor:pointer;
+  box-shadow:0 -3px 0 0 var(--gray),0 3px 0 0 var(--gray),-3px 0 0 0 var(--gray),3px 0 0 0 var(--gray);margin:0}
+.power-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:16px;height:20px;background:var(--orange);border:0;
+  box-shadow:0 -3px 0 0 var(--dark),0 3px 0 0 var(--dark),-3px 0 0 0 var(--dark),3px 0 0 0 var(--dark);cursor:pointer}
+.power-slider::-moz-range-thumb{width:16px;height:20px;background:var(--orange);border:3px solid var(--dark);border-radius:0;cursor:pointer}
+.power-slider:disabled{opacity:.4;cursor:not-allowed}
+#gf-shoot:disabled,#bl-shoot:disabled{opacity:.4;cursor:not-allowed}
 .foot{margin-top:18px;color:var(--gray);font-size:8px;text-align:center}
 .credits{margin-top:10px;padding:12px;text-align:center;font-size:9px;color:var(--mute);border-top:4px dotted var(--panel)}
 .credits b{color:var(--yellow);font-weight:normal}
@@ -676,7 +685,7 @@ nav .btn{padding:8px 12px}
   <!-- ============ BILLAR ============ -->
   <section class="game" id="g-billar">
     <div class="main px">
-      <div class="splash" data-g="billar"><canvas width="160" height="72"></canvas><h2>BILLAR</h2><p>NORMAL (8 BOLAS) O BOLA 9 · CONTRA LA CPU, UN AMIGO O EN LÍNEA</p><button class="btn red">INICIAR</button></div>
+      <div class="splash" data-g="billar"><canvas width="160" height="72"></canvas><h2>BILLAR</h2><p>NORMAL (8 BOLAS) O BOLA 9 · CONTRA LA CPU, UN AMIGO O EN LÍNEA · TOCA HACIA DONDE QUIERES TIRAR, ELIGE LA FUERZA Y GOLPEA</p><button class="btn red">INICIAR</button></div>
       <div class="gbody" hidden>
         <div id="bl-setup">
           <div class="rc-sec"><h4>MODALIDAD</h4><div class="pick" id="bl-fmt"></div></div>
@@ -712,6 +721,12 @@ nav .btn{padding:8px 12px}
             </div>
           </div>
           <p class="msg" id="bl-msg"></p>
+          <div class="shot-bar">
+            <label for="bl-power">FUERZA</label>
+            <input type="range" id="bl-power" class="power-slider" min="10" max="100" value="70">
+            <button class="btn red" id="bl-shoot" disabled>¡GOLPEAR!</button>
+          </div>
+          <p class="keys">TOCA LA MESA PARA APUNTAR HACIA ALLÁ, AJUSTA LA FUERZA Y PRESIONA ¡GOLPEAR!</p>
           <div class="row"><button class="btn gray" id="bl-quit">ABANDONAR</button></div>
         </div>
       </div>
@@ -722,7 +737,7 @@ nav .btn{padding:8px 12px}
       <div class="mini-tabs" id="bl-lb-tabs"></div>
       <ol class="lb" id="bl-lb"></ol>
       <h4 style="margin-top:16px">CÓMO SE JUEGA</h4>
-      <p class="howto">ARRASTRA DESDE LA BOLA BLANCA HACIA ATRÁS PARA APUNTAR Y SOLTAR PARA GOLPEAR: ENTRE MÁS ESTIRES, MÁS FUERTE.<br><br><b>NORMAL:</b> METE TODAS TUS LISAS O RAYADAS Y LUEGO LA 8 PARA GANAR.<br><b>BOLA 9:</b> GOLPEA SIEMPRE PRIMERO LA BOLA MÁS BAJA. GANA QUIEN METE LA 9.</p>
+      <p class="howto">TOCA LA MESA HACIA DONDE QUIERES TIRAR, AJUSTA LA BARRA DE FUERZA Y PRESIONA ¡GOLPEAR!.<br><br><b>NORMAL:</b> METE TODAS TUS LISAS O RAYADAS Y LUEGO LA 8 PARA GANAR.<br><b>BOLA 9:</b> GOLPEA SIEMPRE PRIMERO LA BOLA MÁS BAJA. GANA QUIEN METE LA 9.</p>
     </aside>
   </section>
 
@@ -823,7 +838,7 @@ nav .btn{padding:8px 12px}
   <!-- ============ GOLF ============ -->
   <section class="game" id="g-golf">
     <div class="main px">
-      <div class="splash" data-g="golf"><canvas width="160" height="72"></canvas><h2>GOLF AEMATEC</h2><p>MINIGOLF DE 6 HOYOS. ARRASTRA DESDE LA BOLA HACIA ATRÁS PARA APUNTAR Y SUELTA PARA GOLPEAR. EVITA LA ARENA Y EL AGUA, Y TERMINA CON EL MENOR NÚMERO DE GOLPES POSIBLE.</p><button class="btn red">INICIAR</button></div>
+      <div class="splash" data-g="golf"><canvas width="160" height="72"></canvas><h2>GOLF AEMATEC</h2><p>MINIGOLF DE 6 HOYOS TEMÁTICOS. TOCA HACIA DONDE QUIERES TIRAR, ELIGE LA FUERZA Y GOLPEA. CUIDADO CON LA ARENA, EL AGUA, EL HIELO Y EL VIENTO, Y APROVECHA LAS RAMPAS PARA SALTAR OBSTÁCULOS.</p><button class="btn red">INICIAR</button></div>
       <div class="gbody" hidden>
         <div id="gf-menu">
           <h4>¿CÓMO QUIERES JUGAR?</h4>
@@ -864,7 +879,12 @@ nav .btn{padding:8px 12px}
               <div class="row"><button class="btn green" id="gf-again">OTRA VUELTA</button><button class="btn gray" id="gf-exit">MENÚ</button></div>
             </div>
           </div>
-          <p class="keys">ARRASTRA DESDE LA BOLA HACIA ATRÁS Y SUELTA PARA GOLPEAR · ENTRE MÁS ESTIRES, MÁS FUERTE · TAMBIÉN FUNCIONA CON EL DEDO</p>
+          <div class="shot-bar">
+            <label for="gf-power">FUERZA</label>
+            <input type="range" id="gf-power" class="power-slider" min="10" max="100" value="70">
+            <button class="btn red" id="gf-shoot" disabled>¡GOLPEAR!</button>
+          </div>
+          <p class="keys">TOCA LA PANTALLA HACIA DONDE QUIERES TIRAR, AJUSTA LA FUERZA Y PRESIONA ¡GOLPEAR!</p>
         </div>
       </div>
     </div>
@@ -873,7 +893,7 @@ nav .btn{padding:8px 12px}
       <p class="sub">MENOS GOLPES EN LOS 6 HOYOS</p>
       <ol class="lb" id="gf-lb"></ol>
       <h4 style="margin-top:16px">CÓMO SE JUEGA</h4>
-      <p class="howto">SOLO O CON HASTA 4 PERSONAS, TURNÁNDOSE EN EL MISMO RECORRIDO. ARRASTRA DESDE TU BOLA HACIA ATRÁS PARA APUNTAR: ENTRE MÁS ESTIRES, MÁS FUERTE EL GOLPE. LA ARENA FRENA LA BOLA Y EL AGUA TE REGRESA AL ÚLTIMO LUGAR SEGURO CON UN GOLPE DE PENALIDAD. SI VAS MUY RÁPIDO, LA BOLA NO ENTRA AL HOYO Y SIGUE DE LARGO: BAJA LA FUERZA CERCA DE LA META.</p>
+      <p class="howto">SOLO O CON HASTA 4 PERSONAS, TURNÁNDOSE EN EL MISMO RECORRIDO. TOCA HACIA DONDE QUIERES TIRAR, AJUSTA LA FUERZA Y PRESIONA ¡GOLPEAR!. LA ARENA FRENA LA BOLA, EL HIELO CASI NO LA FRENA Y EL AGUA TE REGRESA AL ÚLTIMO LUGAR SEGURO CON UN GOLPE DE PENALIDAD. EL VIENTO EMPUJA LA BOLA MIENTRAS RUEDA. LAS RAMPAS TE HACEN SALTAR POR ENCIMA DE LO QUE HAYA ADELANTE SI LLEGAS CON SUFICIENTE FUERZA. SI VAS MUY RÁPIDO, LA BOLA NO ENTRA AL HOYO Y SIGUE DE LARGO: BAJA LA FUERZA CERCA DE LA META.</p>
     </aside>
   </section>
 
@@ -4134,7 +4154,7 @@ bjLB(); bjView('menu');
    BILLAR — normal (8 bolas) y bola 9
    ========================================================= */
 const BL_CW = 440, BL_CH = 240, BL_RAIL = 20, BL_PW = 400, BL_PH = 200;
-const BL_R = 7, BL_POCKET_R = 15.5, BL_FRICTION = 480, BL_MAXV = 900, BL_REST = 0.9, BL_POWER_SCALE = BL_MAXV / 140;
+const BL_R = 7, BL_POCKET_R = 12, BL_FRICTION = 170, BL_MAXV = 900, BL_REST = 0.9;
 const BL_POCKETS = [
   { x: 0, y: 0 }, { x: BL_PW / 2, y: 0 }, { x: BL_PW, y: 0 },
   { x: 0, y: BL_PH }, { x: BL_PW / 2, y: BL_PH }, { x: BL_PW, y: BL_PH },
@@ -4313,7 +4333,7 @@ function blAutoPlaceCue(balls) {
 const BL = {
   mode: null, phase: 'menu', variant: 'eight', lbVariant: 'eight',
   balls: [], turn: 0, names: ['', ''], groups: [null, null], openTable: true,
-  placing: null, placePreview: null, aimPointer: null, dragging: false, shotActive: false, shotEvents: null,
+  placing: null, placePreview: null, aimPointer: null, dragging: false, power: .7, shotActive: false, shotEvents: null,
   winner: null, submitted: false, cpuTimer: null, _acc: 0,
   room: null, isHost: false, roomData: null, roomPlayers: {}, unsubs: [], hbStop: null, me: -1, spectating: false, lastSend: 0,
 };
@@ -4362,7 +4382,15 @@ function blUI() {
   if (BL.placing != null) txt = `${esc(BL.names[BL.placing] || '???')}: COLOCA LA BOLA BLANCA (TOCA LA MESA)`;
   if (BL.mode === 'online' && BL.spectating) txt = `<span style="color:${t === 0 ? 'var(--yellow)' : 'var(--cyan)'}">${esc(BL.names[t] || '???')}</span>: SU TURNO`;
   $('#bl-turn').innerHTML = txt;
+  blSyncShootBtn();
   fitSoon();
+}
+function blSyncShootBtn() {
+  const canShoot = blCanAct() && BL.placing == null;
+  const cue = BL.balls.find(b => b.num === 0);
+  const aimed = BL.aimPointer && cue && Math.hypot(BL.aimPointer.x - cue.x, BL.aimPointer.y - cue.y) > 4;
+  $('#bl-shoot').disabled = !canShoot || !aimed;
+  $('#bl-power').disabled = !canShoot;
 }
 function blLB() {
   $('#bl-lb-tabs').innerHTML = '';
@@ -4376,16 +4404,18 @@ function blLB() {
 function blDrawBall(b) {
   const x = Math.round(b.x + BL_RAIL), y = Math.round(b.y + BL_RAIL);
   if (b.num === 0) {
-    blx.beginPath(); blx.arc(x, y, BL_R, 0, Math.PI * 2); blx.fillStyle = '#f4f4f4'; blx.fill();
-    blx.strokeStyle = '#c7c7c7'; blx.lineWidth = 1; blx.stroke(); return;
+    pxCircle(blx, x, y, BL_R, '#0a0a0a');
+    pxCircle(blx, x, y, BL_R - 1, '#f4f4f4');
+    blx.fillStyle = 'rgba(255,255,255,.95)'; blx.fillRect(x - 3, y - 4, 2, 2);
+    return;
   }
-  const col = BL_COLORS[b.num];
-  blx.save(); blx.beginPath(); blx.arc(x, y, BL_R, 0, Math.PI * 2); blx.closePath(); blx.clip();
-  if (blStripe(b.num)) { blx.fillStyle = '#f4f4f4'; blx.fillRect(x - BL_R, y - BL_R, BL_R * 2, BL_R * 2); blx.fillStyle = col; blx.fillRect(x - BL_R, y - BL_R * 0.55, BL_R * 2, BL_R * 1.1); }
-  else { blx.fillStyle = col; blx.fillRect(x - BL_R, y - BL_R, BL_R * 2, BL_R * 2); }
-  blx.restore();
-  blx.beginPath(); blx.arc(x, y, BL_R * 0.6, 0, Math.PI * 2); blx.fillStyle = '#f4f4f4'; blx.fill();
+  const col = BL_COLORS[b.num], stripe = blStripe(b.num);
+  pxCircle(blx, x, y, BL_R, '#0a0a0a');
+  pxCircle(blx, x, y, BL_R - 1, stripe ? '#f4f4f4' : col);
+  if (stripe) { blx.fillStyle = col; blx.fillRect(x - BL_R + 1, y - 2, (BL_R - 1) * 2, 5); }
+  pxCircle(blx, x, y, 3, '#f4f4f4');
   const str = String(b.num); tinyText(blx, str, x - str.length * 2, y - 2, col);
+  blx.fillStyle = 'rgba(255,255,255,.75)'; blx.fillRect(x - 3, y - 4, 2, 2);
 }
 function blDraw() {
   blx.fillStyle = '#6b4226'; blx.fillRect(0, 0, BL_CW, BL_CH);
@@ -4399,19 +4429,18 @@ function blDraw() {
   for (const b of BL.balls) if (!b.potted) blDrawBall(b);
   if (BL.aimPointer && !BL.shotActive && BL.placing == null) {
     const cue = BL.balls.find(x => x.num === 0);
-    const dx0 = cue.x - BL.aimPointer.x, dy0 = cue.y - BL.aimPointer.y, dist = Math.min(140, Math.hypot(dx0, dy0));
+    const dx0 = BL.aimPointer.x - cue.x, dy0 = BL.aimPointer.y - cue.y, dist = Math.hypot(dx0, dy0);
     if (dist > 4) {
       const ang = Math.atan2(dy0, dx0), ux = Math.cos(ang), uy = Math.sin(ang);
       const cx = cue.x + BL_RAIL, cy = cue.y + BL_RAIL;
       blx.strokeStyle = 'rgba(244,244,244,.85)'; blx.lineWidth = 1; blx.setLineDash([4, 3]);
-      blx.beginPath(); blx.moveTo(cx, cy); blx.lineTo(cx + ux * 170, cy + uy * 170); blx.stroke(); blx.setLineDash([]);
+      blx.beginPath(); blx.moveTo(cx, cy); blx.lineTo(cx + ux * 200, cy + uy * 200); blx.stroke(); blx.setLineDash([]);
+      const pull = 10 + BL.power * 70;
       blx.strokeStyle = '#c9a06a'; blx.lineWidth = 3; blx.lineCap = 'round';
-      blx.beginPath(); blx.moveTo(cx - ux * (dist + 10), cy - uy * (dist + 10)); blx.lineTo(cx - ux * (dist + 55), cy - uy * (dist + 55)); blx.stroke(); blx.lineCap = 'butt';
-      const pw = dist / 140;
-      blx.fillStyle = '#0f1020'; blx.fillRect(BL_RAIL, BL_CH - 9, BL_PW, 5);
-      blx.fillStyle = pw > 0.8 ? '#b13e53' : (pw > 0.5 ? '#ffcd75' : '#a7f070'); blx.fillRect(BL_RAIL, BL_CH - 9, BL_PW * pw, 5);
+      blx.beginPath(); blx.moveTo(cx - ux * pull, cy - uy * pull); blx.lineTo(cx - ux * (pull + 45), cy - uy * (pull + 45)); blx.stroke(); blx.lineCap = 'butt';
     }
   }
+  blSyncShootBtn();
 }
 function blCanvasPos(e) {
   const r = blcv.getBoundingClientRect();
@@ -4440,12 +4469,17 @@ blcv.addEventListener('pointermove', e => {
 });
 window.addEventListener('pointerup', () => {
   if (BL.placing != null || !BL.dragging) return;
-  BL.dragging = false;
-  const cue = BL.balls.find(b => b.num === 0), p = BL.aimPointer; BL.aimPointer = null;
-  if (!p || !blCanAct()) { blDraw(); return; }
-  const dx = cue.x - p.x, dy = cue.y - p.y, dist = Math.hypot(dx, dy);
-  if (dist < 8) { blDraw(); return; }
-  blShoot(Math.atan2(dy, dx), Math.min(BL_MAXV, Math.min(dist, 140) * BL_POWER_SCALE));
+  BL.dragging = false; blDraw();
+});
+$('#bl-power').addEventListener('input', e => { BL.power = e.target.value / 100; blDraw(); });
+$('#bl-shoot').addEventListener('click', () => {
+  if (!blCanAct() || BL.placing != null) return;
+  const cue = BL.balls.find(b => b.num === 0), p = BL.aimPointer;
+  if (!p) return;
+  const dx = p.x - cue.x, dy = p.y - cue.y, dist = Math.hypot(dx, dy);
+  if (dist < 4) return;
+  BL.aimPointer = null; BL.dragging = false;
+  blShoot(Math.atan2(dy, dx), Math.max(60, BL.power * BL_MAXV));
 });
 
 /* ---- disparo y resolución ---- */
@@ -5740,20 +5774,43 @@ rnLB();
    ========================================================= */
 const GF_CVW = 480, GF_CVH = 300, GF_MARGIN = 20;
 const GF_R = 6, GF_HOLE_R = 10;
-const GF_FRICTION = 210, GF_SAND_FRICTION = 950, GF_REST = 0.7;
-const GF_MAXDRAG = 130, GF_MAXV = 620, GF_POWER_SCALE = GF_MAXV / GF_MAXDRAG;
+const GF_FRICTION = 210, GF_SAND_FRICTION = 950, GF_ICE_FRICTION = 35, GF_REST = 0.7;
+const GF_MAXV = 620;
 const GF_STOP_V = 4, GF_SINK_MAXV = 260, GF_MAX_STROKES = 8;
+const GF_RAMP_MINV = 150, GF_RAMP_AIR_FRICTION = 15;
 const GF_BORDER_WALLS = [
   { x: 0, y: 0, w: GF_CVW, h: GF_MARGIN }, { x: 0, y: GF_CVH - GF_MARGIN, w: GF_CVW, h: GF_MARGIN },
   { x: 0, y: 0, w: GF_MARGIN, h: GF_CVH }, { x: GF_CVW - GF_MARGIN, y: 0, w: GF_MARGIN, h: GF_CVH },
 ];
+/* Cada hoyo puede traer, además de par/inicio/hoyo/paredes/arena/agua:
+   - ice: zonas donde la bola casi no frena (hielo)
+   - wind: { x, y } fuerza del viento en px/s² (con ráfagas: varía según la posición de la bola)
+   - ramps: [{x,y,w,h,dir:'right'|'left'|'up'|'down',dist}] rampas: si entras con suficiente velocidad
+     en esa dirección, saltas por encima de lo que haya en los siguientes `dist` px (sin chocar con
+     paredes/arena/agua mientras estás en el aire). */
 const GF_HOLES = [
-  { par: 2, start: { x: 60, y: 150 }, hole: { x: 420, y: 150 }, walls: [], sand: [], water: [] },
-  { par: 3, start: { x: 90, y: 250 }, hole: { x: 430, y: 90 }, walls: [{ x: 160, y: 160, w: 300, h: 120 }], sand: [], water: [] },
-  { par: 3, start: { x: 60, y: 150 }, hole: { x: 430, y: 150 }, walls: [], sand: [{ x: 150, y: 20, w: 60, h: 140 }, { x: 280, y: 140, w: 60, h: 140 }], water: [] },
-  { par: 4, start: { x: 60, y: 150 }, hole: { x: 430, y: 150 }, walls: [], sand: [], water: [{ x: 340, y: 20, w: 120, h: 110 }, { x: 340, y: 190, w: 120, h: 90 }] },
-  { par: 3, start: { x: 60, y: 60 }, hole: { x: 430, y: 250 }, walls: [{ x: 20, y: 150, w: 200, h: 130 }, { x: 260, y: 20, w: 200, h: 130 }], sand: [], water: [] },
-  { par: 4, start: { x: 60, y: 150 }, hole: { x: 440, y: 150 }, walls: [{ x: 150, y: 80, w: 30, h: 30 }, { x: 250, y: 180, w: 30, h: 30 }, { x: 340, y: 70, w: 30, h: 30 }, { x: 200, y: 220, w: 30, h: 30 }], sand: [], water: [] },
+  { theme: 'parque', par: 2, start: { x: 60, y: 150 }, hole: { x: 420, y: 150 },
+    walls: [{ x: 220, y: 108, w: 26, h: 84 }], sand: [], water: [], ice: [], ramps: [] },
+  { theme: 'bosque', par: 3, start: { x: 70, y: 260 }, hole: { x: 420, y: 55 },
+    walls: [{ x: 150, y: 30, w: 24, h: 130 }, { x: 255, y: 150, w: 24, h: 130 }, { x: 345, y: 25, w: 24, h: 100 }],
+    sand: [], water: [], ice: [{ x: 185, y: 185, w: 100, h: 75 }], ramps: [] },
+  { theme: 'desierto', par: 3, start: { x: 60, y: 150 }, hole: { x: 430, y: 150 },
+    walls: [{ x: 228, y: 40, w: 24, h: 55 }, { x: 228, y: 205, w: 24, h: 55 }],
+    sand: [{ x: 140, y: 20, w: 65, h: 260 }, { x: 300, y: 20, w: 65, h: 260 }], water: [], ice: [], ramps: [],
+    wind: { x: 85, y: 0 } },
+  { theme: 'playa', par: 4, start: { x: 60, y: 150 }, hole: { x: 435, y: 150 },
+    walls: [{ x: 55, y: 35, w: 24, h: 65 }],
+    sand: [{ x: 35, y: 215, w: 120, h: 65 }], water: [{ x: 210, y: 20, w: 140, h: 260 }], ice: [],
+    ramps: [{ x: 158, y: 105, w: 48, h: 90, dir: 'right', dist: 195 }] },
+  { theme: 'nieve', par: 4, start: { x: 60, y: 60 }, hole: { x: 430, y: 250 },
+    walls: [{ x: 145, y: 128, w: 30, h: 30 }, { x: 258, y: 55, w: 30, h: 30 }, { x: 338, y: 188, w: 30, h: 30 }],
+    sand: [], water: [], ice: [{ x: 40, y: 148, w: 400, h: 95 }], ramps: [],
+    wind: { x: -55, y: 55 } },
+  { theme: 'ciudad', par: 5, start: { x: 60, y: 150 }, hole: { x: 440, y: 150 },
+    walls: [{ x: 145, y: 25, w: 34, h: 95 }, { x: 145, y: 180, w: 34, h: 95 }, { x: 345, y: 95, w: 34, h: 110 }],
+    sand: [], water: [{ x: 228, y: 20, w: 75, h: 260 }], ice: [],
+    ramps: [{ x: 205, y: 105, w: 40, h: 90, dir: 'right', dist: 155 }],
+    wind: { x: 45, y: -25 } },
 ];
 const GF_PCOLORS = ['#f4f4f4', '#e83b3b', '#41a6f6', '#ffcd75'];
 const GF = {
@@ -5761,7 +5818,7 @@ const GF = {
   unsubs: [], hbStop: null, _hostTimer: null, resultShown: false, replay: null, _lastSeq: 0,
   state: 'aiming', holeIdx: 0, strokes: 0, totalStrokes: 0, scores: [],
   ball: { x: 0, y: 0, vx: 0, vy: 0 }, lastSafe: { x: 0, y: 0 },
-  dragging: false, aimPointer: null, popup: null, pauseT: 0, pending: null, _acc: 0
+  dragging: false, aimPointer: null, power: .7, popup: null, pauseT: 0, pending: null, _acc: 0
 };
 function gfInZone(ball, zones) { return zones.some(z => ball.x >= z.x && ball.x <= z.x + z.w && ball.y >= z.y && ball.y <= z.y + z.h); }
 function gfCollideRect(ball, rect) {
@@ -5774,23 +5831,48 @@ function gfCollideRect(ball, rect) {
     if (dot < 0) { ball.vx -= (1 + GF_REST) * dot * nx; ball.vy -= (1 + GF_REST) * dot * ny; }
   }
 }
+function gfWindForce(hole, ball) {
+  if (!hole.wind) return { x: 0, y: 0 };
+  const gust = 0.55 + 0.45 * Math.sin(ball.y * 0.05 + ball.x * 0.017);
+  return { x: hole.wind.x * gust, y: hole.wind.y * gust };
+}
+function gfTryRamp(ball, hole) {
+  if (ball.airT > 0 || !hole.ramps || !hole.ramps.length) return;
+  const sp = Math.hypot(ball.vx, ball.vy); if (sp < GF_RAMP_MINV) return;
+  const DIRX = { right: 1, left: -1, up: 0, down: 0 }, DIRY = { right: 0, left: 0, up: -1, down: 1 };
+  for (const r of hole.ramps) {
+    if (ball.x < r.x || ball.x > r.x + r.w || ball.y < r.y || ball.y > r.y + r.h) continue;
+    if (ball.vx * DIRX[r.dir] + ball.vy * DIRY[r.dir] <= 0) continue;
+    ball.airT = ball.airT0 = r.dist / sp;
+    break;
+  }
+}
 function gfPhysicsStep(ball, dt, hole) {
+  if (ball.airT === undefined) { ball.airT = 0; ball.airT0 = 0; }
+  gfTryRamp(ball, hole);
+  const airborne = ball.airT > 0;
+  if (airborne) ball.airT = Math.max(0, ball.airT - dt);
   const sp = Math.hypot(ball.vx, ball.vy);
   if (sp > 0.5) {
-    const fr = gfInZone(ball, hole.sand) ? GF_SAND_FRICTION : GF_FRICTION;
+    const fr = airborne ? GF_RAMP_AIR_FRICTION : (gfInZone(ball, hole.sand) ? GF_SAND_FRICTION : (gfInZone(ball, hole.ice || []) ? GF_ICE_FRICTION : GF_FRICTION));
     const nsp = Math.max(0, sp - fr * dt), k = nsp / sp;
     ball.vx *= k; ball.vy *= k;
   } else { ball.vx = 0; ball.vy = 0; }
+  if (!airborne && Math.hypot(ball.vx, ball.vy) > 0.5) {
+    const wind = gfWindForce(hole, ball);
+    ball.vx += wind.x * dt; ball.vy += wind.y * dt;
+  }
   ball.x += ball.vx * dt; ball.y += ball.vy * dt;
   if (ball.x < GF_R) { ball.x = GF_R; ball.vx = -ball.vx * GF_REST; }
   if (ball.x > GF_CVW - GF_R) { ball.x = GF_CVW - GF_R; ball.vx = -ball.vx * GF_REST; }
   if (ball.y < GF_R) { ball.y = GF_R; ball.vy = -ball.vy * GF_REST; }
   if (ball.y > GF_CVH - GF_R) { ball.y = GF_CVH - GF_R; ball.vy = -ball.vy * GF_REST; }
   for (const w of GF_BORDER_WALLS) gfCollideRect(ball, w);
-  for (const w of hole.walls) gfCollideRect(ball, w);
+  if (!airborne) for (const w of hole.walls) gfCollideRect(ball, w);
 }
 function gfStep(ball, dt, hole) {
   gfPhysicsStep(ball, dt, hole);
+  if (ball.airT > 0) return null; // en el aire por la rampa: no se hunde ni cae al agua todavía
   if (gfInZone(ball, hole.water)) return 'water';
   const dHole = Math.hypot(ball.x - hole.hole.x, ball.y - hole.hole.y);
   if (dHole < GF_HOLE_R && Math.hypot(ball.vx, ball.vy) < GF_SINK_MAXV) return 'sunk';
@@ -5838,7 +5920,7 @@ function gfNextTurn(order, turnIdx, balls) {
 }
 function gfLoadHole(i) {
   const h = GF_HOLES[i];
-  GF.ball = { x: h.start.x, y: h.start.y, vx: 0, vy: 0 };
+  GF.ball = { x: h.start.x, y: h.start.y, vx: 0, vy: 0, airT: 0, airT0: 0 };
   GF.lastSafe = { x: h.start.x, y: h.start.y };
   GF.strokes = 0; GF.state = 'aiming'; GF.popup = null; GF._acc = 0;
 }
@@ -5904,15 +5986,92 @@ function gfTick(dt) {
   else if (GF.pauseT > 0) { GF.pauseT -= dt; if (GF.pauseT <= 0) gfAdvance(); }
 }
 function gfLB() { LB.render($('#gf-lb'), 'golf', true, r => r.score + (r.extra ? ' (' + esc(r.extra) + ')' : '')); }
+const GF_THEMES = {
+  parque: { bg: '#1f4d3a', ground: '#38b764', stripe: 'rgba(255,255,255,.05)' },
+  bosque: { bg: '#0f2a1a', ground: '#2f8f4e', stripe: 'rgba(0,0,0,.1)' },
+  desierto: { bg: '#7a5a2e', ground: '#d9b35c', stripe: 'rgba(255,255,255,.08)' },
+  playa: { bg: '#0e4a63', ground: '#e8d9a0', stripe: 'rgba(255,255,255,.12)' },
+  nieve: { bg: '#233252', ground: '#eef4fb', stripe: 'rgba(120,150,200,.18)' },
+  ciudad: { bg: '#101022', ground: '#3a3f52', stripe: 'rgba(255,255,255,.05)' },
+};
+function gfDrawObstacle(ctx, w, theme) {
+  const cx = Math.round(w.x + w.w / 2), topY = Math.round(w.y);
+  switch (theme) {
+    case 'bosque':
+      ctx.fillStyle = '#6b4226'; ctx.fillRect(w.x, w.y, w.w, w.h);
+      ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.fillRect(w.x, w.y, w.w, 3);
+      pxCircle(ctx, cx, topY - 8, w.w * 0.85, '#2f8f4e'); pxCircle(ctx, cx, topY - 8, w.w * 0.55, '#3fae5e');
+      return;
+    case 'desierto':
+      ctx.fillStyle = '#3d7a3d';
+      ctx.fillRect(w.x + w.w * 0.32, w.y, w.w * 0.36, w.h);
+      ctx.fillRect(w.x, w.y + w.h * 0.28, w.w * 0.34, w.h * 0.2);
+      ctx.fillRect(w.x + w.w * 0.66, w.y + w.h * 0.48, w.w * 0.34, w.h * 0.2);
+      ctx.fillStyle = 'rgba(0,0,0,.2)'; ctx.fillRect(w.x + w.w * 0.32, w.y, 2, w.h);
+      return;
+    case 'playa':
+      ctx.fillStyle = '#8a6a3a'; ctx.fillRect(w.x + w.w * 0.36, w.y, w.w * 0.28, w.h);
+      pxCircle(ctx, cx, topY - 6, w.w * 0.8, '#38b764'); pxCircle(ctx, cx, topY - 6, w.w * 0.5, '#4fd274');
+      return;
+    case 'nieve':
+      ctx.fillStyle = '#8a94a8'; ctx.fillRect(w.x, w.y + w.h * 0.22, w.w, w.h * 0.78);
+      ctx.fillStyle = '#eef4fb'; ctx.fillRect(w.x, w.y, w.w, w.h * 0.28);
+      return;
+    case 'ciudad':
+      ctx.fillStyle = '#5a6478'; ctx.fillRect(w.x, w.y, w.w, w.h);
+      ctx.fillStyle = '#ffcd75';
+      for (let yy = w.y + 6; yy < w.y + w.h - 4; yy += 12) for (let xx = w.x + 4; xx < w.x + w.w - 4; xx += 10) ctx.fillRect(xx, yy, 4, 5);
+      return;
+    default:
+      ctx.fillStyle = '#566c86'; ctx.fillRect(w.x, w.y, w.w, w.h);
+      ctx.fillStyle = 'rgba(255,255,255,.25)'; ctx.fillRect(w.x, w.y, w.w, 2); ctx.fillRect(w.x, w.y, 2, w.h);
+      ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.fillRect(w.x, w.y + w.h - 2, w.w, 2); ctx.fillRect(w.x + w.w - 2, w.y, 2, w.h);
+  }
+}
+function gfDrawIce(ctx, z) {
+  ctx.fillStyle = '#dceeff'; ctx.fillRect(z.x, z.y, z.w, z.h);
+  ctx.fillStyle = 'rgba(255,255,255,.65)';
+  for (let i = 6; i < z.w; i += 16) ctx.fillRect(z.x + i, z.y + 5, 8, 2);
+  ctx.strokeStyle = 'rgba(120,170,220,.7)'; ctx.lineWidth = 1; ctx.strokeRect(z.x + 1, z.y + 1, z.w - 2, z.h - 2);
+}
+function gfDrawRamp(ctx, r) {
+  ctx.fillStyle = '#a9773f'; ctx.fillRect(r.x, r.y, r.w, r.h);
+  ctx.fillStyle = 'rgba(0,0,0,.25)';
+  for (let i = 3; i < Math.max(r.w, r.h); i += 6) ctx.fillRect(r.x, r.y + (r.dir === 'up' || r.dir === 'down' ? 0 : i), r.dir === 'up' || r.dir === 'down' ? r.w : 2, r.dir === 'up' || r.dir === 'down' ? 2 : r.h);
+  const cx = r.x + r.w / 2, cy = r.y + r.h / 2;
+  const ar = { right: [1, 0], left: [-1, 0], up: [0, -1], down: [0, 1] }[r.dir];
+  ctx.fillStyle = '#ffe14d'; ctx.beginPath();
+  ctx.moveTo(cx + ar[0] * 15, cy + ar[1] * 15);
+  ctx.lineTo(cx - ar[0] * 7 - ar[1] * 9, cy - ar[1] * 7 - ar[0] * 9);
+  ctx.lineTo(cx - ar[0] * 7 + ar[1] * 9, cy - ar[1] * 7 + ar[0] * 9);
+  ctx.closePath(); ctx.fill();
+}
+function gfDrawWind(ctx, hole) {
+  if (!hole.wind) return;
+  const ang = Math.atan2(hole.wind.y, hole.wind.x), ux = Math.cos(ang), uy = Math.sin(ang);
+  const now = performance.now() / 1000, span = GF_CVW + GF_CVH;
+  ctx.strokeStyle = 'rgba(255,255,255,.4)'; ctx.lineWidth = 2; ctx.lineCap = 'round';
+  for (let i = 0; i < 7; i++) {
+    const baseX = GF_MARGIN + 20 + (i * 53) % (GF_CVW - GF_MARGIN * 2 - 40);
+    const baseY = GF_MARGIN + 20 + (i * 37) % (GF_CVH - GF_MARGIN * 2 - 40);
+    const t = ((now * 100 + i * 60) % span);
+    const px = baseX + ux * t, py = baseY + uy * t;
+    if (px < GF_MARGIN + 4 || px > GF_CVW - GF_MARGIN - 4 || py < GF_MARGIN + 4 || py > GF_CVH - GF_MARGIN - 4) continue;
+    ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px - ux * 13, py - uy * 13); ctx.stroke();
+  }
+  ctx.lineCap = 'butt';
+}
 function gfDraw() {
   const cv = $('#gf-cv'); if (!cv || !cv.offsetParent) return;
   const ctx = cv.getContext('2d'); ctx.imageSmoothingEnabled = false; ctx.textAlign = 'center';
   const holeIdx = GF.mode === 'online' ? (GF.roomData ? GF.roomData.holeIdx : 0) : GF.holeIdx;
   const hole = GF_HOLES[holeIdx] || GF_HOLES[0];
-  ctx.fillStyle = '#1f4d3a'; ctx.fillRect(0, 0, GF_CVW, GF_CVH);
-  ctx.fillStyle = '#38b764'; ctx.fillRect(GF_MARGIN, GF_MARGIN, GF_CVW - GF_MARGIN * 2, GF_CVH - GF_MARGIN * 2);
-  ctx.fillStyle = 'rgba(255,255,255,.05)';
+  const theme = GF_THEMES[hole.theme] || GF_THEMES.parque;
+  ctx.fillStyle = theme.bg; ctx.fillRect(0, 0, GF_CVW, GF_CVH);
+  ctx.fillStyle = theme.ground; ctx.fillRect(GF_MARGIN, GF_MARGIN, GF_CVW - GF_MARGIN * 2, GF_CVH - GF_MARGIN * 2);
+  ctx.fillStyle = theme.stripe;
   for (let i = GF_MARGIN; i < GF_CVW - GF_MARGIN; i += 24) ctx.fillRect(i, GF_MARGIN, 10, GF_CVH - GF_MARGIN * 2);
+  (hole.ice || []).forEach(z => gfDrawIce(ctx, z));
   ctx.fillStyle = '#e8c170'; hole.sand.forEach(z => ctx.fillRect(z.x, z.y, z.w, z.h));
   hole.water.forEach(z => {
     const g = ctx.createLinearGradient(z.x, z.y, z.x, z.y + z.h);
@@ -5921,25 +6080,21 @@ function gfDraw() {
     ctx.fillStyle = 'rgba(255,255,255,.3)';
     for (let i = 0; i < z.w; i += 10) ctx.fillRect(z.x + i, z.y + 6 + (Math.sin(i / 8 + performance.now() / 300) > 0 ? 2 : 0), 5, 2);
   });
-  hole.walls.forEach(w => {
-    ctx.fillStyle = '#566c86'; ctx.fillRect(w.x, w.y, w.w, w.h);
-    ctx.fillStyle = 'rgba(255,255,255,.25)'; ctx.fillRect(w.x, w.y, w.w, 2); ctx.fillRect(w.x, w.y, 2, w.h);
-    ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.fillRect(w.x, w.y + w.h - 2, w.w, 2); ctx.fillRect(w.x + w.w - 2, w.y, 2, w.h);
-  });
+  (hole.ramps || []).forEach(r => gfDrawRamp(ctx, r));
+  hole.walls.forEach(w => gfDrawObstacle(ctx, w, hole.theme));
+  gfDrawWind(ctx, hole);
   pxCircle(ctx, hole.hole.x, hole.hole.y, GF_HOLE_R, '#0a0a0a'); pxCircle(ctx, hole.hole.x, hole.hole.y, GF_HOLE_R - 3, '#123018');
   ctx.fillStyle = '#caa15b'; ctx.fillRect(hole.hole.x - 1, hole.hole.y - 40, 2, 40);
   ctx.fillStyle = '#e83b3b'; ctx.beginPath(); ctx.moveTo(hole.hole.x + 1, hole.hole.y - 40); ctx.lineTo(hole.hole.x + 16, hole.hole.y - 34); ctx.lineTo(hole.hole.x + 1, hole.hole.y - 28); ctx.closePath(); ctx.fill();
-  function gfDrawAim(bx, by, dragX, dragY) {
-    const dx0 = bx - dragX, dy0 = by - dragY, dist = Math.min(GF_MAXDRAG, Math.hypot(dx0, dy0));
+  function gfDrawAim(bx, by, aimX, aimY) {
+    const dx0 = aimX - bx, dy0 = aimY - by, dist = Math.hypot(dx0, dy0);
     if (dist <= 4) return;
     const ang = Math.atan2(dy0, dx0), ux = Math.cos(ang), uy = Math.sin(ang);
     ctx.strokeStyle = 'rgba(244,244,244,.85)'; ctx.lineWidth = 1; ctx.setLineDash([4, 3]);
-    ctx.beginPath(); ctx.moveTo(bx, by); ctx.lineTo(bx + ux * 160, by + uy * 160); ctx.stroke(); ctx.setLineDash([]);
+    ctx.beginPath(); ctx.moveTo(bx, by); ctx.lineTo(bx + ux * 180, by + uy * 180); ctx.stroke(); ctx.setLineDash([]);
+    const pull = 8 + GF.power * 55;
     ctx.strokeStyle = '#c9a06a'; ctx.lineWidth = 3; ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.moveTo(bx - ux * (dist + 8), by - uy * (dist + 8)); ctx.lineTo(bx - ux * (dist + 40), by - uy * (dist + 40)); ctx.stroke(); ctx.lineCap = 'butt';
-    const pw = dist / GF_MAXDRAG;
-    ctx.fillStyle = '#0f1020'; ctx.fillRect(GF_MARGIN, GF_CVH - 14, GF_CVW - GF_MARGIN * 2, 6);
-    ctx.fillStyle = pw > 0.8 ? '#b13e53' : (pw > 0.5 ? '#ffcd75' : '#a7f070'); ctx.fillRect(GF_MARGIN, GF_CVH - 14, (GF_CVW - GF_MARGIN * 2) * pw, 6);
+    ctx.beginPath(); ctx.moveTo(bx - ux * pull, by - uy * pull); ctx.lineTo(bx - ux * (pull + 42), by - uy * (pull + 42)); ctx.stroke(); ctx.lineCap = 'butt';
   }
   if (GF.mode === 'online') {
     const d = GF.roomData;
@@ -5953,7 +6108,7 @@ function gfDraw() {
         if (uid === UID) { ctx.strokeStyle = 'rgba(0,0,0,.6)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(pos.x, pos.y, GF_R + 1.5, 0, Math.PI * 2); ctx.stroke(); }
       });
       const myTurn = !GF.spectating && d.state === 'play' && !GF.replay && d.order[d.turnIdx] === UID;
-      if (myTurn && GF.dragging && GF.aimPointer) { const mine = d.balls[UID]; gfDrawAim(mine.x, mine.y, GF.aimPointer.x, GF.aimPointer.y); }
+      if (myTurn && GF.aimPointer) { const mine = d.balls[UID]; gfDrawAim(mine.x, mine.y, GF.aimPointer.x, GF.aimPointer.y); }
       else if (!GF.spectating && d.state === 'play' && !GF.replay && d.order[d.turnIdx] !== UID) {
         ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.fillRect(0, 0, GF_CVW, GF_CVH);
         ctx.fillStyle = '#fff4e0'; ctx.font = '10px "Press Start 2P"'; ctx.fillText('ESPERANDO TURNO…', GF_CVW / 2, GF_CVH / 2);
@@ -5968,16 +6123,35 @@ function gfDraw() {
       const turnUid = d.order && d.order[d.turnIdx], turnName = turnUid ? ((GF.roomPlayers[turnUid] || {}).name || '?') : '';
       $('#gf-score').textContent = d.state === 'play' ? (turnUid === UID ? 'TU TURNO' : `TURNO DE ${esc(turnName)}`) : '';
     }
+    gfSyncShootBtn();
     return;
   }
-  pxCircle(ctx, GF.ball.x, GF.ball.y, GF_R, '#f4f4f4');
-  if (GF.state === 'aiming' && GF.dragging && GF.aimPointer) gfDrawAim(GF.ball.x, GF.ball.y, GF.aimPointer.x, GF.aimPointer.y);
+  if (GF.ball.airT > 0) {
+    const prog = 1 - GF.ball.airT / (GF.ball.airT0 || GF.ball.airT), lift = Math.sin(prog * Math.PI) * 22;
+    ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.fillRect(Math.round(GF.ball.x - GF_R), Math.round(GF.ball.y - 2), GF_R * 2, 4);
+    pxCircle(ctx, GF.ball.x, GF.ball.y - lift, GF_R, '#f4f4f4');
+  } else {
+    pxCircle(ctx, GF.ball.x, GF.ball.y, GF_R, '#f4f4f4');
+  }
+  if (GF.state === 'aiming' && GF.aimPointer) gfDrawAim(GF.ball.x, GF.ball.y, GF.aimPointer.x, GF.aimPointer.y);
   if (GF.popup && GF.popup.life > 0) {
     ctx.fillStyle = 'rgba(0,0,0,.4)'; ctx.fillRect(0, GF_CVH / 2 - 20, GF_CVW, 32);
     ctx.fillStyle = '#ffe14d'; ctx.font = '12px "Press Start 2P"'; ctx.fillText(GF.popup.txt, GF_CVW / 2, GF_CVH / 2 + 4);
   }
   $('#gf-status').textContent = `HOYO ${GF.holeIdx + 1}/${GF_HOLES.length} · PAR ${hole.par}`;
   $('#gf-score').textContent = `GOLPES: ${GF.strokes} · TOTAL: ${GF.totalStrokes}`;
+  gfSyncShootBtn();
+}
+function gfSyncShootBtn() {
+  let canShoot, ball;
+  if (GF.mode === 'online') {
+    const d = GF.roomData;
+    canShoot = !GF.spectating && d && d.order && d.state === 'play' && !GF.replay && d.order[d.turnIdx] === UID;
+    ball = canShoot && d.balls[UID];
+  } else { canShoot = GF.state === 'aiming'; ball = GF.ball; }
+  const aimed = GF.aimPointer && ball && Math.hypot(GF.aimPointer.x - ball.x, GF.aimPointer.y - ball.y) > 4;
+  $('#gf-shoot').disabled = !canShoot || !aimed;
+  $('#gf-power').disabled = !canShoot;
 }
 function gfCanvasPos(e) {
   const r = gfcv.getBoundingClientRect();
@@ -5998,21 +6172,26 @@ gfcv.addEventListener('pointerdown', e => {
 gfcv.addEventListener('pointermove', e => { if (GF.dragging) { GF.aimPointer = gfCanvasPos(e); gfDraw(); } });
 window.addEventListener('pointerup', () => {
   if (!GF.dragging) return;
-  GF.dragging = false;
-  const p = GF.aimPointer; GF.aimPointer = null;
-  if (!p) { gfDraw(); return; }
+  GF.dragging = false; gfDraw();
+});
+$('#gf-power').addEventListener('input', e => { GF.power = e.target.value / 100; gfDraw(); });
+$('#gf-shoot').addEventListener('click', () => {
+  const p = GF.aimPointer; if (!p) return;
+  const power = Math.max(70, GF.power * GF_MAXV);
   if (GF.mode === 'online') {
-    const d = GF.roomData; if (!d || !d.balls || !d.balls[UID]) { gfDraw(); return; }
-    const mine = d.balls[UID], dx = mine.x - p.x, dy = mine.y - p.y, dist = Math.hypot(dx, dy);
-    if (!(dist >= 6)) { gfDraw(); return; }
-    const angle = Math.atan2(dy, dx), power = Math.min(GF_MAXV, Math.min(dist, GF_MAXDRAG) * GF_POWER_SCALE);
-    SFX.play('throw'); gfOnlineShoot(Math.cos(angle) * power, Math.sin(angle) * power);
+    const d = GF.roomData;
+    if (GF.spectating || !d || !d.order || d.state !== 'play' || GF.replay || d.order[d.turnIdx] !== UID || !d.balls || !d.balls[UID]) return;
+    const mine = d.balls[UID], dx = p.x - mine.x, dy = p.y - mine.y, dist = Math.hypot(dx, dy);
+    if (!(dist >= 4)) return;
+    const angle = Math.atan2(dy, dx);
+    GF.aimPointer = null; SFX.play('throw'); gfOnlineShoot(Math.cos(angle) * power, Math.sin(angle) * power);
     return;
   }
-  if (GF.state !== 'aiming') { gfDraw(); return; }
-  const dx = GF.ball.x - p.x, dy = GF.ball.y - p.y, dist = Math.hypot(dx, dy);
-  if (!(dist >= 6)) { gfDraw(); return; }
-  const angle = Math.atan2(dy, dx), power = Math.min(GF_MAXV, Math.min(dist, GF_MAXDRAG) * GF_POWER_SCALE);
+  if (GF.state !== 'aiming') return;
+  const dx = p.x - GF.ball.x, dy = p.y - GF.ball.y, dist = Math.hypot(dx, dy);
+  if (!(dist >= 4)) return;
+  const angle = Math.atan2(dy, dx);
+  GF.aimPointer = null;
   GF.ball.vx = Math.cos(angle) * power; GF.ball.vy = Math.sin(angle) * power;
   GF.strokes++; GF.state = 'rolling'; SFX.play('throw');
 });
