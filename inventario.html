@@ -14,6 +14,8 @@
     href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&display=swap"
     rel="stylesheet">
   <script src="assets/firebase-config.js"></script>
+  <script src="assets/js/inventario-codigos.js"></script>
+  <script src="assets/js/inventario-categorias.js"></script>
   <style>
     @media (max-width: 767px) {
       #inv-hero-row {
@@ -438,66 +440,25 @@
       <h2 id="admin-modal-title" class="mt-2 font-sans text-xl font-bold">Nuevo bien</h2>
       <form id="admin-item-form" class="mt-5 space-y-4">
         <div id="admin-fields" class="space-y-4"></div>
-        <button type="submit" id="admin-submit-btn"
-          class="h-11 w-full rounded-[9px] bg-[#0D2B45] font-sans text-sm font-bold text-white">Guardar</button>
+        <div class="flex gap-3">
+          <button type="button" id="admin-duplicate-btn" hidden
+            class="h-11 px-5 rounded-[9px] border border-[#9DB6C1] font-sans text-sm font-bold text-[#0D2B45] flex-shrink-0"
+            title="Crea otro bien igual con el siguiente código"><i class="fa-solid fa-clone mr-2"></i>Duplicar</button>
+          <button type="submit" id="admin-submit-btn"
+            class="h-11 flex-1 rounded-[9px] bg-[#0D2B45] font-sans text-sm font-bold text-white">Guardar</button>
+        </div>
         <p id="admin-status" role="status" class="text-sm" hidden></p>
       </form>
     </article>
   </div>
 
-  <datalist id="cat-aematec">
-    <option>Equipo tecnológico</option>
-    <option>Mobiliario</option>
-    <option>Electrodoméstico</option>
-    <option>Material didáctico</option>
-    <option>Decoración</option>
-    <option>Herramientas</option>
-    <option>Cocina</option>
-    <option>Juegos</option>
-    <option>Limpieza</option>
-    <option>Otro</option>
-  </datalist>
-  <datalist id="cat-biblioteca">
-    <option>Álgebra</option>
-    <option>Álgebra Lineal</option>
-    <option>Geometría</option>
-    <option>Probabilidad</option>
-    <option>Estadística</option>
-    <option>Cálculo</option>
-    <option>Trigonometría</option>
-  </datalist>
-  <datalist id="cat-consumible">
-    <option>Cocina</option>
-    <option>Limpieza</option>
-    <option>Oficina</option>
-    <option>Otro</option>
-  </datalist>
-  <datalist id="cat-estados">
-    <option>Excelente</option>
-    <option>Bueno</option>
-    <option>Regular</option>
-    <option>Malo</option>
-    <option>En reparación</option>
-    <option>Extraviado</option>
-  </datalist>
-  <datalist id="cat-ubicaciones">
-    <option>Escritorio</option>
-    <option>Biblioteca</option>
-    <option>Librería</option>
-    <option>Estantería</option>
-    <option>Gabinete 1</option>
-    <option>Gabinete 2</option>
-    <option>Gabinete 3</option>
-    <option>Gabinete 4</option>
-    <option>Mueble refrigeradora</option>
-  </datalist>
-
   <script type="module">
     import { app } from "./assets/js/firebase.js";
     import { escapeHtml } from "./assets/js/util.js";
     import { tieneRol } from "./assets/js/roles.js";
+    import { conectarSugerencias } from "./assets/js/sugerencias.js";
     import {
-      getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, getDoc, serverTimestamp
+      getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, getDoc, serverTimestamp, deleteField
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
     import {
       getAuth, onAuthStateChanged, browserSessionPersistence, setPersistence,
@@ -520,6 +481,22 @@
       consumible: { categoria: true, estado: false, ubicacion: true, disponible: false, bajoStock: true }
     };
     const PAGE_SIZE = { institucional: 8, aematec: 8, biblioteca: 16, consumible: 8 };
+
+    // Sugerencias de los formularios de la Junta. Se suman a los valores que ya existen en el inventario.
+    const SUGERENCIAS = {
+      categoria: {
+        aematec: ["Equipo tecnológico", "Mobiliario", "Electrodoméstico", "Material didáctico", "Decoración", "Herramientas", "Cocina", "Juegos", "Limpieza", "Otro"],
+        biblioteca: window.InventarioCategorias.CANONICAS,
+        consumible: ["Cocina", "Limpieza", "Oficina", "Otro"]
+      },
+      estado: ["Excelente", "Bueno", "Regular", "Malo", "En reparación", "Falta comprobar", "Extraviado", "Regalado", "Vendido", "Dado de baja"],
+      ubicacion: ["Escritorio", "Biblioteca", "Librería", "Estantería", "Gabinete 1", "Gabinete 2", "Gabinete 3", "Gabinete 4", "Mueble refrigeradora"]
+    };
+    // Estado con el que entra un bien duplicado, hasta que la Junta lo revise en físico.
+    const ESTADO_POR_REVISAR = "Falta comprobar";
+    const Codigos = window.InventarioCodigos;
+    const Categorias = window.InventarioCategorias;
+    const MAX_CATEGORIAS_LIBRO = Categorias.MAX_CATEGORIAS;
 
     let itemsByTipo = { institucional: [], aematec: [], biblioteca: [], consumible: [] };
     let activeTab = "institucional";
@@ -559,8 +536,39 @@
       renderGrid();
     }
 
+    // Los libros guardan varias categorías en `categorias` (lista) y se muestran con los nombres unificados
+    // de assets/js/inventario-categorias.js. Los que aún no se migran tienen `categoria` como texto,
+    // a veces con varias separadas por "/" (ver scripts/categorias/migrar.js).
+    function categoriasDe(item) {
+      if (item.tipo === "biblioteca") return Categorias.categoriasDeLibro(item);
+      return String(item.categoria || "").split("/").map(value => value.trim()).filter(Boolean);
+    }
+
+    // Filtro de la Biblioteca: las categorías van agrupadas y se puede elegir un grupo entero.
+    function fillGroupedCategorySelect(select, values) {
+      const current = select.value;
+      const groups = new Map();
+      for (const value of values) {
+        const group = Categorias.grupoDe(value) || "Otras";
+        if (!groups.has(group)) groups.set(group, []);
+        groups.get(group).push(value);
+      }
+      const sorted = [...groups.entries()].sort((a, b) => (a[0] === "Otras") - (b[0] === "Otras") || a[0].localeCompare(b[0], "es"));
+      select.innerHTML = `<option value="">Todas las categorías</option>` + sorted.map(([group, list]) =>
+        `<optgroup label="${escapeHtml(group)}">`
+        + (group === "Otras" ? "" : `<option value="grupo:${escapeHtml(group)}">Todo: ${escapeHtml(group)}</option>`)
+        + list.map(value => `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`).join("")
+        + "</optgroup>").join("");
+      select.value = [...select.options].some(option => option.value === current) ? current : "";
+    }
+
     function uniqueValues(list, field) {
-      return [...new Set(list.map(item => (item[field] || "").trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b, "es"));
+      const values = field === "categoria"
+        ? list.flatMap(categoriasDe)
+        : list.flatMap(item => field === "ubicacion" || field === "estado"
+          ? [item[field], ...(item.ejemplares || []).map(exemplar => exemplar[field])]
+          : [item[field]]);
+      return [...new Set(values.map(value => String(value || "").trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b, "es"));
     }
 
     function fillSelect(select, values, placeholder) {
@@ -577,7 +585,8 @@
       document.querySelector("#filter-ubicacion-wrap").hidden = !config.ubicacion;
       document.querySelector("#filter-disponible-wrap").hidden = !config.disponible;
       document.querySelector("#filter-bajostock-wrap").hidden = !config.bajoStock;
-      if (config.categoria) fillSelect(document.querySelector("#filter-categoria"), uniqueValues(list, "categoria"), "Todas las categorías");
+      if (config.categoria && tipo === "biblioteca") fillGroupedCategorySelect(document.querySelector("#filter-categoria"), uniqueValues(list, "categoria"));
+      else if (config.categoria) fillSelect(document.querySelector("#filter-categoria"), uniqueValues(list, "categoria"), "Todas las categorías");
       if (config.estado) fillSelect(document.querySelector("#filter-estado"), uniqueValues(list, "estado"), "Todos los estados");
       if (config.ubicacion) fillSelect(document.querySelector("#filter-ubicacion"), uniqueValues(list, "ubicacion"), "Todas las ubicaciones");
     }
@@ -617,7 +626,7 @@
 
     function searchableText(item) {
       return [
-        item.codigo, item.nombre, item.titulo, item.autor, item.categoria, item.articulo,
+        item.codigo, item.nombre, item.titulo, item.autor, ...categoriasDe(item), item.articulo,
         item.ubicacion, item.descripcion, item.marca
       ].filter(Boolean).join(" ").toLowerCase();
     }
@@ -632,7 +641,12 @@
       const ubicacionFilter = document.querySelector("#filter-ubicacion").value;
       const disponibleFilter = document.querySelector("#filter-disponible").checked;
       const bajoStockFilter = document.querySelector("#filter-bajostock").checked;
-      if (categoriaFilter) list = list.filter(item => (item.categoria || "") === categoriaFilter);
+      if (categoriaFilter.startsWith("grupo:")) {
+        const group = categoriaFilter.slice("grupo:".length);
+        list = list.filter(item => categoriasDe(item).some(categoria => Categorias.grupoDe(categoria) === group));
+      } else if (categoriaFilter) {
+        list = list.filter(item => categoriasDe(item).includes(categoriaFilter));
+      }
       if (estadoFilter) list = list.filter(item => (item.estado || "") === estadoFilter);
       if (ubicacionFilter) list = list.filter(item => (item.ubicacion || "") === ubicacionFilter);
       if (disponibleFilter) list = list.filter(item => (item.ejemplares || []).some(exemplar => exemplar.disponible));
@@ -831,7 +845,7 @@
           fieldRow("Autor", escapeHtml(item.autor)),
           fieldRow("Edición", escapeHtml(item.edicion)),
           fieldRow("Año", escapeHtml(item.anio)),
-          fieldRow("Categoría", escapeHtml(item.categoria)),
+          fieldRow("Categorías", escapeHtml(categoriasDe(item).join(", ")) || null),
           fieldRow("Observaciones", escapeHtml(item.observaciones))
         ].join("") + `<div class="col-span-2"><dt>Ejemplares</dt><dd><ul class="mt-1 text-sm">${ejemplaresHtml}</ul></dd></div>`;
       }
@@ -966,8 +980,8 @@
       return `
         <div class="exemplar-row" id="${rowId}">
           <input type="text" placeholder="Código" value="${escapeHtml(exemplar.codigo || "")}" data-exemplar="codigo" required class="h-10 rounded-[8px] border border-[#BFD0D8] px-2 text-sm">
-          <input type="text" list="cat-estados" placeholder="Estado" value="${escapeHtml(exemplar.estado || "")}" data-exemplar="estado" class="h-10 rounded-[8px] border border-[#BFD0D8] px-2 text-sm">
-          <input type="text" list="cat-ubicaciones" placeholder="Ubicación" value="${escapeHtml(exemplar.ubicacion || "Biblioteca")}" data-exemplar="ubicacion" class="h-10 rounded-[8px] border border-[#BFD0D8] px-2 text-sm">
+          <input type="text" data-sugerencias="estado" placeholder="Estado" value="${escapeHtml(exemplar.estado || "")}" data-exemplar="estado" class="h-10 rounded-[8px] border border-[#BFD0D8] px-2 text-sm">
+          <input type="text" data-sugerencias="ubicacion" placeholder="Ubicación" value="${escapeHtml(exemplar.ubicacion || "Biblioteca")}" data-exemplar="ubicacion" class="h-10 rounded-[8px] border border-[#BFD0D8] px-2 text-sm">
           <label class="flex items-center gap-1 text-xs"><input type="checkbox" data-exemplar="disponible" ${exemplar.disponible !== false ? "checked" : ""} class="accent-[#00AFC1]">Disp.</label>
           <button type="button" data-remove-row="${rowId}" class="h-9 w-9 rounded-[8px] border border-[#E2A0A0] text-[#C2413B]"><i class="fa-solid fa-xmark"></i></button>
         </div>`;
@@ -984,10 +998,10 @@
           <div><label class="font-sans text-xs font-bold">Descripción</label><textarea name="descripcion" rows="2" class="mt-2 w-full rounded-[9px] border border-[#BFD0D8] px-3 py-2">${escapeHtml(item.descripcion)}</textarea></div>
           <div class="grid grid-cols-2 gap-4">
             <div><label class="font-sans text-xs font-bold">Marca</label><input name="marca" value="${escapeHtml(item.marca)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
-            <div><label class="font-sans text-xs font-bold">Estado</label><input name="estado" list="cat-estados" value="${escapeHtml(item.estado)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+            <div><label class="font-sans text-xs font-bold">Estado</label><input name="estado" data-sugerencias="estado" value="${escapeHtml(item.estado)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
           </div>
           <div class="grid grid-cols-2 gap-4">
-            <div><label class="font-sans text-xs font-bold">Ubicación</label><input name="ubicacion" list="cat-ubicaciones" value="${escapeHtml(item.ubicacion)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+            <div><label class="font-sans text-xs font-bold">Ubicación</label><input name="ubicacion" data-sugerencias="ubicacion" value="${escapeHtml(item.ubicacion)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
             <div><label class="font-sans text-xs font-bold">Custodio</label><input name="responsable" value="${escapeHtml(item.responsable || "AEMATEC")}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
           </div>
           <div><label class="font-sans text-xs font-bold">Observaciones</label><textarea name="observaciones" rows="2" class="mt-2 w-full rounded-[9px] border border-[#BFD0D8] px-3 py-2">${escapeHtml(item.observaciones)}</textarea></div>`;
@@ -996,7 +1010,7 @@
         return `
           <div class="grid grid-cols-2 gap-4">
             <div><label class="font-sans text-xs font-bold">Código</label><input name="codigo" required value="${escapeHtml(item.codigo)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
-            <div><label class="font-sans text-xs font-bold">Categoría</label><input name="categoria" list="cat-aematec" required value="${escapeHtml(item.categoria)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+            <div><label class="font-sans text-xs font-bold">Categoría</label><input name="categoria" data-sugerencias="categoria" required value="${escapeHtml(item.categoria)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
           </div>
           <div><label class="font-sans text-xs font-bold">Nombre del activo</label><input name="nombre" required value="${escapeHtml(item.nombre)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
           <div><label class="font-sans text-xs font-bold">Descripción</label><textarea name="descripcion" rows="2" class="mt-2 w-full rounded-[9px] border border-[#BFD0D8] px-3 py-2">${escapeHtml(item.descripcion)}</textarea></div>
@@ -1005,8 +1019,8 @@
             <div><label class="font-sans text-xs font-bold">Valor (₡)</label><input name="valor" type="number" min="0" value="${escapeHtml(item.valor)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
           </div>
           <div class="grid grid-cols-2 gap-4">
-            <div><label class="font-sans text-xs font-bold">Estado</label><input name="estado" list="cat-estados" value="${escapeHtml(item.estado)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
-            <div><label class="font-sans text-xs font-bold">Ubicación</label><input name="ubicacion" list="cat-ubicaciones" value="${escapeHtml(item.ubicacion)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+            <div><label class="font-sans text-xs font-bold">Estado</label><input name="estado" data-sugerencias="estado" value="${escapeHtml(item.estado)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+            <div><label class="font-sans text-xs font-bold">Ubicación</label><input name="ubicacion" data-sugerencias="ubicacion" value="${escapeHtml(item.ubicacion)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
           </div>
           <div><label class="font-sans text-xs font-bold">Responsable</label><input name="responsable" value="${escapeHtml(item.responsable || "AEMATEC")}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
           <div><label class="font-sans text-xs font-bold">Observaciones</label><textarea name="observaciones" rows="2" class="mt-2 w-full rounded-[9px] border border-[#BFD0D8] px-3 py-2">${escapeHtml(item.observaciones)}</textarea></div>`;
@@ -1015,7 +1029,7 @@
         return `
           <div class="grid grid-cols-2 gap-4">
             <div><label class="font-sans text-xs font-bold">Código</label><input name="codigo" required value="${escapeHtml(item.codigo)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
-            <div><label class="font-sans text-xs font-bold">Categoría</label><input name="categoria" list="cat-consumible" required value="${escapeHtml(item.categoria)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+            <div><label class="font-sans text-xs font-bold">Categoría</label><input name="categoria" data-sugerencias="categoria" required value="${escapeHtml(item.categoria)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
           </div>
           <div><label class="font-sans text-xs font-bold">Artículo</label><input name="articulo" required value="${escapeHtml(item.articulo)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
           <div class="grid grid-cols-3 gap-4">
@@ -1023,7 +1037,7 @@
             <div><label class="font-sans text-xs font-bold">Existencia actual</label><input name="existenciaActual" type="number" min="0" value="${escapeHtml(item.existenciaActual ?? 0)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
             <div><label class="font-sans text-xs font-bold">Existencia mínima</label><input name="existenciaMinima" type="number" min="0" value="${escapeHtml(item.existenciaMinima ?? 0)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
           </div>
-          <div><label class="font-sans text-xs font-bold">Ubicación</label><input name="ubicacion" list="cat-ubicaciones" value="${escapeHtml(item.ubicacion)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+          <div><label class="font-sans text-xs font-bold">Ubicación</label><input name="ubicacion" data-sugerencias="ubicacion" value="${escapeHtml(item.ubicacion)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
           <div><label class="font-sans text-xs font-bold">Observaciones</label><textarea name="observaciones" rows="2" class="mt-2 w-full rounded-[9px] border border-[#BFD0D8] px-3 py-2">${escapeHtml(item.observaciones)}</textarea></div>`;
       }
       exemplarRowCount = 0;
@@ -1032,11 +1046,11 @@
       return `
         <div><label class="font-sans text-xs font-bold">Título</label><input name="titulo" required value="${escapeHtml(item.titulo)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
         <div><label class="font-sans text-xs font-bold">Autor</label><input name="autor" required value="${escapeHtml(item.autor)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
-        <div class="grid grid-cols-3 gap-4">
+        <div class="grid grid-cols-2 gap-4">
           <div><label class="font-sans text-xs font-bold">Edición</label><input name="edicion" value="${escapeHtml(item.edicion || "N/A")}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
           <div><label class="font-sans text-xs font-bold">Año</label><input name="anio" value="${escapeHtml(item.anio || "N/A")}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
-          <div><label class="font-sans text-xs font-bold">Categoría</label><input name="categoria" list="cat-biblioteca" value="${escapeHtml(item.categoria)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
         </div>
+        <div><label class="font-sans text-xs font-bold">Categorías <span class="font-normal text-[#607480]">(hasta ${MAX_CATEGORIAS_LIBRO}, separadas por coma)</span></label><input name="categorias" data-sugerencias="categoria" data-multiple value="${escapeHtml(categoriasDe(item).join(", "))}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
         <div>
           <label class="font-sans text-xs font-bold">Portada</label>
           ${item.portadaUrl ? `<img src="${escapeHtml(item.portadaUrl)}" alt="Portada actual" class="mt-2 h-24 w-16 rounded-[8px] border border-[#E2E9EC] object-cover">` : ""}
@@ -1058,8 +1072,25 @@
       const addButton = document.querySelector("#add-exemplar-btn");
       if (!addButton) return;
       addButton.addEventListener("click", () => {
-        document.querySelector("#ejemplares-rows").insertAdjacentHTML("beforeend", exemplarRowHtml());
+        // El ejemplar nuevo sigue la numeración del libro (BIB-001-01 → BIB-001-02) o, si el libro
+        // aún no tiene ejemplares, recibe el siguiente código libre de la Biblioteca.
+        const inputs = [...document.querySelectorAll("[data-exemplar=codigo]")].filter(input => input.value.trim());
+        const todos = [...Codigos.codigosConEstado(allItems()).map(entrada => entrada.codigo), ...inputs.map(input => input.value.trim())];
+        let codigo;
+        if (inputs.length) {
+          const ultimo = inputs.at(-1);
+          const familia = Codigos.codigosAlDuplicar(ultimo.value.trim(), todos);
+          // Si el ejemplar no tenía sufijo (BIB-050), pasa a BIB-050-01 y el nuevo es BIB-050-02. Uno prestado no
+          // se renombra, porque la solicitud de préstamo guarda su código para marcar la devolución.
+          const prestado = !ultimo.closest(".exemplar-row").querySelector("[data-exemplar=disponible]").checked;
+          if (familia.original !== ultimo.value.trim() && !prestado) ultimo.value = familia.original;
+          codigo = familia.copia;
+        } else {
+          codigo = Codigos.siguienteCodigo("biblioteca", itemsByTipo.biblioteca, allItems()).codigo;
+        }
+        document.querySelector("#ejemplares-rows").insertAdjacentHTML("beforeend", exemplarRowHtml({ codigo, estado: "Bueno", ubicacion: "Biblioteca" }));
         attachRemoveEvents();
+        connectSuggestions(document.querySelector("#ejemplares-rows"), "biblioteca");
       });
       attachRemoveEvents();
     }
@@ -1069,18 +1100,105 @@
       });
     }
 
+    const allItems = () => Object.values(itemsByTipo).flat();
+
+    function suggestionOptions(field, tipo) {
+      if (field === "categoria") return [...(SUGERENCIAS.categoria[tipo] || []), ...uniqueValues(itemsByTipo[tipo] || [], "categoria")];
+      return [...(SUGERENCIAS[field] || []), ...uniqueValues(allItems(), field)];
+    }
+
+    function connectSuggestions(container, tipo) {
+      container.querySelectorAll("[data-sugerencias], [data-exemplar=estado], [data-exemplar=ubicacion]").forEach(input => {
+        const field = input.dataset.sugerencias || input.dataset.exemplar;
+        conectarSugerencias(input, () => suggestionOptions(field, tipo),
+          input.hasAttribute("data-multiple") ? { multiple: true, maximo: MAX_CATEGORIAS_LIBRO } : {});
+      });
+    }
+
+    // Al agregar un bien se propone el código: primero uno libre de un bien dado de baja
+    // (regalado, extraviado, vendido…) y, si no hay, el siguiente número (ACA-065 → ACA-066).
+    function suggestCode(tipo) {
+      const input = tipo === "biblioteca"
+        ? document.querySelector("[data-exemplar=codigo]")
+        : document.querySelector("#admin-fields [name=codigo]");
+      if (!input) return;
+      const { codigo, reutilizaDe } = Codigos.siguienteCodigo(tipo, itemsByTipo[tipo] || [], allItems());
+      input.value = codigo;
+      const hint = document.createElement("p");
+      hint.className = "mt-1 text-xs text-[#607480]";
+      hint.textContent = reutilizaDe
+        ? `Código libre de «${reutilizaDe.titulo || reutilizaDe.nombre || reutilizaDe.articulo || "un bien"}» (${reutilizaDe.estado || "dado de baja"}). Puedes cambiarlo.`
+        : "Siguiente código disponible. Puedes cambiarlo.";
+      (tipo === "biblioteca" ? input.closest(".exemplar-row") : input).insertAdjacentElement("afterend", hint);
+    }
+
     function openAdminModal(tipo, item = null) {
       document.querySelector("#admin-modal-kicker").textContent = TIPO_LABELS[tipo];
       document.querySelector("#admin-modal-title").textContent = item ? "Editar bien" : "Agregar bien";
-      document.querySelector("#admin-fields").innerHTML = fieldsFormFor(tipo, item || {});
+      const fields = document.querySelector("#admin-fields");
+      fields.innerHTML = fieldsFormFor(tipo, item || {});
       document.querySelector("#admin-item-form").dataset.tipo = tipo;
       document.querySelector("#admin-item-form").dataset.itemId = item?.id || "";
       document.querySelector("#admin-status").hidden = true;
+      // En la Biblioteca las copias de un libro se agregan como ejemplares, no duplicando el libro.
+      document.querySelector("#admin-duplicate-btn").hidden = !item || tipo === "biblioteca";
       if (tipo === "biblioteca") attachExemplarEvents();
+      if (!item) suggestCode(tipo);
+      connectSuggestions(fields, tipo);
       showModal(document.querySelector("#admin-item-modal"));
     }
 
-    document.querySelector("#inv-add-btn").addEventListener("click", () => openAdminModal(activeTab));
+    document.querySelector("#inv-add-btn").addEventListener("click", async () => {
+      // Se recarga el inventario para no proponer un código que otra persona de la Junta acaba de usar.
+      const addButton = document.querySelector("#inv-add-btn");
+      addButton.disabled = true;
+      try {
+        await loadInventory();
+      } catch (error) {
+        console.warn("No se pudo recargar el inventario", error);
+      } finally {
+        addButton.disabled = false;
+      }
+      openAdminModal(activeTab);
+    });
+
+    // Duplicar: copia todos los datos del bien guardado excepto código y estado. El original y la copia
+    // quedan numerados como familia (ACA-065 → ACA-065-01 y la copia ACA-065-02) y la copia entra como
+    // "Falta comprobar" para que la Junta la revise en físico.
+    document.querySelector("#admin-duplicate-btn").addEventListener("click", async () => {
+      const form = document.querySelector("#admin-item-form");
+      const status = document.querySelector("#admin-status");
+      const button = document.querySelector("#admin-duplicate-btn");
+      button.disabled = true;
+      try {
+        await loadInventory();
+        const original = allItems().find(entry => entry.id === form.dataset.itemId);
+        if (!original) throw new Error("El bien ya no existe en el inventario.");
+        const todos = Codigos.codigosConEstado(allItems()).map(entrada => entrada.codigo);
+        const codigos = Codigos.codigosAlDuplicar(original.codigo, todos);
+        const renombrar = codigos.original !== original.codigo;
+        const mensaje = `Se creará una copia con el código ${codigos.copia}`
+          + (renombrar ? ` y el bien actual pasará de ${original.codigo} a ${codigos.original}` : "")
+          + `. La copia queda en estado «${ESTADO_POR_REVISAR}».\n\nLos cambios sin guardar en este formulario no se copian. ¿Continuar?`;
+        if (!confirm(mensaje)) return;
+        const { id, codigo, estado, disponible, createdAt, updatedAt, ...datos } = original;
+        const copia = { ...datos, codigo: codigos.copia, estado: ESTADO_POR_REVISAR, createdAt: serverTimestamp(), updatedAt: serverTimestamp() };
+        const nuevo = await addDoc(collection(db, "inventario"), copia);
+        if (renombrar) await updateDoc(doc(db, "inventario", original.id), { codigo: codigos.original, updatedAt: serverTimestamp() });
+        await loadInventory();
+        const creado = allItems().find(entry => entry.id === nuevo.id);
+        if (creado) openAdminModal(creado.tipo, creado);
+        status.hidden = false;
+        status.className = "text-sm text-[#087F8C]";
+        status.textContent = `Copia creada con el código ${codigos.copia}. Revisa sus datos y guarda si cambias algo.`;
+      } catch (error) {
+        status.hidden = false;
+        status.className = "text-sm text-[#C2413B]";
+        status.textContent = `No se pudo duplicar: ${error.message}`;
+      } finally {
+        button.disabled = false;
+      }
+    });
     document.querySelector("#item-modal-edit").addEventListener("click", () => {
       hideModal(document.querySelector("#item-modal"));
       openAdminModal(currentItem.tipo, currentItem);
@@ -1134,6 +1252,19 @@
             ubicacion: row.querySelector("[data-exemplar=ubicacion]").value.trim(),
             disponible: row.querySelector("[data-exemplar=disponible]").checked
           })).filter(exemplar => exemplar.codigo);
+          // Categorías como lista (máx. 3), con los nombres unificados ("Tercer ciclio" → "Tercer ciclo");
+          // se acepta coma o "/" al escribirlas. Se borra el campo viejo `categoria`.
+          const categorias = Categorias.normalizarLista(fields.categorias);
+          if (categorias.length > MAX_CATEGORIAS_LIBRO) throw new Error(`Un libro puede tener como máximo ${MAX_CATEGORIAS_LIBRO} categorías.`);
+          payload.categorias = categorias;
+          if (itemId) payload.categoria = deleteField();
+        }
+        // El código no puede ser el de otro bien activo (sí el de uno dado de baja, que queda libre).
+        await loadInventory();
+        const codigos = tipo === "biblioteca" ? payload.ejemplares.map(exemplar => exemplar.codigo) : [String(payload.codigo || "").trim()];
+        const repetido = Codigos.codigoRepetido(codigos.filter(Boolean), allItems(), itemId);
+        if (repetido) throw new Error(`El código ${repetido} ya lo usa otro bien. Usa otro código.`);
+        if (tipo === "biblioteca") {
           const coverFile = document.querySelector("#portada-file")?.files[0];
           const coverUrl = document.querySelector("#portada-url")?.value.trim();
           if (coverFile) {
