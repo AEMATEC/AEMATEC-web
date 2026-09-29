@@ -439,6 +439,7 @@
     let resources = [];
     let page = 1;
     let isModerator = false;
+    search.value = new URLSearchParams(window.location.search).get("q") || "";
 
     const iconFor = extension => extension === "pdf" ? "fa-file-pdf" : extension === "pptx" ? "fa-file-powerpoint" : extension === "docx" ? "fa-file-word" : extension === "ggb" ? "fa-shapes" : "fa-file-lines";
     const formatSize = bytes => bytes ? `${(bytes / 1024 / 1024).toFixed(2)} MB` : "No indicado";

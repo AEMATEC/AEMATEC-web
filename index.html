@@ -41,7 +41,30 @@
         <div class="relative z-10 site-container mx-auto min-h-[420px] pt-[76px] pb-[64px] text-left">
           <h1 class="font-sans text-[54px] leading-[1.08] tracking-[-0.04em] font-bold mt-0 max-w-[620px]">Tu asociación,<br><span class="text-[#00A6B8]">a un clic de distancia.</span></h1>
           <p class="mt-5 text-[19px] leading-8 text-[#526574] max-w-[560px]">La Asociación de Estudiantes de Enseñanza de la Matemática con Entornos Tecnológicos representa, acompaña y conecta a la comunidad estudiantil de MATEC en el TEC.</p>
+          <form id="home-search-form" class="mt-8 w-full max-w-[560px] h-[62px] bg-white border-2 border-[#B8D3DC] rounded-[16px] shadow-[0_12px_35px_rgba(13,43,69,0.10)] flex items-center p-2">
+            <i class="fa-solid fa-magnifying-glass text-[#00A6B8] text-lg ml-3"></i>
+            <input aria-label="Buscar en el sitio o en el Repositorio"
+              class="flex-1 h-full px-4 outline-none text-[16px] text-[#233F53] placeholder:text-[#7C909D]"
+              placeholder="Buscar páginas del sitio o materiales del Repositorio...">
+            <button type="submit"
+              class="h-[46px] px-6 rounded-[10px] bg-[#00AFC1] text-white font-sans font-bold text-sm hover:bg-[#009AAA]">Buscar</button>
+          </form>
         </div>
+      </div>
+    </section>
+
+    <section id="home-search-results" class="hidden bg-white border-b border-[#DCE6EA] py-[42px]" aria-live="polite">
+      <div class="site-container mx-auto">
+        <div class="flex items-end justify-between mb-7">
+          <div>
+            <p class="font-sans text-xs font-bold uppercase tracking-[0.18em] text-[#00A6B8]">Resultados de búsqueda</p>
+            <h2 id="home-search-title" class="font-sans text-[26px] font-bold mt-2"></h2>
+          </div>
+          <button id="home-search-clear" type="button" class="font-sans text-sm font-bold text-[#0C8190]">Limpiar búsqueda</button>
+        </div>
+        <p id="home-search-status" class="text-[#627683] mb-6"></p>
+        <div id="home-search-pages" class="mb-6" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem"></div>
+        <div id="home-search-resources" class="space-y-4"></div>
       </div>
     </section>
 
@@ -219,6 +242,121 @@
     }
 
     loadMedios();
+  </script>
+
+  <script type="module">
+    // Buscador de la página principal: busca a la vez entre las páginas del sitio (lista fija)
+    // y los recursos publicados del Repositorio (Firestore), como pidió la Junta ("Ambos").
+    import { app } from "./assets/js/firebase.js";
+    import { escapeHtml } from "./assets/js/util.js";
+    import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const SITE_PAGES = [
+      { title: "Repositorio", desc: "Materiales docentes y académicos compartidos por la comunidad, de acceso público.", href: "repositorio.html", kw: "materiales recursos biblioteca compartir" },
+      { title: "Recursos docentes", desc: "Actividades, juegos y planeamientos listos para llevar al aula.", href: "repositorio-docentes.html", kw: "actividades juegos planeamientos docentes" },
+      { title: "Recursos académicos", desc: "Exámenes anteriores, apuntes y soluciones para acompañarte en la carrera.", href: "repositorio-academicos.html", kw: "examenes apuntes soluciones cursos academicos" },
+      { title: "Subir material", desc: "Comparte un recurso con la comunidad de MATEC.", href: "repositorio-subir.html", kw: "subir compartir aportar material" },
+      { title: "Inventario", desc: "Consulta los bienes de la asociación y solicita préstamos como Asociado.", href: "inventario.html", kw: "bienes prestamos equipo inventario" },
+      { title: "Inventario institucional", desc: "Bienes institucionales a cargo de la asociación.", href: "inventario.html?tipo=institucional", kw: "institucional inventario" },
+      { title: "Inventario AEMATEC", desc: "Bienes propios de AEMATEC.", href: "inventario.html?tipo=aematec", kw: "aematec inventario" },
+      { title: "Biblioteca", desc: "Colección física de libros del Inventario.", href: "inventario.html?tipo=biblioteca", kw: "libros biblioteca inventario" },
+      { title: "Consumibles", desc: "Materiales consumibles disponibles para préstamo o uso.", href: "inventario.html?tipo=consumible", kw: "consumibles materiales inventario" },
+      { title: "Junta Directiva", desc: "Quiénes integran la Junta y cómo contactarlos.", href: "junta-directiva.html", kw: "junta directiva contacto correo integrantes" },
+      { title: "Trámites", desc: "Solicita préstamos, denuncias u otros trámites de la asociación.", href: "tramites.html", kw: "prestamo tramite solicitud denuncia fiscalia" },
+      { title: "Arcade AEMATEC", desc: "Minijuegos de la asociación para pasar el rato.", href: "arcade.html", kw: "juegos arcade minijuegos" }
+    ];
+
+    const searchForm = document.querySelector("#home-search-form");
+    const searchInput = searchForm.querySelector("input");
+    const searchResults = document.querySelector("#home-search-results");
+    const searchTitle = document.querySelector("#home-search-title");
+    const searchStatus = document.querySelector("#home-search-status");
+    const searchPages = document.querySelector("#home-search-pages");
+    const searchResourcesBox = document.querySelector("#home-search-resources");
+    let publishedResources = [];
+    let resourcesLoaded = false;
+    let pendingQuery = "";
+
+    const renderSearch = queryText => {
+      const normalized = queryText.toLocaleLowerCase("es");
+      const matchedPages = SITE_PAGES.filter(page => `${page.title} ${page.desc} ${page.kw}`.toLocaleLowerCase("es").includes(normalized));
+      const matchedResources = publishedResources.filter(resource => {
+        const text = [resource.title, resource.description, resource.type, resource.course, resource.author, resource.topic]
+          .filter(Boolean).join(" ").toLocaleLowerCase("es");
+        return text.includes(normalized);
+      }).slice(0, 6);
+
+      searchResults.classList.remove("hidden");
+      searchTitle.textContent = `Resultados para “${queryText}”`;
+      const total = matchedPages.length + matchedResources.length;
+      searchStatus.textContent = total
+        ? `${total} ${total === 1 ? "resultado" : "resultados"} entre páginas del sitio y recursos del Repositorio.`
+        : "No encontramos páginas ni materiales que coincidan. Prueba con otra palabra.";
+
+      searchPages.innerHTML = matchedPages.map(page => `
+        <a href="${escapeHtml(page.href)}" class="bg-white border border-[#D8E3E9] rounded-[14px] p-5 hover:border-[#00B5C8]">
+          <p class="font-sans text-[11px] font-bold uppercase tracking-[0.1em] text-[#00A6B8]">Página del sitio</p>
+          <h3 class="font-sans font-bold text-base mt-1">${escapeHtml(page.title)}</h3>
+          <p class="text-sm text-[#627683] mt-1">${escapeHtml(page.desc)}</p>
+        </a>`).join("");
+
+      searchResourcesBox.innerHTML = matchedResources.map(resource => {
+        const isAcademic = resource.section === "academico" || resource.section === "academicos";
+        const destino = isAcademic ? "repositorio-academicos.html" : "repositorio-docentes.html";
+        return `<a href="${destino}?q=${encodeURIComponent(queryText)}" class="block bg-[#F8FBFC] border border-[#D6E2E7] rounded-[15px] p-5 hover:border-[#00B5C8]">
+          <span class="font-sans text-[10px] font-bold ${isAcademic ? "bg-[#E9EEF9] text-[#3B568D]" : "bg-[#DFF6F8] text-[#087F8C]"} px-2.5 py-1 rounded-full">${isAcademic ? "Recurso académico" : "Recurso docente"}</span>
+          <h3 class="font-sans font-bold text-[17px] mt-2">${escapeHtml(resource.title || "Material sin título")}</h3>
+          <p class="text-sm text-[#687B86] mt-1">${escapeHtml(resource.description || "Sin descripción disponible.")}</p>
+        </a>`;
+      }).join("");
+    };
+
+    searchForm.addEventListener("submit", event => {
+      event.preventDefault();
+      const queryText = searchInput.value.trim();
+      if (!queryText) {
+        searchResults.classList.add("hidden");
+        searchTitle.textContent = "";
+        searchStatus.textContent = "";
+        searchPages.innerHTML = "";
+        searchResourcesBox.innerHTML = "";
+        return;
+      }
+      if (resourcesLoaded) {
+        renderSearch(queryText);
+      } else {
+        pendingQuery = queryText;
+        searchResults.classList.remove("hidden");
+        searchTitle.textContent = `Resultados para “${queryText}”`;
+        searchStatus.textContent = "Cargando materiales del Repositorio...";
+        searchPages.innerHTML = "";
+        searchResourcesBox.innerHTML = "";
+      }
+      searchResults.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+
+    document.querySelector("#home-search-clear").addEventListener("click", () => {
+      pendingQuery = "";
+      searchResults.classList.add("hidden");
+      searchInput.value = "";
+      searchInput.focus();
+    });
+
+    const config = window.AEMATEC_FIREBASE_CONFIG;
+    if (config?.projectId && config.projectId !== "REEMPLAZAR") {
+      try {
+        const resourcesSnapshot = await getDocs(query(collection(getFirestore(app), "resources"), where("published", "==", true)));
+        publishedResources = resourcesSnapshot.docs.map(item => ({ id: item.id, ...item.data() }));
+        resourcesLoaded = true;
+        if (pendingQuery) {
+          const queryText = pendingQuery;
+          pendingQuery = "";
+          renderSearch(queryText);
+        }
+      } catch (error) {
+        console.error("No se pudieron cargar los materiales del Repositorio para el buscador:", error);
+      }
+    }
   </script>
 </body>
 
