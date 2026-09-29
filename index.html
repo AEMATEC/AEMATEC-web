@@ -63,18 +63,36 @@
             <p class="mt-3 text-[#5B6E7B] leading-6">Recursos docentes y académicos compartidos por la comunidad, de acceso público.</p>
           </div>
         </a>
-        <a href="inventario.html"
+        <a href="inventario.html" id="inv-card-trigger" aria-expanded="false" aria-controls="inv-card-panel"
           class="group bg-white border border-[#D8E3E9] rounded-[20px] p-8 flex gap-7 hover:border-[#00B5C8] hover:shadow-[0_10px_28px_rgba(13,43,69,0.08)]">
           <div class="w-[72px] h-[72px] shrink-0 rounded-[16px] bg-[#E6F8FA] text-[#009CAD] flex items-center justify-center text-[28px]">
             <i class="fa-solid fa-boxes-stacked"></i>
           </div>
           <div class="flex-1">
             <div class="flex justify-between">
-              <h3 class="font-sans font-bold text-[23px]">Inventario</h3><i class="fa-solid fa-arrow-right text-[#00A6B8] group-hover:translate-x-1 transition"></i>
+              <h3 class="font-sans font-bold text-[23px]">Inventario</h3><i id="inv-card-chevron" class="fa-solid fa-chevron-down text-[#00A6B8] transition-transform"></i>
             </div>
             <p class="mt-3 text-[#5B6E7B] leading-6">Consulta los bienes de la asociación y solicita préstamos como Asociado.</p>
           </div>
         </a>
+        <div id="inv-card-panel" hidden class="col-span-2 bg-[#F4FAFB] border border-[#D8E3E9] rounded-[20px] p-6 -mt-2" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem">
+          <a href="inventario.html?tipo=institucional" class="bg-white border border-[#D8E3E9] rounded-[14px] p-5 flex flex-col items-center text-center gap-2 hover:border-[#00B5C8]">
+            <i class="fa-solid fa-building text-[22px] text-[#00A6B8]"></i>
+            <span class="font-sans font-bold text-sm">Institucional</span>
+          </a>
+          <a href="inventario.html?tipo=aematec" class="bg-white border border-[#D8E3E9] rounded-[14px] p-5 flex flex-col items-center text-center gap-2 hover:border-[#00B5C8]">
+            <i class="fa-solid fa-toolbox text-[22px] text-[#00A6B8]"></i>
+            <span class="font-sans font-bold text-sm">AEMATEC</span>
+          </a>
+          <a href="inventario.html?tipo=biblioteca" class="bg-white border border-[#D8E3E9] rounded-[14px] p-5 flex flex-col items-center text-center gap-2 hover:border-[#00B5C8]">
+            <i class="fa-solid fa-book text-[22px] text-[#00A6B8]"></i>
+            <span class="font-sans font-bold text-sm">Biblioteca</span>
+          </a>
+          <a href="inventario.html?tipo=consumible" class="bg-white border border-[#D8E3E9] rounded-[14px] p-5 flex flex-col items-center text-center gap-2 hover:border-[#00B5C8]">
+            <i class="fa-solid fa-box-open text-[22px] text-[#00A6B8]"></i>
+            <span class="font-sans font-bold text-sm">Consumibles</span>
+          </a>
+        </div>
         <a href="junta-directiva.html"
           class="group bg-[#0D2B45] text-white rounded-[20px] p-8 flex gap-7 hover:bg-[#123852] shadow-[0_10px_24px_rgba(13,43,69,0.13)]">
           <div class="w-[72px] h-[72px] shrink-0 rounded-[16px] bg-[#164A62] text-[#43D2DF] flex items-center justify-center text-[28px]">
@@ -153,6 +171,22 @@
   <script src="assets/js/layout.js" data-part="footer"></script>
   <script src="assets/js/hero-trig.js"></script>
   <script src="assets/js/carrusel-actividades.js"></script>
+  <script>
+    // Tarjeta de Inventario: en vez de ir directo a la página, primero despliega sus divisiones.
+    (() => {
+      const trigger = document.querySelector("#inv-card-trigger");
+      const panel = document.querySelector("#inv-card-panel");
+      const chevron = document.querySelector("#inv-card-chevron");
+      if (!trigger || !panel) return;
+      trigger.addEventListener("click", event => {
+        event.preventDefault();
+        const abierto = panel.hidden;
+        panel.hidden = !abierto;
+        trigger.setAttribute("aria-expanded", String(abierto));
+        chevron.classList.toggle("rotate-180", abierto);
+      });
+    })();
+  </script>
 
   <script type="module">
     import { app } from "./assets/js/firebase.js";
