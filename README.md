@@ -18,8 +18,9 @@ dependen de él citan el artículo correspondiente en el código y en [`docs/PLA
 | Repositorio | `repositorio.html`, `repositorio-docentes.html`, `repositorio-academicos.html`, `repositorio-subir.html` | Repositorio digital de materiales didácticos y académicos (RI Art. 4 f). Consulta pública; cualquiera puede proponer material, que queda pendiente de moderación. |
 | Inventario | `inventario.html` | Consulta pública de bienes (RI Art. 118) y solicitudes de préstamo (RI Art. 120-123). Administración para la Junta. |
 | Junta Directiva | `junta-directiva.html` | Integrantes (solo nombre y puesto) y medios de contacto. |
-| Panel de administración | `admin.html` | Un solo acceso. Cada cuenta ve lo de sus roles: **Trámites** (la Junta los suyos; la Fiscalía sus casos), **Asociación** (Padrón, Junta, Fiscalía, Medios) para Junta y Fiscalía, y **Moderación del Repositorio** (pendientes, edición, equipo de moderación). |
+| Panel de administración | `admin.html` | Un solo acceso. Cada cuenta ve lo de sus roles: **Trámites** (la Junta los suyos; la Fiscalía sus casos), **Asociación** (la Junta: Padrón, Junta, Fiscalía y Medios; la Fiscalía: solo la lista de Fiscalía), **Tema del sitio** (Junta) y **Moderación del Repositorio** (pendientes, edición, equipo de moderación). |
 | Temas de temporada | todas (`assets/js/temas.js`, `assets/css/temas.css`) | Decoración automática por fecha: sutil en celebraciones de un día (8M, Día de la Madre…) y festiva en épocas (Navidad, Halloween, mes patrio, Semana de la Carrera). La Junta puede apagarla o fijar un tema en `admin.html` → Tema del sitio (`config/tema`). Vista previa: `?tema=<id>`. |
+| Asistente | todas las que usan el encabezado común (`assets/js/chatbot.js`) | Botón flotante para buscar páginas (lista en `assets/js/site-pages.js`) y reportar un problema. Los reportes van a `chatbotReportes` y llegan por correo a moderación. No pide cuenta; el contacto es opcional. |
 | Trámites | `tramites.html` | Solicitudes a la Junta, postulaciones, AGEC extraordinaria (con adhesiones) y consultas o denuncias a Fiscalía (anónimas o no). Se verifica el correo `@estudiantec.cr` con un enlace, sin contraseña. Incluye "Mis trámites" y seguimiento de casos anónimos por código. |
 | Arcade | `arcade.html` (botón flotante en todas las páginas, `assets/js/arcade-launcher.js`) | Minijuegos pixelados (buscaminas, batalla naval, carreras, etc.) hechos por un estudiante. Es una página aparte, con su propio estilo y su propio proyecto de Firebase (`arcade-matec`, distinto del sitio); no usa cuentas ni datos del padrón. Público, sin inicio de sesión. Sus reglas de Firebase no están en este repositorio: si un cambio escribe datos nuevos, documéntalo para quien administra `arcade-matec` (ver `docs/arcade-firebase-cambios.md`). |
 
@@ -54,21 +55,26 @@ La interfaz solo oculta o muestra opciones.
 
 | Rol | Cómo se obtiene | Puede |
 |---|---|---|
-| Público | Nadie inicia sesión | Ver recursos publicados, el inventario y la Junta. Proponer material. |
-| Moderador | Correo en `moderators/{email}` + cuenta con correo verificado | Moderar recursos y gestionar moderadores. |
+| Público | Nadie inicia sesión | Ver recursos publicados, el inventario y la Junta. Proponer material. Enviar una solicitud de préstamo (ver nota abajo). Reportar un problema con el asistente. |
+| Moderador | Correo en `moderators/{email}` + cuenta con correo verificado | Moderar recursos y gestionar moderadores. Recibe por correo los reportes del asistente. |
 | Junta | Correo en `junta/{email}` + cuenta con correo verificado | Padrón, Junta, Fiscalía, Medios, inventario y préstamos. |
-| Fiscalía | Correo en `fiscalia/{email}` + correo verificado | Registrar a la persona Fiscal entrante (la Junta también puede). Revisar consultas y denuncias ante Fiscalía. |
-| Asociado | Correo en `padron/{email}` + correo verificado | Solicitar trámites y préstamos. |
+| Fiscalía | Correo en `fiscalia/{email}` + cuenta con correo verificado | Registrar a la persona Fiscal entrante (la Junta también puede). Leer y responder las consultas y denuncias a Fiscalía (ni la Junta ni los dueños pueden leerlas, RI Art. 42). |
+| Asociado | Correo `@estudiantec.cr` en `padron/{email}` | Enviar trámites (solicitudes a la Junta, postulaciones, AGEC y adhesiones, consultas o denuncias a Fiscalía). No crea cuenta ni contraseña: verifica su correo con un enlace en `tramites.html` y las Functions revisan el padrón al enviar. Si no está en el padrón, el trámite se acepta marcado para que la Junta decida. |
 | Dueño | Correo escrito en el código (ver abajo) | Todo lo anterior. |
 
 Las cuentas se crean en `admin.html` ("Primera vez, crear contraseña") y hay que verificar el correo antes de
 entrar. Crear la cuenta no da acceso a nada: al iniciar sesión, el panel muestra solo las secciones de las listas
-en las que está el correo (Junta, Fiscalía, moderación).
+en las que está el correo (Junta, Fiscalía, moderación). Las personas Asociadas no usan `admin.html`: se identifican
+solo en Trámites, con el enlace al correo.
+
+**Préstamos.** El formulario de préstamo del Inventario es abierto (no pide correo ni sesión): el préstamo se
+formaliza en físico con la firma del registro, y ahí la Junta verifica que la persona sea Asociada (RI Art. 120).
+Pendiente (ver [`docs/PLAN.md`](docs/PLAN.md)): marcar en la gestión de préstamos si la persona está en el padrón.
 
 **Principio de acceso (decisión de la Junta, 2026-09):** el sitio es **público por defecto**. Nadie necesita
 iniciar sesión para ver o descargar recursos, ver el inventario o la Junta, proponer material o pedir un préstamo;
 el Repositorio docente es para cualquier docente, sea o no de MATEC. Solo se pide identificación en la acción
-que la necesita y en ese momento (por ejemplo, un trámite de persona Asociada en el futuro).
+que la necesita y en ese momento (por ejemplo, al enviar un trámite, con el enlace al correo `@estudiantec.cr`).
 
 **Correos de dueño.** Están en 4 lugares, que hay que actualizar juntos en el traspaso de administración
 (RI Art. 107): `assets/js/roles.js` (páginas), `firestore.rules`, `storage.rules` y `functions/correo.js`
@@ -78,7 +84,13 @@ que la necesita y en ese momento (por ejemplo, un trámite de persona Asociada e
 - `firebase.js`: conexión única con Firebase (`app`, `db`).
 - `roles.js`: correos de dueño y `tieneRol(user, "junta" | "moderators" | "fiscalia")`.
 - `util.js`: `escapeHtml`, `safeHttpsUrl`, `safeEmail`.
-- `layout.js`: encabezado, menú y pie de página.
+- `layout.js`: encabezado, menú y pie de página; además carga en cada página los temas de temporada (`temas.js`),
+  el botón del Arcade (`arcade-launcher.js`) y el asistente (`chatbot.js`).
+- `site-pages.js`: lista de páginas públicas que usan el buscador de la portada y el asistente. Si agregas o
+  renombras una página, actualízala aquí.
+- `tramites.js` (página de Trámites) y `admin/` (secciones del panel: `panel.js`, `asociacion.js`, `tramites.js`,
+  `moderacion.js`, `tema.js`).
+- `inventario-categorias.js` e `inventario-codigos.js`: categorías de los libros y códigos del Inventario.
 
 ## Datos (Firestore)
 
@@ -86,13 +98,15 @@ que la necesita y en ese momento (por ejemplo, un trámite de persona Asociada e
 |---|---|---|
 | `resources` | Materiales del Repositorio (metadatos, estado de moderación, ruta del archivo) | Pública si `published == true` |
 | `inventario` | Bienes: `institucional`, `aematec`, `biblioteca` (libros), `consumible` | Pública |
-| `prestamoSolicitudes` | Solicitudes de préstamo (nombre, carné, contacto) | Solo Junta |
+| `prestamoSolicitudes` | Solicitudes de préstamo (nombre, carné, contacto). Cualquiera puede crear una | Solo Junta |
 | `padron` | Correos de personas Asociadas | Solo Junta |
 | `junta` | Correo, nombre y puesto de cada integrante | Consulta puntual pública; listado solo Junta |
 | `fiscalia` | Correos de Fiscalía (la editan Fiscalía y Junta) | Junta y Fiscalía |
 | `moderators` | Correos de moderación | Moderadores |
 | `config/medios_oficiales` | Correo, teléfono y enlaces de WhatsApp, Telegram e Instagram | Pública |
 | `config/junta_publica` | Solo nombre y puesto de la Junta, generado por el Panel | Pública |
+| `config/tema` | Tema de temporada: automático, apagado o fijo (lo edita la Junta) | Pública |
+| `chatbotReportes` | Reportes de problemas enviados desde el asistente (mensaje, página y contacto opcional). Cualquiera puede crear uno | Moderadores |
 | `tramites` (+ `adhesiones`) | Solicitudes a la Junta, postulaciones y solicitudes de AGEC. **Solo los crean las Functions** | Junta y quien lo envió |
 | `agecPublicas` | Avance de cada solicitud de AGEC (sin nombres ni correos) | Pública |
 | `fiscaliaCasos` | Consultas y denuncias a Fiscalía; las anónimas no guardan nada que identifique a la persona | **Solo Fiscalía** (ni Junta ni dueños) y quien envió un caso identificado |
@@ -108,6 +122,7 @@ integrante. Así la página pública no expone los correos (RI Art. 143).
 - `notifyPendingResource`: avisa a los moderadores cuando llega material nuevo.
 - `sendPendingSummary`: resumen diario (8:00, hora de Costa Rica) de materiales pendientes.
 - `notifyLoanRequest`: avisa a la Junta de cada solicitud de préstamo.
+- `notifyProblemReport`: avisa a los moderadores de cada reporte enviado desde el asistente.
 - `enviarEnlaceCorreo` (`functions/tramites.js`): envía el enlace para verificar el correo `@estudiantec.cr`.
 - `enviarTramite`, `adherirAgec`, `consultarSeguimiento` (`functions/tramites.js`): reciben los trámites.
   Verifican el correo `@estudiantec.cr`, consultan el padrón (si la persona no está, el trámite se acepta marcado
@@ -217,17 +232,20 @@ secret**. Mientras falten, el flujo no publica nada y avisa con una advertencia.
 Con los dos secretos creados, ve a **Actions → Firebase → Run workflow** sobre `main`. Si el primer intento
 falla por un permiso, el registro dice qué rol falta; agrégalo en <https://console.cloud.google.com/iam-admin/iam?project=biblioteca-aematec>.
 
-### Pruebas de reglas
+### Pruebas
 
-`tests/reglas.test.js` prueba los permisos de Firestore y Storage en el emulador. Se ejecutan solas en cada
-PR; para correrlas a mano: `cd tests && npm install && npm test` (requiere Java).
+- `tests/reglas.test.js` prueba los permisos de Firestore y Storage en el emulador, y `tests/funciones.test.js`
+  las funciones de Trámites. Corren solas en cada PR que toca reglas, Functions o pruebas; para correrlas a mano:
+  `cd functions && npm install`, luego `cd tests && npm install && npm test` (requiere Java).
+- `tests/temas.test.js`, `tests/inventario-codigos.test.js` y `tests/inventario-categorias.test.js` no necesitan
+  emulador (`node --test tests/<archivo>`); el flujo **Páginas** las corre en cada PR.
 
 ## Agente de mantenimiento
 
 [`AGENTS.md`](AGENTS.md) explica a cualquier agente de IA (Claude Code, GitHub Copilot, Codex, Cursor…) cómo
 está hecho el sitio, qué exige el Reglamento y cómo se publica. [`CLAUDE.md`](CLAUDE.md) lo incluye para
-Claude Code, y las guías paso a paso están en [`.claude/skills/`](.claude/skills) (publicar cambios y traspaso
-de Junta). Cualquier integrante de la Junta puede abrir una sesión de su agente sobre este repositorio y pedir
+Claude Code, y las guías paso a paso están en [`.claude/skills/`](.claude/skills) (publicar cambios, traspaso
+de Junta y temas de temporada). Cualquier integrante de la Junta puede abrir una sesión de su agente sobre este repositorio y pedir
 cambios en español; el agente trabaja en una rama y abre un PR.
 
 Con cualquier agente, las revisiones automáticas de cada PR (pruebas de permisos y de Trámites, enlaces,

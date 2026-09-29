@@ -10,7 +10,7 @@ de los repositorios. Guía a la persona por estos pasos, uno a la vez, y marca c
 
 ## En `admin.html` → Asociación (lo hace la Junta, no requiere código)
 1. **Junta:** agregar los correos de la nueva Junta con nombre y puesto (Art. 24) y quitar los salientes.
-   Cada integrante nuevo crea su cuenta desde "Crear cuenta" y verifica su correo.
+   Cada integrante nuevo crea su cuenta en `admin.html` con "Primera vez, crear contraseña" y verifica su correo.
 2. **Fiscalía:** lo ideal es que la persona Fiscal saliente registre a la entrante y se quite a sí misma. Si no lo
    hizo, la Junta puede hacerlo desde el panel.
 3. **Padrón:** recargar el CSV del padrón del periodo (Art. 6: la condición de Asociado sigue la matrícula).
@@ -18,11 +18,11 @@ de los repositorios. Guía a la persona por estos pasos, uno a la vez, y marca c
 
 ## En `admin.html` → Moderación del Repositorio
 5. Revisar el equipo de moderación del Repositorio: agregar a quien corresponda y quitar accesos que ya no
-   deban existir.
+   deban existir. Moderación también recibe por correo los reportes del asistente del sitio.
 
 ## Lo que requiere un PR (lo haces tú)
-6. **Correos de dueño.** Están en `assets/js/roles.js` (`OWNER_EMAILS`), en `isOwner()`/`isModerator()`/
-   `isJunta()` de `firestore.rules` y `storage.rules`, y como correo de respaldo (`CORREO_RESPALDO`) en
+6. **Correos de dueño.** Están en `assets/js/roles.js` (`OWNER_EMAILS`), en `isOwner()` de `firestore.rules`, en
+   `isModerator()`/`isJunta()` de `storage.rules`, y como correo de respaldo (`CORREO_RESPALDO`) en
    `functions/correo.js`. Confírmalo con `grep -rn "angeloyeshuac\|angcalderon"` (o los correos vigentes), actualiza todos en el mismo PR y ajusta
    `tests/reglas.test.js` si hace falta.
 7. Si cambia la cuenta de Gmail de la Junta, actualiza `gmailAddress` en `functions/correo.js`.

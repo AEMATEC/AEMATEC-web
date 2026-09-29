@@ -12,6 +12,6 @@ export const SITE_PAGES = [
   { title: "Biblioteca", desc: "Colección física de libros del Inventario.", href: "inventario.html?tipo=biblioteca", kw: "libros biblioteca inventario" },
   { title: "Consumibles", desc: "Materiales consumibles disponibles para préstamo o uso.", href: "inventario.html?tipo=consumible", kw: "consumibles materiales inventario" },
   { title: "Junta Directiva", desc: "Quiénes integran la Junta y cómo contactarlos.", href: "junta-directiva.html", kw: "junta directiva contacto correo integrantes" },
-  { title: "Trámites", desc: "Solicita préstamos, denuncias u otros trámites de la asociación.", href: "tramites.html", kw: "prestamo tramite solicitud denuncia fiscalia" },
+  { title: "Trámites", desc: "Solicitudes a la Junta, postulaciones, AGEC y consultas o denuncias a Fiscalía.", href: "tramites.html", kw: "tramite solicitud postulacion agec denuncia fiscalia" },
   { title: "Arcade AEMATEC", desc: "Minijuegos de la asociación para pasar el rato.", href: "arcade.html", kw: "juegos arcade minijuegos" }
 ];
