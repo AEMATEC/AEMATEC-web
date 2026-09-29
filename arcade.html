@@ -6984,7 +6984,7 @@ const INTRO = (() => {
     pieces.forEach(p => {
       if (!p.done && t > p.delay) {
         p.v += 700 * dt; p.off += p.v * dt;
-        if (p.off >= 0) { p.off = 0; p.done = true; if (now - lastTick > 40) { lastTick = now; SFX.on && SFX.ctx && SFX.tone(180 + p.maxY * 12, .04, 'square', .03); } }
+        if (p.off >= 0) { p.off = 0; p.done = true; if (now - lastTick > 40) { lastTick = now; SFX.on && SFX.ctx && SFX.tone(180 + p.maxY * 12, .04, 'square', .09); } }
       }
       if (!p.done) all = false;
       if (t > p.delay || p.done) p.cells.forEach(([x, y]) => block(x * CELL, Math.round(y * CELL + p.off), p.color));
