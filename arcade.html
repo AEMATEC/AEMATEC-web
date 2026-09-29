@@ -245,6 +245,19 @@ nav .btn{padding:8px 12px}
 #egg img{height:min(72vh,120vw);image-rendering:pixelated;box-shadow:0 0 0 6px var(--dark),0 0 0 10px var(--yellow);animation:eggIn .35s steps(4)}
 #egg p{color:var(--yellow);font-size:14px;margin:0;text-shadow:3px 3px 0 var(--red)}
 @keyframes eggIn{from{transform:scale(.2) rotate(-12deg)}to{transform:none}}
+/* === DUELO v2 === */
+#g-duelo .dl-pickers{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin:12px 0}
+#g-duelo .dl-pick{flex:1 1 150px;max-width:230px;background:var(--dark);padding:10px 6px;text-align:center;
+  box-shadow:0 -4px 0 0 var(--panel2),0 4px 0 0 var(--panel2),-4px 0 0 0 var(--panel2),4px 0 0 0 var(--panel2)}
+#g-duelo .dl-pick-t{margin:0 0 8px;color:var(--yellow);font-size:9px}
+#g-duelo .dl-prev{display:block;width:72px;height:104px;margin:0 auto 6px;image-rendering:pixelated;background:#e8834f;
+  box-shadow:0 0 0 4px var(--panel2)}
+#g-duelo .dl-opt{display:flex;align-items:center;justify-content:center;gap:2px;font-size:8px;line-height:1.5}
+#g-duelo .dl-opt span{flex:1;min-width:0}
+#g-duelo .dl-opt span:only-child{padding:5px 0}
+#g-duelo .dl-opt .btn{padding:5px 8px;font-size:9px;margin:5px}
+#g-duelo .dl-best{text-align:center;margin:8px 0 0;min-height:1.5em}
+#g-duelo #dl-fire2 .btn{flex:1 1 140px;max-width:220px;padding:14px 10px;touch-action:manipulation;user-select:none;-webkit-user-select:none}
 </style>
 </head>
 <body>
@@ -674,7 +687,8 @@ nav .btn{padding:8px 12px}
       <div class="gbody" hidden>
         <div id="dl-menu">
           <h4>¿CÓMO QUIERES JUGAR?</h4>
-          <div class="row left"><button class="btn green" id="dl-cpu">VS CPU</button></div>
+          <div class="row left"><button class="btn green" id="dl-cpu">VS CPU (VAQUERO ROBOT)</button></div>
+          <div class="row left"><button class="btn" id="dl-local">2 JUGADORES (MISMO EQUIPO)</button></div>
           <div class="row left">
             <button class="btn" id="dl-create">CREAR SALA ONLINE</button>
             <input id="dl-code" class="px-in" placeholder="CÓDIGO" maxlength="5">
@@ -682,10 +696,16 @@ nav .btn{padding:8px 12px}
           </div>
           <p class="msg" id="dl-menu-msg" style="text-align:left"></p>
         </div>
+        <div id="dl-local-setup" hidden>
+          <h4>ELIJAN SOMBRERO Y PONCHO</h4>
+          <div class="dl-pickers"><div class="dl-pick" id="dl-pick-a"></div><div class="dl-pick" id="dl-pick-b"></div></div>
+          <div class="row"><button class="btn green" id="dl-local-go">¡A DUELO!</button><button class="btn gray" id="dl-local-back">MENÚ</button></div>
+        </div>
         <div id="dl-lobby" hidden>
           <div class="rc-top"><span class="tag" id="dl-room"></span><button class="btn gray" id="dl-leave">SALIR</button></div>
           <p class="sub" id="dl-lobby-msg"></p>
           <ul class="plist" id="dl-plist"></ul>
+          <div class="dl-pickers"><div class="dl-pick" id="dl-pick-me"></div><div class="dl-pick" id="dl-pick-opp"></div></div>
           <div class="row left"><button class="btn green" id="dl-go">¡EMPEZAR!</button></div>
         </div>
         <div id="dl-game" hidden>
@@ -703,18 +723,21 @@ nav .btn{padding:8px 12px}
           </div>
           <p class="msg" id="dl-msg"></p>
           <div class="row"><button class="btn red" id="dl-fire" hidden>¡DISPARAR!</button></div>
+          <div class="row" id="dl-fire2" hidden><button class="btn red" id="dl-fire-a">J1: ¡DISPARAR! (A)</button><button class="btn red" id="dl-fire-b">J2: ¡DISPARAR! (L)</button></div>
+          <p class="sub dl-best" id="dl-best"></p>
           <div class="row"><button class="btn gray" id="dl-quit">ABANDONAR</button></div>
         </div>
       </div>
     </div>
     <aside class="side px">
       <h3>TOP 10</h3>
-      <p class="sub">DUELOS GANADOS VS CPU</p>
+      <div class="mini-tabs" id="dl-lb-tabs"><button class="btn" data-k="duelo">GANADOS</button><button class="btn" data-k="duelo_reaccion">REACCIÓN</button></div>
+      <p class="sub" id="dl-lb-sub">DUELOS GANADOS VS CPU</p>
       <ol class="lb" id="dl-lb"></ol>
       <h4 style="margin-top:16px">CONTROLES</h4>
-      <p class="howto">ESPACIO O EL BOTÓN ¡DISPARAR!: DISPARA EN CUANTO APAREZCA "¡YA!" EN PANTALLA.</p>
+      <p class="howto">ESPACIO O EL BOTÓN ¡DISPARAR!: DISPARA EN CUANTO APAREZCA "¡YA!" EN PANTALLA.<br><br><b>2 JUGADORES:</b> J1 DISPARA CON LA TECLA A Y J2 CON LA TECLA L (O CADA QUIEN TOCA SU BOTÓN).</p>
       <h4 style="margin-top:16px">CÓMO SE JUEGA</h4>
-      <p class="howto">CUENTA REGRESIVA 3, 2, 1… Y UNA ESPERA SORPRESA ANTES DEL "¡YA!". SI DISPARAS ANTES DE TIEMPO, PIERDES LA RONDA. GANA LA RONDA QUIEN DISPARE PRIMERO DESPUÉS DEL "¡YA!". GANA EL DUELO QUIEN GANE 2 DE 3 RONDAS.</p>
+      <p class="howto">CUENTA REGRESIVA 3, 2, 1… Y UNA ESPERA SORPRESA ANTES DEL "¡YA!". SI DISPARAS ANTES DE TIEMPO, PIERDES LA RONDA. GANA LA RONDA QUIEN DISPARE PRIMERO DESPUÉS DEL "¡YA!". GANA EL DUELO QUIEN GANE 2 DE 3 RONDAS.<br><br><b>REACCIÓN:</b> SE GUARDA TU MEJOR TIEMPO (EN MS) AL DISPARAR BIEN DESPUÉS DEL "¡YA!", VS CPU O EN LÍNEA. EN 2 JUGADORES NO CUENTA.</p>
     </aside>
   </section>
 
@@ -4201,43 +4224,185 @@ blSetupRender(); blLB(); blView('menu');
    DUELO DEL OESTE — duelo de reflejos, 1 contra 1. Cuenta regresiva
    3, 2, 1… una espera al azar y "¡YA!": gana la ronda quien dispare
    primero. Disparar antes de tiempo pierde la ronda. Al mejor de 3.
-   Modos: VS CPU (todo local) y en línea (el anfitrión reparte la
+   Modos: VS CPU (el rival es un vaquero robot), 2 jugadores en el
+   mismo equipo (teclas A y L) y en línea (el anfitrión reparte la
    cuenta regresiva con una marca de tiempo compartida; quien gana la
    ronda la reclama con una transacción de Firestore, así los dos
    quedan de acuerdo aunque disparen casi al mismo tiempo).
+   Entre humanos (local o en línea) cada quien elige sombrero y poncho;
+   en línea la elección va en `duelos/{sala}.{A|B}.look`.
+   Top 10 dual:
+   - "duelo": duelos ganados VS CPU (sin cambios, suma 1 por duelo).
+   - "duelo_reaccion": mejor tiempo de reacción en ms enteros (menor es
+     mejor). Cuenta VS CPU y en línea, solo con un disparo válido después
+     del "¡YA!". No cuenta en 2 jugadores del mismo equipo (hay un solo
+     nombre de jugador y no se sabría de quién es la marca). Se ignoran
+     valores fuera de [DL_RT_MIN, DL_RT_MAX] (menos de 80 ms no es humano).
    ============================================================ */
 const DL_COUNT_STEP = 700, DL_MIN_WAIT = 1000, DL_MAX_WAIT = 3500;
 const DL_CPU_MIN = 220, DL_CPU_MAX = 520, DL_WINS_TO_TAKE = 2;
+const DL_RT_MIN = 80, DL_RT_MAX = 5000, DL_SCALE = 3;
 const DL = {
   mode: null, room: null, me: null, isHost: false, unsub: null, hbStop: null, roomData: null,
   names: { A: 'JUGADOR 1', B: 'JUGADOR 2' }, wins: { A: 0, B: 0 },
   phase: 'idle', countN: 3, yaAt: 0, roundActive: false, currentRoundSeq: 0, roundSeqCounter: 0,
-  appliedRoundSeq: 0, lastResultRoundSeq: -1, appliedMatchSeq: 0, timers: [], shot: null
+  appliedRoundSeq: 0, lastResultRoundSeq: -1, appliedMatchSeq: 0, timers: [], shot: null,
+  looks: { A: null, B: null }, lbKey: 'duelo', lookTimer: null
 };
 function dlMsg(t, cls) { const m = $('#dl-msg'); m.textContent = t; m.className = 'msg' + (cls ? ' ' + cls : ''); }
 function dlMenuMsg(t, cls) { const m = $('#dl-menu-msg'); m.textContent = t; m.className = 'msg' + (cls ? ' ' + cls : ''); }
 function dlSchedule(fn, delayMs) { const id = setTimeout(fn, Math.max(0, delayMs)); DL.timers.push(id); return id; }
 function dlClearTimers() { DL.timers.forEach(clearTimeout); DL.timers = []; }
+function dlShow(view) {
+  $('#dl-menu').hidden = view !== 'menu'; $('#dl-local-setup').hidden = view !== 'local';
+  $('#dl-lobby').hidden = view !== 'lobby'; $('#dl-game').hidden = view !== 'game';
+  $('#dl-fire').hidden = !(view === 'game' && (DL.mode === 'cpu' || DL.mode === 'online'));
+  $('#dl-fire2').hidden = !(view === 'game' && DL.mode === 'local');
+  fitSoon();
+}
+
+/* ---------- apariencia: sombrero y poncho ---------- */
+const DL_HATS = ['VAQUERO', 'CHARRO', 'BOMBÍN', 'COPA'];
+const DL_HAT_COLORS = [['CAFÉ', '#7a4a2a', '#3b2214'], ['NEGRO', '#262b44', '#b13e53'], ['CREMA', '#e8d8b0', '#8a5a3c'],
+  ['ROJO', '#b13e53', '#5d275d'], ['GRIS', '#8b9bb4', '#333c57'], ['VERDE', '#38b764', '#1e5c3a']];
+const DL_PONCHOS = [['ROJO', '#b13e53', '#ffcd75'], ['AZUL', '#3b5dc9', '#f4f4f4'], ['VERDE', '#257179', '#a7f070'],
+  ['MORADO', '#5d275d', '#ef7d57'], ['NARANJA', '#ef7d57', '#1a1c2c'], ['CREMA', '#e8d8b0', '#b13e53']];
+const DL_PATTERNS = ['LISO', 'RAYAS', 'ZIGZAG', 'FLECOS'];
+// Campos de `look` (enteros): hat 0-3, hatColor 0-5, poncho 0-5, pattern 0-3.
+const DL_LOOK_FIELDS = [['hat', 'SOMBRERO', DL_HATS], ['hatColor', 'COLOR', DL_HAT_COLORS.map(c => c[0])],
+  ['poncho', 'PONCHO', DL_PONCHOS.map(c => c[0])], ['pattern', 'DISEÑO', DL_PATTERNS]];
+const DL_LOOK_DEF = { A: { hat: 0, hatColor: 0, poncho: 0, pattern: 1 }, B: { hat: 1, hatColor: 1, poncho: 1, pattern: 2 } };
+function dlLook(o, def) {
+  const out = {};
+  DL_LOOK_FIELDS.forEach(([k, , opts]) => {
+    const v = o && Number.isInteger(o[k]) ? o[k] : def[k];
+    out[k] = v >= 0 && v < opts.length ? v : def[k];
+  });
+  return out;
+}
+const dlMyLook = () => dlLook(store.get('dl_look', null), DL_LOOK_DEF.A);
+const DL_HAT_ROWS = [
+  ["................", "......HHHH......", ".....HHHHHH.....", ".....hhhhhh.....", "..HHHHHHHHHHHH..", "...HHHHHHHHHH..."],
+  [".......HH.......", "......HHHH......", ".....HHHHHH.....", ".....hhhhhh.....", "HHHHHHHHHHHHHHHH", ".HHhHHhHHhHHhHH."],
+  ["................", "................", "......HHHH......", ".....HHHHHH.....", ".....hhhhhh.....", "....HHHHHHHH...."],
+  [".....HHHHHH.....", ".....HHHHHH.....", ".....HHHHHH.....", ".....hhhhhh.....", ".....HHHHHH.....", "...HHHHHHHHHH..."]
+];
+const DL_BODY_ROWS = [
+  ".....SSSSSS.....", ".....SSSSES.....", ".....SSSSSSS....", ".....SSMMMS.....", "......SSSS......",
+  ".....PPPPPP.....", "....PPPPPPPP....", "...PPPPPPPPPP...", "..PPPPPPPPPPPSGG", "..PPPPPPPPPPPP..",
+  "..PPPPPPPPPPPP..", "...PPPPPPPPPP...",
+  ".....BBBBBB.....", ".....BB..BB.....", ".....BB..BB.....", ".....BB..BB.....", "....KKK..KKK....", "....KKK..KKK...."
+];
+const DL_ROBOT_ROWS = [
+  "................", "......HHHH......", ".....HHHHHH.....", ".....hhhhhh.....", "..HHHHHHHHHHHH..", "...HHHHHHHHHH...",
+  ".....MMMMMM.....", ".....MRRRRM.....", ".....MMMMMMD....", ".....MDMDMM.....", "......MMMM......",
+  ".......DD.......", "....MMMMMMMM....", "...MMLLMMMMMM...", "...MMDDDDMMMMMGG", "...MMMMMMMMMM...",
+  "...MMMCCMMMMM...", "....MMMMMMMM....",
+  ".....DDDDDD.....", ".....DD..DD.....", ".....MM..MM.....", ".....DD..DD.....", "....MMM..MMM....", "....DDD..DDD...."
+];
+// Rodea el dibujo con un borde oscuro de 1 píxel (se lee mejor sobre el cielo naranja).
+function dlOutline(rows) {
+  const w = rows[0].length + 2, pad = '.'.repeat(w);
+  const g = [pad, ...rows.map(r => '.' + r + '.'), pad].map(r => [...r]);
+  const solid = (y, x) => g[y] && g[y][x] && g[y][x] !== '.' && g[y][x] !== 'o';
+  return g.map((r, y) => r.map((ch, x) => ch === '.' && (solid(y - 1, x) || solid(y + 1, x) || solid(y, x - 1) || solid(y, x + 1)) ? 'o' : ch).join(''));
+}
+const DL_SPR_CACHE = {};
+function dlCowboySprite(look) {
+  const key = `${look.hat}-${look.hatColor}-${look.poncho}-${look.pattern}`;
+  if (DL_SPR_CACHE[key]) return DL_SPR_CACHE[key];
+  const rows = DL_HAT_ROWS[look.hat].concat(DL_BODY_ROWS).map((r, y) => [...r].map((ch, x) => {
+    if (ch !== 'P') return ch;
+    const p = look.pattern;
+    if (p === 1 && (y === 13 || y === 16)) return 'Q';
+    if (p === 2 && ((y === 14 && x % 4 === 0) || (y === 15 && x % 2 === 1) || (y === 16 && x % 4 === 2))) return 'Q';
+    if (p === 3 && (y === 11 || (y === 17 && x % 2 === 0))) return 'Q';
+    return ch;
+  }).join(''));
+  const hc = DL_HAT_COLORS[look.hatColor], pc = DL_PONCHOS[look.poncho];
+  return (DL_SPR_CACHE[key] = sprite(dlOutline(rows), {
+    o: '#1a1c2c', H: hc[1], h: hc[2], S: '#e0a878', E: '#1a1c2c', M: '#3b2214',
+    P: pc[1], Q: pc[2], B: '#29366f', K: '#3b2214', G: '#566c86'
+  }));
+}
+const DL_ROBOT_PAL = { o: '#1a1c2c', H: '#7a4a2a', h: '#3b2214', M: '#8b9bb4', D: '#566c86', L: '#a7f070', C: '#73eff7', G: '#333c57' };
+const DL_ROBOT = sprite(dlOutline(DL_ROBOT_ROWS), { ...DL_ROBOT_PAL, R: '#ff4a4a' });
+const DL_ROBOT_BLINK = sprite(dlOutline(DL_ROBOT_ROWS), { ...DL_ROBOT_PAL, R: '#5d275d' });
+const DL_TUMBLE = sprite([
+  "..tTtTt...", ".T.t..tT..", "t..TttT.t.", "tT.t..t..T", "t.tTttTt.t",
+  "T..t..tT.t", "t.T.tt..T.", ".tT.t..t..", "..tTtTtt..", "....tt...."
+], { t: '#9a6a34', T: '#4e2f1c' });
+const DL_CACTUS = sprite(dlOutline([
+  ".....ff.....", "....cCCc....", "....cCCc....", "....cCCc..c.", ".c..cCCc.cCc", "cCc.cCCc.cCc",
+  "cCc.cCCc.cCc", "cCc.cCCccCCc", "cCCccCCcCCc.", ".cCCCCCCCc..", "..cccCCc....", "....cCCc....",
+  "....cCCc....", "....cCCc....", "....cCCc....", "....cCCc....", "....cCCc...."
+]), { o: '#1a1c2c', c: '#1e6a3e', C: '#38b764', f: '#ef7d57' });
+
+/* ---------- selector de sombrero y poncho ---------- */
+// el: contenedor; title: texto; getLook(): apariencia actual; onChange(look) o null si solo se muestra.
+function dlPicker(el, title, getLook, onChange) {
+  const look = getLook();
+  el.innerHTML = '';
+  const t = document.createElement('p'); t.className = 'dl-pick-t'; t.textContent = title; el.appendChild(t);
+  if (!look) { const m = document.createElement('p'); m.className = 'sub'; m.textContent = 'ESPERANDO…'; el.appendChild(m); return; }
+  const cv = document.createElement('canvas'); cv.className = 'dl-prev';
+  const spr = dlCowboySprite(look); cv.width = spr.width; cv.height = spr.height;
+  cv.getContext('2d').drawImage(spr, 0, 0); el.appendChild(cv);
+  DL_LOOK_FIELDS.forEach(([k, label, opts]) => {
+    const row = document.createElement('div'); row.className = 'dl-opt';
+    const txt = document.createElement('span'); txt.textContent = `${label}: ${opts[look[k]]}`;
+    if (onChange) {
+      const mk = (s, d) => {
+        const b = document.createElement('button'); b.className = 'btn'; b.textContent = s;
+        b.setAttribute('aria-label', `${label} ${d > 0 ? 'SIGUIENTE' : 'ANTERIOR'}`);
+        b.onclick = () => { SFX.play('click'); const n = { ...getLook() }; n[k] = (n[k] + d + opts.length) % opts.length; onChange(n); };
+        return b;
+      };
+      row.append(mk('<', -1), txt, mk('>', 1));
+    } else row.append(txt);
+    el.appendChild(row);
+  });
+}
+function dlLocalPickers() {
+  dlPicker($('#dl-pick-a'), 'J1 (TECLA A)', () => DL.looks.A, n => { DL.looks.A = n; store.set('dl_look', n); dlLocalPickers(); });
+  dlPicker($('#dl-pick-b'), 'J2 (TECLA L)', () => DL.looks.B, n => { DL.looks.B = n; store.set('dl_look2', n); dlLocalPickers(); });
+}
+function dlLobbyPickers() {
+  const opp = DL.me === 'A' ? 'B' : 'A', hasOpp = !!(DL.roomData && DL.roomData[opp]);
+  dlPicker($('#dl-pick-me'), 'TÚ', () => DL.looks[DL.me], n => {
+    DL.looks[DL.me] = n; store.set('dl_look', n); dlLobbyPickers(); dlSendLook();
+  });
+  dlPicker($('#dl-pick-opp'), 'RIVAL', () => hasOpp ? DL.looks[opp] : null, null);
+}
+// Escribe mi apariencia en la sala (con un poco de espera para no escribir en cada clic).
+function dlSendLook() {
+  clearTimeout(DL.lookTimer);
+  DL.lookTimer = setTimeout(() => {
+    if (DL.mode !== 'online' || !DL.room) return;
+    fs.updateDoc(fs.doc(db, 'duelos', DL.room), { [DL.me + '.look']: dlLook(DL.looks[DL.me], DL_LOOK_DEF[DL.me]) })
+      .catch(e => console.warn('No se pudo compartir la apariencia:', e));
+  }, 300);
+}
 
 /* ---------- dibujo ---------- */
-function dlDrawCowboy(ctx, x, groundY, col, fall, tiltDir) {
+function dlDrawFighter(ctx, id, x, groundY, fall, tiltDir, now) {
+  const img = DL.mode === 'cpu' && id === 'B'
+    ? ((now % 2600) < 140 ? DL_ROBOT_BLINK : DL_ROBOT)
+    : dlCowboySprite(DL.looks[id] || DL_LOOK_DEF[id]);
+  const w = img.width * DL_SCALE, h = img.height * DL_SCALE;
   ctx.save();
   if (fall > 0) { ctx.translate(x, groundY); ctx.rotate(tiltDir * fall * 1.1); ctx.translate(-x, -groundY); ctx.globalAlpha = 1 - fall * .4; }
-  ctx.fillStyle = col;
-  ctx.fillRect(x - 6, groundY - 46, 12, 34);
-  ctx.beginPath(); ctx.arc(x, groundY - 52, 8, 0, Math.PI * 2); ctx.fill();
-  ctx.fillRect(x - 11, groundY - 59, 22, 5);
-  ctx.fillRect(x - 5, groundY - 68, 10, 9);
-  ctx.fillRect(x - 3, groundY - 12, 6, 12);
+  if (id === 'B') { ctx.translate(x, 0); ctx.scale(-1, 1); ctx.translate(-x, 0); }
+  ctx.drawImage(img, Math.round(x - w / 2), Math.round(groundY - h + DL_SCALE), w, h);
   ctx.restore();
 }
 function dlDrawShot(ctx, W, groundY, shot) {
   const t = Math.min(1, (performance.now() - shot.start) / shot.duration);
   const shooterX = shot.winnerId === 'A' ? W * 0.26 : W * 0.74, targetX = shot.winnerId === 'A' ? W * 0.74 : W * 0.26;
-  const gunY = groundY - 30, dir = shot.winnerId === 'A' ? 1 : -1;
+  const gunY = groundY - 31, dir = shot.winnerId === 'A' ? 1 : -1;
   if (t < 0.3) {
     ctx.save(); ctx.globalAlpha = 1 - t / 0.3; ctx.fillStyle = '#fff4b0';
-    ctx.beginPath(); ctx.arc(shooterX + dir * 16, gunY, 7, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(shooterX + dir * 24, gunY, 7, 0, Math.PI * 2); ctx.fill();
     ctx.restore();
   }
   const bx = shooterX + (targetX - shooterX) * Math.min(1, t / 0.65);
@@ -4246,31 +4411,53 @@ function dlDrawShot(ctx, W, groundY, shot) {
   ctx.fillStyle = '#fffbe0'; ctx.beginPath(); ctx.arc(bx, gunY, 2.5, 0, Math.PI * 2); ctx.fill();
   return t;
 }
-function dlDraw() {
-  const cv = $('#dl-cv'); if (!cv || !cv.offsetParent) return;
-  const ctx = cv.getContext('2d'); ctx.imageSmoothingEnabled = false;
-  const W = cv.width, H = cv.height, groundY = H * 0.74;
+// Fondo: cielo, sol que sube y baja despacio, mesetas, suelo, cactus fijo y un cactus rodante.
+function dlDrawScene(ctx, W, H, groundY, now) {
   const grad = ctx.createLinearGradient(0, 0, 0, H);
   grad.addColorStop(0, '#f2a65a'); grad.addColorStop(.55, '#e8834f'); grad.addColorStop(1, '#c96a3e');
   ctx.fillStyle = grad; ctx.fillRect(0, 0, W, H);
-  ctx.fillStyle = 'rgba(255,235,180,.85)'; ctx.beginPath(); ctx.arc(W * 0.5, H * 0.28, 26, 0, Math.PI * 2); ctx.fill();
+  const sunY = Math.round((H * 0.3 + Math.sin(now / 3200) * 10) / 2) * 2;
+  pxCircle(ctx, W * 0.5, sunY, 24, 'rgba(255,235,180,.55)');
+  pxCircle(ctx, W * 0.5, sunY, 19, '#ffe9b0');
+  ctx.fillStyle = '#c4633c';
+  ctx.fillRect(18, groundY - 34, 92, 34); ctx.fillRect(30, groundY - 44, 64, 10);
+  ctx.fillRect(360, groundY - 26, 100, 26); ctx.fillRect(378, groundY - 38, 50, 12);
+  ctx.fillStyle = '#b3573a'; ctx.fillRect(18, groundY - 8, 92, 8); ctx.fillRect(360, groundY - 6, 100, 6);
   ctx.fillStyle = '#8a5a3c'; ctx.fillRect(0, groundY, W, H - groundY);
   ctx.fillStyle = '#6e4530'; ctx.fillRect(0, groundY, W, 4);
+  ctx.fillStyle = '#7a4d33';
+  for (let i = 0; i < 14; i++) ctx.fillRect((i * 67 + 13) % W, groundY + 12 + (i * 23) % (H - groundY - 16), 4 + (i % 3) * 2, 2);
+  const cw = DL_CACTUS.width * DL_SCALE, ch = DL_CACTUS.height * DL_SCALE;
+  ctx.drawImage(DL_CACTUS, 8, groundY + 6 - ch, cw, ch);
+  // cactus rodante: cruza de izquierda a derecha a ~28 px/s, girando en pasos de 90°
+  const span = W + 160, tx = ((now / 1000) * 28) % span - 60;
+  const ts = DL_TUMBLE.width * DL_SCALE, bounce = Math.abs(Math.sin(now / 260)) * 7;
+  ctx.save();
+  ctx.translate(Math.round(tx), Math.round(groundY - ts / 2 - bounce + 2));
+  ctx.rotate((Math.floor(tx / 8) % 4) * Math.PI / 2);
+  ctx.drawImage(DL_TUMBLE, -ts / 2, -ts / 2, ts, ts);
+  ctx.restore();
+}
+function dlDraw() {
+  const cv = $('#dl-cv'); if (!cv || !cv.offsetParent) return;
+  const ctx = cv.getContext('2d'); ctx.imageSmoothingEnabled = false;
+  const W = cv.width, H = cv.height, groundY = Math.round(H * 0.74), now = performance.now();
+  dlDrawScene(ctx, W, H, groundY, now);
   let fallA = 0, fallB = 0, shotT = 1;
   if (DL.shot) {
-    shotT = Math.min(1, (performance.now() - DL.shot.start) / DL.shot.duration);
+    shotT = Math.min(1, (now - DL.shot.start) / DL.shot.duration);
     const impact = Math.max(0, (shotT - 0.55) / 0.45);
     if (DL.shot.loserId === 'A') fallA = impact; else fallB = impact;
   }
-  dlDrawCowboy(ctx, W * 0.26, groundY, '#241c18', fallA, -1);
-  dlDrawCowboy(ctx, W * 0.74, groundY, '#3a2a1e', fallB, 1);
+  dlDrawFighter(ctx, 'A', W * 0.26, groundY, fallA, -1, now);
+  dlDrawFighter(ctx, 'B', W * 0.74, groundY, fallB, 1, now);
   if (DL.shot && shotT < 1) dlDrawShot(ctx, W, groundY, DL.shot);
   ctx.textAlign = 'center';
   if (DL.phase === 'count') {
     ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(0, 0, W, H);
     ctx.fillStyle = '#fff4e0'; ctx.font = '48px "Press Start 2P"'; ctx.fillText(String(DL.countN), W / 2, H / 2 + 16);
   } else if (DL.phase === 'go') {
-    const pulse = 1 + Math.sin(performance.now() / 60) * .05;
+    const pulse = 1 + Math.sin(now / 60) * .05;
     ctx.save(); ctx.translate(W / 2, H / 2); ctx.scale(pulse, pulse);
     ctx.fillStyle = '#ffe14d'; ctx.font = '40px "Press Start 2P"'; ctx.fillText('¡YA!', 0, 10);
     ctx.restore();
@@ -4281,7 +4468,7 @@ function dlDraw() {
   $('#dl-score').textContent = `${DL.names.A} ${DL.wins.A} - ${DL.wins.B} ${DL.names.B}`;
 }
 
-/* ---------- ronda (compartido CPU / en línea) ---------- */
+/* ---------- ronda (compartido CPU / local / en línea) ---------- */
 function dlBeginCountdown(seq, startAt, yaAt) {
   dlClearTimers();
   DL.currentRoundSeq = seq; DL.roundActive = true; DL.phase = 'count'; DL.countN = 3; DL.yaAt = 0; DL.shot = null;
@@ -4314,7 +4501,7 @@ function dlFinishRound(winnerId, wA, wB, msg, cls) {
   dlMsg(msg, cls); dlDraw();
   SFX.play(cls === 'win' ? 'win' : 'lose');
   if (wA >= DL_WINS_TO_TAKE || wB >= DL_WINS_TO_TAKE) return dlMatchOver(wA >= DL_WINS_TO_TAKE ? 'A' : 'B');
-  if (DL.mode === 'cpu') dlSchedule(() => dlStartRound(), 1600);
+  if (DL.mode === 'cpu' || DL.mode === 'local') dlSchedule(() => dlStartRound(), 1600);
   else if (DL.mode === 'online' && DL.isHost) dlSchedule(() => dlHostNextRound(), 1600);
 }
 function dlMatchOver(id) {
@@ -4322,9 +4509,59 @@ function dlMatchOver(id) {
   const winner = id === 'A' ? DL.names.A : DL.names.B;
   $('#dl-over-t').textContent = `¡${winner} GANA EL DUELO!`;
   $('#dl-over-p').textContent = `${DL.wins.A} - ${DL.wins.B}`;
-  $('#dl-over').hidden = false; $('#dl-fire').hidden = true;
-  if (DL.mode === 'cpu' && id === 'A') LB.increment('duelo').then(() => LB.render($('#dl-lb'), 'duelo', false, r => r.score));
+  $('#dl-over').hidden = false; $('#dl-fire').hidden = true; $('#dl-fire2').hidden = true;
+  if (DL.mode === 'cpu' && id === 'A') LB.increment('duelo').then(() => { if (DL.lbKey === 'duelo') dlRenderLB(); });
 }
+
+/* ---------- tiempo de reacción (Top 10 "duelo_reaccion") ---------- */
+function dlToday() {
+  const d = new Date(), p = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
+function dlBestText() {
+  const b = store.get('dl_best_rt', 0);
+  return b ? `TU MEJOR REACCIÓN: ${b} MS` : 'DISPARA RÁPIDO TRAS EL "¡YA!" PARA MARCAR TU REACCIÓN';
+}
+// Solo VS CPU y en línea, solo con disparo válido (después del "¡YA!").
+function dlRecordReaction(rt) {
+  if (DL.mode !== 'cpu' && DL.mode !== 'online') return;
+  const ms = Math.round(rt);
+  if (!Number.isFinite(ms) || ms < DL_RT_MIN || ms > DL_RT_MAX) return;
+  const prev = store.get('dl_best_rt', 0), better = !prev || ms < prev;
+  if (better) store.set('dl_best_rt', ms);
+  $('#dl-best').textContent = better ? `¡NUEVA MEJOR REACCIÓN: ${ms} MS!` : dlBestText();
+  LB.submit('duelo_reaccion', ms, true, `${dlToday()} ${DL.mode === 'cpu' ? 'CPU' : 'ONLINE'}`)
+    .then(ok => { if (ok && DL.lbKey === 'duelo_reaccion') dlRenderLB(); });
+}
+const DL_LB_CFG = {
+  duelo: { asc: false, sub: 'DUELOS GANADOS VS CPU', fmt: r => `${Number(r.score) || 0}` },
+  duelo_reaccion: { asc: true, sub: 'MEJOR TIEMPO DE REACCIÓN (VS CPU Y EN LÍNEA). MENOS ES MEJOR.', fmt: r => `${Number(r.score) || 0} MS` }
+};
+function dlDate(r) {
+  const ms = tsMillis(r.ts), p = n => String(n).padStart(2, '0');
+  if (ms) { const d = new Date(ms); return `${p(d.getDate())}/${p(d.getMonth() + 1)}/${String(d.getFullYear()).slice(2)}`; }
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(r.extra || ''));
+  return m ? `${m[3]}/${m[2]}/${m[1].slice(2)}` : '';
+}
+// Render propio (en vez de LB.render) para mostrar también la fecha de la marca.
+async function dlRenderLB() {
+  const key = DL.lbKey, cfg = DL_LB_CFG[key], el = $('#dl-lb');
+  document.querySelectorAll('#dl-lb-tabs .btn').forEach(b => b.classList.toggle('on', b.dataset.k === key));
+  $('#dl-lb-sub').textContent = cfg.sub;
+  el.innerHTML = '<li class="muted">CARGANDO…</li>';
+  const rows = await LB.top(key, cfg.asc);
+  if (key !== DL.lbKey) return;
+  if (!rows) { el.innerHTML = '<li class="muted">NO SE PUDO CARGAR</li>'; return; }
+  el.innerHTML = rows.length
+    ? rows.map((r, i) => {
+      const f = dlDate(r);
+      return `<li class="${r.me ? 'me' : ''}"><span class="rk">${i + 1}.</span><span class="nm">${esc(r.name)}</span><span class="sc">${esc(cfg.fmt(r))}${f ? `<small>${esc(f)}</small>` : ''}</span></li>`;
+    }).join('')
+    : '<li class="muted">SIN RÉCORDS AÚN</li>';
+}
+document.querySelectorAll('#dl-lb-tabs .btn').forEach(b => b.onclick = () => {
+  SFX.play('click'); DL.lbKey = b.dataset.k; store.set('dl_lb_tab', DL.lbKey); dlRenderLB();
+});
 
 /* ---------- disparo ---------- */
 function dlHumanFire() {
@@ -4336,16 +4573,29 @@ function dlHumanFireCpu() {
   if (DL.phase !== 'go') return dlAfterRound('B', DL.wins.A, DL.wins.B + 1, 'DISPARASTE ANTES DE TIEMPO', 'lose', true);
   const rt = performance.now() - DL.yaAt;
   dlAfterRound('A', DL.wins.A + 1, DL.wins.B, `¡GANASTE EN ${rt.toFixed(0)} MS!`, 'win', false);
+  dlRecordReaction(rt);
 }
 function dlCpuFire(seq) {
   if (seq !== DL.currentRoundSeq || !DL.roundActive || DL.phase !== 'go') return;
   dlAfterRound('B', DL.wins.A, DL.wins.B + 1, `${DL.names.B} DISPARÓ PRIMERO`, 'lose', false);
+}
+function dlLocalFire(id) {
+  if (DL.mode !== 'local' || !DL.roundActive) return;
+  const other = id === 'A' ? 'B' : 'A';
+  if (DL.phase !== 'go') {
+    const wA = DL.wins.A + (other === 'A' ? 1 : 0), wB = DL.wins.B + (other === 'B' ? 1 : 0);
+    return dlAfterRound(other, wA, wB, `${DL.names[id]} DISPARÓ ANTES DE TIEMPO`, 'lose', true);
+  }
+  const rt = performance.now() - DL.yaAt;
+  const wA = DL.wins.A + (id === 'A' ? 1 : 0), wB = DL.wins.B + (id === 'B' ? 1 : 0);
+  dlAfterRound(id, wA, wB, `¡${DL.names[id]} GANA EN ${rt.toFixed(0)} MS!`, 'win', false);
 }
 function dlHumanFireOnline() {
   const seq = DL.currentRoundSeq, early = DL.phase !== 'go';
   const rt = early ? null : performance.now() - DL.yaAt;
   DL.roundActive = false;
   dlClaim(early ? (DL.me === 'A' ? 'B' : 'A') : DL.me, seq, rt);
+  if (!early) dlRecordReaction(rt);
 }
 async function dlClaim(winnerId, seq, rt) {
   if (!DL.room) return;
@@ -4368,12 +4618,25 @@ function dlStartRound() {
 function dlCpu() {
   dlLeaveOnline(true);
   DL.mode = 'cpu'; DL.me = 'A'; DL.names = { A: playerName() || 'JUGADOR 1', B: 'CPU' }; DL.wins = { A: 0, B: 0 };
-  $('#dl-menu').hidden = true; $('#dl-lobby').hidden = true; $('#dl-game').hidden = false; $('#dl-over').hidden = true;
-  $('#dl-fire').hidden = false; DL.phase = 'idle'; dlMsg(''); dlDraw();
-  fitSoon(); dlStartRound();
+  DL.looks = { A: dlMyLook(), B: null };
+  $('#dl-over').hidden = true; dlShow('game');
+  DL.phase = 'idle'; dlMsg(''); $('#dl-best').textContent = dlBestText(); dlDraw();
+  dlStartRound();
+}
+function dlLocalSetup() {
+  dlLeaveOnline(true);
+  DL.mode = null;
+  DL.looks = { A: dlMyLook(), B: dlLook(store.get('dl_look2', null), DL_LOOK_DEF.B) };
+  dlLocalPickers(); dlShow('local');
+}
+function dlLocalStart() {
+  DL.mode = 'local'; DL.me = null; DL.names = { A: 'JUGADOR 1', B: 'JUGADOR 2' }; DL.wins = { A: 0, B: 0 };
+  $('#dl-over').hidden = true; dlShow('game');
+  DL.phase = 'idle'; dlMsg(''); $('#dl-best').textContent = 'J1: TECLA A · J2: TECLA L (EL TIEMPO DE REACCIÓN NO CUENTA EN ESTE MODO)'; dlDraw();
+  dlStartRound();
 }
 async function dlCreate() {
-  if (!(await fbReady)) return dlMenuMsg('SIN CONEXIÓN A FIREBASE: SOLO SE PUEDE JUGAR VS CPU.', 'lose');
+  if (!(await fbReady)) return dlMenuMsg('SIN CONEXIÓN A FIREBASE: JUEGA VS CPU O EN 2 JUGADORES.', 'lose');
   dlLeaveOnline(true); dlMenuMsg('CREANDO SALA…');
   try {
     let code, ref;
@@ -4384,14 +4647,15 @@ async function dlCreate() {
       created: fs.serverTimestamp()
     });
     DL.mode = 'online'; DL.me = 'A'; DL.isHost = true; DL.room = code;
+    DL.looks = { A: dlMyLook(), B: DL_LOOK_DEF.B };
     $('#dl-room').textContent = 'SALA ' + code; dlMenuMsg('');
-    dlShowLobby(); dlListen();
+    dlShowLobby(); dlListen(); dlSendLook();
   } catch (e) { console.error(e); dlMenuMsg('ERROR AL CREAR SALA: ' + e.message, 'lose'); }
 }
 async function dlJoin() {
   const code = $('#dl-code').value.trim().toUpperCase();
   if (code.length < 5) return dlMenuMsg('ESCRIBE EL CÓDIGO DE 5 LETRAS.', 'lose');
-  if (!(await fbReady)) return dlMenuMsg('SIN CONEXIÓN A FIREBASE: SOLO SE PUEDE JUGAR VS CPU.', 'lose');
+  if (!(await fbReady)) return dlMenuMsg('SIN CONEXIÓN A FIREBASE: JUEGA VS CPU O EN 2 JUGADORES.', 'lose');
   dlLeaveOnline(true); dlMenuMsg('ENTRANDO…');
   const ref = fs.doc(db, 'duelos', code);
   try {
@@ -4403,11 +4667,12 @@ async function dlJoin() {
       tx.update(ref, { B: { uid: UID, name: playerName(), lastSeen: fs.serverTimestamp() } });
     });
     DL.mode = 'online'; DL.me = 'B'; DL.isHost = false; DL.room = code;
+    DL.looks = { A: DL_LOOK_DEF.A, B: dlMyLook() };
     $('#dl-room').textContent = 'SALA ' + code; dlMenuMsg('');
-    dlShowLobby(); dlListen();
+    dlShowLobby(); dlListen(); dlSendLook();
   } catch (e) { dlMenuMsg(e.message, 'lose'); }
 }
-function dlShowLobby() { $('#dl-menu').hidden = true; $('#dl-lobby').hidden = false; fitSoon(); }
+function dlShowLobby() { dlShow('lobby'); dlLobbyPickers(); }
 function dlListen() {
   DL.unsub = fs.onSnapshot(fs.doc(db, 'duelos', DL.room), s => {
     if (!s.exists()) { dlLeaveOnline(); dlMenuMsg('LA SALA SE CERRÓ.', 'lose'); return; }
@@ -4416,8 +4681,12 @@ function dlListen() {
   DL.hbStop = presenceLoop(() => fs.updateDoc(fs.doc(db, 'duelos', DL.room), { [DL.me + '.lastSeen']: fs.serverTimestamp() }).catch(() => {}));
 }
 function dlOnRoom(d) {
-  DL.roomData = d;
   const oppKey = DL.me === 'A' ? 'B' : 'A', oppD = d[oppKey];
+  const prevOpp = DL.roomData && DL.roomData[oppKey], prevLook = JSON.stringify(DL.looks[oppKey]);
+  DL.roomData = d;
+  // Solo tomo del documento la apariencia del rival; la mía la manda este equipo.
+  DL.looks[oppKey] = dlLook(oppD && oppD.look, DL_LOOK_DEF[oppKey]);
+  if (!$('#dl-lobby').hidden && (!!prevOpp !== !!oppD || prevLook !== JSON.stringify(DL.looks[oppKey]))) dlLobbyPickers();
   $('#dl-plist').innerHTML = ['A', 'B'].map(k => d[k] ? `<li>${esc(d[k].name)}${d[k].uid === UID ? ' (TÚ)' : ''}</li>` : '<li class="muted">ESPERANDO…</li>').join('');
   $('#dl-lobby-msg').textContent = DL.isHost ? `COMPARTE EL CÓDIGO ${DL.room}.` : 'ESPERANDO AL ANFITRIÓN…';
   $('#dl-turn').textContent = (oppD && isStale(oppD.lastSeen, Date.now())) ? 'EL RIVAL SE DESCONECTÓ' : '';
@@ -4435,12 +4704,11 @@ function dlOnRoom(d) {
   }
 }
 function dlEnterGame(d) {
-  $('#dl-lobby').hidden = true; $('#dl-game').hidden = false; $('#dl-over').hidden = true; $('#dl-fire').hidden = false;
+  $('#dl-over').hidden = true; dlShow('game');
   DL.names = { A: (d.A && d.A.name) || 'JUGADOR 1', B: (d.B && d.B.name) || 'JUGADOR 2' };
   DL.wins = { A: d.winsA || 0, B: d.winsB || 0 };
   DL.appliedRoundSeq = 0; DL.lastResultRoundSeq = -1; DL.phase = 'idle'; DL.roundActive = false;
-  dlMsg(''); dlDraw();
-  fitSoon();
+  dlMsg(''); $('#dl-best').textContent = dlBestText(); dlDraw();
 }
 async function dlGo() {
   if (!DL.isHost || !DL.room) return;
@@ -4457,24 +4725,27 @@ async function dlHostNextRound() {
   await fs.updateDoc(fs.doc(db, 'duelos', DL.room), { roundSeq: seq, startAt, yaAt, roundWinner: null }).catch(() => {});
 }
 function dlLeaveOnline(silent) {
-  dlClearTimers();
+  dlClearTimers(); clearTimeout(DL.lookTimer);
   if (DL.unsub) { DL.unsub(); DL.unsub = null; }
   if (DL.hbStop) { DL.hbStop(); DL.hbStop = null; }
   DL.mode = null; DL.room = null; DL.isHost = false; DL.roomData = null; DL.roundActive = false;
-  $('#dl-menu').hidden = false; $('#dl-lobby').hidden = true; $('#dl-game').hidden = true; $('#dl-fire').hidden = true;
+  dlShow('menu');
   if (!silent) dlMenuMsg('');
 }
 function dlQuit() {
   dlClearTimers();
   if (DL.mode === 'online') dlLeaveOnline();
-  else { DL.mode = null; DL.roundActive = false; $('#dl-menu').hidden = false; $('#dl-game').hidden = true; $('#dl-fire').hidden = true; }
+  else { DL.mode = null; DL.roundActive = false; dlShow('menu'); }
 }
 function dlAgain() {
   $('#dl-over').hidden = true;
-  if (DL.mode === 'cpu') { DL.wins = { A: 0, B: 0 }; $('#dl-fire').hidden = false; dlStartRound(); }
+  if (DL.mode === 'cpu' || DL.mode === 'local') { DL.wins = { A: 0, B: 0 }; dlShow('game'); dlStartRound(); }
   else if (DL.mode === 'online' && DL.isHost) dlGo();
 }
 $('#dl-cpu').onclick = () => { SFX.play('start'); dlCpu(); };
+$('#dl-local').onclick = () => { SFX.play('click'); dlLocalSetup(); };
+$('#dl-local-go').onclick = () => { SFX.play('start'); dlLocalStart(); };
+$('#dl-local-back').onclick = () => dlQuit();
 $('#dl-create').onclick = () => { SFX.play('click'); dlCreate(); };
 $('#dl-join').onclick = () => { SFX.play('click'); dlJoin(); };
 $('#dl-go').onclick = () => { SFX.play('start'); dlGo(); };
@@ -4483,8 +4754,17 @@ $('#dl-quit').onclick = () => dlQuit();
 $('#dl-again').onclick = () => { SFX.play('start'); dlAgain(); };
 $('#dl-exit').onclick = () => dlQuit();
 $('#dl-fire').onclick = () => dlHumanFire();
+// En 2 jugadores se dispara al tocar (pointerdown), sin esperar a soltar el dedo: es más justo.
+$('#dl-fire-a').addEventListener('pointerdown', e => { e.preventDefault(); dlLocalFire('A'); });
+$('#dl-fire-b').addEventListener('pointerdown', e => { e.preventDefault(); dlLocalFire('B'); });
+document.addEventListener('keydown', e => {
+  if (tab !== 'duelo' || DL.mode !== 'local' || e.repeat || e.target.tagName === 'INPUT') return;
+  if (e.code === 'KeyA') { e.preventDefault(); dlLocalFire('A'); }
+  else if (e.code === 'KeyL') { e.preventDefault(); dlLocalFire('B'); }
+});
 window.addEventListener('beforeunload', () => { if (DL.mode === 'online') dlLeaveOnline(); });
-LB.render($('#dl-lb'), 'duelo', false, r => r.score);
+DL.lbKey = DL_LB_CFG[store.get('dl_lb_tab', 'duelo')] ? store.get('dl_lb_tab', 'duelo') : 'duelo';
+dlRenderLB();
 
 /* ============================================================
    LA HUIDA DEL ZORRO — corredor sin fin. Salta (Espacio/↑/tocar) los
