@@ -103,6 +103,11 @@
     const arcade = document.createElement("script");
     arcade.src = "assets/js/arcade-launcher.js";
     document.head.appendChild(arcade);
+    // Asistente básico (buscar páginas, reportar un problema): ver assets/js/chatbot.js.
+    const chatbot = document.createElement("script");
+    chatbot.type = "module";
+    chatbot.src = "assets/js/chatbot.js";
+    document.head.appendChild(chatbot);
   } else if (part === "footer") {
     script.insertAdjacentHTML("beforebegin", renderFooter());
   }
