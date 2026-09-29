@@ -256,6 +256,13 @@ nav .btn{padding:8px 12px}
 #egg img{height:min(72vh,120vw);image-rendering:pixelated;box-shadow:0 0 0 6px var(--dark),0 0 0 10px var(--yellow);animation:eggIn .35s steps(4)}
 #egg p{color:var(--yellow);font-size:14px;margin:0;text-shadow:3px 3px 0 var(--red)}
 @keyframes eggIn{from{transform:scale(.2) rotate(-12deg)}to{transform:none}}
+
+/* === CARRERAS v2 === */
+.rc-lb-modes{margin-bottom:2px}
+.rc-lb-modes .btn{background:var(--panel2);color:var(--ink)}
+.rc-lb-modes .btn.on{background:var(--lime);color:var(--dark)}
+.rc-col .btn{flex-direction:row;min-width:74px;justify-content:center}
+.rc-col small{display:block;font-size:7px;opacity:.8}
 </style>
 </head>
 <body>
@@ -410,7 +417,7 @@ nav .btn{padding:8px 12px}
   <!-- ============ CARRERAS ============ -->
   <section class="game" id="g-carreras">
     <div class="main px">
-      <div class="splash" data-g="carreras"><canvas width="160" height="72"></canvas><h2>CARRERAS</h2><p>BICICLETA, PATINETA O PATINES · 3 CIRCUITOS · LOCAL U ONLINE</p><button class="btn red">INICIAR</button></div>
+      <div class="splash" data-g="carreras"><canvas width="160" height="72"></canvas><h2>CARRERAS</h2><p>BICICLETA, PATINETA O PATINES · 4 CIRCUITOS · LOCAL U ONLINE</p><button class="btn red">INICIAR</button></div>
       <div class="gbody" hidden>
       <div id="rc-setup">
         <div class="rc-sec">
@@ -429,6 +436,10 @@ nav .btn{padding:8px 12px}
         <div class="rc-sec" id="rc-track-sec">
           <h4>CIRCUITO</h4>
           <div class="pick" id="rc-track"></div>
+        </div>
+        <div class="rc-sec" id="rc-col-sec">
+          <h4>COLISIONES ENTRE JUGADORES</h4>
+          <div class="pick rc-col" id="rc-col"></div>
         </div>
       </div>
 
@@ -493,7 +504,8 @@ nav .btn{padding:8px 12px}
     </div>
     <aside class="side px">
       <h3>TOP 10</h3>
-      <p class="sub">MEJOR VUELTA POR CIRCUITO</p>
+      <p class="sub" id="rc-lb-sub">MEJOR VUELTA POR CIRCUITO</p>
+      <div class="mini-tabs rc-lb-modes" id="rc-lb-modes"></div>
       <div class="mini-tabs" id="rc-lb-tabs"></div>
       <ol class="lb" id="rc-lb"></ol>
     </aside>
@@ -2007,6 +2019,9 @@ const TRACKS = [
     pts: [[45, 45], [140, 32], [190, 100], [245, 35], [345, 42], [352, 120], [285, 135], [345, 180], [320, 212], [190, 205], [130, 150], [75, 205], [30, 170], [70, 110]] },
   { n: 'PLAYA', pal: { g1: '#ffcd75', g2: '#efb95f', road: '#566c86', road2: '#4f637c', deco: 'palm' },
     pts: [[40, 60], [110, 30], [185, 70], [255, 30], [345, 50], [330, 115], [255, 125], [215, 165], [290, 170], [340, 205], [190, 212], [110, 175], [40, 205], [25, 130]] },
+  // Lago helado: fuera del circuito no hay césped sino hielo resbaloso (ver RC_ICE en drive()).
+  { n: 'LAGO HELADO', ice: true, pal: { g1: '#c2ecf5', g2: '#a9dcea', road: '#566c86', road2: '#4f637c', deco: 'ice', curb: ['#41a6f6', '#f4f4f4'] },
+    pts: [[50, 40], [150, 30], [230, 55], [300, 30], [350, 70], [340, 130], [280, 120], [240, 150], [300, 180], [330, 215], [220, 212], [150, 190], [90, 215], [35, 190], [60, 130], [30, 90]] },
 ];
 const SLOTC = ['#ffcd75', '#73eff7', '#a7f070', '#ef7d57'];
 
@@ -2045,13 +2060,15 @@ function buildTrack(t) {
   const img = document.createElement('canvas'); img.width = RW; img.height = RH;
   const g = img.getContext('2d'), id = g.createImageData(RW, RH), pal = t.pal;
   const hex = h => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
-  const col = { g1: hex(pal.g1), g2: hex(pal.g2), road: hex(pal.road), road2: hex(pal.road2), red: hex('#b13e53'), white: hex('#f4f4f4'), dash: hex('#94b0c2') };
+  const curb = pal.curb || ['#b13e53', '#f4f4f4'];
+  const col = { g1: hex(pal.g1), g2: hex(pal.g2), road: hex(pal.road), road2: hex(pal.road2), red: hex(curb[0]), white: hex(curb[1]), dash: hex('#94b0c2') };
   for (let y = 0; y < RH; y++) for (let x = 0; x < RW; x++) {
     const q = y * RW + x, d = dist[q], k = idx[q];
     const hsh = ((x * 73856093) ^ (y * 19349663)) >>> 0;
     let c;
     if (d <= RR - 2) c = (d < .9 && Math.floor(k / 4) % 2 === 0) ? col.dash : (hsh % 13 === 0 ? col.road2 : col.road);
     else if (d <= RR) c = Math.floor(k / 3) % 2 ? col.red : col.white;
+    else if (pal.deco === 'ice') c = (hsh % 5 === 0 || (x + y * 2) % 23 < 2) ? col.g2 : col.g1;
     else c = hsh % 7 === 0 ? col.g2 : col.g1;
     id.data.set([c[0], c[1], c[2], 255], q * 4);
   }
@@ -2065,7 +2082,8 @@ function buildTrack(t) {
   // decoración
   let seed = t.n.length * 9973;
   const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-  for (let a = 0; a < 140; a++) {
+  if (pal.deco === 'ice') rcIceDeco(g, dist, rnd);
+  else for (let a = 0; a < 140; a++) {
     const x = 6 + Math.floor(rnd() * (RW - 12)), y = 8 + Math.floor(rnd() * (RH - 14));
     if (dist[y * RW + x] < RR + 9) continue;
     if (pal.deco === 'tree') { pxCircle(g, x, y, 4, '#257179'); pxCircle(g, x - 1, y - 1, 2, '#38b764'); }
@@ -2078,6 +2096,38 @@ function buildTrack(t) {
     }
   }
   return { ...t, C, N, dist, idx, img };
+}
+// Lago helado: grietas, agujeros de agua y témpanos (solo decoración, no chocan).
+function rcIceDeco(g, dist, rnd) {
+  const far = (x, y, m) => x > 2 && y > 2 && x < RW - 3 && y < RH - 3 && dist[(y | 0) * RW + (x | 0)] > RR + m;
+  for (let a = 0; a < 70; a++) { // grietas en zigzag
+    let x = 4 + rnd() * (RW - 8), y = 4 + rnd() * (RH - 8);
+    const dx = rnd() < .5 ? 1 : -1;
+    g.fillStyle = a % 3 ? '#f4f4f4' : '#94b0c2';
+    for (let k = 0; k < 6 + rnd() * 8; k++) {
+      if (!far(x, y, 2)) break;
+      g.fillRect(x | 0, y | 0, 1, 1);
+      x += dx; y += rnd() < .5 ? 1 : 0;
+    }
+  }
+  for (let a = 0; a < 26; a++) { // agujeros de agua
+    const x = 8 + Math.floor(rnd() * (RW - 16)), y = 8 + Math.floor(rnd() * (RH - 16)), r = 2 + Math.floor(rnd() * 4);
+    if (!far(x, y, r + 5)) continue;
+    pxCircle(g, x, y, r + 1, '#f4f4f4'); pxCircle(g, x, y, r, '#29366f');
+    if (r > 2) pxCircle(g, x, y, r - 1, '#3b5dc9');
+    g.fillStyle = '#41a6f6'; g.fillRect(x - 1, y - 1, 2, 1);
+  }
+  for (let a = 0; a < 18; a++) { // témpanos
+    const x = 8 + Math.floor(rnd() * (RW - 16)), y = 10 + Math.floor(rnd() * (RH - 18)), h = 4 + Math.floor(rnd() * 4);
+    if (!far(x, y, h + 6) || !far(x, y - h, 6)) continue;
+    g.fillStyle = '#29366f'; g.fillRect(x - h - 1, y + 1, h * 2 + 3, 2);
+    for (let r = 0; r <= h; r++) {
+      const w = Math.max(1, Math.round((r + 1) * 1.3));
+      g.fillStyle = '#f4f4f4'; g.fillRect(x - w, y - h + r, w, 1);
+      g.fillStyle = '#73eff7'; g.fillRect(x, y - h + r, w, 1);
+    }
+    g.fillStyle = '#41a6f6'; g.fillRect(x, y - h + 1, 1, h);
+  }
 }
 const RTRACKS = TRACKS.map(buildTrack);
 
@@ -2111,9 +2161,12 @@ function portrait(ci) {
 function thumb(tr) { const c = document.createElement('canvas'); c.width = 96; c.height = 60; const x = c.getContext('2d'); x.imageSmoothingEnabled = false; x.drawImage(tr.img, 0, 0, 96, 60); return c; }
 
 const rcSel = store.get('pa_rc', { c: 0, v: 0, c2: 1, v2: 1, t: 0 });
+if (!(rcSel.t >= 0 && rcSel.t < TRACKS.length)) rcSel.t = 0;
+if (typeof rcSel.col !== 'boolean') rcSel.col = true;    // colisiones entre jugadores (SÍ por defecto)
+if (rcSel.lbm !== 'total') rcSel.lbm = 'lap';            // Top 10 visible: 'lap' (vuelta) o 'total' (circuito)
 const RC = { mode: null, phase: 'menu', players: 1, T: null, racers: [], keys: {}, touch: {}, lbTrack: rcSel.t,
   room: null, roomData: null, roomPlayers: {}, unsubs: [], lastSend: 0, round: 0, isHost: false, submitted: false,
-  hbStop: null, spectating: false, specUnsubs: [] };
+  hbStop: null, spectating: false, specUnsubs: [], col: true };
 const rcv = $('#rc-cv'), rx = rcv.getContext('2d');
 rx.imageSmoothingEnabled = false;
 
@@ -2142,17 +2195,33 @@ function rcSetupRender() {
     rcSel.t = i; RC.lbTrack = i; rcSetupRender(); rcLB();
   });
   $('#rc-track').querySelectorAll('.btn').forEach(b => b.disabled = online && !RC.isHost);
+  const curC = online && RC.roomData ? RC.roomData.collisions !== false : rcSel.col;
+  pickRow($('#rc-col'), [{ html: 'SÍ<small>REBOTAN</small>' }, { html: 'NO<small>SE ATRAVIESAN</small>' }], curC ? 0 : 1, i => {
+    if (online) { if (RC.isHost) fs.updateDoc(fs.doc(db, 'races', RC.room), { collisions: i === 0 }).catch(console.error); return; }
+    rcSel.col = i === 0; rcSetupRender();
+  });
+  $('#rc-col').querySelectorAll('.btn').forEach(b => b.disabled = online && !RC.isHost);
   $('#rc-p2').hidden = RC.mode !== null;
   $('#rc-p1-title').textContent = RC.mode === null ? 'PERSONAJE (J1: WASD / FLECHAS)' : 'PERSONAJE';
 }
+const RC_LBM = [{ k: 'lap', n: 'VUELTA MÁS RÁPIDA', sub: 'MEJOR VUELTA' }, { k: 'total', n: 'CIRCUITO', sub: `CARRERA COMPLETA (${LAPS} VUELTAS)` }];
+// Claves: 'carrera_{i}' = mejor vuelta (la de siempre); 'carrera_{i}_total' = tiempo total. Menor es mejor.
+const rcLbKey = (i, m) => 'carrera_' + i + (m === 'total' ? '_total' : '');
 function rcLB() {
+  $('#rc-lb-modes').innerHTML = '';
+  RC_LBM.forEach(m => {
+    const b = document.createElement('button'); b.className = 'btn' + (m.k === rcSel.lbm ? ' on' : ''); b.textContent = m.n;
+    b.onclick = () => { rcSel.lbm = m.k; store.set('pa_rc', rcSel); rcLB(); };
+    $('#rc-lb-modes').appendChild(b);
+  });
+  $('#rc-lb-sub').textContent = RC_LBM.find(m => m.k === rcSel.lbm).sub + ' · ' + RTRACKS[RC.lbTrack].n;
   $('#rc-lb-tabs').innerHTML = '';
   RTRACKS.forEach((t, i) => {
     const b = document.createElement('button'); b.className = 'btn' + (i === RC.lbTrack ? ' on' : ''); b.textContent = t.n;
     b.onclick = () => { RC.lbTrack = i; rcLB(); };
     $('#rc-lb-tabs').appendChild(b);
   });
-  LB.render($('#rc-lb'), 'carrera_' + RC.lbTrack, true, r => `${fmtT(r.score)}${r.extra ? `<small>${esc(r.extra)}</small>` : ''}`);
+  LB.render($('#rc-lb'), rcLbKey(RC.lbTrack, rcSel.lbm), true, r => `${fmtT(r.score)}${r.extra ? `<small>${esc(r.extra)}</small>` : ''}`);
 }
 function rcView(v) {
   fitSoon();
@@ -2170,18 +2239,19 @@ function mkRacer(o, slot) {
   const T_ = RC.T, back = 6 + Math.floor(slot / 2) * 8, k = (T_.N - back) % T_.N, p = T_.C[k];
   const off = slot % 2 ? 6 : -6;
   const r = { ...o, slot, x: p.x - Math.sin(p.a) * off, y: p.y + Math.cos(p.a) * off, a: p.a, spd: 0,
-    li: k, total: k - T_.N, lapsDone: -1, lapStart: 0, best: null, fin: null, lane: off * .5, k: o.k || 1 };
+    li: k, total: k - T_.N, lapsDone: -1, lapStart: 0, best: null, fin: null, lane: off * .5, k: o.k || 1,
+    vx: 0, vy: 0, bx: 0, by: 0, rvx: 0, rvy: 0 }; // v = movimiento real (derrapa en hielo), b = empujón de choque
   r.tx = r.x; r.ty = r.y; r.ta = r.a;
   return r;
 }
-function rcBegin(track, entries) {
-  RC.T = RTRACKS[track]; RC.trackIdx = track; RC.lbTrack = track; rcLB();
+function rcBegin(track, entries, col = true) {
+  RC.T = RTRACKS[track]; RC.trackIdx = track; RC.lbTrack = track; RC.col = col !== false; rcLB();
   RC.racers = entries.map((e, i) => mkRacer(e, e.slot ?? i));
   RC.phase = 'count'; RC.goAt = performance.now() + 3000; RC.t0 = RC.goAt; RC.submitted = false; RC.doneAt = null;
   $('#rc-res').hidden = true;
   rcView('race'); fitSoon();
   const k = RC.mode === 'local' && RC.players === 2 ? 'J1: WASD · J2: FLECHAS' : 'FLECHAS O WASD PARA MOVERTE';
-  $('#rc-keys').textContent = k + ' · ' + LAPS + ' VUELTAS';
+  $('#rc-keys').textContent = k + ' · ' + LAPS + ' VUELTAS' + (RC.col ? '' : ' · SIN CHOQUES') + (RC.T.ice ? ' · ¡CUIDADO CON EL HIELO!' : '');
 }
 function inputFor(r) {
   const K = RC.keys, t = RC.touch;
@@ -2203,18 +2273,29 @@ function inputFor(r) {
   while (da > Math.PI) da -= 2 * Math.PI; while (da < -Math.PI) da += 2 * Math.PI;
   return { up: Math.abs(da) < 1 || r.spd < 30, down: Math.abs(da) > 1.3 && r.spd > 45, left: da < -.05, right: da > .05 };
 }
+// Hielo (Lago helado, fuera del circuito): en asfalto/tierra el vehículo va exactamente hacia donde apunta
+// (agarre total, como siempre). En hielo la velocidad real solo se acerca poco a poco a la dirección
+// del vehículo (grip por segundo: ≈ 0.96 de inercia por cuadro) → derrapa. Frena y desacelera menos.
+const RC_ICE = { grip: 2.2, cap: .72, coast: 7, brake: .4, decel: 35 };
 function drive(r, inp, dt) {
-  const V = VEH[r.veh], off = RC.T.dist[trackQ(r.x, r.y)] > RR;
-  const max = V.max * r.k * (off ? .45 : 1);
+  const V = VEH[r.veh], off = RC.T.dist[trackQ(r.x, r.y)] > RR, ice = off && RC.T.ice;
+  const max = V.max * r.k * (ice ? RC_ICE.cap : off ? .45 : 1);
   if (inp.up) r.spd += V.acc * dt;
-  else if (inp.down) r.spd -= (r.spd > 0 ? 130 : 45) * dt;
-  else r.spd -= Math.sign(r.spd) * Math.min(Math.abs(r.spd), 28 * dt);
-  if (r.spd > max) r.spd = Math.max(max, r.spd - 140 * dt);
+  else if (inp.down) r.spd -= (r.spd > 0 ? 130 : 45) * (ice ? RC_ICE.brake : 1) * dt;
+  else r.spd -= Math.sign(r.spd) * Math.min(Math.abs(r.spd), (ice ? RC_ICE.coast : 28) * dt);
+  if (r.spd > max) r.spd = Math.max(max, r.spd - (ice ? RC_ICE.decel : 140) * dt);
   if (r.spd < -30) r.spd = -30;
   const st = (inp.right ? 1 : 0) - (inp.left ? 1 : 0);
   r.a += st * V.turn * dt * Math.max(-1, Math.min(1, r.spd / 35));
-  r.x += Math.cos(r.a) * r.spd * dt; r.y += Math.sin(r.a) * r.spd * dt;
-  if (r.x < 4 || r.x > RW - 4 || r.y < 4 || r.y > RH - 4) { r.x = Math.min(RW - 4, Math.max(4, r.x)); r.y = Math.min(RH - 4, Math.max(4, r.y)); r.spd *= .5; }
+  const tx = Math.cos(r.a) * r.spd, ty = Math.sin(r.a) * r.spd;
+  if (ice) { const f = 1 - Math.exp(-RC_ICE.grip * dt); r.vx += (tx - r.vx) * f; r.vy += (ty - r.vy) * f; }
+  else { r.vx = tx; r.vy = ty; }
+  r.x += (r.vx + r.bx) * dt; r.y += (r.vy + r.by) * dt;
+  const fb = Math.exp(-RC_BUMP_DECAY * dt); r.bx *= fb; r.by *= fb;
+  if (r.x < 4 || r.x > RW - 4 || r.y < 4 || r.y > RH - 4) {
+    r.x = Math.min(RW - 4, Math.max(4, r.x)); r.y = Math.min(RH - 4, Math.max(4, r.y));
+    r.spd *= .5; r.vx *= .5; r.vy *= .5; r.bx *= -.5; r.by *= -.5;
+  }
 }
 function progress(r, now) {
   const N = RC.T.N, k = RC.T.idx[trackQ(r.x, r.y)];
@@ -2235,16 +2316,39 @@ function progress(r, now) {
     r.lapsDone = laps;
   }
 }
+// Choques tipo Mario Kart: (1) se separan los cuerpos para que no queden encimados y (2) si alguno va
+// rápido, rebote elástico: impulso = velocidad relativa (en la línea del choque) × RC_BOUNCE. El empujón
+// va a (bx, by) y se apaga solo en ~0.3 s. Los autos de otros jugadores online (remote) cuentan como
+// masa infinita: solo se mueve el propio. Velocidades en px/s (60 px/s = 1 px por cuadro; máx. ≈ 100).
+const RC_HIT = 7, RC_BOUNCE = .75, RC_SLOW = 20, RC_BUMP_DECAY = 6;
+const rcVel = r => r.ctrl === 'remote' ? [r.rvx || 0, r.rvy || 0] : [r.vx + r.bx, r.vy + r.by];
 function collide() {
+  if (!RC.col) return; // "Colisiones entre jugadores: NO" → se atraviesan
   const R = RC.racers;
   for (let i = 0; i < R.length; i++) for (let j = i + 1; j < R.length; j++) {
-    const a = R[i], b = R[j], dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy);
-    if (d > 0 && d < 7) {
-      const push = (7 - d) / 2, ux = dx / d, uy = dy / d;
-      const am = a.ctrl !== 'remote', bm = b.ctrl !== 'remote';
-      if (am) { a.x -= ux * push * (bm ? 1 : 2); a.y -= uy * push * (bm ? 1 : 2); a.spd *= .96; }
-      if (bm) { b.x += ux * push * (am ? 1 : 2); b.y += uy * push * (am ? 1 : 2); b.spd *= .96; }
-    }
+    const a = R[i], b = R[j], am = a.ctrl !== 'remote', bm = b.ctrl !== 'remote';
+    if (!am && !bm) continue;
+    let dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy);
+    if (d >= RC_HIT) continue;
+    if (d < .01) { dx = -Math.sin(a.a); dy = Math.cos(a.a); d = .01; } // encima exacto: separar de lado
+    const ux = dx / Math.hypot(dx, dy), uy = dy / Math.hypot(dx, dy), over = RC_HIT - d;
+    const wa = am ? (bm ? .5 : 1) : 0, wb = bm ? (am ? .5 : 1) : 0;
+    a.x -= ux * over * wa; a.y -= uy * over * wa;
+    b.x += ux * over * wb; b.y += uy * over * wb;
+    const va = rcVel(a), vb = rcVel(b);
+    if (Math.hypot(va[0], va[1]) < RC_SLOW && Math.hypot(vb[0], vb[1]) < RC_SLOW) continue; // lentos (salida): solo separar
+    const vn = (vb[0] - va[0]) * ux + (vb[1] - va[1]) * uy;
+    if (vn >= 0) continue; // ya se están alejando
+    const J = -vn * RC_BOUNCE;
+    const hit = (r, sgn, w) => {
+      if (!w) return;
+      const k = J * w * 2, px = ux * sgn * k, py = uy * sgn * k;
+      r.bx += px; r.by += py;
+      const along = px * Math.cos(r.a) + py * Math.sin(r.a); // empujado hacia atrás → pierde algo de velocidad
+      if (along < 0 && r.spd > 0) r.spd = Math.max(0, r.spd + along * .5);
+    };
+    hit(a, -1, wa); hit(b, 1, wb);
+    if ([a, b].some(r => r.ctrl === 'p1' || r.ctrl === 'p2') && J > 25 && !(RC.bumpCd > 0)) { RC.bumpCd = .15; SFX.play('click'); }
   }
 }
 const ranking = () => [...RC.racers].sort((a, b) => (a.fin != null) !== (b.fin != null) ? (a.fin != null ? -1 : 1) : a.fin != null ? a.fin - b.fin : b.total - a.total);
@@ -2255,8 +2359,9 @@ function rcUpdate(dt, now) {
   const moving = RC.phase === 'race' || RC.phase === 'done';
   for (const r of RC.racers) {
     if (r.ctrl === 'remote') {
-      const f = Math.min(1, dt * 10);
+      const f = Math.min(1, dt * 10), ox = r.x, oy = r.y;
       r.x += (r.tx - r.x) * f; r.y += (r.ty - r.y) * f;
+      if (dt > 0) { r.rvx = (r.x - ox) / dt; r.rvy = (r.y - oy) / dt; }
       let da = r.ta - r.a; while (da > Math.PI) da -= 2 * Math.PI; while (da < -Math.PI) da += 2 * Math.PI; r.a += da * f;
       continue;
     }
@@ -2267,6 +2372,7 @@ function rcUpdate(dt, now) {
     progress(r, now);
     if (r.ctrl === 'p1') { r.secret = r.x > RW - 12 && r.y > RH - 12 ? (r.secret || 0) + dt : 0; if (r.secret > 1.5) { r.secret = -99; EGG.show(); } }
   }
+  if (RC.bumpCd > 0) RC.bumpCd -= dt;
   if (moving) collide();
 
   const humans = RC.racers.filter(r => r.ctrl === 'p1' || r.ctrl === 'p2');
@@ -2279,8 +2385,10 @@ function rcFinish() {
   const me = RC.racers.find(r => r.ctrl === 'p1');
   if (me && me.best != null && !RC.submitted) {
     RC.submitted = true;
-    LB.submit('carrera_' + RC.trackIdx, Math.max(5, Math.round(me.best * 100) / 100), true, `${CHARS[me.char].n} · ${VEH[me.veh].n}`)
-      .then(() => { RC.lbTrack = RC.trackIdx; rcLB(); });
+    const ex = `${CHARS[me.char].n} · ${VEH[me.veh].n}`, sec = (v, lo) => Math.min(1800, Math.max(lo, Math.round(v * 100) / 100));
+    const jobs = [LB.submit(rcLbKey(RC.trackIdx, 'lap'), sec(me.best, 5), true, ex)];
+    if (me.fin != null) jobs.push(LB.submit(rcLbKey(RC.trackIdx, 'total'), sec(me.fin, 15), true, ex));
+    Promise.all(jobs).then(() => { RC.lbTrack = RC.trackIdx; rcLB(); });
   }
   if (RC.mode === 'online') rcSendMe(true);
   $('#rc-res').hidden = false;
@@ -2359,7 +2467,7 @@ function rcLocal(players) {
     e.push({ id: 'cpu' + i, name: 'CPU ' + CHARS[(rcSel.c + i) % 3].n, char: (rcSel.c + i) % 3, veh: (i + rcSel.v) % 3, ctrl: 'cpu', k: ks[(i - 1) % 3] });
   }
   e.forEach((x, i) => x.slot = i);
-  rcBegin(rcSel.t, e);
+  rcBegin(rcSel.t, e, rcSel.col);
 }
 
 /* ---- modo online ---- */
@@ -2382,7 +2490,7 @@ async function rcCreate() {
   try {
     let code, ref;
     for (let k = 0; k < 5; k++) { code = genCode(); ref = fs.doc(db, 'races', code); if (!(await fs.getDoc(ref)).exists()) break; }
-    await fs.setDoc(ref, { host: UID, track: rcSel.t, state: 'lobby', round: 0, created: fs.serverTimestamp() });
+    await fs.setDoc(ref, { host: UID, track: rcSel.t, collisions: rcSel.col !== false, state: 'lobby', round: 0, created: fs.serverTimestamp() });
     RC.room = code;
     await fs.setDoc(rcMeDoc(), rcFreshMe(0));
     rcEnterLobby();
@@ -2419,7 +2527,7 @@ function rcEnterLobby() {
   RC.unsubs.push(fs.onSnapshot(fs.doc(db, 'races', RC.room), s => {
     if (!s.exists()) return;
     const prev = RC.roomData; RC.roomData = s.data(); RC.isHost = RC.roomData.host === UID;
-    if (!prev || prev.track !== RC.roomData.track || prev.host !== RC.roomData.host) rcSetupRender();
+    if (!prev || prev.track !== RC.roomData.track || prev.host !== RC.roomData.host || prev.collisions !== RC.roomData.collisions) rcSetupRender();
     rcOnRoom();
   }));
   RC.unsubs.push(fs.onSnapshot(fs.collection(db, 'races', RC.room, 'players'), s => {
@@ -2434,7 +2542,7 @@ function rcOnRoom() {
     RC.round = d.round;
     const e = Object.entries(RC.roomPlayers).sort((a, b) => a[1].slot - b[1].slot)
       .map(([uid, p]) => ({ id: uid, name: p.name, char: p.char, veh: p.veh, slot: p.slot, ctrl: uid === UID ? 'p1' : 'remote' }));
-    rcBegin(d.track, e);
+    rcBegin(d.track, e, d.collisions !== false);
   } else if (d.state === 'lobby' && RC.phase !== 'lobby') {
     RC.phase = 'lobby'; RC.racers = [];
     fs.updateDoc(rcMeDoc(), { total: 0, lapsDone: -1, fin: null, best: null, round: -1 }).catch(console.error);
@@ -2471,10 +2579,11 @@ function rcLobbyRender() {
     s.innerHTML = `${esc(p.name)}${uid === UID ? ' (TÚ)' : ''}${RC.roomData && uid === RC.roomData.host ? ' ★' : ''}${gone ? ' <span class="discon">⚠ DESCONECTADO</span>' : ''}<br><small>${CHARS[p.char].n} · ${VEH[p.veh].n}</small>`;
     li.appendChild(s); ul.appendChild(li);
   });
-  const tn = RC.roomData ? RTRACKS[RC.roomData.track].n : '';
+  const tn = RC.roomData && RTRACKS[RC.roomData.track] ? RTRACKS[RC.roomData.track].n : '';
+  const cn = 'CHOQUES: ' + (RC.roomData && RC.roomData.collisions === false ? 'NO' : 'SÍ');
   $('#rc-lobby-msg').textContent = RC.isHost
-    ? `COMPARTE EL CÓDIGO ${RC.room}. CIRCUITO: ${tn}. JUGADORES: ${list.length}/4`
-    : `ESPERANDO AL ANFITRIÓN (★)… CIRCUITO: ${tn}`;
+    ? `COMPARTE EL CÓDIGO ${RC.room}. CIRCUITO: ${tn}. ${cn}. JUGADORES: ${list.length}/4`
+    : `ESPERANDO AL ANFITRIÓN (★)… CIRCUITO: ${tn}. ${cn}`;
   $('#rc-go').hidden = !RC.isHost;
   $('#rc-go').disabled = list.length < 1;
 }
