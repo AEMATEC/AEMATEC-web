@@ -100,6 +100,20 @@ service cloud.firestore {
         ]);
     }
 
+    // Reportes del asistente básico del sitio (buscar páginas / reportar un problema). El formulario
+    // es abierto porque cualquier visitante puede toparse con un error; solo Moderadores los leen y
+    // les llega un correo automático (functions/index.js). No hay nombre ni cuenta: si la persona
+    // quiere respuesta, deja su correo en "contacto" por su cuenta, nunca es obligatorio.
+    match /chatbotReportes/{reporteId} {
+      allow read, delete: if isModerator();
+      allow create: if request.resource.data.mensaje is string && request.resource.data.mensaje.size() > 0
+        && request.resource.data.mensaje.size() <= 600
+        && request.resource.data.contacto is string && request.resource.data.contacto.size() <= 160
+        && request.resource.data.pagina is string && request.resource.data.pagina.size() <= 200
+        && request.resource.data.keys().hasOnly(['mensaje', 'contacto', 'pagina', 'createdAt']);
+      allow update: if false;
+    }
+
     // ---------- Trámites (RI Título V, Cap. IV) ----------
     // Nadie los crea desde el navegador: los crean las Cloud Functions (functions/tramites.js), que verifican
     // el correo institucional y el padrón. Aquí solo se define quién los lee y qué puede cambiar la Junta.

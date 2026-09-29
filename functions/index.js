@@ -64,4 +64,23 @@ exports.notifyLoanRequest = onDocumentCreated(
   }
 );
 
+exports.notifyProblemReport = onDocumentCreated(
+  { document: "chatbotReportes/{reporteId}", secrets: [gmailAppPassword] },
+  async event => {
+    const reporte = event.data?.data();
+    if (!reporte) return;
+    await sendEmail(
+      "Nuevo reporte desde el asistente del sitio — AEMATEC",
+      `<p>Alguien reportó un problema desde el asistente básico del sitio:</p>
+       <p style="white-space:pre-wrap">${escapeHtml(reporte.mensaje)}</p>
+       <ul>
+         <li>Página: ${escapeHtml(reporte.pagina || "No indicada")}</li>
+         <li>Contacto: ${escapeHtml(reporte.contacto || "No indicado")}</li>
+       </ul>`,
+      await correosDe("moderators")
+    );
+    logger.info("Notificación de reporte del asistente enviada", { reporteId: event.params.reporteId });
+  }
+);
+
 Object.assign(exports, require("./tramites"));
