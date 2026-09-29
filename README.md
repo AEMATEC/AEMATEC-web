@@ -54,11 +54,11 @@ La interfaz solo oculta o muestra opciones.
 
 | Rol | Cómo se obtiene | Puede |
 |---|---|---|
-| Público | Nadie inicia sesión | Ver recursos publicados, el inventario y la Junta. Proponer material. Solicitar préstamos. |
+| Público | Nadie inicia sesión | Ver recursos publicados, el inventario y la Junta. Proponer material. |
 | Moderador | Correo en `moderators/{email}` + cuenta con correo verificado | Moderar recursos y gestionar moderadores. |
 | Junta | Correo en `junta/{email}` + cuenta con correo verificado | Padrón, Junta, Fiscalía, Medios, inventario y préstamos. |
-| Fiscalía | Correo en `fiscalia/{email}` + correo verificado | Registrar a la persona Fiscal entrante (la Junta también puede). Se usará en Trámites. |
-| Asociado | Correo en `padron/{email}` + correo verificado | Aún no se usa en ninguna página. |
+| Fiscalía | Correo en `fiscalia/{email}` + correo verificado | Registrar a la persona Fiscal entrante (la Junta también puede). Revisar consultas y denuncias ante Fiscalía. |
+| Asociado | Correo en `padron/{email}` + correo verificado | Solicitar trámites y préstamos. |
 | Dueño | Correo escrito en el código (ver abajo) | Todo lo anterior. |
 
 Las cuentas se crean en `admin.html` ("Primera vez, crear contraseña") y hay que verificar el correo antes de
