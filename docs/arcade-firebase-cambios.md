@@ -92,11 +92,76 @@ function claveValida(k) {
 - El documento de la sala no cambió.
 
 ### Sin cambios en Firebase
-Huida del Zorro, Buscaminas, Batalla Naval, 21, Billar y Golf.
+Huida del Zorro, Buscaminas, Batalla Naval, 21 y Billar.
 
 ---
 
-## 3. Cómo comprobarlo después de publicar las reglas
+## 3. Golf: colección nueva para el "Creador de hoyos" (`golfHoyosPropuestos`)
+
+Golf tiene ahora una pantalla para que cualquiera diseñe un hoyo (tema, par, paredes, arena, agua, hielo,
+rampas) y lo envíe. Queda **pendiente** hasta que alguien con el código de moderador lo apruebe desde la
+pantalla "PROPUESTAS DE LA COMUNIDAD"; ahí es cuando se suma a "JUGAR SOLO" (después de los 6 hoyos de
+siempre). Todo esto es nuevo en Firestore: **sin esta colección y sus reglas, la pantalla de creación sigue
+funcionando (se puede diseñar y probar el hoyo), pero "ENVIAR PROPUESTA" falla con un error de permisos.**
+
+Un documento de `golfHoyosPropuestos/{id}` (id lo genera Firestore):
+
+```
+{
+  nombre: string (≤30),        // nombre del hoyo, lo pone quien lo diseña
+  autor: string (≤12),         // apodo que la persona escribe, no es su correo ni su cuenta
+  theme: string,                // 'parque' | 'bosque' | 'desierto' | 'playa' | 'nieve' | 'ciudad'
+  par: number (2 a 6),
+  start: { x, y }, hole: { x, y },
+  walls: [{x,y,w,h}, …]   (máx. 6),
+  sand:  [{x,y,w,h}, …]   (máx. 3),
+  water: [{x,y,w,h}, …]   (máx. 3),
+  ice:   [{x,y,w,h}, …]   (máx. 3),
+  ramps: [{x,y,w,h,dir,dist}, …]   (máx. 2, dir: 'right'|'left'|'up'|'down'),
+  estado: 'pendiente' | 'aprobado' | 'rechazado',
+  creado: serverTimestamp,
+}
+```
+
+No guarda uid ni ningún dato personal de quien lo envía, solo el apodo que la persona escribe (igual que el
+nombre de jugador en los puntajes).
+
+Reglas sugeridas:
+
+```
+match /golfHoyosPropuestos/{id} {
+  allow read: if signedIn();
+  allow create: if signedIn()
+    && request.resource.data.keys().hasOnly(['nombre','autor','theme','par','start','hole','walls','sand','water','ice','ramps','estado','creado'])
+    && request.resource.data.estado == 'pendiente'
+    && request.resource.data.nombre is string && request.resource.data.nombre.size() <= 30
+    && request.resource.data.autor is string && request.resource.data.autor.size() <= 12
+    && request.resource.data.par is number && request.resource.data.par >= 2 && request.resource.data.par <= 6
+    && request.resource.data.walls.size() <= 6 && request.resource.data.sand.size() <= 3
+    && request.resource.data.water.size() <= 3 && request.resource.data.ice.size() <= 3
+    && request.resource.data.ramps.size() <= 2
+    && request.resource.data.creado == request.time;
+  allow update: if signedIn()
+    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['estado'])
+    && request.resource.data.estado in ['aprobado', 'rechazado'];
+  allow delete: if false;
+}
+```
+
+**Sobre "quién puede aprobar":** el Arcade no tiene cuentas (todo el mundo entra como invitado anónimo), así
+que no hay una forma segura de darle el permiso de `update` solo a "los moderadores" sin agregar cuentas o
+una Cloud Function — ninguna de las dos existe hoy en `arcade-matec`. Por eso el `allow update` de arriba lo
+permite a cualquier persona conectada, igual que ya pasa con las salas y los puntajes del resto del Arcade
+(todo funciona con confianza básica, no hay datos sensibles de por medio). Lo que sí protege la pantalla de
+moderación es un **código compartido dentro del propio código de `arcade.html`** (constante `GFP_MOD_CODE`,
+buscar "Moderar propuestas"): sin ese código no aparecen los botones de aprobar/rechazar en el navegador. No
+es una contraseña fuerte, es solo para que nadie apruebe hoyos sin querer — cualquiera que mire el código
+fuente puede verlo. Si más adelante se quiere una protección real, hay que agregar cuentas o una Cloud
+Function a `arcade-matec`, que es un cambio más grande.
+
+---
+
+## 4. Cómo comprobarlo después de publicar las reglas
 
 1. Abre <https://aematec.github.io/AEMATEC-web/arcade.html>, escribe un nombre y espera a que diga **● ONLINE**.
 2. **Duelo del Oeste:** gánale una ronda a la CPU y revisa que aparezca tu tiempo en la pestaña **REACCIÓN**.
@@ -106,4 +171,8 @@ Huida del Zorro, Buscaminas, Batalla Naval, 21, Billar y Golf.
 5. **Combate de Funciones en línea:** crea una sala, cambia el tiempo por turno a 30 s y activa la vista previa. Revisa
    que la otra persona vea 30 s.
 6. **Animal al Tiro:** juega **DIANA CONTINUA** y revisa el Top 10.
-7. Si algo no se guarda, abre la consola del navegador (F12). Un error `permission-denied` indica qué regla falta.
+7. **Creador de hoyos de Golf:** entra a Golf → "CREAR UN HOYO", diseña uno con inicio y bandera, dale "PROBARLO"
+   (debe poder jugarse) y luego "ENVIAR PROPUESTA". Debe decir que quedó pendiente, sin error de permisos.
+   Entra a "PROPUESTAS DE LA COMUNIDAD", escribe el código de moderador (`GFP_MOD_CODE` en `arcade.html`) y
+   aprueba ese hoyo. Vuelve al menú de Golf y dale "JUGAR SOLO": el hoyo aprobado debe aparecer después del 6.
+8. Si algo no se guarda, abre la consola del navegador (F12). Un error `permission-denied` indica qué regla falta.

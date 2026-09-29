@@ -853,6 +853,38 @@ nav .btn{padding:8px 12px}
             <button class="btn gray" id="gf-spec-btn">👁 PARTIDAS EN VIVO</button>
           </div>
           <ul class="spec-list" id="gf-spec-list" hidden></ul>
+          <div class="row left" style="margin-top:10px">
+            <button class="btn" id="gf-builder-open">✏ CREAR UN HOYO</button>
+            <button class="btn gray" id="gf-proposals-open">📋 PROPUESTAS DE LA COMUNIDAD</button>
+          </div>
+        </div>
+        <div id="gf-builder" hidden>
+          <div class="rc-top"><span class="tag">CREAR UN HOYO</span><button class="btn gray" id="gfb-back">VOLVER</button></div>
+          <p class="sub">ELIGE UN TEMA Y UNA HERRAMIENTA, LUEGO TOCA O ARRASTRA SOBRE LA CANCHA PARA COLOCARLA.</p>
+          <div class="rc-sec"><h4>TEMA</h4><div class="pick" id="gfb-theme"></div></div>
+          <div class="rc-sec"><h4>PAR</h4><div class="pick" id="gfb-par"></div></div>
+          <div class="rc-sec"><h4>HERRAMIENTA</h4><div class="pick" id="gfb-tools"></div><button class="btn gray" id="gfb-rampdir">DIRECCIÓN RAMPA: ►</button></div>
+          <div class="stage">
+            <canvas id="gfb-cv" width="480" height="300"></canvas>
+          </div>
+          <div class="row left"><button class="btn gray" id="gfb-undo">QUITAR LO ÚLTIMO</button><button class="btn gray" id="gfb-clear">EMPEZAR DE NUEVO</button></div>
+          <div class="row left">
+            <input id="gfb-autor" class="px-in" placeholder="TU NOMBRE" maxlength="12">
+            <input id="gfb-nombre" class="px-in" placeholder="NOMBRE DEL HOYO" maxlength="30">
+          </div>
+          <p class="msg" id="gfb-msg" style="text-align:left"></p>
+          <div class="row left"><button class="btn green" id="gfb-test">▶ PROBARLO</button><button class="btn orange" id="gfb-send">ENVIAR PROPUESTA</button></div>
+          <p class="keys">LA PROPUESTA se guarda pendiente hasta que un moderador la apruebe. Un hoyo necesita INICIO, BANDERA y como máximo 6 paredes, 3 zonas de arena/agua/hielo y 2 rampas.</p>
+        </div>
+        <div id="gf-proposals" hidden>
+          <div class="rc-top"><span class="tag">PROPUESTAS DE LA COMUNIDAD</span><button class="btn gray" id="gfp-back">VOLVER</button></div>
+          <p class="sub">Estos son los hoyos que otras personas diseñaron. Los aprobados se agregan a "JUGAR SOLO" después de los 6 hoyos normales.</p>
+          <div class="row left">
+            <input id="gfp-code" type="password" class="px-in" placeholder="CÓDIGO DE MODERADOR" maxlength="20">
+            <button class="btn" id="gfp-unlock">DESBLOQUEAR</button>
+          </div>
+          <p class="msg" id="gfp-msg" style="text-align:left"></p>
+          <ul class="plist" id="gfp-list"></ul>
         </div>
         <div id="gf-lobby" hidden>
           <div class="rc-top"><span class="tag" id="gf-room"></span><button class="btn gray" id="gf-leave">SALIR</button></div>
@@ -893,7 +925,7 @@ nav .btn{padding:8px 12px}
       <p class="sub">MENOS GOLPES EN LOS 6 HOYOS</p>
       <ol class="lb" id="gf-lb"></ol>
       <h4 style="margin-top:16px">CÓMO SE JUEGA</h4>
-      <p class="howto">SOLO O CON HASTA 4 PERSONAS, TURNÁNDOSE EN EL MISMO RECORRIDO. TOCA HACIA DONDE QUIERES TIRAR, AJUSTA LA FUERZA Y PRESIONA ¡GOLPEAR!. LA ARENA FRENA LA BOLA, EL HIELO CASI NO LA FRENA Y EL AGUA TE REGRESA AL ÚLTIMO LUGAR SEGURO CON UN GOLPE DE PENALIDAD. EL VIENTO EMPUJA LA BOLA MIENTRAS RUEDA. LAS RAMPAS TE HACEN SALTAR POR ENCIMA DE LO QUE HAYA ADELANTE SI LLEGAS CON SUFICIENTE FUERZA. SI VAS MUY RÁPIDO, LA BOLA NO ENTRA AL HOYO Y SIGUE DE LARGO: BAJA LA FUERZA CERCA DE LA META.</p>
+      <p class="howto">SOLO O CON HASTA 4 PERSONAS, TURNÁNDOSE EN EL MISMO RECORRIDO. TOCA HACIA DONDE QUIERES TIRAR, AJUSTA LA FUERZA Y PRESIONA ¡GOLPEAR!. LA ARENA FRENA LA BOLA, EL HIELO CASI NO LA FRENA Y EL AGUA TE REGRESA AL ÚLTIMO LUGAR SEGURO CON UN GOLPE DE PENALIDAD. EL VIENTO EMPUJA LA BOLA MIENTRAS RUEDA. LAS RAMPAS TE HACEN SALTAR POR ENCIMA DE LO QUE HAYA ADELANTE SI LLEGAS CON SUFICIENTE FUERZA. SI VAS MUY RÁPIDO, LA BOLA NO ENTRA AL HOYO Y SIGUE DE LARGO: BAJA LA FUERZA CERCA DE LA META.<br><br><b>CREAR UN HOYO:</b> diseña tu propio hoyo y envíalo. Si un moderador lo aprueba, se agrega a "JUGAR SOLO" para que cualquiera lo juegue.</p>
     </aside>
   </section>
 
@@ -5818,7 +5850,8 @@ const GF = {
   unsubs: [], hbStop: null, _hostTimer: null, resultShown: false, replay: null, _lastSeq: 0,
   state: 'aiming', holeIdx: 0, strokes: 0, totalStrokes: 0, scores: [],
   ball: { x: 0, y: 0, vx: 0, vy: 0 }, lastSafe: { x: 0, y: 0 },
-  dragging: false, aimPointer: null, power: .7, popup: null, pauseT: 0, pending: null, _acc: 0
+  dragging: false, aimPointer: null, power: .7, popup: null, pauseT: 0, pending: null, _acc: 0,
+  activeHoles: GF_HOLES, communityHoles: []
 };
 function gfInZone(ball, zones) { return zones.some(z => ball.x >= z.x && ball.x <= z.x + z.w && ball.y >= z.y && ball.y <= z.y + z.h); }
 function gfCollideRect(ball, rect) {
@@ -5919,12 +5952,13 @@ function gfNextTurn(order, turnIdx, balls) {
   return -1;
 }
 function gfLoadHole(i) {
-  const h = GF_HOLES[i];
+  const h = GF.activeHoles[i];
   GF.ball = { x: h.start.x, y: h.start.y, vx: 0, vy: 0, airT: 0, airT0: 0 };
   GF.lastSafe = { x: h.start.x, y: h.start.y };
   GF.strokes = 0; GF.state = 'aiming'; GF.popup = null; GF._acc = 0;
 }
 function gfStart() {
+  GF.activeHoles = GF_HOLES.concat(GF.communityHoles || []);
   GF.holeIdx = 0; GF.totalStrokes = 0; GF.scores = [];
   $('#gf-over').hidden = true;
   gfLoadHole(0);
@@ -5935,7 +5969,7 @@ function gfSunk(forced) {
   GF.scores[GF.holeIdx] = GF.strokes; GF.totalStrokes += GF.strokes;
   GF.popup = { txt: forced ? `MÁXIMO DE GOLPES (${GF.strokes})` : `¡HOYO! ${GF.strokes} GOLPE${GF.strokes === 1 ? '' : 'S'}`, life: 1.5 };
   GF.pauseT = 1.5;
-  GF.pending = GF.holeIdx < GF_HOLES.length - 1 ? 'next' : 'finish';
+  GF.pending = GF.holeIdx < GF.activeHoles.length - 1 ? 'next' : 'finish';
 }
 function gfWater() {
   GF.state = 'sunk';
@@ -5947,9 +5981,9 @@ function gfWater() {
 }
 function gfFinish() {
   GF.state = 'done';
-  const totalPar = GF_HOLES.reduce((s, h) => s + h.par, 0), diff = GF.totalStrokes - totalPar;
+  const totalPar = GF.activeHoles.reduce((s, h) => s + h.par, 0), diff = GF.totalStrokes - totalPar;
   const diffTxt = diff === 0 ? 'PAR' : (diff > 0 ? '+' + diff : String(diff));
-  $('#gf-over-p').innerHTML = GF_HOLES.map((h, i) => `HOYO ${i + 1}: ${GF.scores[i]} (PAR ${h.par})`).join('<br>') + `<br><br><b>TOTAL: ${GF.totalStrokes} GOLPES (${diffTxt})</b>`;
+  $('#gf-over-p').innerHTML = GF.activeHoles.map((h, i) => `HOYO ${i + 1}${h.comunitario ? ' · ' + esc(h.nombre) : ''}: ${GF.scores[i]} (PAR ${h.par})`).join('<br>') + `<br><br><b>TOTAL: ${GF.totalStrokes} GOLPES (${diffTxt})</b>`;
   $('#gf-over').hidden = false; $('#gf-again').hidden = false;
   LB.submit('golf', GF.totalStrokes, true, diffTxt).then(gfLB);
 }
@@ -5960,7 +5994,7 @@ function gfAdvance() {
   GF.pending = null;
 }
 function gfUpdate(dt) {
-  const hole = GF_HOLES[GF.holeIdx];
+  const hole = GF.activeHoles[GF.holeIdx];
   const sub = 1 / 240; GF._acc += Math.min(dt, .08);
   let result = null;
   while (GF._acc >= sub && !result) { result = gfStep(GF.ball, sub, hole); GF._acc -= sub; }
@@ -6065,7 +6099,8 @@ function gfDraw() {
   const cv = $('#gf-cv'); if (!cv || !cv.offsetParent) return;
   const ctx = cv.getContext('2d'); ctx.imageSmoothingEnabled = false; ctx.textAlign = 'center';
   const holeIdx = GF.mode === 'online' ? (GF.roomData ? GF.roomData.holeIdx : 0) : GF.holeIdx;
-  const hole = GF_HOLES[holeIdx] || GF_HOLES[0];
+  const holeList = GF.mode === 'online' ? GF_HOLES : GF.activeHoles;
+  const hole = holeList[holeIdx] || holeList[0];
   const theme = GF_THEMES[hole.theme] || GF_THEMES.parque;
   ctx.fillStyle = theme.bg; ctx.fillRect(0, 0, GF_CVW, GF_CVH);
   ctx.fillStyle = theme.ground; ctx.fillRect(GF_MARGIN, GF_MARGIN, GF_CVW - GF_MARGIN * 2, GF_CVH - GF_MARGIN * 2);
@@ -6138,7 +6173,7 @@ function gfDraw() {
     ctx.fillStyle = 'rgba(0,0,0,.4)'; ctx.fillRect(0, GF_CVH / 2 - 20, GF_CVW, 32);
     ctx.fillStyle = '#ffe14d'; ctx.font = '12px "Press Start 2P"'; ctx.fillText(GF.popup.txt, GF_CVW / 2, GF_CVH / 2 + 4);
   }
-  $('#gf-status').textContent = `HOYO ${GF.holeIdx + 1}/${GF_HOLES.length} · PAR ${hole.par}`;
+  $('#gf-status').textContent = `HOYO ${GF.holeIdx + 1}/${GF.activeHoles.length}${hole.comunitario ? ' · ' + esc(hole.nombre) : ''} · PAR ${hole.par}`;
   $('#gf-score').textContent = `GOLPES: ${GF.strokes} · TOTAL: ${GF.totalStrokes}`;
   gfSyncShootBtn();
 }
@@ -6198,7 +6233,11 @@ $('#gf-shoot').addEventListener('click', () => {
 
 /* ---- partida en línea (hasta 4 jugadores, mismo recorrido) ---- */
 function gfMenuMsg(t, cls = '') { const m = $('#gf-menu-msg'); m.textContent = t; m.className = 'msg ' + cls; m.style.textAlign = 'left'; }
-function gfView(v) { $('#gf-menu').hidden = v !== 'menu'; $('#gf-lobby').hidden = v !== 'lobby'; $('#gf-game').hidden = v !== 'game'; fitSoon(); }
+function gfView(v) {
+  $('#gf-menu').hidden = v !== 'menu'; $('#gf-lobby').hidden = v !== 'lobby'; $('#gf-game').hidden = v !== 'game';
+  $('#gf-builder').hidden = v !== 'builder'; $('#gf-proposals').hidden = v !== 'proposals';
+  fitSoon();
+}
 function gfSeatList() { return Object.entries(GF.roomPlayers).sort((a, b) => a[1].slot - b[1].slot); }
 async function gfCreate() {
   if (!(await fbReady)) return gfMenuMsg('SIN CONEXIÓN A FIREBASE: SOLO SE PUEDE JUGAR SOLO.', 'lose');
@@ -6397,10 +6436,22 @@ $('#gf-spec-btn').onclick = async () => {
     : '<li class="muted">NO HAY PARTIDAS RECIENTES</li>';
   list.querySelectorAll('[data-code]').forEach(b => b.onclick = () => { SFX.play('click'); gfSpecOpen(b.dataset.code); });
 };
-$('#gf-local').onclick = () => {
+let gfCommunityLoaded = false;
+async function gfLoadCommunityHoles() {
+  if (gfCommunityLoaded) return;
+  gfCommunityLoaded = true;
+  if (!(await fbReady)) return;
+  try {
+    const q = fs.query(fs.collection(db, 'golfHoyosPropuestos'), fs.where('estado', '==', 'aprobado'), fs.limit(12));
+    const snap = await fs.getDocs(q);
+    GF.communityHoles = [];
+    snap.forEach(d => GF.communityHoles.push({ ...d.data(), comunitario: true }));
+  } catch (e) { console.warn('No se pudieron cargar los hoyos de la comunidad:', e); }
+}
+$('#gf-local').onclick = async () => {
   SFX.play('start'); GF.mode = 'local'; GF.spectating = false;
   $('#gf-room2').hidden = true; $('#gf-spec-badge').hidden = true; $('#gf-players').hidden = true;
-  gfStart(); gfView('game');
+  await gfLoadCommunityHoles(); gfStart(); gfView('game');
 };
 $('#gf-create').onclick = gfCreate;
 $('#gf-join').onclick = gfJoin;
@@ -6411,6 +6462,170 @@ $('#gf-quit').onclick = gfToMenu;
 $('#gf-again').onclick = () => { if (GF.mode === 'local') { SFX.play('start'); gfStart(); } else if (GF.isHost) gfOnlineStart(); };
 $('#gf-exit').onclick = () => goTab('menu');
 window.addEventListener('beforeunload', () => { if (GF.mode === 'online') gfLeaveOnline(); });
+
+/* ---- Creador de hoyos: cualquiera diseña un hoyo y lo envía; un moderador lo aprueba antes de
+   que se sume a "JUGAR SOLO". Los hoyos aprobados se guardan en golfHoyosPropuestos (arcade-matec);
+   ver docs/arcade-firebase-cambios.md para las reglas de Firestore que necesita esta colección. ---- */
+const GFB_TOOLS = [
+  { id: 'start', n: 'BOLA (INICIO)' }, { id: 'hole', n: 'BANDERA (META)' },
+  { id: 'wall', n: 'PARED' }, { id: 'sand', n: 'ARENA' }, { id: 'water', n: 'AGUA' }, { id: 'ice', n: 'HIELO' },
+  { id: 'ramp', n: 'RAMPA' },
+];
+const GFB_MAX = { wall: 6, sand: 3, water: 3, ice: 3, ramp: 2 };
+const GFB_ZONE_KEY = { wall: 'walls', sand: 'sand', water: 'water', ice: 'ice', ramp: 'ramps' };
+const GFB_DIRS = ['right', 'left', 'up', 'down'];
+const GFB_DIR_ARROW = { right: '►', left: '◄', up: '▲', down: '▼' };
+const GFB = { theme: 'parque', par: 3, tool: 'start', rampDir: 'right', start: null, hole: null, walls: [], sand: [], water: [], ice: [], ramps: [], dragFrom: null, _dragTo: null };
+function gfbCount(tool) { const key = GFB_ZONE_KEY[tool]; return key ? GFB[key].length : 0; }
+function gfbThemeRender() {
+  const keys = Object.keys(GF_THEMES);
+  pickRow($('#gfb-theme'), keys.map(k => ({ html: k.toUpperCase() })), keys.indexOf(GFB.theme), i => { GFB.theme = keys[i]; gfbThemeRender(); gfbDraw(); });
+}
+function gfbParRender() {
+  const opts = [2, 3, 4, 5, 6];
+  pickRow($('#gfb-par'), opts.map(p => ({ html: String(p) })), opts.indexOf(GFB.par), i => { GFB.par = opts[i]; gfbParRender(); });
+}
+function gfbToolsRender() {
+  pickRow($('#gfb-tools'), GFB_TOOLS.map(t => ({ html: t.n + (GFB_MAX[t.id] ? ` (${gfbCount(t.id)}/${GFB_MAX[t.id]})` : '') })),
+    GFB_TOOLS.findIndex(t => t.id === GFB.tool), i => { GFB.tool = GFB_TOOLS[i].id; gfbToolsRender(); });
+  $('#gfb-rampdir').textContent = 'DIRECCIÓN RAMPA: ' + GFB_DIR_ARROW[GFB.rampDir];
+}
+function gfbDraw() {
+  const cv = $('#gfb-cv'); if (!cv || !cv.offsetParent) return;
+  const ctx = cv.getContext('2d'); ctx.imageSmoothingEnabled = false; ctx.textAlign = 'center';
+  const theme = GF_THEMES[GFB.theme] || GF_THEMES.parque;
+  ctx.fillStyle = theme.bg; ctx.fillRect(0, 0, GF_CVW, GF_CVH);
+  ctx.fillStyle = theme.ground; ctx.fillRect(GF_MARGIN, GF_MARGIN, GF_CVW - GF_MARGIN * 2, GF_CVH - GF_MARGIN * 2);
+  ctx.fillStyle = theme.stripe;
+  for (let i = GF_MARGIN; i < GF_CVW - GF_MARGIN; i += 24) ctx.fillRect(i, GF_MARGIN, 10, GF_CVH - GF_MARGIN * 2);
+  GFB.ice.forEach(z => gfDrawIce(ctx, z));
+  ctx.fillStyle = '#e8c170'; GFB.sand.forEach(z => ctx.fillRect(z.x, z.y, z.w, z.h));
+  GFB.water.forEach(z => { ctx.fillStyle = '#4a8cc4'; ctx.fillRect(z.x, z.y, z.w, z.h); });
+  GFB.ramps.forEach(r => gfDrawRamp(ctx, r));
+  GFB.walls.forEach(w => gfDrawObstacle(ctx, w, GFB.theme));
+  if (GFB.hole) { pxCircle(ctx, GFB.hole.x, GFB.hole.y, GF_HOLE_R, '#0a0a0a'); pxCircle(ctx, GFB.hole.x, GFB.hole.y, GF_HOLE_R - 3, '#123018'); }
+  if (GFB.start) pxCircle(ctx, GFB.start.x, GFB.start.y, GF_R, '#f4f4f4');
+  if (GFB.dragFrom && GFB._dragTo) {
+    const x0 = Math.min(GFB.dragFrom.x, GFB._dragTo.x), y0 = Math.min(GFB.dragFrom.y, GFB._dragTo.y);
+    const w = Math.abs(GFB._dragTo.x - GFB.dragFrom.x), h = Math.abs(GFB._dragTo.y - GFB.dragFrom.y);
+    ctx.strokeStyle = 'rgba(255,255,255,.8)'; ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
+    ctx.strokeRect(x0, y0, w, h); ctx.setLineDash([]);
+  }
+}
+function gfbCanvasPos(e) {
+  const r = $('#gfb-cv').getBoundingClientRect();
+  return {
+    x: Math.max(GF_MARGIN, Math.min(GF_CVW - GF_MARGIN, (e.clientX - r.left) / r.width * GF_CVW)),
+    y: Math.max(GF_MARGIN, Math.min(GF_CVH - GF_MARGIN, (e.clientY - r.top) / r.height * GF_CVH)),
+  };
+}
+$('#gfb-cv').addEventListener('pointerdown', e => {
+  e.preventDefault();
+  const p = gfbCanvasPos(e);
+  if (GFB.tool === 'start') { GFB.start = p; gfbDraw(); return; }
+  if (GFB.tool === 'hole') { GFB.hole = p; gfbDraw(); return; }
+  if (gfbCount(GFB.tool) >= GFB_MAX[GFB.tool]) {
+    $('#gfb-msg').textContent = 'YA PUSISTE EL MÁXIMO DE ESE TIPO. QUITA UNO O ELIGE OTRA HERRAMIENTA.'; $('#gfb-msg').className = 'msg lose';
+    return;
+  }
+  GFB.dragFrom = p; GFB._dragTo = p;
+});
+$('#gfb-cv').addEventListener('pointermove', e => { if (GFB.dragFrom) { GFB._dragTo = gfbCanvasPos(e); gfbDraw(); } });
+window.addEventListener('pointerup', () => {
+  if (!GFB.dragFrom) return;
+  const a = GFB.dragFrom, b = GFB._dragTo || a; GFB.dragFrom = null; GFB._dragTo = null;
+  const x = Math.min(a.x, b.x), y = Math.min(a.y, b.y), w = Math.max(20, Math.abs(b.x - a.x)), h = Math.max(20, Math.abs(b.y - a.y));
+  const rect = { x, y, w, h };
+  if (GFB.tool === 'wall') GFB.walls.push(rect);
+  else if (GFB.tool === 'sand') GFB.sand.push(rect);
+  else if (GFB.tool === 'water') GFB.water.push(rect);
+  else if (GFB.tool === 'ice') GFB.ice.push(rect);
+  else if (GFB.tool === 'ramp') GFB.ramps.push({ ...rect, dir: GFB.rampDir, dist: Math.max(150, Math.max(w, h) + 60) });
+  else return;
+  SFX.play('click'); gfbToolsRender(); gfbDraw();
+});
+$('#gfb-rampdir').onclick = () => { GFB.rampDir = GFB_DIRS[(GFB_DIRS.indexOf(GFB.rampDir) + 1) % GFB_DIRS.length]; gfbToolsRender(); };
+$('#gfb-undo').onclick = () => {
+  if (GFB.tool === 'start') GFB.start = null;
+  else if (GFB.tool === 'hole') GFB.hole = null;
+  else { const key = GFB_ZONE_KEY[GFB.tool]; if (key && GFB[key].length) GFB[key].pop(); }
+  gfbToolsRender(); gfbDraw();
+};
+$('#gfb-clear').onclick = () => {
+  Object.assign(GFB, { start: null, hole: null, walls: [], sand: [], water: [], ice: [], ramps: [] });
+  gfbToolsRender(); gfbDraw();
+};
+$('#gfb-test').onclick = () => {
+  const msg = $('#gfb-msg');
+  if (!GFB.start || !GFB.hole) { msg.textContent = 'PON EL INICIO Y LA BANDERA PRIMERO.'; msg.className = 'msg lose'; return; }
+  const hole = { theme: GFB.theme, par: GFB.par, start: GFB.start, hole: GFB.hole, walls: GFB.walls, sand: GFB.sand, water: GFB.water, ice: GFB.ice, ramps: GFB.ramps, comunitario: true, nombre: 'PRUEBA' };
+  GF.mode = 'local'; GF.spectating = false;
+  $('#gf-room2').hidden = true; $('#gf-spec-badge').hidden = true; $('#gf-players').hidden = true;
+  GF.activeHoles = [hole]; GF.holeIdx = 0; GF.totalStrokes = 0; GF.scores = [];
+  $('#gf-over').hidden = true;
+  gfLoadHole(0);
+  SFX.play('start'); gfView('game');
+};
+$('#gfb-send').onclick = async () => {
+  const msg = $('#gfb-msg');
+  if (!GFB.start || !GFB.hole) { msg.textContent = 'PON EL INICIO Y LA BANDERA PRIMERO.'; msg.className = 'msg lose'; return; }
+  const autor = $('#gfb-autor').value.trim().slice(0, 12), nombre = $('#gfb-nombre').value.trim().slice(0, 30);
+  if (!autor || !nombre) { msg.textContent = 'ESCRIBE TU NOMBRE Y EL NOMBRE DEL HOYO.'; msg.className = 'msg lose'; return; }
+  if (!(await fbReady)) { msg.textContent = 'SIN CONEXIÓN A FIREBASE: NO SE PUEDE ENVIAR AHORA.'; msg.className = 'msg lose'; return; }
+  msg.textContent = 'ENVIANDO…'; msg.className = 'msg';
+  try {
+    await fs.addDoc(fs.collection(db, 'golfHoyosPropuestos'), {
+      nombre, autor, theme: GFB.theme, par: GFB.par, start: GFB.start, hole: GFB.hole,
+      walls: GFB.walls, sand: GFB.sand, water: GFB.water, ice: GFB.ice, ramps: GFB.ramps,
+      estado: 'pendiente', creado: fs.serverTimestamp(),
+    });
+    SFX.play('win');
+    msg.textContent = '¡ENVIADO! QUEDA PENDIENTE HASTA QUE UN MODERADOR LO APRUEBE.'; msg.className = 'msg win';
+    Object.assign(GFB, { start: null, hole: null, walls: [], sand: [], water: [], ice: [], ramps: [] });
+    $('#gfb-autor').value = ''; $('#gfb-nombre').value = '';
+    gfbToolsRender(); gfbDraw();
+  } catch (e) { console.error(e); msg.textContent = 'NO SE PUDO ENVIAR: ' + e.message; msg.className = 'msg lose'; }
+};
+$('#gf-builder-open').onclick = () => { gfbThemeRender(); gfbParRender(); gfbToolsRender(); gfView('builder'); gfbDraw(); };
+$('#gfb-back').onclick = () => gfView('menu');
+
+/* ---- Moderar propuestas: código compartido solo para el Arcade (no son cuentas del sitio).
+   No es una barrera de seguridad fuerte —el Arcade entero funciona con sesiones anónimas—, solo evita
+   que cualquiera apruebe hoyos por accidente. Para cambiar el código, edita GFP_MOD_CODE aquí abajo. */
+const GFP_MOD_CODE = 'AEMATEC-GOLF-2026';
+let gfpUnlocked = false;
+function gfpItemHtml(id, d) {
+  const estadoTxt = { pendiente: 'PENDIENTE', aprobado: 'APROBADO ✓', rechazado: 'RECHAZADO ✗' }[d.estado] || d.estado;
+  const estadoCls = d.estado === 'aprobado' ? 'win' : (d.estado === 'rechazado' ? 'lose' : '');
+  const canMod = gfpUnlocked && d.estado === 'pendiente';
+  return `<span><b>${esc(d.nombre)}</b> · ${esc((d.theme || '').toUpperCase())}<small>POR ${esc(d.autor)} · PAR ${d.par} · <span class="${estadoCls}">${estadoTxt}</span></small></span>` +
+    (canMod ? `<button class="btn green" data-approve="${id}">APROBAR</button><button class="btn gray" data-reject="${id}">RECHAZAR</button>` : '');
+}
+async function gfpLoad() {
+  const list = $('#gfp-list'); list.innerHTML = '<li class="muted">CARGANDO…</li>';
+  if (!(await fbReady)) { list.innerHTML = '<li class="muted">SIN CONEXIÓN A FIREBASE</li>'; return; }
+  try {
+    const q = fs.query(fs.collection(db, 'golfHoyosPropuestos'), fs.orderBy('creado', 'desc'), fs.limit(30));
+    const snap = await fs.getDocs(q);
+    if (snap.empty) { list.innerHTML = '<li class="muted">TODAVÍA NO HAY PROPUESTAS</li>'; return; }
+    list.innerHTML = '';
+    snap.forEach(docSnap => { const li = document.createElement('li'); li.innerHTML = gfpItemHtml(docSnap.id, docSnap.data()); list.appendChild(li); });
+    list.querySelectorAll('[data-approve]').forEach(b => b.onclick = () => gfpModerate(b.dataset.approve, 'aprobado'));
+    list.querySelectorAll('[data-reject]').forEach(b => b.onclick = () => gfpModerate(b.dataset.reject, 'rechazado'));
+  } catch (e) { console.error(e); list.innerHTML = '<li class="muted">NO SE PUDO CARGAR</li>'; }
+}
+async function gfpModerate(id, estado) {
+  try { await fs.updateDoc(fs.doc(db, 'golfHoyosPropuestos', id), { estado }); SFX.play('click'); gfCommunityLoaded = false; gfpLoad(); }
+  catch (e) { console.error(e); window.alert('No se pudo actualizar: ' + e.message); }
+}
+$('#gfp-unlock').onclick = () => {
+  const msg = $('#gfp-msg');
+  if ($('#gfp-code').value.trim() === GFP_MOD_CODE) { gfpUnlocked = true; msg.textContent = 'MODO MODERADOR ACTIVADO.'; msg.className = 'msg win'; gfpLoad(); }
+  else { msg.textContent = 'CÓDIGO INCORRECTO.'; msg.className = 'msg lose'; }
+};
+$('#gf-proposals-open').onclick = () => { gfpUnlocked = false; $('#gfp-code').value = ''; $('#gfp-msg').textContent = ''; gfpLoad(); gfView('proposals'); };
+$('#gfp-back').onclick = () => gfView('menu');
+
 gfLB(); gfView('menu');
 
 /* =========================================================
