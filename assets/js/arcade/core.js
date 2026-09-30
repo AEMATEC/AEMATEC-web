@@ -146,7 +146,7 @@ export const SFX = {
     }
   }
 };
-function sndBtn() { const b = $('#snd'); b.textContent = SFX.on ? '♪ SÍ' : '♪ NO'; b.classList.toggle('off', !SFX.on); }
+function sndBtn() { const b = $('#snd'); b.querySelector('.lbl').textContent = SFX.on ? 'SÍ' : 'NO'; b.classList.toggle('off', !SFX.on); b.setAttribute('aria-pressed', String(SFX.on)); }
 $('#snd').onclick = () => { SFX.on = !SFX.on; store.set('pa_snd', SFX.on); sndBtn(); SFX.play('click'); updateMenuMusicHook(); };
 sndBtn();
 $('#arcade-volver').onclick = () => window.arcadeTransition('index.html');

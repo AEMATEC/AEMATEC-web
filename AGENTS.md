@@ -119,7 +119,8 @@ juego sigue siendo instantáneo, sin recargar). El patrón ya está en marcha:
 
 Hay un agente por juego (`.claude/agents/juego-*.md`) con los detalles de cada uno (prefijo de su estado,
 si tiene modo en línea, en qué archivo vive). También hay `mejorar-menu-arcade` (menú, miniaturas,
-navegación), `crear-musica-arcade` (efectos de sonido y música) y `pixelart-arcade` (sprites y estilo
+navegación), `crear-musica-arcade` (efectos de sonido y música; cada juego tiene su canción en
+`assets/js/arcade/musica/<id>.js`) y `pixelart-arcade` (sprites y estilo
 visual). Sigue separando uno a la vez y probando bien cada uno antes de seguir con el siguiente — no todos
 de golpe.
 
