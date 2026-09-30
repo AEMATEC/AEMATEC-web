@@ -95,23 +95,33 @@ nuevos, documéntalo para quien administra `arcade-matec` (ver `docs/arcade-fire
 El Arcade se está separando en archivos por juego, sin perder la experiencia de una sola página (cambiar de
 juego sigue siendo instantáneo, sin recargar). El patrón ya está en marcha:
 - `assets/js/arcade/core.js`: todo lo compartido (Firebase, `$`/`esc`/`store`, `SFX`, `LB`, sprites base
-  `sprite`/`scaled`/`SPR`, `EGG`, y el ajuste de tamaño `fitAll`/`fitOver`/`fitSoon`). Es un módulo (`export`);
-  cualquier juego, esté o no ya separado, importa de aquí lo que necesite.
-- `assets/js/arcade/minas.js`: primer juego separado (Buscaminas), como ejemplo del patrón a seguir.
-- Los juegos que faltan por separar (Batalla Naval, Animal al Tiro, Carreras, Combate de Funciones, 21,
-  Billar, Duelo del Oeste, La Huida del Zorro, Golf, Cruzar la Calle) siguen dentro del `<script type="module">`
-  de `arcade.html`, que importa de `core.js` lo mismo que los ya separados.
+  `sprite`/`scaled`/`pxCircle`/`SPR`, `EGG`, y el ajuste de tamaño `fitAll`/`fitOver`/`fitSoon`). Es un módulo
+  (`export`); cualquier juego, esté o no ya separado, importa de aquí lo que necesite.
+- Ya separados, como ejemplo del patrón a seguir: `assets/js/arcade/minas.js` (Buscaminas),
+  `assets/js/arcade/tiro.js` (Animal al Tiro), `assets/js/arcade/runner.js` (La Huida del Zorro) — los tres
+  sin partidas en línea, por eso se hicieron primero (menos riesgo).
+- Los juegos con partidas en línea (Batalla Naval, Carreras, Combate de Funciones, 21, Billar, Duelo del
+  Oeste, Golf, Cruzar la Calle) siguen dentro del `<script type="module">` de `arcade.html`, que importa de
+  `core.js` lo mismo que los ya separados. Sepáralos con más cuidado que los anteriores: prueba el modo en
+  línea de verdad (dos sesiones a la vez) después de separar cada uno, no solo el modo local/CPU.
 - Lo que NO se movió a `core.js` a propósito (`tab`, `goTab`, `GAMES`, el bucle `loop()` que llama al
   tick/draw de cada juego activo, `drawSplash` con las miniaturas del menú, la navegación entre pestañas)
-  sigue en `arcade.html` porque conecta a TODOS los juegos a la vez — cuando separes uno que tenga su propio
-  `tick`/`draw` en el bucle (la mayoría, a diferencia de Buscaminas), esas líneas del `loop()` en `arcade.html`
-  se quedan igual, solo que llaman a una función importada en vez de una definida ahí mismo.
+  sigue en `arcade.html` porque conecta a TODOS los juegos a la vez. Un juego ya separado que necesite algo
+  de ahí (como `goTab`, que La Huida del Zorro usa para su botón "MENÚ") deja esa línea conectada desde
+  `arcade.html` en vez de importarla — no hay nada que importar todavía, `goTab` no vive en un archivo aparte.
 - Si un juego necesita algo propio en el ajuste de tamaño (como Buscaminas con el tamaño de sus celdas,
   que `core.js` no puede conocer), que se registre en `FIT_EXTRAS` (exportado por `core.js`) desde su propio
   archivo, en vez de que `core.js` tenga que conocer ese juego.
+- Antes de separar un juego, revisa con cuidado qué usan de él OTROS juegos o `drawSplash` (por ejemplo,
+  `RN_FOX_SPR` lo usa la miniatura del menú, y `pxCircle`/`sprite`/`scaled` los usa casi todo el Arcade) —
+  un símbolo usado fuera del bloque del juego tiene que exportarse, no puede quedar solo dentro del archivo
+  nuevo.
 
-Sigue separando uno a la vez y probando bien cada uno (sobre todo los que tienen partidas en línea) antes de
-seguir con el siguiente — no todos de golpe.
+Hay un agente por juego (`.claude/agents/juego-*.md`) con los detalles de cada uno (prefijo de su estado,
+si tiene modo en línea, en qué archivo vive). También hay `mejorar-menu-arcade` (menú, miniaturas,
+navegación), `crear-musica-arcade` (efectos de sonido y música) y `pixelart-arcade` (sprites y estilo
+visual). Sigue separando uno a la vez y probando bien cada uno antes de seguir con el siguiente — no todos
+de golpe.
 
 Golf tiene un **creador de hoyos**: cualquiera diseña uno y lo envía a `golfHoyosPropuestos` (arcade-matec); un
 moderador lo aprueba desde "PROPUESTAS DE LA COMUNIDAD" con un código compartido (constante `GFP_MOD_CODE` en
