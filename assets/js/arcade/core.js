@@ -267,6 +267,10 @@ export function scaled(src, s) {
   const c = document.createElement('canvas'); c.width = src.width * s; c.height = src.height * s;
   const x = c.getContext('2d'); x.imageSmoothingEnabled = false; x.drawImage(src, 0, 0, c.width, c.height); return c;
 }
+export function pxCircle(ctx, cx0, cy0, r, color) {
+  ctx.fillStyle = color;
+  for (let y = -r; y <= r; y++) for (let x = -r; x <= r; x++) if (x * x + y * y <= r * r + r * .6) ctx.fillRect(cx0 + x, cy0 + y, 1, 1);
+}
 export const SPR = {
   flag: sprite([
     "..11....",
