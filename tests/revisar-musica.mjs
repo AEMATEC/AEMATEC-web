@@ -14,7 +14,7 @@ const ONDAS = ["square", "pulso25", "pulso12", "triangle", "sawtooth", "ruido"];
 const NOTA = /^[A-G][#b]?-?\d$/, TAMBOR = /^[kshox]$/;
 const args = process.argv.slice(2);
 const solo = args.find(a => !a.startsWith("--") && !a.endsWith(".wav"));
-const wavArg = args[args.indexOf("--wav") + 1];
+const wavArg = args.includes("--wav") ? args[args.indexOf("--wav") + 1] : null;
 const gcd = (a, b) => (b ? gcd(b, a % b) : a), lcm = (a, b) => (a * b) / gcd(a, b);
 let errores = 0;
 

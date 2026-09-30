@@ -49,12 +49,13 @@ export function nota(c, dest, ch, e, t, dur) {
     src.buffer = noiseBuf(c); fl.type = e.ficha === 'k' ? 'lowpass' : e.ficha === 'h' || e.ficha === 'o' ? 'highpass' : 'bandpass';
     fl.frequency.value = f;
     const v = ch.vol * (e.ficha === 'k' ? 2.2 : 1);
+    g.gain.value = 0; // si no, el primer instante suena a volumen 1 (un chasquido)
     g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(.0001, t + d);
     src.connect(fl).connect(g).connect(dest); src.start(t, Math.random() * .5); src.stop(t + d + .02);
     if (e.ficha === 'k') { // bombo: además un golpe grave que baja de tono
       const o = c.createOscillator(), g2 = c.createGain();
       o.type = 'triangle'; o.frequency.setValueAtTime(140, t); o.frequency.exponentialRampToValueAtTime(45, t + .12);
-      g2.gain.setValueAtTime(ch.vol * 3, t); g2.gain.exponentialRampToValueAtTime(.0001, t + .15);
+      g2.gain.value = 0; g2.gain.setValueAtTime(ch.vol * 3, t); g2.gain.exponentialRampToValueAtTime(.0001, t + .15);
       o.connect(g2).connect(dest); o.start(t); o.stop(t + .17);
     }
     return;
@@ -74,7 +75,7 @@ export function nota(c, dest, ch, e, t, dur) {
     lfo.connect(lg).connect(o.detune); lfo.start(t + Math.min(.12, dur / 2)); lfo.stop(t + dur + .05);
   }
   const v = ch.vol, a = .006;
-  g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + a);
+  g.gain.value = 0; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + a);
   if (ch.env === 'punteado') g.gain.exponentialRampToValueAtTime(Math.max(.0001, v * .08), t + Math.max(a + .01, dur));
   else { g.gain.setValueAtTime(v, t + Math.max(a, dur - .03)); }
   g.gain.linearRampToValueAtTime(0, t + dur);
