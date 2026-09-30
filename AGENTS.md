@@ -92,11 +92,26 @@ revisa la pestaña **Actions** del repositorio en GitHub.
 `layout.js` ni cuentas del sitio. Sus reglas no están en este repositorio: si un cambio del Arcade escribe datos
 nuevos, documéntalo para quien administra `arcade-matec` (ver `docs/arcade-firebase-cambios.md`).
 
-Todo el Arcade (los 11 juegos y el menú) vive hoy en un solo `<script>` dentro de `arcade.html`, para que cambiar
-de juego sea instantáneo (sin recargar la página) y todo comparta sonido, música y conexión a Firebase. Está
-pendiente separar ese script en archivos por juego (empezando por Golf, que ya tiene su propio bloque bien
-delimitado) sin perder esa experiencia de una sola página — házlo si te lo piden, pero de a un juego a la vez y
-probando bien cada uno, no todos de golpe.
+El Arcade se está separando en archivos por juego, sin perder la experiencia de una sola página (cambiar de
+juego sigue siendo instantáneo, sin recargar). El patrón ya está en marcha:
+- `assets/js/arcade/core.js`: todo lo compartido (Firebase, `$`/`esc`/`store`, `SFX`, `LB`, sprites base
+  `sprite`/`scaled`/`SPR`, `EGG`, y el ajuste de tamaño `fitAll`/`fitOver`/`fitSoon`). Es un módulo (`export`);
+  cualquier juego, esté o no ya separado, importa de aquí lo que necesite.
+- `assets/js/arcade/minas.js`: primer juego separado (Buscaminas), como ejemplo del patrón a seguir.
+- Los juegos que faltan por separar (Batalla Naval, Animal al Tiro, Carreras, Combate de Funciones, 21,
+  Billar, Duelo del Oeste, La Huida del Zorro, Golf, Cruzar la Calle) siguen dentro del `<script type="module">`
+  de `arcade.html`, que importa de `core.js` lo mismo que los ya separados.
+- Lo que NO se movió a `core.js` a propósito (`tab`, `goTab`, `GAMES`, el bucle `loop()` que llama al
+  tick/draw de cada juego activo, `drawSplash` con las miniaturas del menú, la navegación entre pestañas)
+  sigue en `arcade.html` porque conecta a TODOS los juegos a la vez — cuando separes uno que tenga su propio
+  `tick`/`draw` en el bucle (la mayoría, a diferencia de Buscaminas), esas líneas del `loop()` en `arcade.html`
+  se quedan igual, solo que llaman a una función importada en vez de una definida ahí mismo.
+- Si un juego necesita algo propio en el ajuste de tamaño (como Buscaminas con el tamaño de sus celdas,
+  que `core.js` no puede conocer), que se registre en `FIT_EXTRAS` (exportado por `core.js`) desde su propio
+  archivo, en vez de que `core.js` tenga que conocer ese juego.
+
+Sigue separando uno a la vez y probando bien cada uno (sobre todo los que tienen partidas en línea) antes de
+seguir con el siguiente — no todos de golpe.
 
 Golf tiene un **creador de hoyos**: cualquiera diseña uno y lo envía a `golfHoyosPropuestos` (arcade-matec); un
 moderador lo aprueba desde "PROPUESTAS DE LA COMUNIDAD" con un código compartido (constante `GFP_MOD_CODE` en
