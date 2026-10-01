@@ -73,9 +73,9 @@
     return [...vistas.values()];
   }
 
-  // Categorías de un libro: la lista `categorias` o, si aún no se migró, el texto viejo `categoria`.
+  // Categorías de un libro (lista `categorias`, con los nombres unificados).
   function categoriasDeLibro(libro) {
-    return normalizarLista(Array.isArray(libro?.categorias) ? libro.categorias : libro?.categoria);
+    return normalizarLista(Array.isArray(libro?.categorias) ? libro.categorias : []);
   }
 
   const grupoDe = categoria => PADRE.get(normalizarCategoria(categoria)) || null;

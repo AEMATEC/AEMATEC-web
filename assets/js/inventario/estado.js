@@ -63,8 +63,7 @@ export function hideModal(modal) {
 export const allItems = () => Object.values(inv.itemsByTipo).flat();
 
 // Los libros guardan varias categorías en `categorias` (lista) y se muestran con los nombres unificados
-// de assets/js/inventario-categorias.js. Los que aún no se migran tienen `categoria` como texto,
-// a veces con varias separadas por "/" (ver scripts/categorias/migrar.js).
+// de assets/js/inventario-categorias.js. Los demás bienes tienen `categoria` como texto (varias separadas por "/").
 export function categoriasDe(item) {
   if (item.tipo === "biblioteca") return Categorias.categoriasDeLibro(item);
   return String(item.categoria || "").split("/").map(value => value.trim()).filter(Boolean);

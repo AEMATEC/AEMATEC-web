@@ -8,7 +8,7 @@ import {
 } from "./estado.js";
 import { loadInventory } from "./publico.js";
 import {
-  collection, addDoc, updateDoc, deleteDoc, doc, serverTimestamp, deleteField
+  collection, addDoc, updateDoc, deleteDoc, doc, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
@@ -290,11 +290,10 @@ document.querySelector("#admin-item-form").addEventListener("submit", async even
         disponible: row.querySelector("[data-exemplar=disponible]").checked
       })).filter(exemplar => exemplar.codigo);
       // Categorías como lista (máx. 3), con los nombres unificados ("Tercer ciclio" → "Tercer ciclo");
-      // se acepta coma o "/" al escribirlas. Se borra el campo viejo `categoria`.
+      // se acepta coma o "/" al escribirlas.
       const categorias = Categorias.normalizarLista(fields.categorias);
       if (categorias.length > MAX_CATEGORIAS_LIBRO) throw new Error(`Un libro puede tener como máximo ${MAX_CATEGORIAS_LIBRO} categorías.`);
       payload.categorias = categorias;
-      if (itemId) payload.categoria = deleteField();
     }
     // El código no puede ser el de otro bien activo (sí el de uno dado de baja, que queda libre).
     await loadInventory();

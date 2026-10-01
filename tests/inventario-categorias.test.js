@@ -35,9 +35,9 @@ describe("Categorías: cómo se escriben", () => {
     assert.deepEqual(normalizarLista(undefined), []);
   });
 
-  test("lee la lista nueva o, si no existe, el texto viejo", () => {
-    assert.deepEqual(categoriasDeLibro({ categorias: ["Cálculo", "Física"], categoria: "Otra" }), ["Cálculo", "Física"]);
-    assert.deepEqual(categoriasDeLibro({ categoria: "Cálculo / Complejos" }), ["Cálculo", "Variable compleja"]);
+  test("lee la lista de categorías del libro con los nombres unificados", () => {
+    assert.deepEqual(categoriasDeLibro({ categorias: ["Cálculo", "complejos"] }), ["Cálculo", "Variable compleja"]);
+    assert.deepEqual(categoriasDeLibro({}), []);
   });
 
   test("cada categoría pertenece a un solo grupo y las fusiones apuntan a categorías de algún grupo", () => {
