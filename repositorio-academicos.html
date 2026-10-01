@@ -503,6 +503,7 @@
     import { app } from "./assets/js/firebase.js";
     import { escapeHtml } from "./assets/js/util.js";
     import { tieneRol } from "./assets/js/roles.js";
+    import { CURSOS } from "./assets/js/cursos.js";
     import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     const filterPanel = document.querySelector("#academic-filter-panel");
@@ -521,23 +522,6 @@
     document.querySelector("#open-academic-filters").addEventListener("click", openFilters);
     document.querySelector("#close-academic-filters").addEventListener("click", closeFilters);
     filterBackdrop.addEventListener("click", closeFilters);
-    const courseNames = {
-      EM1401: "Introducción a la pedagogía", EM1404: "Teorías Psicopedagógicas del aprendizaje", EM1605: "Fundamentos de la matemática I",
-      MA1403: "Matemática Discreta", EM1600: "Tecnologías Digitales aplicadas a la matemática educativa I", EM1606: "Fundamentos de la matemática II",
-      EM2408: "Aprendizaje y didáctica de la matemática", EM2604: "Geometría I", EM1608: "Didáctica del Álgebra y Funciones",
-      EM2606: "Geometría II", EM3407: "Psicología del Desarrollo", EM3607: "Álgebra Lineal", EM1607: "Didáctica de la Geometría",
-      EM2603: "Cálculo y Análisis I", EM2608: "Elementos de análisis de datos y probabilidad", EM3048: "Atención a la diversidad en la enseñanza y el aprendizaje de la Matemática",
-      EM1609: "Didáctica de la probabilidad y estadística", EM1610: "Tecnologías digitales aplicadas a la matemática educativa II",
-      EM2607: "Cálculo y Análisis II", EM3001: "Electivo I", EM3408: "Evaluación del aprendizaje", EM3409: "Práctica docente",
-      EM3608: "Cálculo y Análisis III", EM3610: "Electivo II", EM1611: "Geometría Analítica",
-      EM4609: "Álgebra", EM4610: "Ecuaciones diferenciales", EM1613: "Tecnologías digitales aplicadas a la matemática educativa III",
-      EM1614: "Estadística Inferencial", EM4001: "Electivo III", EM4612: "Métodos numéricos",
-      EM5001: "Historia de las matemáticas", EM5002: "Didáctica de las matemáticas I", EM5003: "Taller I: Algoritmos y programación",
-      EM5004: "Introducción al análisis funcional", EM5005: "Teoría de números", EM5006: "Didáctica de la matemática II",
-      EM5007: "Taller II: Multimedios en la matemática", EM5008: "Investigación educativa", EM5009: "Trabajo final de graduación",
-      MA0101: "Matemática General", MA1102: "Cálculo Diferencial e Integral", MA1103: "Cálculo y Álgebra Lineal",
-      MA2104: "Cálculo Superior", MA2105: "Ecuaciones diferenciales"
-    };
     const config = window.AEMATEC_FIREBASE_CONFIG;
     const list = document.querySelector("#academic-resource-list");
     const count = document.querySelector("#academic-count");
@@ -553,7 +537,7 @@
     const pageSize = 5;
     let isModerator = false;
     search.value = new URLSearchParams(window.location.search).get("q") || "";
-    const courseLabel = code => courseNames[code] ? `${code} — ${courseNames[code]}` : code || "Curso no indicado";
+    const courseLabel = code => CURSOS[code] ? `${code} — ${CURSOS[code]}` : code || "Curso no indicado";
     const iconFor = extension => extension === "pdf" ? "fa-file-pdf" : extension === "pptx" ? "fa-file-powerpoint" : extension === "docx" ? "fa-file-word" : extension === "ggb" ? "fa-shapes" : "fa-file-lines";
     const formatDate = timestamp => timestamp?.seconds ? new Date(timestamp.seconds * 1000).toLocaleDateString("es-CR") : "No indicada";
     function closeResourceModal() {
@@ -588,7 +572,7 @@
       const types = [...document.querySelectorAll("[data-type-filter]:checked")].map(input => input.dataset.typeFilter);
       const courses = [...document.querySelectorAll("[data-course-filter]:checked")].map(input => input.dataset.courseFilter);
       filtered = resources.filter(resource => {
-        const text = `${resource.title} ${resource.description} ${resource.course} ${resource.courseCode || ""} ${courseNames[resource.course] || ""}`.toLowerCase();
+        const text = `${resource.title} ${resource.description} ${resource.course} ${resource.courseCode || ""} ${CURSOS[resource.course] || ""}`.toLowerCase();
         return (!queryText || text.includes(queryText)) && (!types.length || types.includes(resource.type)) && (!courses.length || courses.includes(resource.course) || courses.includes(resource.courseCode));
       }).sort((a, b) => sort.value === "title" ? (a.title || "").localeCompare(b.title || "", "es") : sort.value === "downloads" ? (b.downloads || 0) - (a.downloads || 0) : (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
       const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
@@ -598,7 +582,7 @@
       summary.textContent = queryText ? `para “${search.value.trim()}”` : "disponibles";
       list.innerHTML = visible.length ? visible.map(resource => `<article class="bg-white border border-[#D6E2E7] rounded-[15px] p-5 flex items-center gap-5">
         <div class="w-[62px] h-[72px] rounded-[11px] bg-[#EDF2FA] text-[#486398] flex items-center justify-center text-2xl"><i class="${resource.extension ==="ggb" ? "fa-solid" : "fa-regular"} ${iconFor(resource.extension)}"></i></div>
-        <div class="flex-1"><div class="flex items-center gap-3"><span class="font-sans text-[10px] font-bold bg-[#E9EEF9] text-[#3B568D] px-2.5 py-1 rounded-full">${escapeHtml((resource.type || "RECURSO").toUpperCase())}</span><span title="${escapeHtml(courseNames[resource.course] || "")}" class="font-sans text-[11px] font-bold text-[#008F9E]">${escapeHtml(resource.course || "Sin curso")}</span></div>
+        <div class="flex-1"><div class="flex items-center gap-3"><span class="font-sans text-[10px] font-bold bg-[#E9EEF9] text-[#3B568D] px-2.5 py-1 rounded-full">${escapeHtml((resource.type || "RECURSO").toUpperCase())}</span><span title="${escapeHtml(CURSOS[resource.course] || "")}" class="font-sans text-[11px] font-bold text-[#008F9E]">${escapeHtml(resource.course || "Sin curso")}</span></div>
         <h3 class="font-sans font-bold text-[18px] mt-2">${escapeHtml(resource.title)}</h3><p class="text-sm text-[#687B86] mt-1">${escapeHtml(resource.description)}</p><p class="text-xs text-[#7A8C96] mt-2">Por <strong class="text-[#4A606D]">${escapeHtml(resource.author)}</strong> · ${escapeHtml(courseLabel(resource.course))}</p></div>
         <div class="flex gap-2">${isModerator ? `<a href="admin.html?edit=${escapeHtml(resource.id)}" class="flex h-11 w-11 items-center justify-center rounded-[8px] border border-[#9DB6C1] text-[#38566A]" title="Editar (moderador)"><i class="fa-solid fa-pen"></i></a>` : ""}<button type="button" data-view-academic="${escapeHtml(resource.id)}" class="flex h-11 w-11 items-center justify-center rounded-[8px] border border-[#A9BEC7] text-[#38566A]" aria-label="Ver detalles"><i class="fa-regular fa-eye"></i></button><a href="${escapeHtml(resource.fileUrl)}" download class="h-11 rounded-[8px] bg-[#00AFC1] px-5 font-sans text-xs font-bold text-white flex items-center"><i class="fa-solid fa-download mr-2"></i>Descargar</a></div></article>`).join("") : '<p class="rounded-[15px] border border-[#D6E2E7] bg-white p-8 text-center text-[#607480]">No encontramos materiales con esos filtros.</p>';
       list.querySelectorAll("[data-view-academic]").forEach(button => button.addEventListener("click", () => openResourceModal(resources.find(resource => resource.id === button.dataset.viewAcademic))));
@@ -636,7 +620,7 @@
     const legend = document.querySelector("#course-legend");
     const legendButton = document.querySelector("#show-course-legend");
     const legendIcon = document.querySelector("#course-legend-icon");
-    const sortedCourses = Object.entries(courseNames).sort(([first], [second]) => first.localeCompare(second, "es", { numeric: true }));
+    const sortedCourses = Object.entries(CURSOS).sort(([first], [second]) => first.localeCompare(second, "es", { numeric: true }));
     const renderCourseGroup = (title, courses) => `<div class="sm:col-span-2 lg:col-span-3"><h3 class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#00A6B8]">${title}</h3></div>${courses.map(([code, name]) => `<div class="rounded-[9px] bg-white p-3 text-sm"><strong class="font-sans text-[#008F9E]">${code}</strong><span class="ml-2 text-[#607480]">${name}</span></div>`).join("")}`;
     document.querySelector("#course-legend-list").innerHTML = renderCourseGroup("Cursos de la carrera (EM)", sortedCourses.filter(([code]) => code.startsWith("EM"))) + renderCourseGroup("Cursos de servicio (MA)", sortedCourses.filter(([code]) => code.startsWith("MA")));
     const updateLegendButton = isOpen => {

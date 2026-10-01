@@ -153,6 +153,7 @@
     if (event.key === "Escape") document.querySelector("#close-upload").click();
   });
   import { app } from "./assets/js/firebase.js";
+  import { catalogoCursos } from "./assets/js/cursos.js";
   import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
   import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
@@ -176,33 +177,7 @@
   const course = document.querySelector("#course");
   const materials = document.querySelector("#materials");
   const sectionInputs = [...document.querySelectorAll('input[name="section"]')];
-  const courseCatalog = [
-    ["Introducción a la pedagogía", "EM1401"], ["Teorías Psicopedagógicas del aprendizaje", "EM1404"],
-    ["Fundamentos de la matemática I", "EM1605"], ["Matemática Discreta", "MA1403"],
-    ["Tecnologías Digitales aplicadas a la matemática educativa I", "EM1600"],
-    ["Fundamentos de la matemática II", "EM1606"], ["Aprendizaje y didáctica de la matemática", "EM2408"],
-    ["Geometría I", "EM2604"], ["Didáctica del Álgebra y Funciones", "EM1608"],
-    ["Geometría II", "EM2606"], ["Psicología del Desarrollo", "EM3407"],
-    ["Álgebra Lineal", "EM3607"], ["Didáctica de la Geometría", "EM1607"],
-    ["Cálculo y Análisis I", "EM2603"], ["Elementos de análisis de datos y probabilidad", "EM2608"],
-    ["Atención a la diversidad en la enseñanza y el aprendizaje de la Matemática", "EM3048"],
-    ["Didáctica de la probabilidad y estadística", "EM1609"],
-    ["Tecnologías digitales aplicadas a la matemática educativa II", "EM1610"],
-    ["Cálculo y Análisis II", "EM2607"], ["Electivo I", "EM3001"],
-    ["Evaluación del aprendizaje", "EM3408"], ["Práctica docente", "EM3409"],
-    ["Cálculo y Análisis III", "EM3608"], ["Electivo II", "EM3610"],
-    ["Geometría Analítica", "EM1611"], ["Álgebra", "EM4609"],
-    ["Ecuaciones diferenciales", "EM4610"], ["Tecnologías digitales aplicadas a la matemática educativa III", "EM1613"],
-    ["Estadística Inferencial", "EM1614"], ["Electivo III", "EM4001"],
-    ["Métodos numéricos", "EM4612"], ["Historia de las matemáticas", "EM5001"],
-    ["Didáctica de las matemáticas I", "EM5002"], ["Taller I: Algoritmos y programación", "EM5003"],
-    ["Introducción al análisis funcional", "EM5004"], ["Teoría de números", "EM5005"],
-    ["Didáctica de la matemática II", "EM5006"], ["Taller II: Multimedios en la matemática", "EM5007"],
-    ["Investigación educativa", "EM5008"], ["Trabajo final de graduación", "EM5009"],
-    ["Matemática General", "MA0101"], ["Cálculo Diferencial e Integral", "MA1102"],
-    ["Cálculo y Álgebra Lineal", "MA1103"], ["Cálculo Superior", "MA2104"],
-    ["Ecuaciones diferenciales", "MA2105"]
-  ];
+  const courseCatalog = catalogoCursos();
   const courseSuggestions = document.querySelector("#course-suggestions");
 
   function normalizeCourseText(value) {
