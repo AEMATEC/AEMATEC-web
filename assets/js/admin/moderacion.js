@@ -1,8 +1,9 @@
 // Moderación del Repositorio: materiales pendientes, edición de metadatos y equipo de moderación.
 // La carga admin.html (vía panel.js) solo para cuentas con rol de moderación.
 import { app } from "../firebase.js";
-import { escapeHtml } from "../util.js";
+import { escapeHtml, safeHttpsUrl } from "../util.js";
 import { esDueno } from "../roles.js";
+import { enlaceExplicacion } from "../recursos.js";
 import { getFirestore, collection, getDocs, getDoc, query, where, updateDoc, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getStorage, ref, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
@@ -84,11 +85,19 @@ editForm.addEventListener("submit", async event => {
     editStatus.hidden = false;
     return;
   }
+  // Solo https: el enlace se muestra como href en las páginas públicas (firestore.rules también lo exige).
+  const explanationUrl = document.querySelector("#edit-explanation-url").value.trim();
+  if (explanationUrl && !safeHttpsUrl(explanationUrl)) {
+    editStatus.textContent = "El enlace de explicación debe comenzar con https://.";
+    editStatus.className = "text-sm text-[#C2413B]";
+    editStatus.hidden = false;
+    return;
+  }
   const updates = {
     title: document.querySelector("#edit-title").value.trim(),
     description: document.querySelector("#edit-description").value.trim(),
     labels, type: typeMap[labels[0]],
-    explanationUrl: document.querySelector("#edit-explanation-url").value.trim()
+    explanationUrl
   };
   if (isDocente) {
     updates.grade = document.querySelector("#edit-grade").value;
@@ -153,6 +162,13 @@ async function loadModerators() {
   }));
 }
 
+// Explicación opcional del recurso (archivo o enlace, ver assets/js/recursos.js).
+function explicacionHtml(resource) {
+  const explicacion = enlaceExplicacion(resource);
+  if (!explicacion) return "";
+  return `<a href="${escapeHtml(explicacion.href)}" target="_blank" rel="noopener" class="rounded-[8px] border border-[#9DB6C1] px-4 py-2 font-sans text-xs font-bold">${explicacion.descarga ? "Ver explicación (archivo)" : "Ver explicación (enlace)"}</a>`;
+}
+
 async function loadPending() {
   panelStatus.textContent = "Cargando materiales...";
   const snapshot = await getDocs(query(collection(db, "resources"), where("status", "==", "pending")));
@@ -168,7 +184,7 @@ async function loadPending() {
       <div class="flex flex-wrap items-start justify-between gap-3"><div><span class="font-sans text-[10px] font-bold uppercase text-[#00A6B8]">${escapeHtml(resource.type)}</span><h2 class="mt-2 font-sans text-xl font-bold">${escapeHtml(resource.title)}</h2></div><span class="rounded-full bg-[#FFF1D9] px-3 py-1 font-sans text-[10px] font-bold text-[#946316]">PENDIENTE</span></div>
       <p class="mt-3 leading-6 text-[#607480]">${escapeHtml(resource.description)}</p>
       <dl class="mt-4 grid gap-2 text-sm text-[#405968] sm:grid-cols-2"><div><strong>Autor:</strong> ${escapeHtml(resource.author)}</div><div><strong>Curso:</strong> ${escapeHtml(resource.course || "No indicado")}</div><div><strong>Materiales:</strong> ${escapeHtml(resource.materials || "No indicados")}</div><div><strong>Internet:</strong> ${resource.requiresInternet ? "Sí" : "No"} · ${escapeHtml((resource.extension || "").toUpperCase())} · ${fileSize(resource.size)}</div></dl>
-      <div class="mt-5 flex flex-wrap gap-3"><a href="${escapeHtml(resource.fileUrl)}" target="_blank" rel="noopener" class="rounded-[8px] border border-[#9DB6C1] px-4 py-2 font-sans text-xs font-bold">Ver archivo</a><button data-edit-id="${item.id}" class="rounded-[8px] border border-[#9DB6C1] px-4 py-2 font-sans text-xs font-bold"><i class="fa-solid fa-pen mr-1"></i>Editar</button><button data-action="approved" data-id="${item.id}" class="rounded-[8px] bg-[#00AFC1] px-4 py-2 font-sans text-xs font-bold text-white">Aprobar y publicar</button><button data-action="rejected" data-id="${item.id}" class="rounded-[8px] border border-[#C2413B] px-4 py-2 font-sans text-xs font-bold text-[#C2413B]">Rechazar</button><button data-action="delete" data-id="${item.id}" class="rounded-[8px] border border-[#AFC2CB] px-4 py-2 font-sans text-xs font-bold">Eliminar</button></div>
+      <div class="mt-5 flex flex-wrap gap-3"><a href="${escapeHtml(safeHttpsUrl(resource.fileUrl) || "#")}" target="_blank" rel="noopener" class="rounded-[8px] border border-[#9DB6C1] px-4 py-2 font-sans text-xs font-bold">Ver archivo</a>${explicacionHtml(resource)}<button data-edit-id="${item.id}" class="rounded-[8px] border border-[#9DB6C1] px-4 py-2 font-sans text-xs font-bold"><i class="fa-solid fa-pen mr-1"></i>Editar</button><button data-action="approved" data-id="${item.id}" class="rounded-[8px] bg-[#00AFC1] px-4 py-2 font-sans text-xs font-bold text-white">Aprobar y publicar</button><button data-action="rejected" data-id="${item.id}" class="rounded-[8px] border border-[#C2413B] px-4 py-2 font-sans text-xs font-bold text-[#C2413B]">Rechazar</button><button data-action="delete" data-id="${item.id}" class="rounded-[8px] border border-[#AFC2CB] px-4 py-2 font-sans text-xs font-bold">Eliminar</button></div>
     </article>`;
   }).join("");
   pendingList.querySelectorAll("button[data-action]").forEach(button => button.addEventListener("click", () => handleAction(button.dataset.action, button.dataset.id)));
@@ -183,6 +199,7 @@ async function handleAction(action, id) {
     if (action === "delete") {
       if (!confirm("¿Eliminar este material y su archivo definitivamente?")) return;
       if (resource.storagePath) await deleteObject(ref(storage, resource.storagePath));
+      if (resource.explanation?.storagePath) await deleteObject(ref(storage, resource.explanation.storagePath));
       await deleteDoc(doc(db, "resources", id));
     } else {
       await updateDoc(doc(db, "resources", id), { status: action, published: action === "approved" });

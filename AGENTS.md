@@ -68,8 +68,9 @@ revisa la pestaña **Actions** del repositorio en GitHub.
   cada PR). Si agregaste o cambiaste clases de Tailwind (en HTML o en `assets/js`), ejecuta `npm install && npm run css`
   y sube `assets/css/tailwind.css`; nunca lo edites a mano. Prueba la
   página con `python3 -m http.server 5500`. Explica en el PR qué conviene revisar visualmente.
-- Para Firebase, roles y utilidades usa los módulos de `assets/js/` (`firebase.js`, `roles.js`, `util.js`)
-  en lugar de volver a escribir `initializeApp`, listas de correos o `escapeHtml` en la página.
+- Para Firebase, roles y utilidades usa los módulos de `assets/js/` (`firebase.js`, `roles.js`, `util.js`,
+  `acceso.js` para iniciar sesión, `recursos.js` y `cursos.js` para el Repositorio) en lugar de volver a escribir
+  `initializeApp`, listas de correos, `escapeHtml`, la lista de cursos o la consulta de materiales en la página.
 - El encabezado, el menú (y el sub-menú del Repositorio) y el pie son comunes: se editan solo en
   `assets/js/layout.js` y `assets/css/site.css`. Una página nueva los incluye con
   `<script src="assets/js/layout.js" data-part="header" data-active="…"></script>` y
@@ -84,8 +85,9 @@ revisa la pestaña **Actions** del repositorio en GitHub.
 - Las páginas usan nombres cortos (`repositorio*.html`, `inventario.html`, `junta-directiva.html`, `tramites.html`).
 - Si agregas o renombras una página, agrégala también en `assets/js/site-pages.js` (buscador de la portada y
   asistente).
-- Los archivos `aematec_*.html` que solo contienen una redirección existen para no romper enlaces viejos: no
-  les agregues contenido. Si renombras una página, deja una redirección igual en el nombre anterior.
+- Mientras el sitio no sea público, una página se puede renombrar sin dejar redirección: actualiza todos los enlaces
+  (`node tests/revisar-enlaces.mjs` avisa si queda alguno roto). Cuando el sitio se anuncie, deja una redirección
+  en el nombre anterior para no romper enlaces guardados.
 
 ## Arcade
 `arcade.html` es aparte: tiene su propio estilo y su propio proyecto de Firebase (`arcade-matec`), no usa

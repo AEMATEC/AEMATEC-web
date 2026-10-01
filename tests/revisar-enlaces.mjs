@@ -1,5 +1,5 @@
 // Revisa que los enlaces internos del sitio apunten a archivos que existen (y a secciones con ese id).
-// Mira los href/src de las páginas, las páginas .html nombradas en el JavaScript (menú, redirecciones)
+// Mira los href/src de las páginas, las páginas .html nombradas en el JavaScript (menú, buscador)
 // y los import de módulos. No revisa enlaces externos (https://…): esos dependen de otros sitios.
 // Uso: node tests/revisar-enlaces.mjs   (desde la raíz del repositorio)
 import { existsSync, readFileSync, readdirSync } from "node:fs";

@@ -25,8 +25,7 @@ dependen de él citan el artículo correspondiente en el código y en [`docs/PLA
 | Arcade | `arcade.html` (botón flotante en todas las páginas, `assets/js/arcade-launcher.js`) | Minijuegos pixelados (buscaminas, batalla naval, carreras, etc.) hechos por un estudiante. Es una página aparte, con su propio estilo y su propio proyecto de Firebase (`arcade-matec`, distinto del sitio); no usa cuentas ni datos del padrón. Público, sin inicio de sesión. Sus reglas de Firebase no están en este repositorio: si un cambio escribe datos nuevos, documéntalo para quien administra `arcade-matec` (ver `docs/arcade-firebase-cambios.md`). |
 
 > **Nota de nombres:** el repositorio digital de materiales se llama **Repositorio** (antes "Biblioteca").
-> Los archivos `aematec_*.html` que quedan son solo redirecciones a las páginas nuevas. **Biblioteca** es solo la colección física de
-> libros para préstamo del RI (Art. 128-129), que está en **Inventario → Biblioteca**.
+> **Biblioteca** es solo la colección física de libros para préstamo del RI (Art. 128-129), que está en **Inventario → Biblioteca**.
 
 ## Carrusel de fotos de actividades (portada)
 
@@ -84,6 +83,11 @@ que la necesita y en ese momento (por ejemplo, al enviar un trámite, con el enl
 - `firebase.js`: conexión única con Firebase (`app`, `db`).
 - `roles.js`: correos de dueño y `tieneRol(user, "junta" | "moderators" | "fiscalia")`.
 - `util.js`: `escapeHtml`, `safeHttpsUrl`, `safeEmail`.
+- `cursos.js`: lista única de cursos de la carrera (`CURSOS`, código → nombre; `catalogoCursos()` para las
+  sugerencias de "Subir material"). Si cambia el plan de estudios, se edita solo ahí.
+- `recursos.js`: lo que comparten las páginas del Repositorio: `cargarPublicados({ section })`, aviso de
+  moderación (lápiz de editar), íconos, fechas, paginación, enlaces de archivo (solo https) y el bloque
+  "Explicación" de la ventana de detalle. El HTML de las tarjetas sigue en cada página.
 - `layout.js`: encabezado, menú y pie de página; además carga en cada página los temas de temporada (`temas.js`),
   el botón del Arcade (`arcade-launcher.js`) y el asistente (`chatbot.js`).
 - `site-pages.js`: lista de páginas públicas que usan el buscador de la portada y el asistente. Si agregas o
@@ -91,6 +95,9 @@ que la necesita y en ese momento (por ejemplo, al enviar un trámite, con el enl
 - `tramites.js` (página de Trámites) y `admin/` (secciones del panel: `panel.js`, `asociacion.js`, `tramites.js`,
   `moderacion.js`, `tema.js`).
 - `inventario-categorias.js` e `inventario-codigos.js`: categorías de los libros y códigos del Inventario.
+- `inventario/` (módulos de `inventario.html`): `main.js` (arranque y acceso de la Junta), `estado.js` (estado y utilidades
+  compartidas), `publico.js` (consulta), `prestamos.js` (solicitudes de préstamo) y `admin.js` (administración).
+- `acceso.js`: inicio de sesión y comprobación de rol compartidos por el panel (`admin/panel.js`) y el Inventario.
 
 ## Datos (Firestore)
 
@@ -252,21 +259,12 @@ Con cualquier agente, las revisiones automáticas de cada PR (pruebas de permiso
 estilos y sintaxis) avisan si algo se rompe antes del merge. Las reglas y los pasos se editan en `AGENTS.md`,
 no en `CLAUDE.md`.
 
-## Importar el inventario
+## Categorías de los libros
 
-Ver la cabecera de [`scripts/import-inventario.js`](scripts/import-inventario.js). Necesita una clave de
-cuenta de servicio que **nunca** se sube al repositorio (ya está en `.gitignore`).
-
-**Categorías de los libros.** Cada libro guarda sus categorías en `categorias` (lista, máximo 3). Cómo se
-escribe cada una y en qué grupo va (el filtro de la Biblioteca permite elegir un grupo entero) está en
+Cada libro guarda sus categorías en `categorias` (lista, máximo 3). Cómo se escribe cada una y en qué grupo va (el
+filtro de la Biblioteca permite elegir un grupo entero) está en
 [`assets/js/inventario-categorias.js`](assets/js/inventario-categorias.js): para una categoría nueva, agrégala a un
-grupo ahí. La página, el importador y la migración usan ese mismo archivo. Los libros que aún tengan el texto viejo
-`categoria` se pasan al formato nuevo con **Actions → "Categorías de la Biblioteca" → Run workflow** (primero en
-modo `simular`, luego `aplicar`); el plan con los datos de 2026-09 está en
-[`docs/categorias/migracion.md`](docs/categorias/migracion.md).
-
-`data/Plantilla_Inventario_AEMATEC.xlsx` es público en el repositorio. **No llenes ahí las hojas
-`Personas` ni `Prestamos`**: contendrían datos personales (Ley 8968, RI Art. 143).
+grupo ahí.
 
 ## Plan de trabajo
 

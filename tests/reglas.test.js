@@ -51,8 +51,14 @@ const recursoNuevo = cambios => ({
 });
 
 describe("Junta Directiva (RI Art. 143)", () => {
-  test("cualquiera puede consultar un correo puntual (registro de cuentas)", async () => {
-    await assertSucceeds(getDoc(doc(anonimo().firestore(), "junta", JUNTA)));
+  test("el público no puede consultar si un correo es de la Junta", async () => {
+    await assertFails(getDoc(doc(anonimo().firestore(), "junta", JUNTA)));
+    await assertFails(getDoc(doc(usuario("otra@estudiantec.cr").firestore(), "junta", JUNTA)));
+  });
+  test("cada cuenta puede leer su propio documento de la Junta (aunque no esté en la lista o sin verificar)", async () => {
+    await assertSucceeds(getDoc(doc(usuario(JUNTA).firestore(), "junta", JUNTA)));
+    await assertSucceeds(getDoc(doc(usuario(JUNTA, false).firestore(), "junta", JUNTA)));
+    await assertSucceeds(getDoc(doc(usuario("otra@estudiantec.cr").firestore(), "junta", "otra@estudiantec.cr")));
   });
   test("el público no puede listar los correos de la Junta", async () => {
     await assertFails(getDocs(collection(anonimo().firestore(), "junta")));
@@ -148,6 +154,22 @@ describe("Biblioteca: recursos y moderación", () => {
   });
   test("nadie puede autopublicar material", async () => {
     await assertFails(addDoc(collection(anonimo().firestore(), "resources"), recursoNuevo({ status: "approved", published: true })));
+  });
+  test("los enlaces de un material propuesto deben ser https (se muestran como href públicos)", async () => {
+    const db = anonimo().firestore();
+    await assertSucceeds(addDoc(collection(db, "resources"), recursoNuevo({ fileUrl: "https://ejemplo.com/guia.pdf", explanationUrl: "https://youtu.be/abc" })));
+    await assertFails(addDoc(collection(db, "resources"), recursoNuevo({ fileUrl: "javascript:alert(1)" })));
+    await assertFails(addDoc(collection(db, "resources"), recursoNuevo({ fileUrl: "http://ejemplo.com/guia.pdf" })));
+    await assertFails(addDoc(collection(db, "resources"), recursoNuevo({ explanationUrl: "javascript:alert(1)" })));
+    const explicacion = { storagePath: "recursos/academico/0f3a-explicacion.pdf", fileUrl: "https://ejemplo.com/explicacion.pdf", extension: "pdf", size: 10 };
+    await assertSucceeds(addDoc(collection(db, "resources"), recursoNuevo({ explanation: explicacion })));
+    await assertSucceeds(addDoc(collection(db, "resources"), recursoNuevo({ explanation: null })));
+    await assertFails(addDoc(collection(db, "resources"), recursoNuevo({ explanation: { ...explicacion, fileUrl: "javascript:alert(1)" } })));
+  });
+  test("un moderador no puede poner un enlace de explicación inseguro", async () => {
+    const db = usuario(MODERADOR).firestore();
+    await assertSucceeds(updateDoc(doc(db, "resources", "pendiente"), { explanationUrl: "https://ejemplo.com/explicacion" }));
+    await assertFails(updateDoc(doc(db, "resources", "pendiente"), { explanationUrl: "javascript:alert(1)" }));
   });
   test("un moderador aprueba, pero no puede cambiar el autor", async () => {
     const db = usuario(MODERADOR).firestore();
