@@ -91,6 +91,9 @@ que la necesita y en ese momento (por ejemplo, al enviar un trámite, con el enl
 - `tramites.js` (página de Trámites) y `admin/` (secciones del panel: `panel.js`, `asociacion.js`, `tramites.js`,
   `moderacion.js`, `tema.js`).
 - `inventario-categorias.js` e `inventario-codigos.js`: categorías de los libros y códigos del Inventario.
+- `inventario/` (módulos de `inventario.html`): `main.js` (arranque y acceso de la Junta), `estado.js` (estado y utilidades
+  compartidas), `publico.js` (consulta), `prestamos.js` (solicitudes de préstamo) y `admin.js` (administración).
+- `acceso.js`: inicio de sesión y comprobación de rol compartidos por el panel (`admin/panel.js`) y el Inventario.
 
 ## Datos (Firestore)
 
