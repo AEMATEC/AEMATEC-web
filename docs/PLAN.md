@@ -59,6 +59,14 @@ Estas correcciones se validaron con 10 pruebas de reglas en el emulador de Fires
    entonces la página pública mostrará "Aún no se han registrado integrantes".
 4. ~~Confirmar el dominio~~: es `https://aematec.github.io/AEMATEC-web/`, que ya está incluido en `cors.json`.
 
+## Limpieza de mantenimiento (2026-10)
+- Se borraron las redirecciones `aematec_*.html` (el sitio aún no es público), archivos sin uso, la migración de
+  categorías y el importador del Excel (ya aplicados) y MathJax (las fórmulas decorativas usan MathML).
+- Código común nuevo: `assets/js/recursos.js` y `assets/js/cursos.js` (Repositorio), `assets/js/acceso.js` (inicio de
+  sesión) y `assets/js/inventario/` (el script de `inventario.html` dividido en módulos).
+- Los enlaces de los materiales solo pueden ser `https://` (reglas y páginas) y la explicación de un recurso se
+  muestra en su ficha. `junta/{email}` ya no se puede consultar sin sesión.
+
 ## Requisitos del Reglamento Interno para las próximas fases
 
 Estos puntos condicionan el diseño y no deberían contradecirse:
