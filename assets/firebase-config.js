@@ -5,6 +5,5 @@ window.AEMATEC_FIREBASE_CONFIG = {
   projectId: "biblioteca-aematec",
   storageBucket: "biblioteca-aematec.firebasestorage.app",
   messagingSenderId: "121098874307",
-  appId: "1:121098874307:web:ad8f095aa99eb3d3106176",
-  measurementId: "G-9R8ZLL621X"
+  appId: "1:121098874307:web:ad8f095aa99eb3d3106176"
 };

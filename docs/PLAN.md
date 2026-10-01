@@ -189,6 +189,10 @@ Pedido de la Junta: decorar el sitio en fechas especiales, sin tener que pedir u
   lectura pública, escritura solo Junta). Sin animaciones para quien pide "reducir movimiento".
 - Para agregar más: guía `.claude/skills/temas-de-temporada/SKILL.md`.
 
+## Revisión legal y de accesibilidad (2026-10)
+Informe y plan de acción en [`auditoria-legal.md`](auditoria-legal.md): privacidad (Ley 8968), cookies,
+derechos de autor, accesibilidad y riesgos. Lo pendiente está ahí, ordenado por prioridad.
+
 ## Otras decisiones de la Junta (2026-09)
 - **Ubicación de los bienes del inventario: pública.** El espacio de la asociación está en el campus (con control de
   acceso) y saber dónde está cada bien facilita que las personas Asociadas lo usen (RI Art. 124).

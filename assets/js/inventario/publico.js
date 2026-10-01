@@ -167,7 +167,7 @@ function bookCardHtml(item) {
       <div class="p-4 flex flex-col flex-1">
         <h3 class="font-sans font-bold text-[15px] leading-tight line-clamp-2">${escapeHtml(item.titulo)}</h3>
         <p class="text-xs text-[#607480] mt-1 line-clamp-2">${escapeHtml(item.autor)}</p>
-        <span class="mt-3 inline-block w-fit font-sans text-[11px] font-bold ${disponibles > 0 ?"bg-[#DFF6F8] text-[#087F8C]" : "bg-[#F5E4E4] text-[#A0403A]"} px-2.5 py-1 rounded-full">${disponibles}/${copias} copia${copias === 1 ? "" : "s"} disponible${disponibles === 1 ? "" : "s"}</span>
+        <span class="mt-3 inline-block w-fit font-sans text-[11px] font-bold ${disponibles > 0 ?"bg-[#DFF6F8] text-[#00798A]" : "bg-[#F5E4E4] text-[#A0403A]"} px-2.5 py-1 rounded-full">${disponibles}/${copias} copia${copias === 1 ? "" : "s"} disponible${disponibles === 1 ? "" : "s"}</span>
         <button type="button" data-view="${item.id}" class="mt-4 h-9 border border-[#9DB6C1] rounded-[8px] font-sans font-bold text-xs">Ver detalle</button>
       </div>
     </article>`;
@@ -220,7 +220,7 @@ function renderPagination(totalPages) {
   const arrowClass = "w-10 h-10 rounded-[8px] border border-[#CBD9DF] bg-white flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed";
   let html = `<button type="button" data-page="${inv.page - 1}" ${inv.page === 1 ? "disabled" : ""} class="${arrowClass}" aria-label="Página anterior"><i class="fa-solid fa-chevron-left text-xs"></i></button>`;
   html += getPaginationRange(inv.page, totalPages).map(entry => entry === "..."
-    ? `<span class="w-10 h-10 flex items-center justify-center text-[#7C8D97]">…</span>`
+    ? `<span class="w-10 h-10 flex items-center justify-center text-[#566B78]">…</span>`
     : `<button type="button" data-page="${entry}" class="w-10 h-10 rounded-[8px] ${entry === inv.page ?"bg-[#0D2B45] text-white" : "bg-white border border-[#CBD9DF]"} flex items-center justify-center">${entry}</button>`
   ).join("");
   html += `<button type="button" data-page="${inv.page + 1}" ${inv.page === totalPages ? "disabled" : ""} class="${arrowClass}" aria-label="Página siguiente"><i class="fa-solid fa-chevron-right text-xs"></i></button>`;
@@ -317,7 +317,7 @@ function fieldsHtmlFor(item) {
     const ejemplaresHtml = (item.ejemplares || []).map(exemplar =>
       `<li class="flex justify-between gap-3 py-1.5 border-b border-[#EEF2F4] last:border-0">
         <span>${escapeHtml(exemplar.codigo)} · ${escapeHtml(exemplar.ubicacion)}</span>
-        <span class="${exemplar.disponible ?"text-[#087F8C]" : "text-[#A0403A]"} font-semibold">${escapeHtml(exemplar.estado)} · ${exemplar.disponible ? "Disponible" : "No disponible"}</span>
+        <span class="${exemplar.disponible ?"text-[#00798A]" : "text-[#A0403A]"} font-semibold">${escapeHtml(exemplar.estado)} · ${exemplar.disponible ? "Disponible" : "No disponible"}</span>
       </li>`).join("") || "<li>Sin ejemplares registrados.</li>";
     return [
       fieldRow("Autor", escapeHtml(item.autor)),

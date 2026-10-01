@@ -171,6 +171,12 @@ describe("Avisos cuando la Junta o la Fiscalía actualizan un trámite", () => {
     assert.match(util.avisoDeCambio(respondido, { ...respondido, estado: "resuelto" }).asunto, /resuelto/);
     assert.equal(util.avisoDeCambio(base, { ...base }), null);
   });
+  test("la respuesta de Fiscalía no va en el correo (RI Art. 42)", () => {
+    const caso = { estado: "recibido", respuestas: [], remitente: { email: "ana@estudiantec.cr" } };
+    const aviso = util.avisoDeCambio(caso, { ...caso, respuestas: [{ texto: "Texto confidencial" }] }, { fiscalia: true });
+    assert.match(aviso.asunto, /Nueva respuesta/);
+    assert.doesNotMatch(aviso.html, /Texto confidencial/);
+  });
   test("al cambiar el estado de una AGEC se actualiza su versión pública", async () => {
     await db.doc("agecPublicas/a1").set({ estado: "recibido" });
     const antes = { ...base, tipo: "agec", estado: "recibido" };

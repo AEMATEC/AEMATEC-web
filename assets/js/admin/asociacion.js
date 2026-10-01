@@ -10,10 +10,10 @@ const currentTab = { value: "padron" };
 document.querySelectorAll(".tab-btn").forEach(btn => btn.addEventListener("click", () => {
   currentTab.value = btn.dataset.tab;
   document.querySelectorAll(".tab-btn").forEach(b => {
-    b.classList.remove("active", "border-[#00A6B8]", "text-[#00A6B8]");
+    b.classList.remove("active", "border-[#00A6B8]", "text-[#00798A]");
     b.classList.add("border-transparent", "text-[#607480]");
   });
-  btn.classList.add("active", "border-[#00A6B8]", "text-[#00A6B8]");
+  btn.classList.add("active", "border-[#00A6B8]", "text-[#00798A]");
   btn.classList.remove("border-transparent", "text-[#607480]");
 
   const csvBtn = document.querySelector("#upload-csv-btn");
@@ -81,7 +81,7 @@ document.querySelector("#section-form").addEventListener("submit", async event =
   if (results.errors.length > 0) message += `: ${results.errors.slice(0, 2).join("; ")}${results.errors.length > 2 ? "..." : ""}`;
 
   status.textContent = message;
-  status.className = results.failed === 0 ? "text-sm text-[#087F8C]" : "text-sm text-[#946316]";
+  status.className = results.failed === 0 ? "text-sm text-[#00798A]" : "text-sm text-[#946316]";
   status.hidden = false;
   setTimeout(() => status.hidden = true, 4000);
 });
@@ -160,9 +160,9 @@ async function loadSection(section) {
         return `
           <li class="flex flex-wrap items-center justify-between gap-3 py-4" data-row="${escapeHtml(item.id)}">
             <span class="font-sans text-sm font-semibold w-full sm:w-auto sm:min-w-[220px]">${escapeHtml(item.id)}</span>
-            <input type="text" data-field="nombre" placeholder="Nombre completo" value="${escapeHtml(data.nombre)}" class="h-9 flex-1 min-w-[160px] rounded-[8px] border border-[#BFD0D8] px-2 text-sm">
-            <input type="text" data-field="puesto" list="puestos-junta" placeholder="Puesto (ej. Presidencia)" value="${escapeHtml(data.puesto)}" class="h-9 flex-1 min-w-[160px] rounded-[8px] border border-[#BFD0D8] px-2 text-sm">
-            <button type="button" data-save-item="${escapeHtml(item.id)}" class="font-sans text-xs font-bold text-[#087F8C]">Guardar</button>
+            <input type="text" data-field="nombre" placeholder="Nombre completo" value="${escapeHtml(data.nombre)}" class="h-9 flex-1 min-w-[160px] rounded-[8px] border border-[#8497A3] px-2 text-sm">
+            <input type="text" data-field="puesto" list="puestos-junta" placeholder="Puesto (ej. Presidencia)" value="${escapeHtml(data.puesto)}" class="h-9 flex-1 min-w-[160px] rounded-[8px] border border-[#8497A3] px-2 text-sm">
+            <button type="button" data-save-item="${escapeHtml(item.id)}" class="font-sans text-xs font-bold text-[#00798A]">Guardar</button>
             <button type="button" data-remove-item="${escapeHtml(item.id)}" class="font-sans text-xs font-bold text-[#C2413B]">Quitar</button>
           </li>
         `;
@@ -177,7 +177,7 @@ async function loadSection(section) {
           await setDoc(doc(db, "junta", email), { email, nombre, puesto }, { merge: true });
           await syncJuntaPublica();
           document.querySelector("#section-status").textContent = `✓ Datos de ${email} guardados.`;
-          document.querySelector("#section-status").className = "text-sm text-[#087F8C]";
+          document.querySelector("#section-status").className = "text-sm text-[#00798A]";
           document.querySelector("#section-status").hidden = false;
           setTimeout(() => document.querySelector("#section-status").hidden = true, 2500);
         } catch (error) {
@@ -251,7 +251,7 @@ document.querySelector("#medios-save").addEventListener("click", async () => {
   try {
     await setDoc(doc(db, "config", "medios_oficiales"), { ...medios, updatedAt: new Date().toISOString() });
     status.textContent = "✓ Medios oficiales guardados.";
-    status.className = "text-sm text-[#087F8C]";
+    status.className = "text-sm text-[#00798A]";
     status.hidden = false;
     setTimeout(() => status.hidden = true, 3000);
   } catch (error) {
@@ -380,7 +380,7 @@ document.querySelector("#modal-apply").addEventListener("click", async () => {
 
   if (errors.length === 0) {
     status.textContent = `✓ Sincronización completa: +${addedCount} agregado(s), -${removedCount} eliminado(s).`;
-    status.className = "text-sm text-[#087F8C]";
+    status.className = "text-sm text-[#00798A]";
     setTimeout(() => {
       uploadModal.close();
       status.hidden = true;

@@ -53,8 +53,7 @@ exports.notifyLoanRequest = onDocumentCreated(
       `<p>Hay una nueva solicitud de préstamo del inventario:</p>
        <ul>
          <li>Bien: <strong>${escapeHtml(solicitud.itemNombre)}</strong> (${escapeHtml(solicitud.itemCodigo)})</li>
-         <li>Solicitante: ${escapeHtml(solicitud.solicitanteNombre)} — Carné: ${escapeHtml(solicitud.solicitanteCarne)}</li>
-         <li>Contacto: ${escapeHtml(solicitud.solicitanteContacto)}</li>
+         <li>Solicitante: ${escapeHtml(solicitud.solicitanteNombre)}</li>
          <li>Fecha prevista de devolución: ${escapeHtml(solicitud.fechaPrevista) || "No indicada"}</li>
        </ul>
        <p>El préstamo se coordina en físico. Ingresa al inventario para contactar al solicitante.</p>`,

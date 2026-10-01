@@ -180,11 +180,10 @@ exports.enviarTramite = onCall({ secrets: [gmailAppPassword] }, async request =>
     });
     await notificar(
       `Nueva ${subtipo === "denuncia" ? "denuncia" : "consulta"} a Fiscalía — AEMATEC`,
+      // RI Art. 42: el correo sale del Gmail de la Junta y queda en sus "Enviados"; por eso no lleva
+      // asunto, nombre ni correo de quien la envía. Todo eso se lee solo en el panel de Fiscalía.
       `<p>Se recibió una ${subtipo} dirigida a Fiscalía.</p>
-       <ul><li>Asunto: <strong>${escapeHtml(limpios.asunto)}</strong></li>
-       <li>Remitente: ${esAnonimo ? "anónimo (persona con correo institucional verificado)" : `${escapeHtml(nombre)} &lt;${escapeHtml(email)}&gt;`}</li>
-       <li>${enPadron ? "Está en el padrón de Asociados." : "No está en el padrón actual (verificar)."}</li></ul>
-       <p>Ingresa al panel de administración para leerla completa.</p>`,
+       <p>Ingresa al panel de administración para leerla.</p>`,
       await correosDe("fiscalia", { respaldo: false })
     );
     logger.info("Caso de Fiscalía recibido", { id: caso.id, anonimo: esAnonimo });

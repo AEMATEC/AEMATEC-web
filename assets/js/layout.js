@@ -52,15 +52,16 @@
       </nav>` : "";
 
     return `
+      <a href="#contenido" class="skip-link">Saltar al contenido</a>
       <header class="site-header">
         <div class="site-container site-header__bar">
           <a href="index.html" class="site-brand" aria-label="AEMATEC, ir al inicio">
-            <img src="assets/logo-aematec.svg" alt="Logo AEMATEC">
+            <img src="assets/logo-aematec.svg" alt="">
             <span class="site-brand__divider" aria-hidden="true"></span>
             <span class="site-brand__name">AEMATEC</span>
           </a>
           <button id="mobile-menu-toggle" type="button" class="site-menu-toggle" aria-expanded="false"
-            aria-controls="primary-navigation" aria-label="Abrir menú"><i class="fa-solid fa-bars"></i></button>
+            aria-controls="primary-navigation" aria-label="Menú"><i class="fa-solid fa-bars" aria-hidden="true"></i></button>
           <nav id="primary-navigation" class="site-nav" aria-label="Principal">
             ${MENU.map(item => link(item, active, "site-nav__cta")).join("")}
           </nav>
@@ -74,13 +75,15 @@
       <footer class="site-footer">
         <div class="site-container site-footer__bar">
           <div class="site-footer__brand">
-            <img src="assets/logo-aematec.svg" alt="AEMATEC">
+            <img src="assets/logo-aematec.svg" alt="">
             <span>Asociación de Estudiantes de Enseñanza de la Matemática con Entornos Tecnológicos</span>
           </div>
-          <div class="site-footer__meta">
+          <address class="site-footer__meta">
             <p>Instituto Tecnológico de Costa Rica</p>
-            <p><a href="mailto:aematec@estudiantec.cr" style="color: inherit;">aematec@estudiantec.cr</a></p>
-          </div>
+            <p>Costado oeste de la Escuela de Matemática, junto al cajero del BN, campus central del TEC, Cartago, Costa Rica</p>
+            <p><a href="mailto:aematec@estudiantec.cr">aematec@estudiantec.cr</a></p>
+            <p><a href="legal.html#privacidad">Privacidad</a> · <a href="legal.html#terminos">Términos de uso</a> · <a href="legal.html#cookies">Cookies</a></p>
+          </address>
         </div>
       </footer>`;
   }
@@ -92,8 +95,7 @@
     toggle.addEventListener("click", () => {
       const isOpen = nav.classList.toggle("is-open");
       toggle.setAttribute("aria-expanded", String(isOpen));
-      toggle.setAttribute("aria-label", isOpen ? "Cerrar menú" : "Abrir menú");
-      toggle.innerHTML = `<i class="fa-solid ${isOpen ? "fa-xmark" : "fa-bars"}"></i>`;
+      toggle.innerHTML = `<i class="fa-solid ${isOpen ? "fa-xmark" : "fa-bars"}" aria-hidden="true"></i>`;
     });
     // Temas de temporada (Navidad, mes patrio, Semana de la Carrera…): ver assets/js/temas.js.
     const temas = document.createElement("script");
@@ -110,5 +112,9 @@
     document.head.appendChild(chatbot);
   } else if (part === "footer") {
     script.insertAdjacentHTML("beforebegin", renderFooter());
+    // Destino del enlace "Saltar al contenido" del encabezado.
+    const main = document.querySelector("main");
+    if (main && !main.id) main.id = "contenido";
+    main?.setAttribute("tabindex", "-1");
   }
 })();

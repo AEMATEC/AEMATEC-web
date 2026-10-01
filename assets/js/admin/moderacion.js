@@ -136,7 +136,7 @@ document.querySelector("#moderator-form").addEventListener("submit", async event
     event.target.reset();
     await loadModerators();
     status.textContent = "Moderador agregado.";
-    status.className = "mt-3 text-sm text-[#087F8C]";
+    status.className = "mt-3 text-sm text-[#00798A]";
     status.hidden = false;
   } catch (error) {
     status.textContent = `No se pudo agregar el moderador: ${error.message}`;
@@ -181,10 +181,10 @@ async function loadPending() {
   pendingList.innerHTML = snapshot.docs.map(item => {
     const resource = item.data();
     return `<article class="rounded-[16px] border border-[#D7E2E7] bg-white p-6 shadow-sm">
-      <div class="flex flex-wrap items-start justify-between gap-3"><div><span class="font-sans text-[10px] font-bold uppercase text-[#00A6B8]">${escapeHtml(resource.type)}</span><h2 class="mt-2 font-sans text-xl font-bold">${escapeHtml(resource.title)}</h2></div><span class="rounded-full bg-[#FFF1D9] px-3 py-1 font-sans text-[10px] font-bold text-[#946316]">PENDIENTE</span></div>
+      <div class="flex flex-wrap items-start justify-between gap-3"><div><span class="font-sans text-[10px] font-bold uppercase text-[#00798A]">${escapeHtml(resource.type)}</span><h2 class="mt-2 font-sans text-xl font-bold">${escapeHtml(resource.title)}</h2></div><span class="rounded-full bg-[#FFF1D9] px-3 py-1 font-sans text-[10px] font-bold text-[#946316]">PENDIENTE</span></div>
       <p class="mt-3 leading-6 text-[#607480]">${escapeHtml(resource.description)}</p>
       <dl class="mt-4 grid gap-2 text-sm text-[#405968] sm:grid-cols-2"><div><strong>Autor:</strong> ${escapeHtml(resource.author)}</div><div><strong>Curso:</strong> ${escapeHtml(resource.course || "No indicado")}</div><div><strong>Materiales:</strong> ${escapeHtml(resource.materials || "No indicados")}</div><div><strong>Internet:</strong> ${resource.requiresInternet ? "Sí" : "No"} · ${escapeHtml((resource.extension || "").toUpperCase())} · ${fileSize(resource.size)}</div></dl>
-      <div class="mt-5 flex flex-wrap gap-3"><a href="${escapeHtml(safeHttpsUrl(resource.fileUrl) || "#")}" target="_blank" rel="noopener" class="rounded-[8px] border border-[#9DB6C1] px-4 py-2 font-sans text-xs font-bold">Ver archivo</a>${explicacionHtml(resource)}<button data-edit-id="${item.id}" class="rounded-[8px] border border-[#9DB6C1] px-4 py-2 font-sans text-xs font-bold"><i class="fa-solid fa-pen mr-1"></i>Editar</button><button data-action="approved" data-id="${item.id}" class="rounded-[8px] bg-[#00AFC1] px-4 py-2 font-sans text-xs font-bold text-white">Aprobar y publicar</button><button data-action="rejected" data-id="${item.id}" class="rounded-[8px] border border-[#C2413B] px-4 py-2 font-sans text-xs font-bold text-[#C2413B]">Rechazar</button><button data-action="delete" data-id="${item.id}" class="rounded-[8px] border border-[#AFC2CB] px-4 py-2 font-sans text-xs font-bold">Eliminar</button></div>
+      <div class="mt-5 flex flex-wrap gap-3"><a href="${escapeHtml(safeHttpsUrl(resource.fileUrl) || "#")}" target="_blank" rel="noopener" class="rounded-[8px] border border-[#9DB6C1] px-4 py-2 font-sans text-xs font-bold">Ver archivo</a>${explicacionHtml(resource)}<button data-edit-id="${item.id}" class="rounded-[8px] border border-[#9DB6C1] px-4 py-2 font-sans text-xs font-bold"><i class="fa-solid fa-pen mr-1"></i>Editar</button><button data-action="approved" data-id="${item.id}" class="rounded-[8px] bg-[#087F8C] px-4 py-2 font-sans text-xs font-bold text-white">Aprobar y publicar</button><button data-action="rejected" data-id="${item.id}" class="rounded-[8px] border border-[#C2413B] px-4 py-2 font-sans text-xs font-bold text-[#C2413B]">Rechazar</button><button data-action="delete" data-id="${item.id}" class="rounded-[8px] border border-[#AFC2CB] px-4 py-2 font-sans text-xs font-bold">Eliminar</button></div>
     </article>`;
   }).join("");
   pendingList.querySelectorAll("button[data-action]").forEach(button => button.addEventListener("click", () => handleAction(button.dataset.action, button.dataset.id)));

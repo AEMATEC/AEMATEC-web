@@ -42,7 +42,7 @@ export function botonesPaginacion(pagina, totalPaginas, atributo = "data-page") 
   const botones = [`<button type="button" ${atributo}="${Math.max(1, pagina - 1)}" aria-label="Página anterior" class="w-10 h-10 border border-[#CBD9DF] rounded-[8px] bg-white flex items-center justify-center"><i class="fa-solid fa-chevron-left text-xs"></i></button>`];
   const paginas = totalPaginas <= 3 ? Array.from({ length: totalPaginas }, (_, indice) => indice + 1) : [1, 2, totalPaginas];
   paginas.forEach((numero, indice) => {
-    if (indice && numero - paginas[indice - 1] > 1) botones.push('<span class="px-1 text-[#7A8C96]">...</span>');
+    if (indice && numero - paginas[indice - 1] > 1) botones.push('<span class="px-1 text-[#566B78]">...</span>');
     botones.push(`<button type="button" ${atributo}="${numero}" class="w-10 h-10 rounded-[8px] ${pagina === numero ? "bg-[#0D2B45] text-white" : "bg-white border border-[#CBD9DF]"}">${numero}</button>`);
   });
   botones.push(`<button type="button" ${atributo}="${Math.min(totalPaginas, pagina + 1)}" aria-label="Página siguiente" class="w-10 h-10 border border-[#CBD9DF] rounded-[8px] bg-white flex items-center justify-center"><i class="fa-solid fa-chevron-right text-xs"></i></button>`);
@@ -66,6 +66,6 @@ export function htmlExplicacion(resource, claseEnlace) {
   const explicacion = enlaceExplicacion(resource);
   if (!explicacion) return "";
   const atributos = explicacion.descarga ? "download" : 'target="_blank" rel="noopener"';
-  return `<p class="font-sans text-xs font-bold uppercase text-[#718590]">Explicación</p>
+  return `<p class="font-sans text-xs font-bold uppercase text-[#566B78]">Explicación</p>
     <a href="${escapeHtml(explicacion.href)}" ${atributos} class="mt-2 ${claseEnlace}"><i class="${explicacion.icono} mr-2"></i>${explicacion.etiqueta}</a>`;
 }

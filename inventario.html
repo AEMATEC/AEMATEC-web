@@ -191,7 +191,7 @@
         <div id="inv-hero-row" class="flex justify-between items-end">
           <div>
             <div class="font-sans text-xs font-semibold text-[#B8E2E5] mb-4"><a href="index.html">Inicio</a><i
-                class="fa-solid fa-chevron-right text-[9px] mx-3"></i><span class="text-[#00A6B8]">Inventario</span>
+                class="fa-solid fa-chevron-right text-[9px] mx-3"></i><span class="text-[#00798A]">Inventario</span>
             </div>
             <h1 class="font-sans text-[38px] leading-tight font-bold tracking-[-0.02em]">Inventario AEMATEC</h1>
             <p class="text-[16px] text-[#D0E7E8] mt-3 max-w-[640px]">Consulta los bienes de la asociación: activos
@@ -217,15 +217,15 @@
         </div>
         <div class="inv-search-row mt-8 max-w-[720px]">
           <form id="inv-search-form" class="h-[54px] bg-white rounded-[12px] flex items-center p-1.5 shadow-lg flex-1">
-            <i class="fa-solid fa-magnifying-glass text-[#00A6B8] ml-3"></i>
-            <input id="inv-search" class="flex-1 h-full outline-none px-4 text-base text-[#18384E]"
+            <i class="fa-solid fa-magnifying-glass text-[#00798A] ml-3"></i>
+            <input id="inv-search" aria-label="Buscar en el inventario" class="flex-1 h-full outline-none px-4 text-base text-[#18384E]"
               placeholder="Buscar por nombre, código o ubicación...">
             <button type="submit"
-              class="h-[42px] px-6 bg-[#00C0C7] text-white font-sans font-bold text-sm rounded-[9px]">Buscar</button>
+              class="h-[42px] px-6 bg-[#087F8C] text-white font-sans font-bold text-sm rounded-[9px]">Buscar</button>
           </form>
           <button id="open-inv-filters" type="button"
             class="inv-filter-trigger flex h-[54px] items-center gap-2 rounded-[12px] bg-white px-5 font-sans text-sm font-bold text-[#0D2B45]"
-            aria-label="Abrir filtros"><i class="fa-solid fa-sliders text-[#00A6B8]"></i><span>Filtros</span></button>
+            aria-label="Abrir filtros"><i class="fa-solid fa-sliders text-[#00798A]"></i><span>Filtros</span></button>
         </div>
       </div>
     </section>
@@ -234,9 +234,9 @@
     <aside id="inv-filter-panel" class="catalog-filter-panel bg-white border border-[#D7E2E7] rounded-[16px] p-6"
       aria-label="Filtros de inventario">
       <div class="flex justify-between items-center">
-        <h2 class="font-sans font-bold text-lg"><i class="fa-solid fa-sliders text-[#00A6B8] mr-2"></i>Filtros</h2>
+        <h2 class="font-sans font-bold text-lg"><i class="fa-solid fa-sliders text-[#00798A] mr-2"></i>Filtros</h2>
         <div class="flex items-center gap-4"><a id="clear-inv-filters" href="#"
-            class="font-sans text-[11px] font-bold text-[#008F9E]">Limpiar</a>
+            class="font-sans text-[11px] font-bold text-[#00798A]">Limpiar</a>
           <button id="close-inv-filters" type="button"
             class="flex h-9 w-9 items-center justify-center rounded-full bg-[#F0F4F6] text-[#5F7480]"
             aria-label="Cerrar filtros"><i class="fa-solid fa-xmark"></i></button>
@@ -245,21 +245,21 @@
       <div id="filter-categoria-wrap" class="mt-7">
         <p class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#556B78]">Categoría</p>
         <select id="filter-categoria"
-          class="mt-4 w-full h-11 border border-[#CBD9DF] rounded-[9px] px-3 bg-white text-sm text-[#405968]">
+          class="mt-4 w-full h-11 border border-[#8497A3] rounded-[9px] px-3 bg-white text-sm text-[#405968]">
           <option value="">Todas las categorías</option>
         </select>
       </div>
       <div id="filter-estado-wrap" class="mt-7 pt-6 border-t border-[#E2E9EC]">
         <p class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#556B78]">Estado</p>
         <select id="filter-estado"
-          class="mt-4 w-full h-11 border border-[#CBD9DF] rounded-[9px] px-3 bg-white text-sm text-[#405968]">
+          class="mt-4 w-full h-11 border border-[#8497A3] rounded-[9px] px-3 bg-white text-sm text-[#405968]">
           <option value="">Todos los estados</option>
         </select>
       </div>
       <div id="filter-ubicacion-wrap" class="mt-7 pt-6 border-t border-[#E2E9EC]">
         <p class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#556B78]">Ubicación</p>
         <select id="filter-ubicacion"
-          class="mt-4 w-full h-11 border border-[#CBD9DF] rounded-[9px] px-3 bg-white text-sm text-[#405968]">
+          class="mt-4 w-full h-11 border border-[#8497A3] rounded-[9px] px-3 bg-white text-sm text-[#405968]">
           <option value="">Todas las ubicaciones</option>
         </select>
       </div>
@@ -297,7 +297,7 @@
         <div class="flex flex-wrap items-center gap-3">
           <label class="font-sans text-xs font-semibold text-[#5D7280] flex items-center">Ordenar por
             <select id="inv-sort"
-              class="ml-2 h-10 border border-[#CBD9DF] bg-white rounded-[8px] px-3 text-sm text-[#405968]">
+              class="ml-2 h-10 border border-[#8497A3] bg-white rounded-[8px] px-3 text-sm text-[#405968]">
               <option value="alpha-asc">Alfabético (A-Z)</option>
               <option value="alpha-desc">Alfabético (Z-A)</option>
               <option value="codigo-asc">Código (ascendente)</option>
@@ -325,7 +325,7 @@
       <button type="button" data-close-modal
         class="absolute right-5 top-5 flex h-10 w-10 items-center justify-center rounded-full bg-[#F0F4F6] text-[#5F7480]"
         aria-label="Cerrar detalles"><i class="fa-solid fa-xmark"></i></button>
-      <p class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#00A6B8]" id="item-modal-kicker">Detalle
+      <p class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#00798A]" id="item-modal-kicker">Detalle
         del bien</p>
       <div class="mt-4 flex gap-5">
         <img id="item-modal-cover" src="" alt="" hidden
@@ -345,7 +345,7 @@
           class="h-11 px-5 rounded-[9px] border border-[#9DB6C1] font-sans text-xs font-bold"><i
             class="fa-solid fa-pen mr-2"></i>Editar</button>
         <button type="button" id="item-modal-loan" hidden
-          class="h-11 px-5 rounded-[9px] bg-[#00AFC1] text-white font-sans text-xs font-bold"><i
+          class="h-11 px-5 rounded-[9px] bg-[#087F8C] text-white font-sans text-xs font-bold"><i
             class="fa-solid fa-hand-holding mr-2"></i>Solicitar préstamo</button>
       </div>
     </article>
@@ -356,27 +356,27 @@
       <button type="button" data-close-modal
         class="absolute right-5 top-5 flex h-10 w-10 items-center justify-center rounded-full bg-[#F0F4F6] text-[#5F7480]"
         aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
-      <p class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#00A6B8]">Solicitar préstamo</p>
+      <p class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#00798A]">Solicitar préstamo</p>
       <h2 id="loan-modal-title" class="mt-2 font-sans text-xl font-bold pr-8"></h2>
       <p class="mt-2 text-sm text-[#607480]">Los préstamos son para personas Asociadas. La Junta Directiva recibirá tu
         solicitud y te contactará para coordinar la entrega, que se formaliza en físico con tu firma en el registro de
         préstamos.</p>
       <form id="loan-form" class="mt-5 space-y-4">
         <div><label for="loan-nombre" class="font-sans text-xs font-bold">Nombre completo</label><input id="loan-nombre"
-            type="text" required maxlength="120" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3">
+            type="text" required maxlength="120" class="mt-2 h-11 w-full rounded-[9px] border border-[#8497A3] px-3">
         </div>
         <div><label for="loan-carne" class="font-sans text-xs font-bold">Carné o identificación</label><input
             id="loan-carne" type="text" required maxlength="30"
-            class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+            class="mt-2 h-11 w-full rounded-[9px] border border-[#8497A3] px-3"></div>
         <div><label for="loan-contacto" class="font-sans text-xs font-bold">Correo o teléfono de contacto</label><input
             id="loan-contacto" type="text" required maxlength="160"
-            class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+            class="mt-2 h-11 w-full rounded-[9px] border border-[#8497A3] px-3"></div>
         <div><label for="loan-fecha" class="font-sans text-xs font-bold">Fecha prevista de devolución</label><input
             id="loan-fecha" type="date" required
-            class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
-        <div><label for="loan-notas" class="font-sans text-xs font-bold">Notas (opcional)</label><textarea
+            class="mt-2 h-11 w-full rounded-[9px] border border-[#8497A3] px-3"></div>
+        <div><label for="loan-notas" class="font-sans text-xs font-bold">Notas (opcional, sin datos personales delicados)</label><textarea
             id="loan-notas" maxlength="300" rows="2"
-            class="mt-2 w-full rounded-[9px] border border-[#BFD0D8] px-3 py-2"></textarea></div>
+            class="mt-2 w-full rounded-[9px] border border-[#8497A3] px-3 py-2"></textarea></div>
         <div class="rounded-[10px] border border-[#DCE6EA] bg-[#F1F6F8] px-4 py-3 text-xs leading-5 text-[#506773]">
           <p>Al recibir el bien serás responsable de su uso, custodia y devolución en condiciones equivalentes,
             salvo el desgaste normal. En caso de pérdida o daño deberás reponerlo o repararlo, y los atrasos pueden
@@ -385,6 +385,9 @@
           <label class="mt-2 flex items-start gap-2 font-semibold text-[#0D2B45]"><input id="loan-acepta"
               type="checkbox" required class="mt-0.5"> Entiendo y acepto estas condiciones.</label>
         </div>
+        <p class="text-xs leading-5 text-[#506773]">Tus datos los ve solo la Junta Directiva, para coordinar y registrar el
+          préstamo. Puedes pedir verlos, corregirlos o borrarlos. <a href="legal.html#privacidad" class="underline">Política
+          de privacidad</a>.</p>
         <button type="submit"
           class="h-11 w-full rounded-[9px] bg-[#0D2B45] font-sans text-sm font-bold text-white">Enviar
           solicitud</button>
@@ -398,7 +401,7 @@
       <button type="button" data-close-modal
         class="absolute right-5 top-5 flex h-10 w-10 items-center justify-center rounded-full bg-[#F0F4F6] text-[#5F7480]"
         aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
-      <p class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#00A6B8]">Gestión de préstamos</p>
+      <p class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#00798A]">Gestión de préstamos</p>
       <h2 id="loan-admin-title" class="mt-2 font-sans text-xl font-bold">Solicitudes de préstamo</h2>
       <div id="loan-admin-tabs" class="mt-5 flex gap-2">
         <button type="button" data-estado="pendiente"
@@ -417,15 +420,15 @@
       <button type="button" data-close-modal
         class="absolute right-5 top-5 flex h-10 w-10 items-center justify-center rounded-full bg-[#F0F4F6] text-[#5F7480]"
         aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
-      <p class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#00A6B8]">Junta Directiva</p>
+      <p class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#00798A]">Junta Directiva</p>
       <h2 id="junta-login-title" class="mt-2 font-sans text-xl font-bold">Acceso al inventario</h2>
       <form id="junta-login-form" class="mt-5 space-y-4">
         <div><label for="junta-email" class="font-sans text-xs font-bold">Correo</label><input id="junta-email"
             type="email" required autocomplete="email"
-            class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+            class="mt-2 h-11 w-full rounded-[9px] border border-[#8497A3] px-3"></div>
         <div><label for="junta-password" class="font-sans text-xs font-bold">Contraseña</label><input
             id="junta-password" type="password" required autocomplete="current-password"
-            class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+            class="mt-2 h-11 w-full rounded-[9px] border border-[#8497A3] px-3"></div>
         <button type="submit"
           class="h-11 w-full rounded-[9px] bg-[#0D2B45] font-sans text-sm font-bold text-white">Iniciar sesión</button>
         <p id="junta-login-status" role="alert" class="text-sm text-[#C2413B]" hidden></p>
@@ -438,7 +441,7 @@
       <button type="button" data-close-modal
         class="absolute right-5 top-5 flex h-10 w-10 items-center justify-center rounded-full bg-[#F0F4F6] text-[#5F7480]"
         aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
-      <p class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#00A6B8]" id="admin-modal-kicker">Agregar
+      <p class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#00798A]" id="admin-modal-kicker">Agregar
         bien</p>
       <h2 id="admin-modal-title" class="mt-2 font-sans text-xl font-bold">Nuevo bien</h2>
       <form id="admin-item-form" class="mt-5 space-y-4">
