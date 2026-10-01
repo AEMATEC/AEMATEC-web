@@ -161,6 +161,14 @@ async function loadModerators() {
   }));
 }
 
+// Explicación opcional del recurso: un archivo subido (resource.explanation) o, si no hay, un enlace (explanationUrl).
+function explicacionHtml(resource) {
+  const url = safeHttpsUrl(resource.explanation?.fileUrl) || safeHttpsUrl(resource.explanationUrl);
+  if (!url) return "";
+  const texto = resource.explanation?.fileUrl ? "Ver explicación (archivo)" : "Ver explicación (enlace)";
+  return `<a href="${escapeHtml(url)}" target="_blank" rel="noopener" class="rounded-[8px] border border-[#9DB6C1] px-4 py-2 font-sans text-xs font-bold">${texto}</a>`;
+}
+
 async function loadPending() {
   panelStatus.textContent = "Cargando materiales...";
   const snapshot = await getDocs(query(collection(db, "resources"), where("status", "==", "pending")));
@@ -176,7 +184,7 @@ async function loadPending() {
       <div class="flex flex-wrap items-start justify-between gap-3"><div><span class="font-sans text-[10px] font-bold uppercase text-[#00A6B8]">${escapeHtml(resource.type)}</span><h2 class="mt-2 font-sans text-xl font-bold">${escapeHtml(resource.title)}</h2></div><span class="rounded-full bg-[#FFF1D9] px-3 py-1 font-sans text-[10px] font-bold text-[#946316]">PENDIENTE</span></div>
       <p class="mt-3 leading-6 text-[#607480]">${escapeHtml(resource.description)}</p>
       <dl class="mt-4 grid gap-2 text-sm text-[#405968] sm:grid-cols-2"><div><strong>Autor:</strong> ${escapeHtml(resource.author)}</div><div><strong>Curso:</strong> ${escapeHtml(resource.course || "No indicado")}</div><div><strong>Materiales:</strong> ${escapeHtml(resource.materials || "No indicados")}</div><div><strong>Internet:</strong> ${resource.requiresInternet ? "Sí" : "No"} · ${escapeHtml((resource.extension || "").toUpperCase())} · ${fileSize(resource.size)}</div></dl>
-      <div class="mt-5 flex flex-wrap gap-3"><a href="${escapeHtml(safeHttpsUrl(resource.fileUrl) || "#")}" target="_blank" rel="noopener" class="rounded-[8px] border border-[#9DB6C1] px-4 py-2 font-sans text-xs font-bold">Ver archivo</a><button data-edit-id="${item.id}" class="rounded-[8px] border border-[#9DB6C1] px-4 py-2 font-sans text-xs font-bold"><i class="fa-solid fa-pen mr-1"></i>Editar</button><button data-action="approved" data-id="${item.id}" class="rounded-[8px] bg-[#00AFC1] px-4 py-2 font-sans text-xs font-bold text-white">Aprobar y publicar</button><button data-action="rejected" data-id="${item.id}" class="rounded-[8px] border border-[#C2413B] px-4 py-2 font-sans text-xs font-bold text-[#C2413B]">Rechazar</button><button data-action="delete" data-id="${item.id}" class="rounded-[8px] border border-[#AFC2CB] px-4 py-2 font-sans text-xs font-bold">Eliminar</button></div>
+      <div class="mt-5 flex flex-wrap gap-3"><a href="${escapeHtml(safeHttpsUrl(resource.fileUrl) || "#")}" target="_blank" rel="noopener" class="rounded-[8px] border border-[#9DB6C1] px-4 py-2 font-sans text-xs font-bold">Ver archivo</a>${explicacionHtml(resource)}<button data-edit-id="${item.id}" class="rounded-[8px] border border-[#9DB6C1] px-4 py-2 font-sans text-xs font-bold"><i class="fa-solid fa-pen mr-1"></i>Editar</button><button data-action="approved" data-id="${item.id}" class="rounded-[8px] bg-[#00AFC1] px-4 py-2 font-sans text-xs font-bold text-white">Aprobar y publicar</button><button data-action="rejected" data-id="${item.id}" class="rounded-[8px] border border-[#C2413B] px-4 py-2 font-sans text-xs font-bold text-[#C2413B]">Rechazar</button><button data-action="delete" data-id="${item.id}" class="rounded-[8px] border border-[#AFC2CB] px-4 py-2 font-sans text-xs font-bold">Eliminar</button></div>
     </article>`;
   }).join("");
   pendingList.querySelectorAll("button[data-action]").forEach(button => button.addEventListener("click", () => handleAction(button.dataset.action, button.dataset.id)));
@@ -191,6 +199,7 @@ async function handleAction(action, id) {
     if (action === "delete") {
       if (!confirm("¿Eliminar este material y su archivo definitivamente?")) return;
       if (resource.storagePath) await deleteObject(ref(storage, resource.storagePath));
+      if (resource.explanation?.storagePath) await deleteObject(ref(storage, resource.explanation.storagePath));
       await deleteDoc(doc(db, "resources", id));
     } else {
       await updateDoc(doc(db, "resources", id), { status: action, published: action === "approved" });

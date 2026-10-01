@@ -178,6 +178,10 @@ service cloud.firestore {
         && request.resource.data.courseCode is string && request.resource.data.courseCode.size() <= 20
         && enlaceSeguro(request.resource.data.explanationUrl, true)
         && (!('fileUrl' in request.resource.data) || enlaceSeguro(request.resource.data.fileUrl, false))
+        && (!('explanation' in request.resource.data) || request.resource.data.explanation == null
+          || (request.resource.data.explanation is map
+            && request.resource.data.explanation.keys().hasOnly(['storagePath', 'fileUrl', 'extension', 'size'])
+            && enlaceSeguro(request.resource.data.explanation.fileUrl, false)))
         && request.resource.data.requiresInternet is bool
         && request.resource.data.type in ['Actividad', 'Juego', 'Planeamiento', 'Guía didáctica', 'Recurso digital', 'Examen', 'Apuntes', 'Solución', 'Práctica']
         && request.resource.data.extension in ['', 'pdf', 'docx', 'pptx', 'xlsx', 'zip', 'ggb']
