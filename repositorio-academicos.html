@@ -481,6 +481,7 @@
           <dd id="academic-modal-date" class="mt-1 text-[#18384E]"></dd>
         </div>
       </dl>
+      <div id="academic-modal-explanation" class="mt-5 hidden"></div>
       <div class="mt-6 flex justify-end gap-3"><a id="academic-modal-edit" href="#"
           class="hidden h-11 items-center rounded-[9px] border border-[#9DB6C1] px-5 font-sans text-xs font-bold"><i
             class="fa-solid fa-pen mr-2"></i>Editar (moderador)</a><a id="academic-modal-open" target="_blank"
@@ -494,7 +495,7 @@
   <script type="module">
     import { escapeHtml } from "./assets/js/util.js";
     import { CURSOS } from "./assets/js/cursos.js";
-    import { cargarPublicados, alCambiarModeracion, claseIcono, formatDate, enlaceArchivo, botonesPaginacion } from "./assets/js/recursos.js";
+    import { cargarPublicados, alCambiarModeracion, claseIcono, formatDate, enlaceArchivo, botonesPaginacion, htmlExplicacion } from "./assets/js/recursos.js";
     const filterPanel = document.querySelector("#academic-filter-panel");
     const filterBackdrop = document.querySelector("#academic-filter-backdrop");
     const openFilters = () => {
@@ -542,6 +543,9 @@
       document.querySelector("#academic-modal-date").textContent = formatDate(resource.createdAt);
       document.querySelector("#academic-modal-open").href = enlaceArchivo(resource);
       document.querySelector("#academic-modal-download").href = enlaceArchivo(resource);
+      const explicacion = document.querySelector("#academic-modal-explanation");
+      explicacion.innerHTML = htmlExplicacion(resource, "flex h-11 w-fit items-center rounded-[9px] border border-[#9DB6C1] px-5 font-sans text-xs font-bold");
+      explicacion.classList.toggle("hidden", !explicacion.innerHTML);
       const editLink = document.querySelector("#academic-modal-edit");
       editLink.classList.toggle("hidden", !isModerator);
       editLink.classList.toggle("flex", isModerator);

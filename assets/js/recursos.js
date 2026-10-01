@@ -3,7 +3,7 @@
 // conserva su propio diseño.
 import { collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { app, db } from "./firebase.js";
-import { safeHttpsUrl } from "./util.js";
+import { escapeHtml, safeHttpsUrl } from "./util.js";
 import { tieneRol } from "./roles.js";
 
 // Recursos publicados. Con { section: "docentes" | "academico" } pide solo esa sección
@@ -47,4 +47,25 @@ export function botonesPaginacion(pagina, totalPaginas, atributo = "data-page") 
   });
   botones.push(`<button type="button" ${atributo}="${Math.min(totalPaginas, pagina + 1)}" aria-label="Página siguiente" class="w-10 h-10 border border-[#CBD9DF] rounded-[8px] bg-white flex items-center justify-center"><i class="fa-solid fa-chevron-right text-xs"></i></button>`);
   return botones.join("");
+}
+
+// Explicación de un recurso (opcional): `explanation` es null o { storagePath, fileUrl, extension, size }
+// (archivo subido) y `explanationUrl` es '' o un enlace. Devuelve { href, descarga, etiqueta, icono } o
+// null si no hay nada que mostrar. Los enlaces se validan como https (vienen de datos).
+export function enlaceExplicacion(resource) {
+  const archivo = safeHttpsUrl(resource?.explanation?.fileUrl);
+  if (archivo) return { href: archivo, descarga: true, etiqueta: "Descargar explicación", icono: claseIcono(resource.explanation.extension) };
+  const enlace = safeHttpsUrl(resource?.explanationUrl);
+  if (enlace) return { href: enlace, descarga: false, etiqueta: "Ver explicación", icono: "fa-solid fa-arrow-up-right-from-square" };
+  return null;
+}
+
+// Bloque "Explicación" para la ventana de detalle de un recurso; "" si no hay explicación.
+// `claseEnlace` son las clases del enlace, para que coincida con los botones de cada página.
+export function htmlExplicacion(resource, claseEnlace) {
+  const explicacion = enlaceExplicacion(resource);
+  if (!explicacion) return "";
+  const atributos = explicacion.descarga ? "download" : 'target="_blank" rel="noopener"';
+  return `<p class="font-sans text-xs font-bold uppercase text-[#718590]">Explicación</p>
+    <a href="${escapeHtml(explicacion.href)}" ${atributos} class="mt-2 ${claseEnlace}"><i class="${explicacion.icono} mr-2"></i>${explicacion.etiqueta}</a>`;
 }

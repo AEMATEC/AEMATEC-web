@@ -320,6 +320,7 @@
         <div><dt class="font-sans text-xs font-bold uppercase text-[#718590]">Requiere internet</dt><dd id="global-modal-internet" class="mt-1 text-[#18384E]"></dd></div>
         <div><dt class="font-sans text-xs font-bold uppercase text-[#718590]">Publicado</dt><dd id="global-modal-date" class="mt-1 text-[#18384E]"></dd></div>
       </dl>
+      <div id="global-modal-explanation" class="mt-5 hidden"></div>
       <div class="mt-6 flex justify-end gap-3">
         <a id="global-modal-open" target="_blank" rel="noopener"
           class="flex h-11 items-center rounded-[9px] border border-[#9DB6C1] px-5 font-sans text-xs font-bold"><i
@@ -333,7 +334,7 @@
   <script type="module">
     import { escapeHtml } from "./assets/js/util.js";
     import { CURSOS } from "./assets/js/cursos.js";
-    import { cargarPublicados, claseIcono, formatDate, formatSize, enlaceArchivo, botonesPaginacion } from "./assets/js/recursos.js";
+    import { cargarPublicados, claseIcono, formatDate, formatSize, enlaceArchivo, botonesPaginacion, htmlExplicacion } from "./assets/js/recursos.js";
 
     const recentGrid = document.querySelector("#recent-materials-grid");
     const globalResults = document.querySelector("#global-search-results");
@@ -377,6 +378,9 @@
       document.querySelector("#global-modal-date").textContent = formatDate(resource.createdAt);
       document.querySelector("#global-modal-open").href = enlaceArchivo(resource);
       document.querySelector("#global-modal-download").href = enlaceArchivo(resource);
+      const explicacion = document.querySelector("#global-modal-explanation");
+      explicacion.innerHTML = htmlExplicacion(resource, "flex h-11 w-fit items-center rounded-[9px] border border-[#9DB6C1] px-5 font-sans text-xs font-bold");
+      explicacion.classList.toggle("hidden", !explicacion.innerHTML);
       globalModal.classList.remove("hidden");
       globalModal.classList.add("flex");
       document.body.classList.add("overflow-hidden");
