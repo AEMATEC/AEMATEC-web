@@ -3,6 +3,7 @@
 import { app } from "../firebase.js";
 import { escapeHtml, safeHttpsUrl } from "../util.js";
 import { esDueno } from "../roles.js";
+import { enlaceExplicacion } from "../recursos.js";
 import { getFirestore, collection, getDocs, getDoc, query, where, updateDoc, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getStorage, ref, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
@@ -161,12 +162,11 @@ async function loadModerators() {
   }));
 }
 
-// Explicación opcional del recurso: un archivo subido (resource.explanation) o, si no hay, un enlace (explanationUrl).
+// Explicación opcional del recurso (archivo o enlace, ver assets/js/recursos.js).
 function explicacionHtml(resource) {
-  const url = safeHttpsUrl(resource.explanation?.fileUrl) || safeHttpsUrl(resource.explanationUrl);
-  if (!url) return "";
-  const texto = resource.explanation?.fileUrl ? "Ver explicación (archivo)" : "Ver explicación (enlace)";
-  return `<a href="${escapeHtml(url)}" target="_blank" rel="noopener" class="rounded-[8px] border border-[#9DB6C1] px-4 py-2 font-sans text-xs font-bold">${texto}</a>`;
+  const explicacion = enlaceExplicacion(resource);
+  if (!explicacion) return "";
+  return `<a href="${escapeHtml(explicacion.href)}" target="_blank" rel="noopener" class="rounded-[8px] border border-[#9DB6C1] px-4 py-2 font-sans text-xs font-bold">${explicacion.descarga ? "Ver explicación (archivo)" : "Ver explicación (enlace)"}</a>`;
 }
 
 async function loadPending() {

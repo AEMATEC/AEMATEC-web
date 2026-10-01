@@ -16,15 +16,10 @@
   <script src="assets/firebase-config.js"></script>
   <style>
     @media (max-width: 767px) {
-      [data-design-id="hero-section-aematec"] > div { min-height: auto; padding: 3rem 0 2.5rem; }
-      [data-design-id="hero-section-aematec"] h1 { max-width: 100%; font-size: clamp(2rem, 8.5vw, 3.2rem); overflow-wrap: break-word; }
-      [data-design-id="hero-section-aematec"] p { max-width: 100%; font-size: 1rem; line-height: 1.7; }
-      [data-design-id="modules-section"] .grid { grid-template-columns: 1fr; }
-      [data-design-id="medios-section"] .grid { grid-template-columns: 1fr; }
+      .index-modulos .grid { grid-template-columns: 1fr; }
+      .index-medios .grid { grid-template-columns: 1fr; }
     }
     @media (min-width: 768px) {
-      [data-design-id="hero-section-aematec"] > div { padding-top: clamp(3rem, 5vw, 5.5rem); padding-bottom: clamp(3rem, 5vw, 5.5rem); }
-      [data-design-id="hero-section-aematec"] h1 { font-size: clamp(2.25rem, 3.2vw, 4rem); }
     }
     #hero-trig { pointer-events: none; opacity: .38; }
   </style>
@@ -34,8 +29,8 @@
 <body class="bg-[#F4F8FA] text-[#0D2B45] font-serif" style="background-image: radial-gradient(circle at 12% 18%, rgba(0, 175, 193, 0.13) 0, rgba(0, 175, 193, 0.13) 1.2px, transparent 1.8px), radial-gradient(circle at 84% 72%, rgba(13, 43, 69, 0.09) 0, rgba(13, 43, 69, 0.09) 1.2px, transparent 1.8px); background-size: 28px 28px, 36px 36px;">
   <script src="assets/js/layout.js" data-part="header" data-active="inicio"></script>
 
-  <main data-design-id="main-aematec">
-    <section data-design-id="hero-section-aematec" class="bg-[#EAF5F7] border-b border-[#D5E5EA]">
+  <main>
+    <section class="hero-portada bg-[#EAF5F7] border-b border-[#D5E5EA]">
       <div class="relative isolate overflow-hidden">
         <canvas id="hero-trig" class="absolute inset-0 h-full w-full" aria-hidden="true"></canvas>
         <div class="relative z-10 site-container mx-auto min-h-[420px] pt-[76px] pb-[64px] text-left">
@@ -68,7 +63,7 @@
       </div>
     </section>
 
-    <section data-design-id="modules-section" class="site-container mx-auto py-[62px]">
+    <section class="index-modulos site-container mx-auto py-[62px]">
       <div class="mb-7">
         <p class="font-sans text-xs font-bold uppercase tracking-[0.18em] text-[#00A6B8]">¿Qué necesitas hoy?</p>
         <h2 class="font-sans text-[30px] font-bold tracking-[-0.02em] mt-2">Accede a los servicios de la asociación</h2>
@@ -143,7 +138,7 @@
       </div>
     </section>
 
-    <section data-design-id="carrusel-actividades-section" class="site-container mx-auto pb-[62px]">
+    <section class="site-container mx-auto pb-[62px]">
       <div class="mb-7">
         <p class="font-sans text-xs font-bold uppercase tracking-[0.18em] text-[#00A6B8]">Vida estudiantil</p>
         <h2 class="font-sans text-[30px] font-bold tracking-[-0.02em] mt-2">Actividades de la asociación</h2>
@@ -172,7 +167,7 @@
       </div>
     </section>
 
-    <section data-design-id="medios-section" class="bg-[#EAF1F4] border-y border-[#D7E3E8] py-[56px]">
+    <section class="index-medios bg-[#EAF1F4] border-y border-[#D7E3E8] py-[56px]">
       <div class="site-container mx-auto">
         <div class="mb-7">
           <p class="font-sans text-xs font-bold uppercase tracking-[0.18em] text-[#00A6B8]">Medios Oficiales</p>
@@ -247,10 +242,9 @@
   <script type="module">
     // Buscador de la página principal: busca a la vez entre las páginas del sitio (lista fija)
     // y los recursos publicados del Repositorio (Firestore), como pidió la Junta ("Ambos").
-    import { app } from "./assets/js/firebase.js";
     import { escapeHtml } from "./assets/js/util.js";
     import { SITE_PAGES } from "./assets/js/site-pages.js";
-    import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { cargarPublicados } from "./assets/js/recursos.js";
 
 
     const searchForm = document.querySelector("#home-search-form");
@@ -334,8 +328,7 @@
     // Los materiales se descargan solo la primera vez que alguien busca (la mayoría de visitas no usa el buscador).
     async function cargarRecursos() {
       try {
-        const resourcesSnapshot = await getDocs(query(collection(getFirestore(app), "resources"), where("published", "==", true)));
-        publishedResources = resourcesSnapshot.docs.map(item => ({ id: item.id, ...item.data() }));
+        publishedResources = await cargarPublicados();
       } catch (error) {
         console.error("No se pudieron cargar los materiales del Repositorio para el buscador:", error);
       }

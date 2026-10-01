@@ -83,6 +83,11 @@ que la necesita y en ese momento (por ejemplo, al enviar un trámite, con el enl
 - `firebase.js`: conexión única con Firebase (`app`, `db`).
 - `roles.js`: correos de dueño y `tieneRol(user, "junta" | "moderators" | "fiscalia")`.
 - `util.js`: `escapeHtml`, `safeHttpsUrl`, `safeEmail`.
+- `cursos.js`: lista única de cursos de la carrera (`CURSOS`, código → nombre; `catalogoCursos()` para las
+  sugerencias de "Subir material"). Si cambia el plan de estudios, se edita solo ahí.
+- `recursos.js`: lo que comparten las páginas del Repositorio: `cargarPublicados({ section })`, aviso de
+  moderación (lápiz de editar), íconos, fechas, paginación, enlaces de archivo (solo https) y el bloque
+  "Explicación" de la ventana de detalle. El HTML de las tarjetas sigue en cada página.
 - `layout.js`: encabezado, menú y pie de página; además carga en cada página los temas de temporada (`temas.js`),
   el botón del Arcade (`arcade-launcher.js`) y el asistente (`chatbot.js`).
 - `site-pages.js`: lista de páginas públicas que usan el buscador de la portada y el asistente. Si agregas o

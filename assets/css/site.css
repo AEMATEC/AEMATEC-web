@@ -411,3 +411,202 @@
   border-radius: 2px;
   background: var(--aematec-teal-light);
 }
+
+/* ==========================================================================
+   Páginas del Repositorio
+   Lo que se repetía en el <style> de cada página. Los selectores llevan la etiqueta (section.…, div.…)
+   para ganarle a las utilidades de Tailwind, que se cargan después de este archivo.
+   ========================================================================== */
+
+/* Encabezado grande de la portada del sitio (index.html) y de la portada del Repositorio (repositorio.html). */
+@media (max-width: 767px) {
+  .hero-portada > div { min-height: auto; padding: 3rem 0 2.5rem; }
+  .hero-portada h1 { max-width: 100%; font-size: clamp(2rem, 8.5vw, 3.2rem); overflow-wrap: break-word; }
+  .hero-portada p { max-width: 100%; font-size: 1rem; line-height: 1.7; }
+}
+@media (min-width: 768px) {
+  .hero-portada > div { padding-top: clamp(3rem, 5vw, 5.5rem); padding-bottom: clamp(3rem, 5vw, 5.5rem); }
+  .hero-portada h1 { font-size: clamp(2.25rem, 3.2vw, 4rem); }
+}
+
+/* Recursos docentes y Recursos académicos: encabezado con buscador, catálogo y botón de filtros. */
+@media (max-width: 767px) {
+  section.recursos-intro > div {
+    padding-top: 2.5rem;
+    padding-bottom: 2rem;
+  }
+  section.recursos-intro h1 {
+    font-size: 2.1rem;
+  }
+  section.recursos-intro form {
+    height: auto;
+    min-height: 54px;
+  }
+  section.recursos-intro form input {
+    min-width: 0;
+  }
+  section.recursos-intro form button {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  .recursos-buscador-fila {
+    align-items: stretch;
+  }
+  button.recursos-filtro-boton {
+    flex: 0 0 auto;
+    width: 3.5rem;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+  button.recursos-filtro-boton span {
+    display: none;
+  }
+  section.recursos-catalogo {
+    display: block;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+  }
+}
+@media (min-width: 768px) and (max-width: 1279px) {
+  section.recursos-catalogo {
+    display: block;
+  }
+}
+@media (min-width: 768px) {
+  section.recursos-intro > div {
+    padding-top: clamp(3rem, 4vw, 3.75rem);
+    padding-bottom: clamp(2.5rem, 3vw, 3.25rem);
+  }
+  section.recursos-intro h1 {
+    font-size: clamp(2.25rem, 3.2vw, 3rem);
+  }
+  section.recursos-catalogo {
+    padding-top: clamp(2.5rem, 3.5vw, 3.75rem);
+    padding-bottom: clamp(2.5rem, 3.5vw, 3.75rem);
+  }
+}
+.recursos-buscador-fila {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+.recursos-buscador-fila form {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+button.recursos-filtro-boton {
+  white-space: nowrap;
+}
+
+/* Panel de filtros (se abre sobre la página) y su fondo. */
+.catalog-filter-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: none;
+  background: rgba(13, 43, 69, 0.48);
+  backdrop-filter: blur(6px);
+}
+.catalog-filter-backdrop.is-open {
+  display: block;
+}
+.catalog-filter-panel {
+  position: fixed;
+  inset: 1.5rem auto 1.5rem 50%;
+  z-index: 50;
+  display: none;
+  width: min(430px, calc(100vw - 2rem));
+  max-height: calc(100vh - 3rem);
+  overflow-y: auto;
+  transform: translateX(-50%);
+  box-shadow: 0 24px 70px rgba(13, 43, 69, 0.28);
+}
+.catalog-filter-panel.is-open {
+  display: block;
+}
+@media (max-width: 767px) {
+  .catalog-filter-panel {
+    inset: 1rem auto 1rem 50%;
+    max-height: calc(100vh - 2rem);
+  }
+}
+
+/* Ventana con el detalle de un recurso (portada del Repositorio, docentes y académicos). */
+@media (max-width: 767px) {
+  div.modal-recurso {
+    padding: 1rem;
+  }
+  div.modal-recurso article {
+    padding: 1.25rem;
+  }
+  div.modal-recurso dl {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Atajos de curso (portada del Repositorio y Recursos académicos) con su globo de ayuda. */
+.course-shortcut {
+  position: relative;
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
+}
+.course-shortcut::before {
+  content: attr(data-course-name);
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  bottom: calc(100% + 0.7rem);
+  width: max-content;
+  max-width: min(250px, 70vw);
+  padding: 0.55rem 0.8rem;
+  border: 1px solid rgba(57, 199, 213, 0.35);
+  border-radius: 0.7rem;
+  background: #0D2B45;
+  color: #FFFFFF;
+  box-shadow: 0 10px 24px rgba(13, 43, 69, 0.18);
+  font-family: Montserrat, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1.25;
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 0.4rem) scale(0.96);
+  transform-origin: bottom center;
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+.course-shortcut::after {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  bottom: calc(100% + 0.08rem);
+  width: 1rem;
+  height: 0.7rem;
+  background: #0D2B45;
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 0.4rem) scale(0.8);
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+.course-shortcut:hover,
+.course-shortcut:focus-visible {
+  transform: translateY(-2px);
+  border-color: #00B5C8;
+  background-color: #F0FBFC;
+  box-shadow: 0 8px 18px rgba(13, 43, 69, 0.1);
+}
+.course-shortcut:hover::before,
+.course-shortcut:hover::after,
+.course-shortcut:focus-visible::before,
+.course-shortcut:focus-visible::after {
+  opacity: 1;
+  transform: translate(-50%, 0) scale(1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .course-shortcut,
+  .course-shortcut::before,
+  .course-shortcut::after {
+    transition: none;
+  }
+}
