@@ -3,8 +3,9 @@
 import { app } from "../firebase.js";
 import { tieneRol } from "../roles.js";
 import { mensajeErrorAuth } from "../util.js";
+import { iniciarSesion, mensajeSinAcceso } from "../acceso.js";
 import {
-  browserSessionPersistence, getAuth, onAuthStateChanged, setPersistence, signInWithEmailAndPassword, signOut,
+  browserSessionPersistence, getAuth, onAuthStateChanged, setPersistence, signOut,
   createUserWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { iniciarModeracion } from "./moderacion.js";
@@ -23,10 +24,9 @@ document.querySelector("#login-form").addEventListener("submit", async event => 
   event.preventDefault();
   const status = document.querySelector("#login-status");
   status.hidden = true;
-  try {
-    await signInWithEmailAndPassword(auth, document.querySelector("#email").value.trim(), document.querySelector("#password").value);
-  } catch (error) {
-    status.textContent = mensajeErrorAuth(error);
+  const sesion = await iniciarSesion(auth, document.querySelector("#email").value.trim(), document.querySelector("#password").value);
+  if (!sesion.user) {
+    status.textContent = sesion.mensaje;
     status.hidden = false;
   }
 });
@@ -120,9 +120,7 @@ onAuthStateChanged(auth, async user => {
       if (new URLSearchParams(window.location.search).has("edit")) document.querySelector("#moderacion").scrollIntoView();
     }
   } else if (user) {
-    document.querySelector("#login-status").textContent = user.emailVerified
-      ? "Esta cuenta no tiene permisos de administración (Junta, Fiscalía o moderación)."
-      : "Debes verificar tu correo antes de iniciar sesión. Revisa tu bandeja de entrada.";
+    document.querySelector("#login-status").textContent = mensajeSinAcceso(user, "Esta cuenta no tiene permisos de administración (Junta, Fiscalía o moderación).");
     document.querySelector("#login-status").hidden = false;
     await signOut(auth);
   }

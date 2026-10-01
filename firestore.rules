@@ -40,11 +40,11 @@ service cloud.firestore {
       allow read, create, update, delete: if isJunta();
     }
 
-    // Cualquiera puede consultar un correo puntual (lo usa el registro de cuentas de Junta),
-    // pero el listado completo con correos solo lo ve la Junta. La página pública lee
-    // config/junta_publica, que contiene únicamente nombre y puesto (RI Art. 143).
+    // Solo la Junta consulta y edita la lista. Cada cuenta puede leer su propio documento (lo hace roles.js
+    // para saber si es Junta); ya nadie anónimo puede consultar si un correo es de la Junta (RI Art. 143).
+    // La página pública lee config/junta_publica, que contiene únicamente nombre y puesto.
     match /junta/{email} {
-      allow get: if true;
+      allow get: if isJunta() || (request.auth != null && request.auth.token.email == email);
       allow list: if isJunta();
       allow create, update, delete: if isJunta();
     }
