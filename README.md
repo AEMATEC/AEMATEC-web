@@ -251,21 +251,12 @@ Con cualquier agente, las revisiones automáticas de cada PR (pruebas de permiso
 estilos y sintaxis) avisan si algo se rompe antes del merge. Las reglas y los pasos se editan en `AGENTS.md`,
 no en `CLAUDE.md`.
 
-## Importar el inventario
+## Categorías de los libros
 
-Ver la cabecera de [`scripts/import-inventario.js`](scripts/import-inventario.js). Necesita una clave de
-cuenta de servicio que **nunca** se sube al repositorio (ya está en `.gitignore`).
-
-**Categorías de los libros.** Cada libro guarda sus categorías en `categorias` (lista, máximo 3). Cómo se
-escribe cada una y en qué grupo va (el filtro de la Biblioteca permite elegir un grupo entero) está en
+Cada libro guarda sus categorías en `categorias` (lista, máximo 3). Cómo se escribe cada una y en qué grupo va (el
+filtro de la Biblioteca permite elegir un grupo entero) está en
 [`assets/js/inventario-categorias.js`](assets/js/inventario-categorias.js): para una categoría nueva, agrégala a un
-grupo ahí. La página, el importador y la migración usan ese mismo archivo. Los libros que aún tengan el texto viejo
-`categoria` se pasan al formato nuevo con **Actions → "Categorías de la Biblioteca" → Run workflow** (primero en
-modo `simular`, luego `aplicar`); el plan con los datos de 2026-09 está en
-[`docs/categorias/migracion.md`](docs/categorias/migracion.md).
-
-`data/Plantilla_Inventario_AEMATEC.xlsx` es público en el repositorio. **No llenes ahí las hojas
-`Personas` ni `Prestamos`**: contendrían datos personales (Ley 8968, RI Art. 143).
+grupo ahí.
 
 ## Plan de trabajo
 
