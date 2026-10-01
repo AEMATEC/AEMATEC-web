@@ -404,11 +404,8 @@
     </article>
   </div>
   <script type="module">
-    import { app } from "./assets/js/firebase.js";
     import { escapeHtml } from "./assets/js/util.js";
-    import { tieneRol } from "./assets/js/roles.js";
-    import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { cargarPublicados, alCambiarModeracion, claseIcono, formatDate, formatSize, enlaceArchivo, botonesPaginacion } from "./assets/js/recursos.js";
     const filterPanel = document.querySelector("#docentes-filter-panel");
     const filterBackdrop = document.querySelector("#docentes-filter-backdrop");
     const openFilters = () => {
@@ -425,7 +422,6 @@
     document.querySelector("#open-docentes-filters").addEventListener("click", openFilters);
     document.querySelector("#close-docentes-filters").addEventListener("click", closeFilters);
     filterBackdrop.addEventListener("click", closeFilters);
-    const config = window.AEMATEC_FIREBASE_CONFIG;
     const grid = document.querySelector("#docentes-resource-grid");
     const count = document.querySelector("#docentes-count");
     const summary = document.querySelector("#docentes-filter-summary");
@@ -441,9 +437,6 @@
     let isModerator = false;
     search.value = new URLSearchParams(window.location.search).get("q") || "";
 
-    const iconFor = extension => extension === "pdf" ? "fa-file-pdf" : extension === "pptx" ? "fa-file-powerpoint" : extension === "docx" ? "fa-file-word" : extension === "ggb" ? "fa-shapes" : "fa-file-lines";
-    const formatSize = bytes => bytes ? `${(bytes / 1024 / 1024).toFixed(2)} MB` : "No indicado";
-    const formatDate = timestamp => timestamp?.seconds ? new Date(timestamp.seconds * 1000).toLocaleDateString("es-CR") : "No indicada";
     function closeModal() {
       modal.classList.add("hidden");
       modal.classList.remove("flex");
@@ -461,8 +454,8 @@
       document.querySelector("#modal-internet").textContent = resource.requiresInternet ? "Sí" : "No";
       document.querySelector("#modal-file").textContent = `${(resource.extension || "").toUpperCase()} · ${formatSize(resource.size)}`;
       document.querySelector("#modal-date").textContent = formatDate(resource.createdAt);
-      document.querySelector("#modal-open").href = resource.fileUrl || "#";
-      document.querySelector("#modal-download").href = resource.fileUrl || "#";
+      document.querySelector("#modal-open").href = enlaceArchivo(resource);
+      document.querySelector("#modal-download").href = enlaceArchivo(resource);
       const editLink = document.querySelector("#modal-edit");
       editLink.classList.toggle("hidden", !isModerator);
       editLink.classList.toggle("flex", isModerator);
@@ -500,24 +493,14 @@
         grid.innerHTML = '<p class="col-span-1 bg-white border border-[#D6E2E7] rounded-[16px] p-8 text-center text-[#607480]">No encontramos materiales con esos filtros.</p>';
       } else {
         grid.innerHTML = visible.map(resource => `<article class="bg-white border border-[#D6E2E7] rounded-[16px] p-6 hover:border-[#8ED5DD]">
-          <div class="flex justify-between"><span class="font-sans text-[11px] font-bold bg-[#DFF6F8] text-[#087F8C] px-3 py-1.5 rounded-full">${escapeHtml((resource.type || "RECURSO").toUpperCase())}</span><span class="text-xs text-[#7C8D97]"><i class="${resource.extension ==="ggb" ? "fa-solid" : "fa-regular"} ${iconFor(resource.extension)} mr-1"></i>${escapeHtml((resource.extension || "").toUpperCase())}</span></div>
+          <div class="flex justify-between"><span class="font-sans text-[11px] font-bold bg-[#DFF6F8] text-[#087F8C] px-3 py-1.5 rounded-full">${escapeHtml((resource.type || "RECURSO").toUpperCase())}</span><span class="text-xs text-[#7C8D97]"><i class="${claseIcono(resource.extension)} mr-1"></i>${escapeHtml((resource.extension || "").toUpperCase())}</span></div>
           <h3 class="font-sans font-bold text-[19px] mt-5">${escapeHtml(resource.title)}</h3><p class="text-sm text-[#607480] mt-3 leading-6">${escapeHtml(resource.description)}</p>
           <div class="mt-5 grid grid-cols-2 gap-3 text-xs text-[#627783]"><span><i class="fa-solid fa-graduation-cap w-5 text-[#00A6B8]"></i>${escapeHtml(resource.course || "Nivel no indicado")}</span><span><i class="fa-solid fa-shapes w-5 text-[#00A6B8]"></i>${escapeHtml(resource.topic || "Matemática")}</span></div>
           <p class="mt-5 pt-4 border-t border-[#E4EAED] text-xs text-[#6F818C]">Por <strong class="text-[#405968]">${escapeHtml(resource.author)}</strong></p>
-          <div class="mt-5 flex gap-3">${isModerator ? `<a href="admin.html?edit=${escapeHtml(resource.id)}" class="flex h-10 w-10 items-center justify-center rounded-[8px] border border-[#9DB6C1] font-sans font-bold text-xs" title="Editar (moderador)"><i class="fa-solid fa-pen"></i></a>` : ""}<button type="button" data-view-resource="${escapeHtml(resource.id)}" class="flex-1 h-10 border border-[#9DB6C1] rounded-[8px] font-sans font-bold text-xs"><i class="fa-regular fa-eye mr-2"></i>Ver</button><a href="${escapeHtml(resource.fileUrl)}" download class="flex-1 h-10 bg-[#00AFC1] text-white rounded-[8px] flex items-center justify-center font-sans font-bold text-xs"><i class="fa-solid fa-download mr-2"></i>Descargar</a></div>
+          <div class="mt-5 flex gap-3">${isModerator ? `<a href="admin.html?edit=${escapeHtml(resource.id)}" class="flex h-10 w-10 items-center justify-center rounded-[8px] border border-[#9DB6C1] font-sans font-bold text-xs" title="Editar (moderador)"><i class="fa-solid fa-pen"></i></a>` : ""}<button type="button" data-view-resource="${escapeHtml(resource.id)}" class="flex-1 h-10 border border-[#9DB6C1] rounded-[8px] font-sans font-bold text-xs"><i class="fa-regular fa-eye mr-2"></i>Ver</button><a href="${escapeHtml(enlaceArchivo(resource))}" download class="flex-1 h-10 bg-[#00AFC1] text-white rounded-[8px] flex items-center justify-center font-sans font-bold text-xs"><i class="fa-solid fa-download mr-2"></i>Descargar</a></div>
         </article>`).join("");
       }
-      const pageButtons = [];
-      if (totalPages > 1) {
-        pageButtons.push(`<button type="button" data-page="${Math.max(1, page - 1)}" aria-label="Página anterior" class="w-10 h-10 border border-[#CBD9DF] rounded-[8px] bg-white flex items-center justify-center"><i class="fa-solid fa-chevron-left text-xs"></i></button>`);
-        const pages = totalPages <= 3 ? Array.from({ length: totalPages }, (_, index) => index + 1) : [1, 2, totalPages];
-        pages.forEach((pageNumber, index) => {
-          if (index && pageNumber - pages[index - 1] > 1) pageButtons.push('<span class="px-1 text-[#7A8C96]">...</span>');
-          pageButtons.push(`<button type="button" data-page="${pageNumber}" class="w-10 h-10 rounded-[8px] ${page === pageNumber ?"bg-[#0D2B45] text-white" : "bg-white border border-[#CBD9DF]"}">${pageNumber}</button>`);
-        });
-        pageButtons.push(`<button type="button" data-page="${Math.min(totalPages, page + 1)}" aria-label="Página siguiente" class="w-10 h-10 border border-[#CBD9DF] rounded-[8px] bg-white flex items-center justify-center"><i class="fa-solid fa-chevron-right text-xs"></i></button>`);
-      }
-      pagination.innerHTML = pageButtons.join("");
+      pagination.innerHTML = botonesPaginacion(page, totalPages);
       pagination.querySelectorAll("[data-page]").forEach(button => button.addEventListener("click", () => { page = Number(button.dataset.page); render(); }));
       grid.querySelectorAll("[data-view-resource]").forEach(button => button.addEventListener("click", () => {
         const resource = resources.find(item => item.id === button.dataset.viewResource);
@@ -538,27 +521,13 @@
     document.addEventListener("keydown", event => { if (event.key === "Escape" && !modal.classList.contains("hidden")) closeModal(); });
     document.addEventListener("keydown", event => { if (event.key === "Escape" && filterPanel.classList.contains("is-open")) closeFilters(); });
 
-    if (!config?.projectId || config.projectId === "REEMPLAZAR") {
-      count.textContent = "No se pudo conectar con el repositorio";
-    } else {
-      try {
-        const db = getFirestore(app);
-        const resourcesQuery = query(
-          collection(db, "resources"),
-          where("section", "==", "docentes"),
-          where("published", "==", true)
-        );
-        const snapshot = await getDocs(resourcesQuery);
-        resources = snapshot.docs.map(document => ({ id: document.id, ...document.data() }));
-        render();
-        onAuthStateChanged(getAuth(app), async user => {
-          isModerator = await tieneRol(user, "moderators");
-          render();
-        });
-      } catch (error) {
-        count.textContent = "No se pudieron cargar los materiales";
-        grid.innerHTML = `<p class="col-span-1 bg-white border border-[#D6E2E7] rounded-[16px] p-8 text-center text-[#C2413B]">Error al cargar el repositorio: ${escapeHtml(error.message)}</p>`;
-      }
+    try {
+      resources = await cargarPublicados({ section: "docentes" });
+      render();
+      alCambiarModeracion(moderador => { isModerator = moderador; render(); });
+    } catch (error) {
+      count.textContent = "No se pudieron cargar los materiales";
+      grid.innerHTML = `<p class="col-span-1 bg-white border border-[#D6E2E7] rounded-[16px] p-8 text-center text-[#C2413B]">Error al cargar el repositorio: ${escapeHtml(error.message)}</p>`;
     }
   </script>
 </body>

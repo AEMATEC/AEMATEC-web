@@ -247,9 +247,8 @@
   <script type="module">
     // Buscador de la página principal: busca a la vez entre las páginas del sitio (lista fija)
     // y los recursos publicados del Repositorio (Firestore), como pidió la Junta ("Ambos").
-    import { app } from "./assets/js/firebase.js";
     import { escapeHtml } from "./assets/js/util.js";
-    import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { cargarPublicados } from "./assets/js/recursos.js";
 
     const SITE_PAGES = [
       { title: "Repositorio", desc: "Materiales docentes y académicos compartidos por la comunidad, de acceso público.", href: "repositorio.html", kw: "materiales recursos biblioteca compartir" },
@@ -342,20 +341,16 @@
       searchInput.focus();
     });
 
-    const config = window.AEMATEC_FIREBASE_CONFIG;
-    if (config?.projectId && config.projectId !== "REEMPLAZAR") {
-      try {
-        const resourcesSnapshot = await getDocs(query(collection(getFirestore(app), "resources"), where("published", "==", true)));
-        publishedResources = resourcesSnapshot.docs.map(item => ({ id: item.id, ...item.data() }));
-        resourcesLoaded = true;
-        if (pendingQuery) {
-          const queryText = pendingQuery;
-          pendingQuery = "";
-          renderSearch(queryText);
-        }
-      } catch (error) {
-        console.error("No se pudieron cargar los materiales del Repositorio para el buscador:", error);
+    try {
+      publishedResources = await cargarPublicados();
+      resourcesLoaded = true;
+      if (pendingQuery) {
+        const queryText = pendingQuery;
+        pendingQuery = "";
+        renderSearch(queryText);
       }
+    } catch (error) {
+      console.error("No se pudieron cargar los materiales del Repositorio para el buscador:", error);
     }
   </script>
 </body>

@@ -157,7 +157,6 @@
   import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
   import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
-  const config = window.AEMATEC_FIREBASE_CONFIG;
   const form = document.querySelector("#upload-material-form");
   const fileInput = document.querySelector("#file");
   const dropzone = document.querySelector("#file-dropzone");
@@ -312,10 +311,6 @@
     }
     if (resourceLink && !/^https?:\/\//i.test(resourceLink)) {
       showStatus("El enlace del recurso debe comenzar con http:// o https://.", true);
-      return;
-    }
-    if (!config?.apiKey || config.apiKey === "REEMPLAZAR") {
-      showStatus("El repositorio aún no está conectado a Firebase. Configura assets/firebase-config.js.", true);
       return;
     }
     submit.disabled = true;
