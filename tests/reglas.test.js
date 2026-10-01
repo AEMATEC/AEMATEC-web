@@ -149,6 +149,18 @@ describe("Biblioteca: recursos y moderación", () => {
   test("nadie puede autopublicar material", async () => {
     await assertFails(addDoc(collection(anonimo().firestore(), "resources"), recursoNuevo({ status: "approved", published: true })));
   });
+  test("los enlaces de un material propuesto deben ser https (se muestran como href públicos)", async () => {
+    const db = anonimo().firestore();
+    await assertSucceeds(addDoc(collection(db, "resources"), recursoNuevo({ fileUrl: "https://ejemplo.com/guia.pdf", explanationUrl: "https://youtu.be/abc" })));
+    await assertFails(addDoc(collection(db, "resources"), recursoNuevo({ fileUrl: "javascript:alert(1)" })));
+    await assertFails(addDoc(collection(db, "resources"), recursoNuevo({ fileUrl: "http://ejemplo.com/guia.pdf" })));
+    await assertFails(addDoc(collection(db, "resources"), recursoNuevo({ explanationUrl: "javascript:alert(1)" })));
+  });
+  test("un moderador no puede poner un enlace de explicación inseguro", async () => {
+    const db = usuario(MODERADOR).firestore();
+    await assertSucceeds(updateDoc(doc(db, "resources", "pendiente"), { explanationUrl: "https://ejemplo.com/explicacion" }));
+    await assertFails(updateDoc(doc(db, "resources", "pendiente"), { explanationUrl: "javascript:alert(1)" }));
+  });
   test("un moderador aprueba, pero no puede cambiar el autor", async () => {
     const db = usuario(MODERADOR).firestore();
     await assertSucceeds(updateDoc(doc(db, "resources", "pendiente"), { status: "approved", published: true }));

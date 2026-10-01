@@ -405,7 +405,7 @@
   </div>
   <script type="module">
     import { app } from "./assets/js/firebase.js";
-    import { escapeHtml } from "./assets/js/util.js";
+    import { escapeHtml, safeHttpsUrl } from "./assets/js/util.js";
     import { tieneRol } from "./assets/js/roles.js";
     import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -461,8 +461,8 @@
       document.querySelector("#modal-internet").textContent = resource.requiresInternet ? "Sí" : "No";
       document.querySelector("#modal-file").textContent = `${(resource.extension || "").toUpperCase()} · ${formatSize(resource.size)}`;
       document.querySelector("#modal-date").textContent = formatDate(resource.createdAt);
-      document.querySelector("#modal-open").href = resource.fileUrl || "#";
-      document.querySelector("#modal-download").href = resource.fileUrl || "#";
+      document.querySelector("#modal-open").href = safeHttpsUrl(resource.fileUrl) || "#";
+      document.querySelector("#modal-download").href = safeHttpsUrl(resource.fileUrl) || "#";
       const editLink = document.querySelector("#modal-edit");
       editLink.classList.toggle("hidden", !isModerator);
       editLink.classList.toggle("flex", isModerator);
@@ -504,7 +504,7 @@
           <h3 class="font-sans font-bold text-[19px] mt-5">${escapeHtml(resource.title)}</h3><p class="text-sm text-[#607480] mt-3 leading-6">${escapeHtml(resource.description)}</p>
           <div class="mt-5 grid grid-cols-2 gap-3 text-xs text-[#627783]"><span><i class="fa-solid fa-graduation-cap w-5 text-[#00A6B8]"></i>${escapeHtml(resource.course || "Nivel no indicado")}</span><span><i class="fa-solid fa-shapes w-5 text-[#00A6B8]"></i>${escapeHtml(resource.topic || "Matemática")}</span></div>
           <p class="mt-5 pt-4 border-t border-[#E4EAED] text-xs text-[#6F818C]">Por <strong class="text-[#405968]">${escapeHtml(resource.author)}</strong></p>
-          <div class="mt-5 flex gap-3">${isModerator ? `<a href="admin.html?edit=${escapeHtml(resource.id)}" class="flex h-10 w-10 items-center justify-center rounded-[8px] border border-[#9DB6C1] font-sans font-bold text-xs" title="Editar (moderador)"><i class="fa-solid fa-pen"></i></a>` : ""}<button type="button" data-view-resource="${escapeHtml(resource.id)}" class="flex-1 h-10 border border-[#9DB6C1] rounded-[8px] font-sans font-bold text-xs"><i class="fa-regular fa-eye mr-2"></i>Ver</button><a href="${escapeHtml(resource.fileUrl)}" download class="flex-1 h-10 bg-[#00AFC1] text-white rounded-[8px] flex items-center justify-center font-sans font-bold text-xs"><i class="fa-solid fa-download mr-2"></i>Descargar</a></div>
+          <div class="mt-5 flex gap-3">${isModerator ? `<a href="admin.html?edit=${escapeHtml(resource.id)}" class="flex h-10 w-10 items-center justify-center rounded-[8px] border border-[#9DB6C1] font-sans font-bold text-xs" title="Editar (moderador)"><i class="fa-solid fa-pen"></i></a>` : ""}<button type="button" data-view-resource="${escapeHtml(resource.id)}" class="flex-1 h-10 border border-[#9DB6C1] rounded-[8px] font-sans font-bold text-xs"><i class="fa-regular fa-eye mr-2"></i>Ver</button><a href="${escapeHtml(safeHttpsUrl(resource.fileUrl) || "#")}" download class="flex-1 h-10 bg-[#00AFC1] text-white rounded-[8px] flex items-center justify-center font-sans font-bold text-xs"><i class="fa-solid fa-download mr-2"></i>Descargar</a></div>
         </article>`).join("");
       }
       const pageButtons = [];

@@ -335,8 +335,8 @@
       showStatus("Selecciona un archivo PDF, DOCX, PPTX, XLSX, ZIP o GGB de máximo 25 MB.", true);
       return;
     }
-    if (resourceLink && !/^https?:\/\//i.test(resourceLink)) {
-      showStatus("El enlace del recurso debe comenzar con http:// o https://.", true);
+    if (resourceLink && !/^https:\/\/\S+$/i.test(resourceLink)) {
+      showStatus("El enlace del recurso debe comenzar con https://.", true);
       return;
     }
     if (!config?.apiKey || config.apiKey === "REEMPLAZAR") {
@@ -384,7 +384,7 @@
         Reposición: "Examen", Investigación: "Apuntes", Apuntes: "Apuntes", Resumen: "Apuntes"
       };
       const explanationUrl = document.querySelector("#explanation-url").value.trim();
-      if (explanationUrl && !/^https?:\/\//i.test(explanationUrl)) throw new Error("El enlace de explicación debe comenzar con http:// o https://.");
+      if (explanationUrl && !/^https:\/\/\S+$/i.test(explanationUrl)) throw new Error("El enlace de explicación debe comenzar con https://.");
       await addDoc(collection(db, "resources"), {
         title: form.title.value.trim(), description: form.description.value.trim(),
         section, type: typeMap[labels[0]], labels, grade: selectedGrade,

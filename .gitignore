@@ -9,3 +9,4 @@ scripts/serviceAccountKey.json
 
 # Secretos locales del emulador de Functions
 functions/.secret.local
+.claude/worktrees/

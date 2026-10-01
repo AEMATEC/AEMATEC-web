@@ -159,6 +159,12 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // Los enlaces de los materiales se muestran como href en páginas públicas: solo https (evita javascript: y otros).
+    function enlaceSeguro(valor, puedeIrVacio) {
+      return valor is string && valor.size() <= 2048
+        && ((puedeIrVacio && valor == '') || valor.matches('https://[^\\s]+'));
+    }
+
     match /resources/{resourceId} {
       allow read: if resource.data.published == true
         || isModerator();
@@ -176,7 +182,8 @@ service cloud.firestore {
         && request.resource.data.educationalCycle is string && request.resource.data.educationalCycle.size() <= 40
         && request.resource.data.course is string && request.resource.data.course.size() <= 80
         && request.resource.data.courseCode is string && request.resource.data.courseCode.size() <= 20
-        && request.resource.data.explanationUrl is string && request.resource.data.explanationUrl.size() <= 500
+        && enlaceSeguro(request.resource.data.explanationUrl, true)
+        && (!('fileUrl' in request.resource.data) || enlaceSeguro(request.resource.data.fileUrl, false))
         && request.resource.data.requiresInternet is bool
         && request.resource.data.type in ['Actividad', 'Juego', 'Planeamiento', 'Guía didáctica', 'Recurso digital', 'Examen', 'Apuntes', 'Solución', 'Práctica']
         && request.resource.data.extension in ['', 'pdf', 'docx', 'pptx', 'xlsx', 'zip', 'ggb']
@@ -191,6 +198,8 @@ service cloud.firestore {
       // Los moderadores pueden editar los metadatos de cualquier recurso (incluso ya
       // publicado), pero nunca el autor ni el archivo/contenido original.
       allow update: if isModerator()
+        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['explanationUrl'])
+          || enlaceSeguro(request.resource.data.explanationUrl, true))
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
           'title', 'description', 'labels', 'type', 'explanationUrl',
           'grade', 'materials', 'requiresInternet', 'course', 'courseCode',
