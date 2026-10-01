@@ -4,7 +4,7 @@ service firebase.storage {
     match /recursos/{section}/{fileName} {
       function isModerator() {
         return request.auth != null
-          && (request.auth.token.email in ['angeloyeshuac@gmail.com', 'angcalderon@estudiantec.cr']
+          && ((request.auth.token.email_verified == true && request.auth.token.email in ['aematec@estudiantec.cr', 'aeemac.tec@gmail.com'])
             || (request.auth.token.email_verified == true
               && firestore.exists(/databases/(default)/documents/moderators/$(request.auth.token.email))));
       }
@@ -30,7 +30,7 @@ service firebase.storage {
     match /inventario/biblioteca/{fileName} {
       function isJunta() {
         return request.auth != null
-          && (request.auth.token.email in ['angeloyeshuac@gmail.com', 'angcalderon@estudiantec.cr']
+          && ((request.auth.token.email_verified == true && request.auth.token.email in ['aematec@estudiantec.cr', 'aeemac.tec@gmail.com'])
             || (request.auth.token.email_verified == true
               && firestore.exists(/databases/(default)/documents/junta/$(request.auth.token.email))));
       }

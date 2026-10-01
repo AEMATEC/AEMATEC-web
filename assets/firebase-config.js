@@ -7,6 +7,6 @@ window.AEMATEC_FIREBASE_CONFIG = {
   messagingSenderId: "121098874307",
   appId: "1:121098874307:web:ad8f095aa99eb3d3106176"
 };
-// Clave pública del sitio de reCAPTCHA v3 para App Check (protege contra envíos automáticos). Vacía = App Check apagado.
+// Clave pública del sitio de reCAPTCHA Enterprise (Google Cloud Fraud Defense) para App Check (protege contra envíos automáticos). Vacía = App Check apagado.
 // Cómo se obtiene: docs/app-check.md.
 window.AEMATEC_RECAPTCHA_SITE_KEY = "";

@@ -60,7 +60,7 @@ apodos y puntajes se pueden borrar a pedido y que no hay rastreo.
    - Salas abandonadas: una política TTL de Firestore sobre un campo `expiraEn` (lastSeen + 1 día), sin
      funciones nuevas.
 
-6. App Check en arcade-matec, igual que en el sitio (ver docs/app-check.md): clave de reCAPTCHA v3 propia, con
+6. App Check en arcade-matec, igual que en el sitio (ver docs/app-check.md): clave de reCAPTCHA Enterprise (Fraud Defense) propia, creada en el proyecto de Google Cloud arcade-matec, con
    los dominios aematec.github.io y localhost. Inicialízala en core.js solo si la clave no está vacía. No actives
    "Aplicar" hasta que las métricas muestren casi todo verificado.
 

@@ -53,11 +53,11 @@ cuando la Junta lo apruebe).
 | P3 | Arcade (reglas, moderación de Golf, filtro de apodos, borrado) | Instrucciones y prompt para quien administra el Arcade: [`arcade-pendientes.md`](arcade-pendientes.md). |
 | P4 | Música del Arcade | **Resuelto.** La generaron agentes de Claude para AEMATEC; el origen aparece en el pie del Arcade. |
 | P5 | Fotos del carrusel | **Resuelto.** Son fotos de archivo de la asociación (actas y otros documentos). `dinamica-grupal-colegios.jpg` sigue fuera del carrusel porque muestra caras de menores: para publicarla hace falta permiso escrito. |
-| P6 | Correos personales en el código | **Pendiente**, la Junta debe elegir la cuenta (ver abajo). |
+| P6 | Correos personales en el código | **Hecho.** Los dueños ahora son las cuentas de la asociación `aematec@estudiantec.cr` y `aeemac.tec@gmail.com`, y las reglas exigen que el correo esté verificado (antes no lo exigían). Antes del merge hay que crear y verificar las dos cuentas en `admin.html` (ver abajo). |
 | M5 | Moderadores que agregan moderadores | **Se queda así** (decisión de la Junta: son personas de su confianza). |
 | M7 | Cédula jurídica | La asociación no tiene. Investigación y pasos en [`cedula-juridica.md`](cedula-juridica.md). |
 
-### P6: cómo reemplazar los correos personales
+### P6: cómo funcionan las cuentas de dueño
 Los "dueños" del sitio están escritos en 4 archivos (`assets/js/roles.js`, `firestore.rules`, `storage.rules` y
 `functions/correo.js`). Hoy son correos personales. La solución es poner ahí **una cuenta que sea de la asociación
 y pase de Junta en Junta**, por ejemplo `aematec@estudiantec.cr`. Así, en cada traspaso solo se cambia la contraseña

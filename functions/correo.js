@@ -12,7 +12,7 @@ const gmailAddress = "aeemac.tec@gmail.com";
 const gmailAppPassword = defineSecret("GMAIL_APP_PASSWORD");
 
 // Correo de respaldo si una lista está vacía (no aplica a Fiscalía: RI Art. 42).
-const CORREO_RESPALDO = "angeloyeshuac@gmail.com";
+const CORREO_RESPALDO = "aematec@estudiantec.cr";
 
 async function correosDe(coleccion, { respaldo = true } = {}) {
   const snapshot = await getFirestore().collection(coleccion).get();
