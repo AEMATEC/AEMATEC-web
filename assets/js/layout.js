@@ -83,6 +83,7 @@
             <p>Costado oeste de la Escuela de Matemática, junto al cajero del BN, campus central del TEC, Cartago, Costa Rica</p>
             <p><a href="mailto:aematec@estudiantec.cr">aematec@estudiantec.cr</a></p>
             <p><a href="legal.html#privacidad">Privacidad</a> · <a href="legal.html#terminos">Términos de uso</a> · <a href="legal.html#cookies">Cookies</a></p>
+            <p>Protegido por reCAPTCHA de Google: se aplican su <a href="https://policies.google.com/privacy" rel="noopener">Política de privacidad</a> y sus <a href="https://policies.google.com/terms" rel="noopener">Condiciones</a>.</p>
           </address>
         </div>
       </footer>`;

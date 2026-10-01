@@ -9,4 +9,4 @@ window.AEMATEC_FIREBASE_CONFIG = {
 };
 // Clave pública del sitio de reCAPTCHA Enterprise (Google Cloud Fraud Defense) para App Check (protege contra envíos automáticos). Vacía = App Check apagado.
 // Cómo se obtiene: docs/app-check.md.
-window.AEMATEC_RECAPTCHA_SITE_KEY = "";
+window.AEMATEC_RECAPTCHA_SITE_KEY = "6LekM9otAAAAAJIQk0-Bpp4F-zU1W1xF2TrBHjHa";

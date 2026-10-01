@@ -175,6 +175,10 @@ form:has(> input:focus-visible) { outline: 3px solid var(--aematec-teal); outlin
 .skip-link:focus { left: 0; }
 main[tabindex="-1"]:focus { outline: none; }
 
+/* Google permite ocultar la etiqueta flotante de reCAPTCHA si el aviso va en la página (está en el pie);
+   si no, taparía el botón del Arcade. */
+.grecaptcha-badge { visibility: hidden; }
+
 /* ---------- Pie de página ---------- */
 .site-footer {
   background: var(--aematec-navy);
