@@ -3,7 +3,7 @@
 import { after, before, beforeEach, describe, test } from "node:test";
 import { readFileSync } from "node:fs";
 import { assertFails, assertSucceeds, initializeTestEnvironment } from "@firebase/rules-unit-testing";
-import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, setDoc, updateDoc } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, query, setDoc, updateDoc, where } from "firebase/firestore";
 import { ref, uploadBytes } from "firebase/storage";
 
 const JUNTA = "jd@estudiantec.cr";
@@ -165,6 +165,22 @@ describe("Biblioteca: recursos y moderación", () => {
     await assertSucceeds(addDoc(collection(db, "resources"), recursoNuevo({ explanation: explicacion })));
     await assertSucceeds(addDoc(collection(db, "resources"), recursoNuevo({ explanation: null })));
     await assertFails(addDoc(collection(db, "resources"), recursoNuevo({ explanation: { ...explicacion, fileUrl: "javascript:alert(1)" } })));
+  });
+  test("las rutas de archivo de un material solo apuntan a la carpeta de recursos de su sección", async () => {
+    const db = anonimo().firestore();
+    const explicacion = { storagePath: "recursos/academico/0f3a-1b2c-explicacion.pdf", fileUrl: "https://ejemplo.com/e.pdf", extension: "pdf", size: 10 };
+    await assertSucceeds(addDoc(collection(db, "resources"), recursoNuevo({ storagePath: "recursos/academico/0f3a-1b2c.pdf", explanation: explicacion })));
+    await assertSucceeds(addDoc(collection(db, "resources"), recursoNuevo({ storagePath: "" })));
+    await assertFails(addDoc(collection(db, "resources"), recursoNuevo({ storagePath: "inventario/biblioteca/portada.jpg" })));
+    await assertFails(addDoc(collection(db, "resources"), recursoNuevo({ storagePath: "recursos/docentes/0f3a-1b2c.pdf" })));
+    await assertFails(addDoc(collection(db, "resources"), recursoNuevo({ storagePath: "recursos/academico/../otro.pdf" })));
+    await assertFails(addDoc(collection(db, "resources"), recursoNuevo({ explanation: { ...explicacion, storagePath: "recursos/academico/0f3a-1b2c.pdf" } })));
+  });
+  test("un moderador puede buscar qué materiales usan un archivo (antes de borrarlo)", async () => {
+    const db = usuario(MODERADOR).firestore();
+    await assertSucceeds(getDocs(query(collection(db, "resources"), where("storagePath", "==", "recursos/academico/0f3a.pdf"))));
+    await assertSucceeds(getDocs(query(collection(db, "resources"), where("explanation.storagePath", "==", "recursos/academico/0f3a.pdf"))));
+    await assertFails(getDocs(query(collection(anonimo().firestore(), "resources"), where("storagePath", "==", "recursos/academico/0f3a.pdf"))));
   });
   test("un moderador no puede poner un enlace de explicación inseguro", async () => {
     const db = usuario(MODERADOR).firestore();

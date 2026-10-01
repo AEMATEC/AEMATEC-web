@@ -191,6 +191,28 @@ async function loadPending() {
   pendingList.querySelectorAll("[data-edit-id]").forEach(button => button.addEventListener("click", () => openEditFromId(button.dataset.editId)));
 }
 
+// Las rutas de los archivos las escribe quien propone el material, así que no se confía en ellas: solo se borra
+// un archivo de la carpeta de recursos y si ningún otro material lo usa (evita que una propuesta falsa que
+// apunte al archivo de un material bueno lo haga borrar).
+async function borrarArchivosDe(resource) {
+  const rutas = [resource.storagePath, resource.explanation?.storagePath]
+    .filter(ruta => typeof ruta === "string" && /^recursos\/(docentes|academico)\/[a-f0-9-]+(-explicacion)?\.[a-z]+$/.test(ruta));
+  const noBorrados = [];
+  for (const ruta of rutas) {
+    try {
+      const [comoArchivo, comoExplicacion] = await Promise.all([
+        getDocs(query(collection(db, "resources"), where("storagePath", "==", ruta))),
+        getDocs(query(collection(db, "resources"), where("explanation.storagePath", "==", ruta)))
+      ]);
+      if (comoArchivo.empty && comoExplicacion.empty) await deleteObject(ref(storage, ruta));
+      else noBorrados.push(ruta);
+    } catch (error) {
+      if (error.code !== "storage/object-not-found") noBorrados.push(ruta);
+    }
+  }
+  if (noBorrados.length) console.warn("Archivos que no se borraron (en uso o con error):", noBorrados);
+}
+
 async function handleAction(action, id) {
   const resourceDocument = await getDoc(doc(db, "resources", id));
   if (!resourceDocument.exists()) return;
@@ -198,9 +220,10 @@ async function handleAction(action, id) {
   try {
     if (action === "delete") {
       if (!confirm("¿Eliminar este material y su archivo definitivamente?")) return;
-      if (resource.storagePath) await deleteObject(ref(storage, resource.storagePath));
-      if (resource.explanation?.storagePath) await deleteObject(ref(storage, resource.explanation.storagePath));
+      // Primero el documento: si algo falla después, queda a lo sumo un archivo sin usar, nunca un material
+      // publicado cuyo archivo ya no existe.
       await deleteDoc(doc(db, "resources", id));
+      await borrarArchivosDe(resource);
     } else {
       await updateDoc(doc(db, "resources", id), { status: action, published: action === "approved" });
     }

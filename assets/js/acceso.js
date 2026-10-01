@@ -33,7 +33,14 @@ export const mensajeSinAcceso = (user, sinPermiso) => user?.emailVerified
 export async function accederConRol(auth, email, password, roles, sinPermiso) {
   const sesion = await iniciarSesion(auth, email, password);
   if (!sesion.user) return { ok: false, mensaje: sesion.mensaje };
-  if (await tieneAlgunRol(sesion.user, roles)) return { ok: true, user: sesion.user };
+  let tieneRolPedido = false, fallo = false;
+  try {
+    tieneRolPedido = await tieneAlgunRol(sesion.user, roles);
+  } catch {
+    fallo = true;
+  }
+  if (tieneRolPedido) return { ok: true, user: sesion.user };
+  // Sin el rol (o si no se pudo comprobar), la sesión no queda abierta.
   await signOut(auth);
-  return { ok: false, mensaje: mensajeSinAcceso(sesion.user, sinPermiso) };
+  return { ok: false, mensaje: fallo ? "No se pudo comprobar tu acceso. Intenta de nuevo en unos minutos." : mensajeSinAcceso(sesion.user, sinPermiso) };
 }
