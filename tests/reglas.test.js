@@ -51,8 +51,14 @@ const recursoNuevo = cambios => ({
 });
 
 describe("Junta Directiva (RI Art. 143)", () => {
-  test("cualquiera puede consultar un correo puntual (registro de cuentas)", async () => {
-    await assertSucceeds(getDoc(doc(anonimo().firestore(), "junta", JUNTA)));
+  test("el público no puede consultar si un correo es de la Junta", async () => {
+    await assertFails(getDoc(doc(anonimo().firestore(), "junta", JUNTA)));
+    await assertFails(getDoc(doc(usuario("otra@estudiantec.cr").firestore(), "junta", JUNTA)));
+  });
+  test("cada cuenta puede leer su propio documento de la Junta (aunque no esté en la lista o sin verificar)", async () => {
+    await assertSucceeds(getDoc(doc(usuario(JUNTA).firestore(), "junta", JUNTA)));
+    await assertSucceeds(getDoc(doc(usuario(JUNTA, false).firestore(), "junta", JUNTA)));
+    await assertSucceeds(getDoc(doc(usuario("otra@estudiantec.cr").firestore(), "junta", "otra@estudiantec.cr")));
   });
   test("el público no puede listar los correos de la Junta", async () => {
     await assertFails(getDocs(collection(anonimo().firestore(), "junta")));
