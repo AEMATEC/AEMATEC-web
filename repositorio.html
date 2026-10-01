@@ -16,9 +16,9 @@
   <script src="assets/firebase-config.js"></script>
   <style>
     @media (max-width: 767px) {
-      [data-design-id="hero-section-16a5bf"] > div { min-height: auto; padding: 3rem 0 2.5rem; }
-      [data-design-id="hero-section-16a5bf"] h1 { max-width: 100%; font-size: clamp(2rem, 8.5vw, 3.2rem); overflow-wrap: break-word; }
-      [data-design-id="hero-section-16a5bf"] p { max-width: 100%; font-size: 1rem; line-height: 1.7; }
+      .repo-hero > div { min-height: auto; padding: 3rem 0 2.5rem; }
+      .repo-hero h1 { max-width: 100%; font-size: clamp(2rem, 8.5vw, 3.2rem); overflow-wrap: break-word; }
+      .repo-hero p { max-width: 100%; font-size: 1rem; line-height: 1.7; }
       .hero-equation { top: 1.5rem; right: 1rem; font-size: 1.25rem; }
       .hero-geometry { left: -5rem; bottom: -4rem; transform: scale(0.7); transform-origin: bottom left; }
       #global-search-form { width: 100%; height: auto; min-height: 58px; }
@@ -27,12 +27,12 @@
       #global-search-results > div > div:first-child { align-items: flex-start; flex-direction: column; gap: 1rem; }
       #global-search-results article { align-items: flex-start; flex-wrap: wrap; }
       #global-search-results article > div:nth-child(2) { min-width: calc(100% - 4.5rem); }
-      [data-design-id="quick-access-section-0d64a7"], main > section.site-container { padding-top: 2.5rem; padding-bottom: 2.5rem; }
-      [data-design-id="quick-access-section-0d64a7"] .grid, main > section.site-container .grid { grid-template-columns: 1fr; }
-      [data-design-id="quick-card-docentes-17fd90"], [data-design-id="quick-card-academicos-b3a4c8"] { padding: 1.25rem; gap: 1rem; }
-      [data-design-id="quick-card-docentes-17fd90"] > div:last-child, [data-design-id="quick-card-academicos-b3a4c8"] > div:last-child { min-width: 0; }
-      [data-design-id="quick-card-docentes-17fd90"] h3, [data-design-id="quick-card-academicos-b3a4c8"] h3 { font-size: 1.15rem; }
-      [data-design-id="quick-card-docentes-17fd90"] > div:last-child > div:last-child, [data-design-id="quick-card-academicos-b3a4c8"] > div:last-child > div:last-child { flex-wrap: wrap; }
+      .repo-acceso, main > section.site-container { padding-top: 2.5rem; padding-bottom: 2.5rem; }
+      .repo-acceso .grid, main > section.site-container .grid { grid-template-columns: 1fr; }
+      .repo-tarjeta-rapida { padding: 1.25rem; gap: 1rem; }
+      .repo-tarjeta-rapida > div:last-child { min-width: 0; }
+      .repo-tarjeta-rapida h3 { font-size: 1.15rem; }
+      .repo-tarjeta-rapida > div:last-child > div:last-child { flex-wrap: wrap; }
       #recent-materials-grid { grid-template-columns: 1fr; }
       #recent-materials-grid [class*="col-span-3"] { grid-column: auto; }
       #global-resource-modal { padding: 1rem; }
@@ -41,16 +41,16 @@
     }
     @media (min-width: 768px) and (max-width: 1279px) {
       #global-search-form { width: min(800px, 100%); }
-      [data-design-id="quick-card-docentes-17fd90"], [data-design-id="quick-card-academicos-b3a4c8"] { min-width: 0; overflow: hidden; }
-      [data-design-id="quick-card-docentes-17fd90"] > div:last-child, [data-design-id="quick-card-academicos-b3a4c8"] > div:last-child { min-width: 0; overflow-wrap: anywhere; }
-      [data-design-id="quick-card-docentes-17fd90"] > div:last-child > div:last-child, [data-design-id="quick-card-academicos-b3a4c8"] > div:last-child > div:last-child { flex-wrap: wrap; }
+      .repo-tarjeta-rapida { min-width: 0; overflow: hidden; }
+      .repo-tarjeta-rapida > div:last-child { min-width: 0; overflow-wrap: anywhere; }
+      .repo-tarjeta-rapida > div:last-child > div:last-child { flex-wrap: wrap; }
     }
     @media (min-width: 768px) {
-      [data-design-id="hero-section-16a5bf"] > div { padding-top: clamp(3rem, 5vw, 5.5rem); padding-bottom: clamp(3rem, 5vw, 5.5rem); }
-      [data-design-id="hero-section-16a5bf"] h1 { font-size: clamp(2.25rem, 3.2vw, 4rem); }
+      .repo-hero > div { padding-top: clamp(3rem, 5vw, 5.5rem); padding-bottom: clamp(3rem, 5vw, 5.5rem); }
+      .repo-hero h1 { font-size: clamp(2.25rem, 3.2vw, 4rem); }
       .hero-equation { top: 2.5rem; right: 2rem; }
-      [data-design-id="quick-access-section-0d64a7"] { padding-top: clamp(3rem, 4.5vw, 5rem); padding-bottom: clamp(3rem, 4.5vw, 5rem); }
-      [data-design-id="recent-materials-section-651b23"] { padding-top: clamp(3rem, 4.5vw, 5rem); padding-bottom: clamp(3rem, 4.5vw, 5rem); }
+      .repo-acceso { padding-top: clamp(3rem, 4.5vw, 5rem); padding-bottom: clamp(3rem, 4.5vw, 5rem); }
+      .repo-recientes { padding-top: clamp(3rem, 4.5vw, 5rem); padding-bottom: clamp(3rem, 4.5vw, 5rem); }
     }
     .course-shortcut {
       position: relative;
@@ -123,8 +123,8 @@
 <body class="bg-[#F4F8FA] text-[#0D2B45] font-serif" style="background-image: radial-gradient(circle at 12% 18%, rgba(0, 175, 193, 0.13) 0, rgba(0, 175, 193, 0.13) 1.2px, transparent 1.8px), radial-gradient(circle at 84% 72%, rgba(13, 43, 69, 0.09) 0, rgba(13, 43, 69, 0.09) 1.2px, transparent 1.8px); background-size: 28px 28px, 36px 36px;">
   <script src="assets/js/layout.js" data-part="header" data-active="repositorio" data-sub="inicio"></script>
 
-  <main data-design-id="main-home-3e718d">
-    <section data-design-id="hero-section-16a5bf" class="bg-[#EAF5F7] border-b border-[#D5E5EA]">
+  <main>
+    <section class="repo-hero bg-[#EAF5F7] border-b border-[#D5E5EA]">
       <div class="relative isolate overflow-hidden">
         <canvas id="hero-trig" class="absolute inset-0 h-full w-full" aria-hidden="true"></canvas>
         <div class="relative z-10 site-container mx-auto min-h-[500px] pt-[76px] pb-[64px] text-center">
@@ -132,13 +132,13 @@
             comparte,<br><span class="text-[#00A6B8]">aprendizaje que crece.</span></h1>
           <p class="mt-5 text-[19px] leading-8 text-[#526574] max-w-[730px] mx-auto">Materiales creados y recopilados por
             la comunidad de Enseñanza de la Matemática con Entornos Tecnológicos del TEC.</p>
-          <form id="global-search-form" data-design-id="search-form-75e90c"
+          <form id="global-search-form"
             class="mt-9 mx-auto w-full max-w-[800px] h-[68px] bg-white border-2 border-[#B8D3DC] rounded-[16px] shadow-[0_12px_35px_rgba(13,43,69,0.10)] flex items-center p-2">
             <i class="fa-solid fa-magnifying-glass text-[#00A6B8] text-xl ml-4"></i>
             <input aria-label="Buscar materiales"
               class="flex-1 h-full px-4 outline-none text-[17px] text-[#233F53] placeholder:text-[#7C909D]"
               placeholder="Buscar por tema, curso, tipo de recurso...">
-            <button data-design-id="search-submit-btn-9e53b0" type="submit"
+            <button type="submit"
               class="h-[48px] px-7 rounded-[10px] bg-[#00AFC1] text-white font-sans font-bold text-sm hover:bg-[#009AAA]">Buscar</button>
           </form>
         </div>
@@ -160,7 +160,7 @@
       </div>
     </section>
 
-    <section data-design-id="quick-access-section-0d64a7" class="site-container mx-auto py-[62px]">
+    <section class="repo-acceso site-container mx-auto py-[62px]">
       <div class="flex items-end justify-between mb-7">
         <div>
           <p class="font-sans text-xs font-bold uppercase tracking-[0.18em] text-[#00A6B8]">Explora el repositorio</p>
@@ -169,8 +169,8 @@
         <span class="text-[#647986] text-sm">Acceso público · Sin registro</span>
       </div>
       <div class="grid grid-cols-2 gap-6">
-        <a href="repositorio-docentes.html" data-design-id="quick-card-docentes-17fd90"
-          class="group bg-white border border-[#D8E3E9] rounded-[20px] p-8 flex gap-7 hover:border-[#00B5C8] hover:shadow-[0_10px_28px_rgba(13,43,69,0.08)]">
+        <a href="repositorio-docentes.html"
+          class="repo-tarjeta-rapida group bg-white border border-[#D8E3E9] rounded-[20px] p-8 flex gap-7 hover:border-[#00B5C8] hover:shadow-[0_10px_28px_rgba(13,43,69,0.08)]">
           <div
             class="w-[72px] h-[72px] shrink-0 rounded-[16px] bg-[#E6F8FA] text-[#009CAD] flex items-center justify-center text-[28px]">
             <i class="fa-solid fa-chalkboard-user"></i>
@@ -188,8 +188,8 @@
                 class="bg-[#F1F5F7] rounded-full px-3 py-1.5">Planeamientos</span></div>
           </div>
         </a>
-        <a href="repositorio-academicos.html" data-design-id="quick-card-academicos-b3a4c8"
-          class="group bg-[#0D2B45] text-white rounded-[20px] p-8 flex gap-7 hover:bg-[#123852] shadow-[0_10px_24px_rgba(13,43,69,0.13)]">
+        <a href="repositorio-academicos.html"
+          class="repo-tarjeta-rapida group bg-[#0D2B45] text-white rounded-[20px] p-8 flex gap-7 hover:bg-[#123852] shadow-[0_10px_24px_rgba(13,43,69,0.13)]">
           <div
             class="w-[72px] h-[72px] shrink-0 rounded-[16px] bg-[#164A62] text-[#43D2DF] flex items-center justify-center text-[28px]">
             <i class="fa-solid fa-square-root-variable"></i>
@@ -210,7 +210,7 @@
       </div>
     </section>
 
-    <section data-design-id="recent-materials-section-651b23" class="bg-[#EAF1F4] border-y border-[#D7E3E8] py-[58px]">
+    <section class="repo-recientes bg-[#EAF1F4] border-y border-[#D7E3E8] py-[58px]">
       <div class="site-container mx-auto">
         <div class="flex justify-between items-end mb-7">
           <div>
@@ -220,7 +220,7 @@
               class="fa-solid fa-arrow-right ml-2"></i></a>
         </div>
         <div id="recent-materials-grid" class="grid grid-cols-3 gap-5">
-          <article data-design-id="material-card-1-c1820a" class="bg-white rounded-[16px] border border-[#D6E1E6] p-6">
+          <article class="bg-white rounded-[16px] border border-[#D6E1E6] p-6">
             <div class="flex justify-between items-center"><span
                 class="font-sans text-[11px] font-bold bg-[#DFF6F8] text-[#087F8C] px-3 py-1.5 rounded-full">ACTIVIDAD</span><i
                 class="fa-regular fa-file-pdf text-[#78909C] text-xl"></i></div>
@@ -230,7 +230,7 @@
             <div class="mt-6 pt-4 border-t border-[#E4EAED] flex justify-between text-xs text-[#71838D]"><span><i
                   class="fa-solid fa-graduation-cap mr-2"></i>Décimo año</span><span>Hace 2 días</span></div>
           </article>
-          <article data-design-id="material-card-2-e9d316" class="bg-white rounded-[16px] border border-[#D6E1E6] p-6">
+          <article class="bg-white rounded-[16px] border border-[#D6E1E6] p-6">
             <div class="flex justify-between items-center"><span
                 class="font-sans text-[11px] font-bold bg-[#E9EEF9] text-[#3B568D] px-3 py-1.5 rounded-full">APUNTES</span><i
                 class="fa-regular fa-file-lines text-[#78909C] text-xl"></i></div>
@@ -240,7 +240,7 @@
             <div class="mt-6 pt-4 border-t border-[#E4EAED] flex justify-between text-xs text-[#71838D]"><span><i
                   class="fa-solid fa-book mr-2"></i>MA1002</span><span>Hace 4 días</span></div>
           </article>
-          <article data-design-id="material-card-3-082c4f" class="bg-white rounded-[16px] border border-[#D6E1E6] p-6">
+          <article class="bg-white rounded-[16px] border border-[#D6E1E6] p-6">
             <div class="flex justify-between items-center"><span
                 class="font-sans text-[11px] font-bold bg-[#FFF1D9] text-[#946316] px-3 py-1.5 rounded-full">JUEGO</span><i
                 class="fa-regular fa-file-powerpoint text-[#78909C] text-xl"></i></div>
@@ -274,7 +274,7 @@
       </div>
     </section>
 
-    <section data-design-id="upload-cta-section-5a2ef9" class="site-container mx-auto py-[56px]">
+    <section class="site-container mx-auto py-[56px]">
       <div class="bg-white border border-[#CFE0E6] rounded-[20px] p-8 flex flex-wrap items-center justify-between gap-6">
         <div class="flex items-center gap-6">
           <div class="w-14 h-14 rounded-full bg-[#DFF6F8] text-[#009CAD] flex items-center justify-center text-xl"><i
@@ -285,7 +285,7 @@
             </p>
           </div>
         </div>
-        <a href="repositorio-subir.html" data-design-id="upload-cta-btn-21fdf8"
+        <a href="repositorio-subir.html"
           class="h-14 px-7 rounded-[12px] bg-[#0D2B45] text-white flex items-center justify-center gap-2 font-sans font-bold text-sm"><i
             class="fa-solid fa-arrow-up-from-bracket text-[#39C7D5]"></i>Subir material</a>
       </div>

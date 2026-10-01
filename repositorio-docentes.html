@@ -16,21 +16,21 @@
   <script src="assets/firebase-config.js"></script>
   <style>
     @media (max-width: 767px) {
-      [data-design-id="docentes-intro-1978be"]>div {
+      .docentes-intro>div {
         padding-top: 2.5rem;
         padding-bottom: 2rem;
       }
-      [data-design-id="docentes-intro-1978be"] h1 {
+      .docentes-intro h1 {
         font-size: 2.1rem;
       }
-      [data-design-id="docentes-intro-1978be"] form {
+      .docentes-intro form {
         height: auto;
         min-height: 54px;
       }
-      [data-design-id="docentes-intro-1978be"] form input {
+      .docentes-intro form input {
         min-width: 0;
       }
-      [data-design-id="docentes-intro-1978be"] form button {
+      .docentes-intro form button {
         padding-left: 1rem;
         padding-right: 1rem;
       }
@@ -48,7 +48,7 @@
         padding-left: 0.75rem;
         padding-right: 0.75rem;
       }
-      [data-design-id="docentes-catalog-f48e50"] {
+      .docentes-catalogo {
         display: block;
         margin-left: 1rem;
         margin-right: 1rem;
@@ -73,19 +73,19 @@
       }
     }
     @media (min-width: 768px) and (max-width: 1279px) {
-      [data-design-id="docentes-catalog-f48e50"] {
+      .docentes-catalogo {
         display: block;
       }
     }
     @media (min-width: 768px) {
-      [data-design-id="docentes-intro-1978be"]>div {
+      .docentes-intro>div {
         padding-top: clamp(3rem, 4vw, 3.75rem);
         padding-bottom: clamp(2.5rem, 3vw, 3.25rem);
       }
-      [data-design-id="docentes-intro-1978be"] h1 {
+      .docentes-intro h1 {
         font-size: clamp(2.25rem, 3.2vw, 3rem);
       }
-      [data-design-id="docentes-catalog-f48e50"] {
+      .docentes-catalogo {
         padding-top: clamp(2.5rem, 3.5vw, 3.75rem);
         padding-bottom: clamp(2.5rem, 3.5vw, 3.75rem);
       }
@@ -141,8 +141,8 @@
   style="background-image: radial-gradient(circle at 12% 18%, rgba(0, 175, 193, 0.13) 0, rgba(0, 175, 193, 0.13) 1.2px, transparent 1.8px), radial-gradient(circle at 84% 72%, rgba(13, 43, 69, 0.09) 0, rgba(13, 43, 69, 0.09) 1.2px, transparent 1.8px); background-size: 28px 28px, 36px 36px;">
   <script src="assets/js/layout.js" data-part="header" data-active="repositorio" data-sub="docentes"></script>
 
-  <main data-design-id="main-docentes-cf81ad">
-    <section data-design-id="docentes-intro-1978be" class="bg-[#075766] text-white">
+  <main>
+    <section class="docentes-intro bg-[#075766] text-white">
       <div class="site-container mx-auto py-[50px] relative overflow-hidden">
         <div aria-hidden="true"
           class="pointer-events-none absolute -right-[10px] top-[6px] rotate-[8deg] font-sans text-[58px] leading-none text-white/[0.09]">
@@ -168,12 +168,12 @@
           </div>
         </div>
         <div class="docentes-search-row mt-9">
-          <form id="docentes-search-form" data-design-id="docentes-search-form-81b7d0"
+          <form id="docentes-search-form"
             class="h-[58px] bg-white rounded-[12px] flex items-center p-1.5 shadow-lg">
             <i class="fa-solid fa-magnifying-glass text-[#00A6B8] ml-4"></i><input id="docentes-search"
               class="flex-1 h-full outline-none px-4 text-base text-[#18384E]"
               placeholder="Buscar actividades, juegos, planeamientos o temas...">
-            <button data-design-id="docentes-search-btn-65a1d3" type="submit"
+            <button type="submit"
               class="h-[44px] px-7 bg-[#00C0C7] text-white font-sans font-bold text-sm rounded-[9px]">Buscar</button>
           </form>
           <button id="open-docentes-filters" type="button"
@@ -183,9 +183,9 @@
       </div>
     </section>
 
-    <section data-design-id="docentes-catalog-f48e50" class="site-container mx-auto py-[42px]">
+    <section class="docentes-catalogo site-container mx-auto py-[42px]">
       <div id="docentes-filter-backdrop" class="catalog-filter-backdrop" aria-hidden="true"></div>
-      <aside id="docentes-filter-panel" data-design-id="filters-docentes-8fb743"
+      <aside id="docentes-filter-panel"
         class="catalog-filter-panel bg-white border border-[#D7E2E7] rounded-[16px] p-6"
         aria-label="Filtros de recursos docentes">
         <div class="flex justify-between items-center">
@@ -230,7 +230,7 @@
                 class="accent-[#00AFC1]"> Educación diversificada</label><label class="flex gap-3"><input
                 type="checkbox" class="accent-[#00AFC1]"> Universitario</label></div>
         </div>
-        <button id="apply-docentes-filters" data-design-id="apply-filters-docentes-331d7e" type="button"
+        <button id="apply-docentes-filters" type="button"
           class="w-full h-11 bg-[#0D2B45] text-white font-sans font-bold text-sm rounded-[9px] mt-7">Aplicar
           filtros</button>
       </aside>
@@ -247,7 +247,7 @@
             </select></label>
         </div>
         <div id="docentes-resource-grid" class="grid grid-cols-1 gap-5">
-          <article data-design-id="docente-card-1-2ba8f1"
+          <article
             class="bg-white border border-[#D6E2E7] rounded-[16px] p-6 hover:border-[#8ED5DD]">
             <div class="flex justify-between"><span
                 class="font-sans text-[11px] font-bold bg-[#DFF6F8] text-[#087F8C] px-3 py-1.5 rounded-full">ACTIVIDAD</span><span
@@ -260,13 +260,13 @@
                   class="fa-solid fa-shapes w-5 text-[#00A6B8]"></i>Funciones</span></div>
             <p class="mt-5 pt-4 border-t border-[#E4EAED] text-xs text-[#6F818C]">Por <strong
                 class="text-[#405968]">María Fernanda Rojas</strong></p>
-            <div class="mt-5 flex gap-3"><button data-design-id="view-docente-1-dd7f41" type="button"
+            <div class="mt-5 flex gap-3"><button type="button"
                 class="flex-1 h-10 border border-[#9DB6C1] rounded-[8px] font-sans font-bold text-xs"><i
-                  class="fa-regular fa-eye mr-2"></i>Ver</button><button data-design-id="download-docente-1-517d4b"
+                  class="fa-regular fa-eye mr-2"></i>Ver</button><button
                 type="button" class="flex-1 h-10 bg-[#00AFC1] text-white rounded-[8px] font-sans font-bold text-xs"><i
                   class="fa-solid fa-download mr-2"></i>Descargar</button></div>
           </article>
-          <article data-design-id="docente-card-2-eaf138"
+          <article
             class="bg-white border border-[#D6E2E7] rounded-[16px] p-6 hover:border-[#8ED5DD]">
             <div class="flex justify-between"><span
                 class="font-sans text-[11px] font-bold bg-[#FFF1D9] text-[#946316] px-3 py-1.5 rounded-full">JUEGO</span><span
@@ -279,13 +279,13 @@
                   class="fa-solid fa-shapes w-5 text-[#00A6B8]"></i>Álgebra</span></div>
             <p class="mt-5 pt-4 border-t border-[#E4EAED] text-xs text-[#6F818C]">Por <strong
                 class="text-[#405968]">Comisión Académica AEMATEC</strong></p>
-            <div class="mt-5 flex gap-3"><button data-design-id="view-docente-2-5a671f" type="button"
+            <div class="mt-5 flex gap-3"><button type="button"
                 class="flex-1 h-10 border border-[#9DB6C1] rounded-[8px] font-sans font-bold text-xs"><i
-                  class="fa-regular fa-eye mr-2"></i>Ver</button><button data-design-id="download-docente-2-6ce432"
+                  class="fa-regular fa-eye mr-2"></i>Ver</button><button
                 type="button" class="flex-1 h-10 bg-[#00AFC1] text-white rounded-[8px] font-sans font-bold text-xs"><i
                   class="fa-solid fa-download mr-2"></i>Descargar</button></div>
           </article>
-          <article data-design-id="docente-card-3-8c4d9b"
+          <article
             class="bg-white border border-[#D6E2E7] rounded-[16px] p-6 hover:border-[#8ED5DD]">
             <div class="flex justify-between"><span
                 class="font-sans text-[11px] font-bold bg-[#EAE7F8] text-[#5A4C91] px-3 py-1.5 rounded-full">PLANEAMIENTO</span><span
@@ -298,13 +298,13 @@
                   class="fa-solid fa-shapes w-5 text-[#00A6B8]"></i>Estadística</span></div>
             <p class="mt-5 pt-4 border-t border-[#E4EAED] text-xs text-[#6F818C]">Fuente: <strong
                 class="text-[#405968]">Proyecto MATEC en aula</strong></p>
-            <div class="mt-5 flex gap-3"><button data-design-id="view-docente-3-4300df" type="button"
+            <div class="mt-5 flex gap-3"><button type="button"
                 class="flex-1 h-10 border border-[#9DB6C1] rounded-[8px] font-sans font-bold text-xs"><i
-                  class="fa-regular fa-eye mr-2"></i>Ver</button><button data-design-id="download-docente-3-cd3a0d"
+                  class="fa-regular fa-eye mr-2"></i>Ver</button><button
                 type="button" class="flex-1 h-10 bg-[#00AFC1] text-white rounded-[8px] font-sans font-bold text-xs"><i
                   class="fa-solid fa-download mr-2"></i>Descargar</button></div>
           </article>
-          <article data-design-id="docente-card-4-644d0a"
+          <article
             class="bg-white border border-[#D6E2E7] rounded-[16px] p-6 hover:border-[#8ED5DD]">
             <div class="flex justify-between"><span
                 class="font-sans text-[11px] font-bold bg-[#E5F1E8] text-[#3A7650] px-3 py-1.5 rounded-full">GUÍA
@@ -318,9 +318,9 @@
                   class="fa-solid fa-shapes w-5 text-[#00A6B8]"></i>Geometría</span></div>
             <p class="mt-5 pt-4 border-t border-[#E4EAED] text-xs text-[#6F818C]">Por <strong
                 class="text-[#405968]">Daniela Mora Quesada</strong></p>
-            <div class="mt-5 flex gap-3"><button data-design-id="view-docente-4-1724be" type="button"
+            <div class="mt-5 flex gap-3"><button type="button"
                 class="flex-1 h-10 border border-[#9DB6C1] rounded-[8px] font-sans font-bold text-xs"><i
-                  class="fa-regular fa-eye mr-2"></i>Ver</button><button data-design-id="download-docente-4-145ceb"
+                  class="fa-regular fa-eye mr-2"></i>Ver</button><button
                 type="button" class="flex-1 h-10 bg-[#00AFC1] text-white rounded-[8px] font-sans font-bold text-xs"><i
                   class="fa-solid fa-download mr-2"></i>Descargar</button></div>
           </article>

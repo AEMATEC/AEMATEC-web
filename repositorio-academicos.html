@@ -16,21 +16,21 @@
   <script src="assets/firebase-config.js"></script>
   <style>
     @media (max-width: 767px) {
-      [data-design-id="academicos-intro-e4b790"]>div {
+      .academicos-intro>div {
         padding-top: 2.5rem;
         padding-bottom: 2rem;
       }
-      [data-design-id="academicos-intro-e4b790"] h1 {
+      .academicos-intro h1 {
         font-size: 2.1rem;
       }
-      [data-design-id="academicos-intro-e4b790"] form {
+      .academicos-intro form {
         height: auto;
         min-height: 54px;
       }
-      [data-design-id="academicos-intro-e4b790"] form input {
+      .academicos-intro form input {
         min-width: 0;
       }
-      [data-design-id="academicos-intro-e4b790"] form button {
+      .academicos-intro form button {
         padding-left: 1rem;
         padding-right: 1rem;
       }
@@ -46,11 +46,11 @@
       .academicos-filter-trigger span {
         display: none;
       }
-      [data-design-id="course-shortcuts-f2a711"]>div {
+      .cursos-frecuentes>div {
         padding-top: 1rem;
         padding-bottom: 1rem;
       }
-      [data-design-id="academicos-catalog-45a8fc"] {
+      .academicos-catalogo {
         display: block;
         padding-top: 2rem;
         padding-bottom: 2rem;
@@ -71,23 +71,23 @@
       }
     }
     @media (min-width: 768px) and (max-width: 1279px) {
-      [data-design-id="academicos-catalog-45a8fc"] {
+      .academicos-catalogo {
         display: block;
       }
     }
     @media (min-width: 768px) {
-      [data-design-id="academicos-intro-e4b790"]>div {
+      .academicos-intro>div {
         padding-top: clamp(3rem, 4vw, 3.75rem);
         padding-bottom: clamp(2.5rem, 3vw, 3.25rem);
       }
-      [data-design-id="academicos-intro-e4b790"] h1 {
+      .academicos-intro h1 {
         font-size: clamp(2.25rem, 3.2vw, 3rem);
       }
-      [data-design-id="course-shortcuts-f2a711"]>div {
+      .cursos-frecuentes>div {
         padding-top: clamp(1rem, 1.8vw, 1.5rem);
         padding-bottom: clamp(1rem, 1.8vw, 1.5rem);
       }
-      [data-design-id="academicos-catalog-45a8fc"] {
+      .academicos-catalogo {
         padding-top: clamp(2.5rem, 3.5vw, 3.75rem);
         padding-bottom: clamp(2.5rem, 3.5vw, 3.75rem);
       }
@@ -120,7 +120,7 @@
       color: white;
     }
     /* Los globos de ayuda de los cursos no deben ensanchar la página en pantallas angostas. */
-    [data-design-id="course-shortcuts-f2a711"] {
+    .cursos-frecuentes {
       overflow-x: clip;
     }
     .course-shortcut {
@@ -237,8 +237,8 @@
 <body class="bg-[#F4F8FA] text-[#0D2B45] font-serif"
   style="background-image: radial-gradient(circle at 12% 18%, rgba(0, 175, 193, 0.13) 0, rgba(0, 175, 193, 0.13) 1.2px, transparent 1.8px), radial-gradient(circle at 84% 72%, rgba(13, 43, 69, 0.09) 0, rgba(13, 43, 69, 0.09) 1.2px, transparent 1.8px); background-size: 28px 28px, 36px 36px;">
   <script src="assets/js/layout.js" data-part="header" data-active="repositorio" data-sub="academicos"></script>
-  <main data-design-id="main-academicos-a917d3">
-    <section data-design-id="academicos-intro-e4b790" class="bg-[#0D2B45] text-white">
+  <main>
+    <section class="academicos-intro bg-[#0D2B45] text-white">
       <div class="site-container mx-auto py-[50px] relative overflow-hidden">
         <div aria-hidden="true"
           class="pointer-events-none absolute left-[235px] top-[18px] rotate-[-7deg] font-serif text-[56px] leading-none text-white/[0.08]">
@@ -260,12 +260,11 @@
             <i class="fa-solid fa-square-root-variable"></i></div>
         </div>
         <div class="academicos-search-row mt-9">
-          <form data-design-id="academicos-search-form-c5e77a" action="#"
-            class="h-[58px] bg-white rounded-[12px] flex items-center p-1.5 shadow-lg"><i
+          <form action="#"
+            class="academicos-buscador h-[58px] bg-white rounded-[12px] flex items-center p-1.5 shadow-lg"><i
               class="fa-solid fa-magnifying-glass text-[#00A6B8] ml-4"></i><input
               class="flex-1 h-full outline-none px-4 text-base text-[#18384E]"
-              placeholder="Buscar por curso, tema o nombre del material..."><button
-              data-design-id="academicos-search-btn-6f1d87" type="submit"
+              placeholder="Buscar por curso, tema o nombre del material..."><button type="submit"
               class="h-[44px] px-7 bg-[#00AFC1] text-white font-sans font-bold text-sm rounded-[9px]">Buscar</button>
           </form><button id="open-academic-filters" type="button"
             class="academicos-filter-trigger flex h-[58px] items-center gap-2 rounded-[12px] bg-[#0D2B45] px-5 font-sans text-sm font-bold text-white"
@@ -273,7 +272,7 @@
         </div>
       </div>
     </section>
-    <section data-design-id="course-shortcuts-f2a711" class="bg-white border-b border-[#DCE6EA]">
+    <section class="cursos-frecuentes bg-white border-b border-[#DCE6EA]">
       <div class="site-container mx-auto flex flex-wrap items-center gap-3 py-5"><span
           class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#697D89] mr-2">Cursos frecuentes</span><a
           data-course="MA1403" data-course-name="Matemática Discreta" href="#"
@@ -296,9 +295,9 @@
         <div id="course-legend-list" class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3"></div>
       </div>
     </section>
-    <section data-design-id="academicos-catalog-45a8fc" class="site-container mx-auto py-[42px]">
+    <section class="academicos-catalogo site-container mx-auto py-[42px]">
       <div id="academic-filter-backdrop" class="catalog-filter-backdrop" aria-hidden="true"></div>
-      <aside id="academic-filter-panel" data-design-id="filters-academicos-41df88"
+      <aside id="academic-filter-panel"
         class="catalog-filter-panel bg-white border border-[#D7E2E7] rounded-[16px] p-6"
         aria-label="Filtros de recursos académicos">
         <div class="flex justify-between items-center">
@@ -340,7 +339,7 @@
             <option>II Semestre 2025</option>
             <option>I Semestre 2025</option>
           </select>
-        </div><button id="apply-academic-filters" data-design-id="apply-filters-acad-b5d149" type="button"
+        </div><button id="apply-academic-filters" type="button"
           class="w-full h-11 bg-[#0D2B45] text-white font-sans font-bold text-sm rounded-[9px] mt-7">Aplicar
           filtros</button>
       </aside>
@@ -356,7 +355,7 @@
             </select></label>
         </div>
         <div id="academic-resource-list" class="space-y-4">
-          <article data-design-id="academic-card-1-c8ef02"
+          <article
             class="bg-white border border-[#D6E2E7] rounded-[15px] p-5 flex items-center gap-5">
             <div
               class="w-[62px] h-[72px] rounded-[11px] bg-[#EDF2FA] text-[#486398] flex items-center justify-center text-2xl">
@@ -371,13 +370,13 @@
               <p class="text-xs text-[#7A8C96] mt-2">Por <strong class="text-[#4A606D]">Valeria Jiménez</strong> ·
                 Actualizado hace 4 días</p>
             </div>
-            <div class="flex gap-2"><button data-design-id="view-acad-1-737bd2" type="button"
+            <div class="flex gap-2"><button type="button"
                 class="w-11 h-11 border border-[#A9BEC7] rounded-[8px] text-[#38566A]" aria-label="Ver"><i
-                  class="fa-regular fa-eye"></i></button><button data-design-id="download-acad-1-b83c42" type="button"
+                  class="fa-regular fa-eye"></i></button><button type="button"
                 class="h-11 px-5 bg-[#00AFC1] text-white rounded-[8px] font-sans font-bold text-xs"><i
                   class="fa-solid fa-download mr-2"></i>Descargar</button></div>
           </article>
-          <article data-design-id="academic-card-2-a4f35b"
+          <article
             class="bg-white border border-[#D6E2E7] rounded-[15px] p-5 flex items-center gap-5">
             <div
               class="w-[62px] h-[72px] rounded-[11px] bg-[#FCEBE9] text-[#B75449] flex items-center justify-center text-2xl">
@@ -392,13 +391,13 @@
               <p class="text-xs text-[#7A8C96] mt-2">Fuente: <strong class="text-[#4A606D]">Estudiantes MATEC</strong> ·
                 12 páginas</p>
             </div>
-            <div class="flex gap-2"><button data-design-id="view-acad-2-c340da" type="button"
+            <div class="flex gap-2"><button type="button"
                 class="w-11 h-11 border border-[#A9BEC7] rounded-[8px] text-[#38566A]" aria-label="Ver"><i
-                  class="fa-regular fa-eye"></i></button><button data-design-id="download-acad-2-c1e8af" type="button"
+                  class="fa-regular fa-eye"></i></button><button type="button"
                 class="h-11 px-5 bg-[#00AFC1] text-white rounded-[8px] font-sans font-bold text-xs"><i
                   class="fa-solid fa-download mr-2"></i>Descargar</button></div>
           </article>
-          <article data-design-id="academic-card-3-7694bc"
+          <article
             class="bg-white border border-[#D6E2E7] rounded-[15px] p-5 flex items-center gap-5">
             <div
               class="w-[62px] h-[72px] rounded-[11px] bg-[#E6F3EA] text-[#43805A] flex items-center justify-center text-2xl">
@@ -413,13 +412,13 @@
               <p class="text-xs text-[#7A8C96] mt-2">Por <strong class="text-[#4A606D]">Tutorías AEMATEC</strong> · 18
                 páginas</p>
             </div>
-            <div class="flex gap-2"><button data-design-id="view-acad-3-b202f8" type="button"
+            <div class="flex gap-2"><button type="button"
                 class="w-11 h-11 border border-[#A9BEC7] rounded-[8px] text-[#38566A]" aria-label="Ver"><i
-                  class="fa-regular fa-eye"></i></button><button data-design-id="download-acad-3-969753" type="button"
+                  class="fa-regular fa-eye"></i></button><button type="button"
                 class="h-11 px-5 bg-[#00AFC1] text-white rounded-[8px] font-sans font-bold text-xs"><i
                   class="fa-solid fa-download mr-2"></i>Descargar</button></div>
           </article>
-          <article data-design-id="academic-card-4-e9e8bc"
+          <article
             class="bg-white border border-[#D6E2E7] rounded-[15px] p-5 flex items-center gap-5">
             <div
               class="w-[62px] h-[72px] rounded-[11px] bg-[#FFF2DB] text-[#A97218] flex items-center justify-center text-2xl">
@@ -434,9 +433,9 @@
               <p class="text-xs text-[#7A8C96] mt-2">Por <strong class="text-[#4A606D]">Sebastián Araya</strong> ·
                 Actualizado hace 2 semanas</p>
             </div>
-            <div class="flex gap-2"><button data-design-id="view-acad-4-1f3e7b" type="button"
+            <div class="flex gap-2"><button type="button"
                 class="w-11 h-11 border border-[#A9BEC7] rounded-[8px] text-[#38566A]" aria-label="Ver"><i
-                  class="fa-regular fa-eye"></i></button><button data-design-id="download-acad-4-d76311" type="button"
+                  class="fa-regular fa-eye"></i></button><button type="button"
                 class="h-11 px-5 bg-[#00AFC1] text-white rounded-[8px] font-sans font-bold text-xs"><i
                   class="fa-solid fa-download mr-2"></i>Descargar</button></div>
           </article>
@@ -518,7 +517,7 @@
     const pagination = document.querySelector("#academic-pagination");
     const resourceModal = document.querySelector("#academic-resource-modal");
     const modalClose = document.querySelector("#academic-modal-close");
-    const search = document.querySelector('form[data-design-id="academicos-search-form-c5e77a"] input');
+    const search = document.querySelector('form.academicos-buscador input');
     const sort = document.querySelector("#academic-sort");
     let resources = [];
     let filtered = [];
@@ -576,7 +575,7 @@
       pagination.innerHTML = botonesPaginacion(page, totalPages);
       pagination.querySelectorAll("[data-page]").forEach(button => button.addEventListener("click", () => { page = Number(button.dataset.page); render(); window.scrollTo({ top: list.offsetTop - 24, behavior: "smooth" }); }));
     }
-    document.querySelector('form[data-design-id="academicos-search-form-c5e77a"]').addEventListener("submit", event => { event.preventDefault(); page = 1; render(); });
+    document.querySelector('form.academicos-buscador').addEventListener("submit", event => { event.preventDefault(); page = 1; render(); });
     document.querySelector("#apply-academic-filters").addEventListener("click", () => { page = 1; render(); closeFilters(); });
     document.querySelector("#clear-academic-filters").addEventListener("click", event => { event.preventDefault(); search.value = ""; page = 1; document.querySelectorAll(".course-shortcut").forEach(course => course.classList.remove("is-selected")); document.querySelectorAll("[data-type-filter], [data-course-filter]").forEach(input => input.checked = false); document.querySelector("#period-filter").value = ""; render(); closeFilters(); });
     search.addEventListener("input", () => { document.querySelectorAll(".course-shortcut").forEach(course => { if (course.dataset.course !== search.value.trim()) course.classList.remove("is-selected"); }); });
