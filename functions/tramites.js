@@ -289,7 +289,7 @@ exports.consultarSeguimiento = onCall(async request => {
   const codigo = normalizarCodigo(request.data?.codigo);
   if (codigo.length !== 12) throw new HttpsError("invalid-argument", "El código tiene el formato XXXX-XXXX-XXXX.");
   const snapshot = await db().collection("fiscaliaCasos").where("codigoHash", "==", hashCodigo(codigo)).limit(1).get();
-  if (snapshot.empty) throw new HttpsError("not-found", "No encontramos un caso con ese código.");
+  if (snapshot.empty) throw new HttpsError("not-found", "No encontramos un caso con ese código. Si ya se resolvió, puede que la Fiscalía lo haya archivado y borrado del sitio.");
   const caso = snapshot.docs[0].data();
   return {
     subtipo: caso.subtipo, asunto: caso.datos.asunto, estado: caso.estado,

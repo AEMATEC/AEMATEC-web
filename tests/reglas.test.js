@@ -245,6 +245,12 @@ describe("Trámites (los crea solo el servidor)", () => {
     await assertSucceeds(updateDoc(doc(usuario(FISCAL).firestore(), "fiscaliaCasos", "f1"), { estado: "en_revision" }));
     await assertFails(updateDoc(doc(usuario(JUNTA).firestore(), "fiscaliaCasos", "f1"), { estado: "resuelto" }));
   });
+  test("solo la persona Fiscal borra un caso al archivarlo; ni la Junta, ni un dueño, ni quien lo envió", async () => {
+    await assertFails(deleteDoc(doc(usuario(JUNTA).firestore(), "fiscaliaCasos", "f2")));
+    await assertFails(deleteDoc(doc(usuario(DUENO).firestore(), "fiscaliaCasos", "f2")));
+    await assertFails(deleteDoc(doc(cuentaUid("uid-luis", "luis@estudiantec.cr"), "fiscaliaCasos", "f2")));
+    await assertSucceeds(deleteDoc(doc(usuario(FISCAL).firestore(), "fiscaliaCasos", "f2")));
+  });
   test("el avance de una AGEC es público pero de solo lectura; los límites son privados", async () => {
     await assertSucceeds(getDoc(doc(anonimo().firestore(), "agecPublicas", "a1")));
     await assertFails(setDoc(doc(usuario(JUNTA).firestore(), "agecPublicas", "a1"), { umbral: 1 }));

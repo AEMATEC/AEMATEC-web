@@ -6,6 +6,11 @@
 //   const db = getFirestore(app);
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check.js";
 
 export const app = initializeApp(window.AEMATEC_FIREBASE_CONFIG);
+// App Check: demuestra a Firebase que las solicitudes vienen de este sitio y no de un programa (ver docs/app-check.md).
+if (window.AEMATEC_RECAPTCHA_SITE_KEY) {
+  initializeAppCheck(app, { provider: new ReCaptchaV3Provider(window.AEMATEC_RECAPTCHA_SITE_KEY), isTokenAutoRefreshEnabled: true });
+}
 export const db = getFirestore(app);

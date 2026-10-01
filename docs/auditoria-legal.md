@@ -45,16 +45,29 @@ el **Código de la Niñez y la Adolescencia Art. 27**, la **Ley 6683** de Derech
 **Quién:** "Junta" = decisión de la Junta Directiva; "Técnico" = cambio en el código (lo puede hacer Claude Code
 cuando la Junta lo apruebe).
 
-### Prioridad alta
+### Decisiones de la Junta (2026-10) y lo que ya se hizo
+| # | Tema | Estado |
+|---|---|---|
+| P1 | Plazos de conservación | **Hecho.** Plazos aprobados: préstamos, 1 año desde la devolución o el rechazo; reportes del asistente, 90 días; trámites y adhesiones, 2 años; `limites`, 2 días. La función `borrarDatosVencidos` (`functions/retencion.js`) borra lo vencido cada día a las 3:30 a. m. **Fiscalía:** la persona Fiscal borra cada caso al archivarlo, después de hacer su informe (botón "Archivar y borrar del sitio" en el panel). Los plazos están en `legal.html`. |
+| P2 | Spam / App Check | El código ya está listo. Falta que la Junta cree la clave y la active: [`app-check.md`](app-check.md). |
+| P3 | Arcade (reglas, moderación de Golf, filtro de apodos, borrado) | Instrucciones y prompt para quien administra el Arcade: [`arcade-pendientes.md`](arcade-pendientes.md). |
+| P4 | Música del Arcade | **Resuelto.** La generaron agentes de Claude para AEMATEC; el origen aparece en el pie del Arcade. |
+| P5 | Fotos del carrusel | **Resuelto.** Son fotos de archivo de la asociación (actas y otros documentos). `dinamica-grupal-colegios.jpg` sigue fuera del carrusel porque muestra caras de menores: para publicarla hace falta permiso escrito. |
+| P6 | Correos personales en el código | **Pendiente**, la Junta debe elegir la cuenta (ver abajo). |
+| M5 | Moderadores que agregan moderadores | **Se queda así** (decisión de la Junta: son personas de su confianza). |
+| M7 | Cédula jurídica | La asociación no tiene. Investigación y pasos en [`cedula-juridica.md`](cedula-juridica.md). |
 
-| # | Qué | Por qué | Quién |
-|---|---|---|---|
-| P1 | **Definir plazos de conservación y borrar automáticamente.** Propuesta: préstamos, 1 año después de la devolución; reportes del asistente, 90 días; trámites y adhesiones, 2 años; casos de Fiscalía, el plazo que fije la Fiscalía; `limites`, 2 días. Luego, una función programada que borre lo vencido. Después hay que poner los plazos en `legal.html`. | Ley 8968 Art. 6: no guardar datos más de lo necesario. Hoy todo se guarda para siempre. | Junta decide los plazos → Técnico |
-| P2 | **Frenar el spam:** activar Firebase App Check en Firestore, Storage y Functions, y mover préstamos, reportes y material a Functions con límite diario. | Cualquiera puede llenar `prestamoSolicitudes`, `chatbotReportes` y Storage, y cada envío manda un correo. Gmail permite unos 500 al día: un ataque bloquearía los avisos reales. `enviarEnlaceCorreo` puede usarse para mandar correos a terceros. | Técnico (la Junta crea la clave de reCAPTCHA) |
-| P3 | **Arcade:** guardar las reglas de `arcade-matec` en este repositorio. Que solo una cuenta moderadora apruebe hoyos de Golf (hoy el "código de moderador" está a la vista en el código y las reglas sugeridas dejan aprobar a cualquiera). Agregar un filtro de groserías y datos (correos, teléfonos) en apodos y nombres de hoyos, y una forma de borrar puntajes a pedido. | Textos públicos sin filtro en un sitio que usan menores. Derecho de supresión (Ley 8968 Art. 7). | Quien administra `arcade-matec` + Técnico |
-| P4 | **Música del Arcade** (`assets/audio/arcade-menu.mp3`): no se sabe de dónde salió ni su licencia. Pedir el origen a quien la subió. Si no tiene licencia clara, cambiarla por música propia (el Arcade ya tiene canciones hechas por código) o por una con licencia CC0. | Ley 6683: usar música sin licencia es infracción, aunque sea un sitio sin fines de lucro. | Autor del Arcade |
-| P5 | **Permisos de las fotos del carrusel** (ver la tabla de abajo). Confirmar quién tomó cada una y guardar el permiso. | Ley 6683 (derecho del fotógrafo) y Código Civil Art. 47 (imagen de las personas). | Junta |
-| P6 | **Correos personales en el código** (`firestore.rules`, `storage.rules`, `assets/js/roles.js`, `functions/correo.js`): cambiarlos por una cuenta de la asociación. | RI Art. 143: el repositorio es público y esos correos quedan expuestos (también en el historial). | Junta (decide la cuenta) → Técnico |
+### P6: cómo reemplazar los correos personales
+Los "dueños" del sitio están escritos en 4 archivos (`assets/js/roles.js`, `firestore.rules`, `storage.rules` y
+`functions/correo.js`). Hoy son correos personales. La solución es poner ahí **una cuenta que sea de la asociación
+y pase de Junta en Junta**, por ejemplo `aematec@estudiantec.cr`. Así, en cada traspaso solo se cambia la contraseña
+de esa cuenta y no hay que tocar el código. Las personas de la Junta siguen entrando con su propio correo, que se
+agrega en el panel (lista `junta`).
+
+Pasos: (1) confirmar que alguien de la Junta puede abrir el buzón de esa cuenta; (2) crear con ella la contraseña en
+`admin.html` → "Primera vez, crear contraseña" y verificar el correo; (3) pedir a Claude Code que cambie los
+correos de dueño, y dejar uno personal unas semanas como respaldo; (4) cuando funcione, quitar el respaldo. Los
+correos viejos siguen en el historial de GitHub, pero dejan de dar acceso.
 
 ### Prioridad media
 
@@ -64,12 +77,10 @@ cuando la Junta lo apruebe).
 | M2 | **Préstamos:** quitar "carné" del formulario en línea y pedirlo al firmar el préstamo en físico (RI Art. 120). Dejar un solo dato de contacto. | Junta → Técnico |
 | M3 | **Trámites:** el nombre es obligatorio aunque el correo ya identifica a la persona. Hacerlo opcional. | Junta → Técnico |
 | M4 | **Sesión en computadoras compartidas:** en Trámites la sesión queda abierta. Usar sesión por pestaña (como en el Panel) y un botón visible de "Cerrar sesión". | Técnico |
-| M5 | **Moderadores:** hoy cualquier moderador puede agregar o quitar moderadores. Que solo la Junta pueda. | Junta → Técnico |
 | M6 | **Archivos subidos** (PDF, Word, PowerPoint) guardan el nombre del autor y otros datos ocultos. Avisar en Subir material o limpiarlos al aprobar. | Técnico |
-| M7 | **Cédula jurídica:** agregarla a `legal.html` si la asociación la tiene. | Junta |
 | M8 | **Fuentes e íconos en el propio sitio** (Google Fonts y Font Awesome se cargan de servidores externos que ven la IP). Opcional: ya está informado en la política. | Técnico |
 | M9 | **Accesibilidad pendiente:** etiquetas en unos 40 campos del panel del Inventario (`assets/js/inventario/admin.js`); botones "Ver" y "Descargar" que digan de qué material son; "Tipo de recurso" y "Etiquetas" como grupo (`fieldset`) en Subir material; tipos de trámite manejables con flechas; mensajes de estado que el lector de pantalla anuncie siempre; página actual marcada en la paginación; menú del celular y asistente que cierren con Escape y devuelvan el foco; aviso de los temas de temporada que no se cierre solo mientras tiene el foco; avisar cuando un enlace abre otra pestaña. | Técnico |
-| M10 | **Accesibilidad del Arcade:** letras de 7 a 9 px (mínimo 10–11), botones solo con símbolo sin nombre, animaciones sin respetar "menos movimiento", música encendida por defecto. | Autor del Arcade |
+| M10 | **Accesibilidad del Arcade:** incluida en [`arcade-pendientes.md`](arcade-pendientes.md). | Autor del Arcade |
 | M11 | **Textos que se pueden malinterpretar:** "Le avisamos a los moderadores" en el asistente (¿moderadores del Repositorio?); "debe responderte en 10 días hábiles" (indicar desde cuándo); errores que muestran códigos técnicos (`auth/...`); el correo de Trámites sale de `aeemac.tec@gmail.com` y el sitio muestra `aematec@estudiantec.cr` (explicarlo en la página para que no parezca un engaño). | Técnico |
 
 ### Prioridad baja
@@ -83,18 +94,16 @@ cuando la Junta lo apruebe).
 ## Imágenes y derechos de autor
 
 Ninguna foto tiene metadatos de autor (se borraron al comprimirlas, lo que protege la privacidad pero no deja
-registro del origen). **La Junta debe confirmar quién tomó cada una y que se pueden publicar.**
+registro del origen). La Junta confirmó que son fotos de archivo de la asociación.
 
 | Imagen | Observación | Riesgo |
 |---|---|---|
 | `dinamica-grupal-colegios.jpg` | Caras de colegiales (menores). **Quitada** del carrusel. Volver a ponerla solo con permiso escrito del colegio o de sus encargados. | Alto |
-| `taller-colegios.jpg` | Colegiales de espaldas con uniforme. Tiene una franja negra abajo: parece una captura de pantalla de una red social, así que la foto puede ser de otra persona o del colegio. | Medio |
-| `charla-cientec-pi.jpg` | En la presentación se lee el correo personal del expositor y logos de CIENTEC y ASOMED. Pedirle permiso al expositor o recortar la imagen. | Medio |
-| Demás fotos de actividades | Actividades de la asociación en lugares públicos del TEC (Código Civil Art. 47 permite fotos de actos públicos). Confirmar quién las tomó. | Bajo |
+| Demás fotos de actividades (incluidas `taller-colegios.jpg` y `charla-cientec-pi.jpg`) | Fotos de archivo de la asociación (actas y otros documentos), según confirmó la Junta. | Bajo |
 | `assets/logo-aematec.svg`, `logo-aematec-compas.svg` | Logo propio de la asociación. | Ninguno |
 | Fuentes (Montserrat, Source Serif 4, Press Start 2P) | Licencia libre OFL. | Ninguno |
 | Íconos Font Awesome Free | Licencia libre (CC BY 4.0 para íconos). Pide reconocimiento, que ya va incluido dentro del archivo CSS que se carga. | Ninguno |
-| `assets/audio/arcade-menu.mp3` | Origen y licencia desconocidos (ver P4). | Alto |
+| `assets/audio/arcade-menu.mp3` | Generada para AEMATEC con agentes de Claude; el origen aparece en el pie del Arcade. | Ninguno |
 | Sprites del Arcade | Dibujados con código propio. No se encontraron personajes ni logos de marcas. Confirmar que la imagen del "easter egg" (gorila) sea propia. | Bajo |
 
 ## Cómo mantener esto al día

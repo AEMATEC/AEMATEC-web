@@ -85,3 +85,4 @@ exports.notifyProblemReport = onDocumentCreated(
 );
 
 Object.assign(exports, require("./tramites"));
+exports.borrarDatosVencidos = require("./retencion").borrarDatosVencidos;

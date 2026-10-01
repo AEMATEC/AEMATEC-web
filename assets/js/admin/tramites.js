@@ -5,7 +5,7 @@
 import { app } from "../firebase.js";
 import { escapeHtml } from "../util.js";
 import {
-  getFirestore, collection, getDocs, doc, updateDoc, arrayUnion, Timestamp, serverTimestamp
+  getFirestore, collection, getDocs, doc, updateDoc, deleteDoc, arrayUnion, Timestamp, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const db = getFirestore(app);
@@ -158,8 +158,23 @@ function pintarCasos() {
       ${datosHtml(c.datos)}
       ${respuestasHtml(c.respuestas)}
       ${accionesHtml(escapeHtml(c.id), c.estado, { fiscalia: true })}
+      ${c.estado === "resuelto" ? `<button type="button" data-archivar="${escapeHtml(c.id)}" class="mt-4 h-9 rounded-[8px] border border-[#C2413B] px-3 font-sans text-xs font-bold text-[#C2413B]">Archivar y borrar del sitio</button>` : ""}
     </li>`).join("") : `<li class="text-sm text-[#607480]">No hay casos.</li>`;
   $("#lista-casos").querySelectorAll("[data-accion]").forEach(boton => boton.addEventListener("click", () => accion("fiscaliaCasos", boton)));
+  $("#lista-casos").querySelectorAll("[data-archivar]").forEach(boton => boton.addEventListener("click", () => archivarCaso(boton)));
+}
+
+// Archivar = borrar el caso del sitio (decisión de la Junta, 2026-10): la Fiscalía guarda antes su informe fuera del sitio.
+async function archivarCaso(boton) {
+  if (!confirm("¿Ya guardaste el informe de este caso fuera del sitio? Archivar borra el caso para siempre, con sus respuestas, y no se puede deshacer.")) return;
+  boton.disabled = true;
+  try {
+    await deleteDoc(doc(db, "fiscaliaCasos", boton.dataset.archivar));
+    await cargarCasos();
+  } catch (error) {
+    boton.disabled = false;
+    alert(`No se pudo archivar: ${error.message}`);
+  }
 }
 
 // ---------- Acciones ----------

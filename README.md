@@ -139,6 +139,9 @@ integrante. Así la página pública no expone los correos (RI Art. 143).
 - `enviarTramite`, `adherirAgec`, `consultarSeguimiento` (`functions/tramites.js`): reciben los trámites.
   Verifican el correo `@estudiantec.cr`, consultan el padrón (si la persona no está, el trámite se acepta marcado
   para que la Junta decida) y avisan por correo. Las denuncias anónimas se consultan con un código privado.
+- `borrarDatosVencidos` (`functions/retencion.js`): cada día borra los datos personales vencidos (préstamos 1 año, reportes 90 días,
+  trámites 2 años, límites 2 días; Ley 8968 Art. 6). Los casos de Fiscalía los borra la persona Fiscal al archivarlos.
+  Si cambias un plazo, cámbialo también en `legal.html`.
 - `alActualizarTramite`, `alActualizarCasoFiscalia`: cuando la Junta o la Fiscalía responden, resuelven o rechazan,
   avisan por correo a la persona (los casos anónimos no reciben correo).
 
