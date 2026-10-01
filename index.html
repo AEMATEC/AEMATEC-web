@@ -16,15 +16,10 @@
   <script src="assets/firebase-config.js"></script>
   <style>
     @media (max-width: 767px) {
-      .index-hero > div { min-height: auto; padding: 3rem 0 2.5rem; }
-      .index-hero h1 { max-width: 100%; font-size: clamp(2rem, 8.5vw, 3.2rem); overflow-wrap: break-word; }
-      .index-hero p { max-width: 100%; font-size: 1rem; line-height: 1.7; }
       .index-modulos .grid { grid-template-columns: 1fr; }
       .index-medios .grid { grid-template-columns: 1fr; }
     }
     @media (min-width: 768px) {
-      .index-hero > div { padding-top: clamp(3rem, 5vw, 5.5rem); padding-bottom: clamp(3rem, 5vw, 5.5rem); }
-      .index-hero h1 { font-size: clamp(2.25rem, 3.2vw, 4rem); }
     }
     #hero-trig { pointer-events: none; opacity: .38; }
   </style>
@@ -35,7 +30,7 @@
   <script src="assets/js/layout.js" data-part="header" data-active="inicio"></script>
 
   <main>
-    <section class="index-hero bg-[#EAF5F7] border-b border-[#D5E5EA]">
+    <section class="hero-portada bg-[#EAF5F7] border-b border-[#D5E5EA]">
       <div class="relative isolate overflow-hidden">
         <canvas id="hero-trig" class="absolute inset-0 h-full w-full" aria-hidden="true"></canvas>
         <div class="relative z-10 site-container mx-auto min-h-[420px] pt-[76px] pb-[64px] text-left">
