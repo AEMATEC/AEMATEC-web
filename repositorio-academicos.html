@@ -93,10 +93,10 @@
         <div class="recursos-buscador-fila mt-9">
           <form action="#"
             class="academicos-buscador h-[58px] bg-white rounded-[12px] flex items-center p-1.5 shadow-lg"><i
-              class="fa-solid fa-magnifying-glass text-[#00A6B8] ml-4"></i><input
+              class="fa-solid fa-magnifying-glass text-[#00798A] ml-4"></i><input aria-label="Buscar recursos académicos"
               class="flex-1 h-full outline-none px-4 text-base text-[#18384E]"
               placeholder="Buscar por curso, tema o nombre del material..."><button type="submit"
-              class="h-[44px] px-7 bg-[#00AFC1] text-white font-sans font-bold text-sm rounded-[9px]">Buscar</button>
+              class="h-[44px] px-7 bg-[#087F8C] text-white font-sans font-bold text-sm rounded-[9px]">Buscar</button>
           </form><button id="open-academic-filters" type="button"
             class="recursos-filtro-boton flex h-[58px] items-center gap-2 rounded-[12px] bg-[#0D2B45] px-5 font-sans text-sm font-bold text-white"
             aria-label="Abrir filtros"><i class="fa-solid fa-sliders text-[#39C7D5]"></i><span>Filtros</span></button>
@@ -117,7 +117,7 @@
           data-course="EM1608" data-course-name="Didáctica del Álgebra y Funciones" href="#"
           class="course-shortcut font-sans text-xs font-bold bg-[#EDF3F5] text-[#0D2B45] px-4 py-2 rounded-full">EM1608</a><button
           id="show-course-legend" type="button" aria-expanded="false"
-          class="font-sans text-xs font-bold text-[#008C9A] ml-2">Ver leyenda de cursos <i id="course-legend-icon"
+          class="font-sans text-xs font-bold text-[#00798A] ml-2">Ver leyenda de cursos <i id="course-legend-icon"
             class="fa-solid fa-chevron-right ml-1 text-[9px]"></i></button></div>
     </section>
     <section id="course-legend" class="hidden bg-[#F4F8FA]">
@@ -132,17 +132,17 @@
         class="catalog-filter-panel bg-white border border-[#D7E2E7] rounded-[16px] p-6"
         aria-label="Filtros de recursos académicos">
         <div class="flex justify-between items-center">
-          <h2 class="font-sans font-bold text-lg"><i class="fa-solid fa-sliders text-[#00A6B8] mr-2"></i>Filtros</h2>
+          <h2 class="font-sans font-bold text-lg"><i class="fa-solid fa-sliders text-[#00798A] mr-2"></i>Filtros</h2>
           <div class="flex items-center gap-4"><a id="clear-academic-filters" href="#"
-              class="font-sans text-[11px] font-bold text-[#008F9E]">Limpiar</a><button id="close-academic-filters"
+              class="font-sans text-[11px] font-bold text-[#00798A]">Limpiar</a><button id="close-academic-filters"
               type="button" class="flex h-9 w-9 items-center justify-center rounded-full bg-[#F0F4F6] text-[#5F7480]"
               aria-label="Cerrar filtros"><i class="fa-solid fa-xmark"></i></button></div>
         </div>
         <div class="mt-7">
           <p class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#556B78]">Curso</p>
           <div class="mt-4 relative"><i
-              class="fa-solid fa-magnifying-glass absolute left-3 top-3.5 text-xs text-[#80939D]"></i><input
-              id="course-search" class="w-full h-10 pl-9 pr-3 border border-[#CBD9DF] rounded-[8px] text-sm"
+              class="fa-solid fa-magnifying-glass absolute left-3 top-3.5 text-xs text-[#566B78]"></i><input
+              id="course-search" aria-label="Buscar curso" class="w-full h-10 pl-9 pr-3 border border-[#CBD9DF] rounded-[8px] text-sm"
               placeholder="Código o nombre del curso"></div>
           <div class="mt-3 space-y-3 text-[15px] text-[#405968]"><label class="flex gap-3 items-center"><input
                 data-course-filter="MA1403" type="checkbox" class="accent-[#00AFC1] w-4 h-4"> MA1403 <span
@@ -164,7 +164,7 @@
         </div>
         <div class="mt-7 pt-6 border-t border-[#E2E9EC]">
           <p class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#556B78]">Periodo</p><select
-            id="period-filter" class="mt-4 w-full h-11 border border-[#CBD9DF] rounded-[9px] px-3 bg-white text-sm">
+            id="period-filter" class="mt-4 w-full h-11 border border-[#8497A3] rounded-[9px] px-3 bg-white text-sm">
             <option value="">Todos los periodos</option>
             <option>I Semestre 2026</option>
             <option>II Semestre 2025</option>
@@ -177,9 +177,9 @@
       <div class="min-w-0">
         <div class="flex justify-between items-center mb-5">
           <div><span id="academic-count" class="font-sans font-bold text-lg">Cargando materiales...</span><span
-              id="academic-summary" class="text-[#6D808B] ml-2"></span></div><label
+              id="academic-summary" class="text-[#566B78] ml-2"></span></div><label
             class="font-sans text-xs font-semibold text-[#5D7280]">Ordenar por <select id="academic-sort"
-              class="ml-2 h-10 border border-[#CBD9DF] bg-white rounded-[8px] px-3">
+              class="ml-2 h-10 border border-[#8497A3] bg-white rounded-[8px] px-3">
               <option value="recent">Más recientes</option>
               <option value="downloads">Más descargados</option>
               <option value="title">A–Z</option>
@@ -194,17 +194,17 @@
             <div class="flex-1">
               <div class="flex items-center gap-3"><span
                   class="font-sans text-[10px] font-bold bg-[#E9EEF9] text-[#3B568D] px-2.5 py-1 rounded-full">APUNTES</span><span
-                  class="font-sans text-[11px] font-bold text-[#008F9E]">MA1001</span></div>
+                  class="font-sans text-[11px] font-bold text-[#00798A]">MA1001</span></div>
               <h3 class="font-sans font-bold text-[18px] mt-2">Resumen de Matemática General</h3>
-              <p class="text-sm text-[#687B86] mt-1">Números reales, ecuaciones, desigualdades y funciones elementales.
+              <p class="text-sm text-[#566B78] mt-1">Números reales, ecuaciones, desigualdades y funciones elementales.
               </p>
-              <p class="text-xs text-[#7A8C96] mt-2">Por <strong class="text-[#4A606D]">Valeria Jiménez</strong> ·
+              <p class="text-xs text-[#566B78] mt-2">Por <strong class="text-[#4A606D]">Valeria Jiménez</strong> ·
                 Actualizado hace 4 días</p>
             </div>
             <div class="flex gap-2"><button type="button"
                 class="w-11 h-11 border border-[#A9BEC7] rounded-[8px] text-[#38566A]" aria-label="Ver"><i
                   class="fa-regular fa-eye"></i></button><button type="button"
-                class="h-11 px-5 bg-[#00AFC1] text-white rounded-[8px] font-sans font-bold text-xs"><i
+                class="h-11 px-5 bg-[#087F8C] text-white rounded-[8px] font-sans font-bold text-xs"><i
                   class="fa-solid fa-download mr-2"></i>Descargar</button></div>
           </article>
           <article
@@ -215,17 +215,17 @@
             <div class="flex-1">
               <div class="flex items-center gap-3"><span
                   class="font-sans text-[10px] font-bold bg-[#FCEBE9] text-[#A8463D] px-2.5 py-1 rounded-full">EXAMEN</span><span
-                  class="font-sans text-[11px] font-bold text-[#008F9E]">MA1001</span></div>
+                  class="font-sans text-[11px] font-bold text-[#00798A]">MA1001</span></div>
               <h3 class="font-sans font-bold text-[18px] mt-2">Primer examen parcial — I Semestre 2025</h3>
-              <p class="text-sm text-[#687B86] mt-1">Evaluación anterior para práctica personal. Versión sin respuestas.
+              <p class="text-sm text-[#566B78] mt-1">Evaluación anterior para práctica personal. Versión sin respuestas.
               </p>
-              <p class="text-xs text-[#7A8C96] mt-2">Fuente: <strong class="text-[#4A606D]">Estudiantes MATEC</strong> ·
+              <p class="text-xs text-[#566B78] mt-2">Fuente: <strong class="text-[#4A606D]">Estudiantes MATEC</strong> ·
                 12 páginas</p>
             </div>
             <div class="flex gap-2"><button type="button"
                 class="w-11 h-11 border border-[#A9BEC7] rounded-[8px] text-[#38566A]" aria-label="Ver"><i
                   class="fa-regular fa-eye"></i></button><button type="button"
-                class="h-11 px-5 bg-[#00AFC1] text-white rounded-[8px] font-sans font-bold text-xs"><i
+                class="h-11 px-5 bg-[#087F8C] text-white rounded-[8px] font-sans font-bold text-xs"><i
                   class="fa-solid fa-download mr-2"></i>Descargar</button></div>
           </article>
           <article
@@ -236,17 +236,17 @@
             <div class="flex-1">
               <div class="flex items-center gap-3"><span
                   class="font-sans text-[10px] font-bold bg-[#E5F1E8] text-[#3A7650] px-2.5 py-1 rounded-full">SOLUCIÓN</span><span
-                  class="font-sans text-[11px] font-bold text-[#008F9E]">MA1001</span></div>
+                  class="font-sans text-[11px] font-bold text-[#00798A]">MA1001</span></div>
               <h3 class="font-sans font-bold text-[18px] mt-2">Solución comentada — Examen final 2024</h3>
-              <p class="text-sm text-[#687B86] mt-1">Procedimientos detallados y observaciones sobre errores frecuentes.
+              <p class="text-sm text-[#566B78] mt-1">Procedimientos detallados y observaciones sobre errores frecuentes.
               </p>
-              <p class="text-xs text-[#7A8C96] mt-2">Por <strong class="text-[#4A606D]">Tutorías AEMATEC</strong> · 18
+              <p class="text-xs text-[#566B78] mt-2">Por <strong class="text-[#4A606D]">Tutorías AEMATEC</strong> · 18
                 páginas</p>
             </div>
             <div class="flex gap-2"><button type="button"
                 class="w-11 h-11 border border-[#A9BEC7] rounded-[8px] text-[#38566A]" aria-label="Ver"><i
                   class="fa-regular fa-eye"></i></button><button type="button"
-                class="h-11 px-5 bg-[#00AFC1] text-white rounded-[8px] font-sans font-bold text-xs"><i
+                class="h-11 px-5 bg-[#087F8C] text-white rounded-[8px] font-sans font-bold text-xs"><i
                   class="fa-solid fa-download mr-2"></i>Descargar</button></div>
           </article>
           <article
@@ -257,17 +257,17 @@
             <div class="flex-1">
               <div class="flex items-center gap-3"><span
                   class="font-sans text-[10px] font-bold bg-[#FFF1D9] text-[#946316] px-2.5 py-1 rounded-full">PRÁCTICA</span><span
-                  class="font-sans text-[11px] font-bold text-[#008F9E]">MA1001</span></div>
+                  class="font-sans text-[11px] font-bold text-[#00798A]">MA1001</span></div>
               <h3 class="font-sans font-bold text-[18px] mt-2">Banco de ejercicios de funciones</h3>
-              <p class="text-sm text-[#687B86] mt-1">Cuarenta ejercicios graduados con sección de respuestas al final.
+              <p class="text-sm text-[#566B78] mt-1">Cuarenta ejercicios graduados con sección de respuestas al final.
               </p>
-              <p class="text-xs text-[#7A8C96] mt-2">Por <strong class="text-[#4A606D]">Sebastián Araya</strong> ·
+              <p class="text-xs text-[#566B78] mt-2">Por <strong class="text-[#4A606D]">Sebastián Araya</strong> ·
                 Actualizado hace 2 semanas</p>
             </div>
             <div class="flex gap-2"><button type="button"
                 class="w-11 h-11 border border-[#A9BEC7] rounded-[8px] text-[#38566A]" aria-label="Ver"><i
                   class="fa-regular fa-eye"></i></button><button type="button"
-                class="h-11 px-5 bg-[#00AFC1] text-white rounded-[8px] font-sans font-bold text-xs"><i
+                class="h-11 px-5 bg-[#087F8C] text-white rounded-[8px] font-sans font-bold text-xs"><i
                   class="fa-solid fa-download mr-2"></i>Descargar</button></div>
           </article>
         </div>
@@ -283,32 +283,32 @@
       <button id="academic-modal-close" type="button"
         class="absolute right-5 top-5 flex h-10 w-10 items-center justify-center rounded-full bg-[#F0F4F6] text-[#5F7480]"
         aria-label="Cerrar detalles"><i class="fa-solid fa-xmark"></i></button>
-      <p class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#00A6B8]">Detalles del recurso</p>
+      <p class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#00798A]">Detalles del recurso</p>
       <h2 id="academic-modal-title" class="mt-3 pr-12 font-sans text-[26px] font-bold"></h2>
       <p id="academic-modal-description" class="mt-3 leading-7 text-[#607480]"></p>
       <dl class="mt-6 grid grid-cols-2 gap-4 border-y border-[#E2E9EC] py-5 text-sm">
         <div>
-          <dt class="font-sans text-xs font-bold uppercase text-[#718590]">Tipo</dt>
+          <dt class="font-sans text-xs font-bold uppercase text-[#566B78]">Tipo</dt>
           <dd id="academic-modal-type" class="mt-1 text-[#18384E]"></dd>
         </div>
         <div>
-          <dt class="font-sans text-xs font-bold uppercase text-[#718590]">Curso</dt>
+          <dt class="font-sans text-xs font-bold uppercase text-[#566B78]">Curso</dt>
           <dd id="academic-modal-course" class="mt-1 text-[#18384E]"></dd>
         </div>
         <div>
-          <dt class="font-sans text-xs font-bold uppercase text-[#718590]">Etiquetas</dt>
+          <dt class="font-sans text-xs font-bold uppercase text-[#566B78]">Etiquetas</dt>
           <dd id="academic-modal-labels" class="mt-1 text-[#18384E]"></dd>
         </div>
         <div>
-          <dt class="font-sans text-xs font-bold uppercase text-[#718590]">Autor o fuente</dt>
+          <dt class="font-sans text-xs font-bold uppercase text-[#566B78]">Autor o fuente</dt>
           <dd id="academic-modal-author" class="mt-1 text-[#18384E]"></dd>
         </div>
         <div>
-          <dt class="font-sans text-xs font-bold uppercase text-[#718590]">Archivo</dt>
+          <dt class="font-sans text-xs font-bold uppercase text-[#566B78]">Archivo</dt>
           <dd id="academic-modal-file" class="mt-1 text-[#18384E]"></dd>
         </div>
         <div>
-          <dt class="font-sans text-xs font-bold uppercase text-[#718590]">Publicado</dt>
+          <dt class="font-sans text-xs font-bold uppercase text-[#566B78]">Publicado</dt>
           <dd id="academic-modal-date" class="mt-1 text-[#18384E]"></dd>
         </div>
       </dl>
@@ -319,7 +319,7 @@
           rel="noopener"
           class="flex h-11 items-center rounded-[9px] border border-[#9DB6C1] px-5 font-sans text-xs font-bold"><i
             class="fa-regular fa-eye mr-2"></i>Abrir archivo</a><a id="academic-modal-download" download
-          class="flex h-11 items-center rounded-[9px] bg-[#00AFC1] px-5 font-sans text-xs font-bold text-white"><i
+          class="flex h-11 items-center rounded-[9px] bg-[#087F8C] px-5 font-sans text-xs font-bold text-white"><i
             class="fa-solid fa-download mr-2"></i>Descargar</a></div>
     </article>
   </div>
@@ -403,9 +403,9 @@
       summary.textContent = queryText ? `para “${search.value.trim()}”` : "disponibles";
       list.innerHTML = visible.length ? visible.map(resource => `<article class="bg-white border border-[#D6E2E7] rounded-[15px] p-5 flex items-center gap-5">
         <div class="w-[62px] h-[72px] rounded-[11px] bg-[#EDF2FA] text-[#486398] flex items-center justify-center text-2xl"><i class="${claseIcono(resource.extension)}"></i></div>
-        <div class="flex-1"><div class="flex items-center gap-3"><span class="font-sans text-[10px] font-bold bg-[#E9EEF9] text-[#3B568D] px-2.5 py-1 rounded-full">${escapeHtml((resource.type || "RECURSO").toUpperCase())}</span><span title="${escapeHtml(CURSOS[resource.course] || "")}" class="font-sans text-[11px] font-bold text-[#008F9E]">${escapeHtml(resource.course || "Sin curso")}</span></div>
-        <h3 class="font-sans font-bold text-[18px] mt-2">${escapeHtml(resource.title)}</h3><p class="text-sm text-[#687B86] mt-1">${escapeHtml(resource.description)}</p><p class="text-xs text-[#7A8C96] mt-2">Por <strong class="text-[#4A606D]">${escapeHtml(resource.author)}</strong> · ${escapeHtml(courseLabel(resource.course))}</p></div>
-        <div class="flex gap-2">${isModerator ? `<a href="admin.html?edit=${escapeHtml(resource.id)}" class="flex h-11 w-11 items-center justify-center rounded-[8px] border border-[#9DB6C1] text-[#38566A]" title="Editar (moderador)"><i class="fa-solid fa-pen"></i></a>` : ""}<button type="button" data-view-academic="${escapeHtml(resource.id)}" class="flex h-11 w-11 items-center justify-center rounded-[8px] border border-[#A9BEC7] text-[#38566A]" aria-label="Ver detalles"><i class="fa-regular fa-eye"></i></button><a href="${escapeHtml(enlaceArchivo(resource))}" download class="h-11 rounded-[8px] bg-[#00AFC1] px-5 font-sans text-xs font-bold text-white flex items-center"><i class="fa-solid fa-download mr-2"></i>Descargar</a></div></article>`).join("") : '<p class="rounded-[15px] border border-[#D6E2E7] bg-white p-8 text-center text-[#607480]">No encontramos materiales con esos filtros.</p>';
+        <div class="flex-1"><div class="flex items-center gap-3"><span class="font-sans text-[10px] font-bold bg-[#E9EEF9] text-[#3B568D] px-2.5 py-1 rounded-full">${escapeHtml((resource.type || "RECURSO").toUpperCase())}</span><span title="${escapeHtml(CURSOS[resource.course] || "")}" class="font-sans text-[11px] font-bold text-[#00798A]">${escapeHtml(resource.course || "Sin curso")}</span></div>
+        <h3 class="font-sans font-bold text-[18px] mt-2">${escapeHtml(resource.title)}</h3><p class="text-sm text-[#566B78] mt-1">${escapeHtml(resource.description)}</p><p class="text-xs text-[#566B78] mt-2">Por <strong class="text-[#4A606D]">${escapeHtml(resource.author)}</strong> · ${escapeHtml(courseLabel(resource.course))}</p></div>
+        <div class="flex gap-2">${isModerator ? `<a href="admin.html?edit=${escapeHtml(resource.id)}" class="flex h-11 w-11 items-center justify-center rounded-[8px] border border-[#9DB6C1] text-[#38566A]" title="Editar (moderador)"><i class="fa-solid fa-pen"></i></a>` : ""}<button type="button" data-view-academic="${escapeHtml(resource.id)}" class="flex h-11 w-11 items-center justify-center rounded-[8px] border border-[#A9BEC7] text-[#38566A]" aria-label="Ver detalles"><i class="fa-regular fa-eye"></i></button><a href="${escapeHtml(enlaceArchivo(resource))}" download class="h-11 rounded-[8px] bg-[#087F8C] px-5 font-sans text-xs font-bold text-white flex items-center"><i class="fa-solid fa-download mr-2"></i>Descargar</a></div></article>`).join("") : '<p class="rounded-[15px] border border-[#D6E2E7] bg-white p-8 text-center text-[#607480]">No encontramos materiales con esos filtros.</p>';
       list.querySelectorAll("[data-view-academic]").forEach(button => button.addEventListener("click", () => openResourceModal(resources.find(resource => resource.id === button.dataset.viewAcademic))));
       pagination.innerHTML = botonesPaginacion(page, totalPages);
       pagination.querySelectorAll("[data-page]").forEach(button => button.addEventListener("click", () => { page = Number(button.dataset.page); render(); window.scrollTo({ top: list.offsetTop - 24, behavior: "smooth" }); }));
@@ -431,7 +431,7 @@
     const legend = document.querySelector("#course-legend");
     const legendButton = document.querySelector("#show-course-legend");
     const sortedCourses = Object.entries(CURSOS).sort(([first], [second]) => first.localeCompare(second, "es", { numeric: true }));
-    const renderCourseGroup = (title, courses) => `<div class="sm:col-span-2 lg:col-span-3"><h3 class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#00A6B8]">${title}</h3></div>${courses.map(([code, name]) => `<div class="rounded-[9px] bg-white p-3 text-sm"><strong class="font-sans text-[#008F9E]">${code}</strong><span class="ml-2 text-[#607480]">${name}</span></div>`).join("")}`;
+    const renderCourseGroup = (title, courses) => `<div class="sm:col-span-2 lg:col-span-3"><h3 class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#00798A]">${title}</h3></div>${courses.map(([code, name]) => `<div class="rounded-[9px] bg-white p-3 text-sm"><strong class="font-sans text-[#00798A]">${code}</strong><span class="ml-2 text-[#607480]">${name}</span></div>`).join("")}`;
     document.querySelector("#course-legend-list").innerHTML = renderCourseGroup("Cursos de la carrera (EM)", sortedCourses.filter(([code]) => code.startsWith("EM"))) + renderCourseGroup("Cursos de servicio (MA)", sortedCourses.filter(([code]) => code.startsWith("MA")));
     const updateLegendButton = isOpen => {
       legendButton.classList.toggle("is-selected", isOpen);

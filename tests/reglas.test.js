@@ -198,7 +198,7 @@ describe("Biblioteca: recursos y moderación", () => {
 });
 
 describe("Trámites (los crea solo el servidor)", () => {
-  const DUENO = "angeloyeshuac@gmail.com";
+  const DUENO = "aematec@estudiantec.cr";
   beforeEach(async () => {
     await env.withSecurityRulesDisabled(async context => {
       const db = context.firestore();
@@ -244,6 +244,16 @@ describe("Trámites (los crea solo el servidor)", () => {
   test("la Fiscalía actualiza el estado de un caso; la Junta no", async () => {
     await assertSucceeds(updateDoc(doc(usuario(FISCAL).firestore(), "fiscaliaCasos", "f1"), { estado: "en_revision" }));
     await assertFails(updateDoc(doc(usuario(JUNTA).firestore(), "fiscaliaCasos", "f1"), { estado: "resuelto" }));
+  });
+  test("un dueño necesita el correo verificado (si no, cualquiera podría crear antes esa cuenta)", async () => {
+    await assertSucceeds(getDocs(collection(usuario(DUENO).firestore(), "padron")));
+    await assertFails(getDocs(collection(usuario(DUENO, false).firestore(), "padron")));
+  });
+  test("solo la persona Fiscal borra un caso al archivarlo; ni la Junta, ni un dueño, ni quien lo envió", async () => {
+    await assertFails(deleteDoc(doc(usuario(JUNTA).firestore(), "fiscaliaCasos", "f2")));
+    await assertFails(deleteDoc(doc(usuario(DUENO).firestore(), "fiscaliaCasos", "f2")));
+    await assertFails(deleteDoc(doc(cuentaUid("uid-luis", "luis@estudiantec.cr"), "fiscaliaCasos", "f2")));
+    await assertSucceeds(deleteDoc(doc(usuario(FISCAL).firestore(), "fiscaliaCasos", "f2")));
   });
   test("el avance de una AGEC es público pero de solo lectura; los límites son privados", async () => {
     await assertSucceeds(getDoc(doc(anonimo().firestore(), "agecPublicas", "a1")));

@@ -5,7 +5,7 @@
 import { app } from "../firebase.js";
 import { escapeHtml } from "../util.js";
 import {
-  getFirestore, collection, getDocs, doc, updateDoc, arrayUnion, Timestamp, serverTimestamp
+  getFirestore, collection, getDocs, doc, updateDoc, deleteDoc, arrayUnion, Timestamp, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const db = getFirestore(app);
@@ -24,7 +24,7 @@ const CAMPOS = {
 };
 const ESTADOS = { recibido: "Recibido", en_revision: "En revisión", resuelto: "Resuelto", rechazado: "Rechazado" };
 const COLOR_ESTADO = {
-  recibido: "bg-[#FDF3D8] text-[#8A6D1B]", en_revision: "bg-[#E6F8FA] text-[#087F8C]",
+  recibido: "bg-[#FDF3D8] text-[#8A6D1B]", en_revision: "bg-[#E6F8FA] text-[#00798A]",
   resuelto: "bg-[#E4F4EA] text-[#2F7A4B]", rechazado: "bg-[#FBE7E6] text-[#C2413B]"
 };
 
@@ -60,12 +60,12 @@ function accionesHtml(id, estado, { fiscalia = false, prorrogaInformada = false 
   if (["resuelto", "rechazado"].includes(estado)) return "";
   return `<div class="mt-4 border-t border-[#E2E9EC] pt-4">
     <label for="respuesta-${id}" class="font-sans text-xs font-bold">${fiscalia ? "Respuesta" : "Respuesta o motivación"}</label>
-    <textarea id="respuesta-${id}" rows="3" maxlength="2000" class="mt-2 w-full rounded-[9px] border border-[#BFD0D8] px-3 py-2 text-sm"></textarea>
+    <textarea id="respuesta-${id}" rows="3" maxlength="2000" class="mt-2 w-full rounded-[9px] border border-[#8497A3] px-3 py-2 text-sm"></textarea>
     <div class="mt-3 flex flex-wrap gap-2 font-sans text-xs font-bold">
-      ${estado === "recibido" ? `<button type="button" data-accion="revision" data-id="${id}" class="h-9 rounded-[8px] border border-[#BFD0D8] px-3">Marcar en revisión</button>` : ""}
+      ${estado === "recibido" ? `<button type="button" data-accion="revision" data-id="${id}" class="h-9 rounded-[8px] border border-[#8497A3] px-3">Marcar en revisión</button>` : ""}
       <button type="button" data-accion="responder" data-id="${id}" class="h-9 rounded-[8px] border border-[#0D2B45] px-3">Enviar respuesta</button>
       <button type="button" data-accion="resolver" data-id="${id}" class="h-9 rounded-[8px] bg-[#0D2B45] px-3 text-white">Responder y marcar resuelto</button>
-      ${!fiscalia && !prorrogaInformada ? `<button type="button" data-accion="prorroga" data-id="${id}" class="h-9 rounded-[8px] border border-[#BFD0D8] px-3" title="RI Art. 111: si se necesita más tiempo, hay que informar a la persona">Registrar que se informó una prórroga</button>` : ""}
+      ${!fiscalia && !prorrogaInformada ? `<button type="button" data-accion="prorroga" data-id="${id}" class="h-9 rounded-[8px] border border-[#8497A3] px-3" title="RI Art. 111: si se necesita más tiempo, hay que informar a la persona">Registrar que se informó una prórroga</button>` : ""}
       ${!fiscalia ? `<button type="button" data-accion="rechazar" data-id="${id}" class="h-9 rounded-[8px] border border-[#C2413B] px-3 text-[#C2413B]">Rechazar (con motivación)</button>` : ""}
     </div>
     <p data-estado-accion="${id}" role="status" class="mt-2 text-sm" hidden></p>
@@ -102,7 +102,7 @@ function pintarTramites() {
       ${t.enPadron === false ? `<p class="mt-2 rounded-[8px] bg-[#FDF3D8] px-3 py-1 text-xs font-semibold text-[#8A6D1B]">No está en el padrón actual: verificar su condición de persona Asociada.</p>` : ""}
       <p class="mt-1 text-xs">${plazoHtml(t)}</p>
       ${t.tipo === "agec" ? `<p class="mt-2 text-sm"><strong>Adhesiones:</strong> ${t.adhesionesPadron} de ${t.umbral} del padrón${t.adhesionesSinPadron ? ` · ${t.adhesionesSinPadron} fuera del padrón (por verificar)` : ""}${t.alcanzado ? " · <strong>Alcanzó el 10 % (RI Art. 13 c)</strong>" : ""}
-        <button type="button" data-adhesiones="${escapeHtml(t.id)}" class="ml-2 font-sans text-xs font-bold text-[#087F8C] underline">Ver adhesiones</button></p>
+        <button type="button" data-adhesiones="${escapeHtml(t.id)}" class="ml-2 font-sans text-xs font-bold text-[#00798A] underline">Ver adhesiones</button></p>
         <ul data-lista-adhesiones="${escapeHtml(t.id)}" class="mt-2 space-y-1 text-xs" hidden></ul>` : ""}
       ${datosHtml(t.datos)}
       ${t.motivacionRechazo ? `<p class="mt-2 text-sm"><strong>Motivación del rechazo:</strong> ${escapeHtml(t.motivacionRechazo)}</p>` : ""}
@@ -158,8 +158,23 @@ function pintarCasos() {
       ${datosHtml(c.datos)}
       ${respuestasHtml(c.respuestas)}
       ${accionesHtml(escapeHtml(c.id), c.estado, { fiscalia: true })}
+      ${c.estado === "resuelto" ? `<button type="button" data-archivar="${escapeHtml(c.id)}" class="mt-4 h-9 rounded-[8px] border border-[#C2413B] px-3 font-sans text-xs font-bold text-[#C2413B]">Archivar y borrar del sitio</button>` : ""}
     </li>`).join("") : `<li class="text-sm text-[#607480]">No hay casos.</li>`;
   $("#lista-casos").querySelectorAll("[data-accion]").forEach(boton => boton.addEventListener("click", () => accion("fiscaliaCasos", boton)));
+  $("#lista-casos").querySelectorAll("[data-archivar]").forEach(boton => boton.addEventListener("click", () => archivarCaso(boton)));
+}
+
+// Archivar = borrar el caso del sitio (decisión de la Junta, 2026-10): la Fiscalía guarda antes su informe fuera del sitio.
+async function archivarCaso(boton) {
+  if (!confirm("¿Ya guardaste el informe de este caso fuera del sitio? Archivar borra el caso para siempre, con sus respuestas, y no se puede deshacer.")) return;
+  boton.disabled = true;
+  try {
+    await deleteDoc(doc(db, "fiscaliaCasos", boton.dataset.archivar));
+    await cargarCasos();
+  } catch (error) {
+    boton.disabled = false;
+    alert(`No se pudo archivar: ${error.message}`);
+  }
 }
 
 // ---------- Acciones ----------
@@ -167,7 +182,7 @@ async function accion(coleccion, boton) {
   const id = boton.dataset.id;
   const texto = document.querySelector(`#respuesta-${CSS.escape(id)}`).value.trim();
   const estado = document.querySelector(`[data-estado-accion="${CSS.escape(id)}"]`);
-  const avisar = (mensaje, error = false) => { estado.textContent = mensaje; estado.className = `mt-2 text-sm ${error ? "text-[#C2413B]" : "text-[#087F8C]"}`; estado.hidden = false; };
+  const avisar = (mensaje, error = false) => { estado.textContent = mensaje; estado.className = `mt-2 text-sm ${error ? "text-[#C2413B]" : "text-[#00798A]"}`; estado.hidden = false; };
   const respuesta = texto ? { respuestas: arrayUnion({ texto, fecha: Timestamp.now() }) } : {};
   let cambios;
   switch (boton.dataset.accion) {

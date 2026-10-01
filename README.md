@@ -22,6 +22,7 @@ dependen de él citan el artículo correspondiente en el código y en [`docs/PLA
 | Temas de temporada | todas (`assets/js/temas.js`, `assets/css/temas.css`) | Decoración automática por fecha: sutil en celebraciones de un día (8M, Día de la Madre…) y festiva en épocas (Navidad, Halloween, mes patrio, Semana de la Carrera). La Junta puede apagarla o fijar un tema en `admin.html` → Tema del sitio (`config/tema`). Vista previa: `?tema=<id>`. |
 | Asistente | todas las que usan el encabezado común (`assets/js/chatbot.js`) | Botón flotante para buscar páginas (lista en `assets/js/site-pages.js`) y reportar un problema. Los reportes van a `chatbotReportes` y llegan por correo a moderación. No pide cuenta; el contacto es opcional. |
 | Trámites | `tramites.html` | Solicitudes a la Junta, postulaciones, AGEC extraordinaria (con adhesiones) y consultas o denuncias a Fiscalía (anónimas o no). Se verifica el correo `@estudiantec.cr` con un enlace, sin contraseña. Incluye "Mis trámites" y seguimiento de casos anónimos por código. |
+| Privacidad y términos | `legal.html` | Política de privacidad (Ley 8968), términos de uso y política de cookies. Enlazada desde el pie de página y desde cada formulario. Si cambias qué datos pide un formulario, actualiza su tabla. Ver [`docs/auditoria-legal.md`](docs/auditoria-legal.md). |
 | Arcade | `arcade.html` (botón flotante en todas las páginas, `assets/js/arcade-launcher.js`) | Minijuegos pixelados (buscaminas, batalla naval, carreras, etc.) hechos por un estudiante. Es una página aparte, con su propio estilo y su propio proyecto de Firebase (`arcade-matec`, distinto del sitio); no usa cuentas ni datos del padrón. Público, sin inicio de sesión. Sus reglas de Firebase no están en este repositorio: si un cambio escribe datos nuevos, documéntalo para quien administra `arcade-matec` (ver `docs/arcade-firebase-cambios.md`). |
 
 > **Nota de nombres:** el repositorio digital de materiales se llama **Repositorio** (antes "Biblioteca").
@@ -45,6 +46,10 @@ quitarlas; si eres de la Junta y quieres fotos nuevas, pásaselas a quien manten
   El texto de `alt` describe la foto para quien no puede verla (lectores de pantalla), no hace falta nada más:
   `assets/js/carrusel-actividades.js` cuenta las fotos solas y arma las flechas y los puntos.
 - Para quitar una foto, borra su bloque del HTML (y el archivo, si ya no se va a usar).
+- **Permiso de las personas (Código Civil Art. 47; Código de la Niñez Art. 27):** sube solo fotos tomadas por la
+  asociación o con permiso de quien las tomó. No subas fotos donde se vea la cara de menores de edad (por ejemplo,
+  colegiales en talleres o ferias) sin permiso escrito de su encargado o del colegio. Si alguien pide quitar una foto
+  donde aparece, se quita (lo promete `legal.html`).
 - Antes de abrir el PR corre `node tests/revisar-paginas.mjs` y `node tests/revisar-enlaces.mjs`.
 
 ## Roles y permisos
@@ -134,6 +139,9 @@ integrante. Así la página pública no expone los correos (RI Art. 143).
 - `enviarTramite`, `adherirAgec`, `consultarSeguimiento` (`functions/tramites.js`): reciben los trámites.
   Verifican el correo `@estudiantec.cr`, consultan el padrón (si la persona no está, el trámite se acepta marcado
   para que la Junta decida) y avisan por correo. Las denuncias anónimas se consultan con un código privado.
+- `borrarDatosVencidos` (`functions/retencion.js`): cada día borra los datos personales vencidos (préstamos 1 año, reportes 90 días,
+  trámites 2 años, límites 2 días; Ley 8968 Art. 6). Los casos de Fiscalía los borra la persona Fiscal al archivarlos.
+  Si cambias un plazo, cámbialo también en `legal.html`.
 - `alActualizarTramite`, `alActualizarCasoFiscalia`: cuando la Junta o la Fiscalía responden, resuelven o rechazan,
   avisan por correo a la persona (los casos anónimos no reciben correo).
 

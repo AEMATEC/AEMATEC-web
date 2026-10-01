@@ -2,8 +2,10 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     function isOwner() {
-      return request.auth != null
-        && request.auth.token.email in ['angeloyeshuac@gmail.com', 'angcalderon@estudiantec.cr'];
+      // Cuentas de la asociación, no personales (RI Art. 143): pasan de Junta en Junta cambiando la contraseña.
+      // El correo verificado evita que alguien cree antes una cuenta con ese correo sin tener acceso al buzón.
+      return request.auth != null && request.auth.token.email_verified == true
+        && request.auth.token.email in ['aematec@estudiantec.cr', 'aeemac.tec@gmail.com'];
     }
 
     function isModerator() {
@@ -142,7 +144,9 @@ service cloud.firestore {
     match /fiscaliaCasos/{casoId} {
       allow read: if esPersonaFiscal()
         || (request.auth != null && resource.data.remitenteUid == request.auth.uid);
-      allow create, delete: if false;
+      allow create: if false;
+      // Al archivar el caso, después de guardar su informe, la persona Fiscal lo borra del sitio (decisión de la Junta, 2026-10).
+      allow delete: if esPersonaFiscal();
       allow update: if esPersonaFiscal()
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['estado', 'respuestas', 'actualizadoEn'])
         && request.resource.data.estado in ['recibido', 'en_revision', 'resuelto'];

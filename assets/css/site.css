@@ -4,7 +4,7 @@
 :root {
   --aematec-navy: #0D2B45;
   --aematec-navy-hover: #164563;
-  --aematec-teal: #00A6B8;
+  --aematec-teal: #00798A; /* 5:1 sobre blanco (WCAG AA); el turquesa claro #00A6B8 solo para decoración */
   --aematec-teal-line: #00B5C8;
   --aematec-teal-light: #39C7D5;
   --aematec-text-muted: #405769;
@@ -101,7 +101,7 @@
   justify-content: center;
   width: 2.75rem;
   height: 2.75rem;
-  border: 1px solid #BFD0D8;
+  border: 1px solid #8497A3;
   border-radius: 10px;
   background: #FFFFFF;
   color: var(--aematec-navy);
@@ -167,6 +167,18 @@
 .site-subnav .site-subnav__cta:focus-visible,
 .site-subnav .site-subnav__cta[aria-current="page"] { background: var(--aematec-navy-hover); color: #FFFFFF; }
 
+/* ---------- Accesibilidad: foco visible y "saltar al contenido" ---------- */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible { outline: 3px solid var(--aematec-teal); outline-offset: 2px; }
+.site-header :where(a, button):focus-visible, .site-footer a:focus-visible { outline-color: var(--aematec-teal-light); }
+form:has(> input:focus-visible) { outline: 3px solid var(--aematec-teal); outline-offset: 2px; }
+.skip-link { position: absolute; left: -9999px; top: 0; z-index: 100; background: var(--aematec-navy); color: #FFFFFF; padding: .75rem 1rem; border-radius: 0 0 8px 0; font-weight: 700; }
+.skip-link:focus { left: 0; }
+main[tabindex="-1"]:focus { outline: none; }
+
+/* Google permite ocultar la etiqueta flotante de reCAPTCHA si el aviso va en la página (está en el pie);
+   si no, taparía el botón del Arcade. */
+.grecaptcha-badge { visibility: hidden; }
+
 /* ---------- Pie de página ---------- */
 .site-footer {
   background: var(--aematec-navy);
@@ -178,7 +190,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 1.5rem;
-  padding: 2.25rem 0;
+  padding: 2.25rem 0 5rem; /* espacio abajo para que el botón flotante del Arcade no tape los enlaces */
 }
 
 .site-footer__brand { display: flex; align-items: center; gap: 1rem; }
@@ -190,9 +202,11 @@
   font-size: 14px;
 }
 
-.site-footer__meta { color: #AFC1CC; font-size: 12px; text-align: right; }
+.site-footer__meta { max-width: 26rem; color: #AFC1CC; font-size: 12px; font-style: normal; text-align: right; }
 .site-footer__meta p { margin: 0; }
 .site-footer__meta p + p { margin-top: 0.25rem; }
+.site-footer__meta a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.site-footer__meta a:hover, .site-footer__meta a:focus-visible { color: #FFFFFF; }
 
 /* ---------- Celular ---------- */
 @media (max-width: 767px) {
@@ -322,7 +336,7 @@
   cursor: pointer;
   white-space: nowrap;
 }
-.chatbot-btn:hover { background: #009AAA; }
+.chatbot-btn:hover { background: #066F7C; }
 .chatbot-btn:disabled { opacity: 0.6; cursor: default; }
 
 .chatbot-results { margin-top: 0.75rem; display: flex; flex-direction: column; gap: 0.5rem; }

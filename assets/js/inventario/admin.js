@@ -18,9 +18,9 @@ function exemplarRowHtml(exemplar = {}) {
   const rowId = `ex-row-${exemplarRowCount}`;
   return `
     <div class="exemplar-row" id="${rowId}">
-      <input type="text" placeholder="Código" value="${escapeHtml(exemplar.codigo || "")}" data-exemplar="codigo" required class="h-10 rounded-[8px] border border-[#BFD0D8] px-2 text-sm">
-      <input type="text" data-sugerencias="estado" placeholder="Estado" value="${escapeHtml(exemplar.estado || "")}" data-exemplar="estado" class="h-10 rounded-[8px] border border-[#BFD0D8] px-2 text-sm">
-      <input type="text" data-sugerencias="ubicacion" placeholder="Ubicación" value="${escapeHtml(exemplar.ubicacion || "Biblioteca")}" data-exemplar="ubicacion" class="h-10 rounded-[8px] border border-[#BFD0D8] px-2 text-sm">
+      <input type="text" placeholder="Código" value="${escapeHtml(exemplar.codigo || "")}" data-exemplar="codigo" required class="h-10 rounded-[8px] border border-[#8497A3] px-2 text-sm">
+      <input type="text" data-sugerencias="estado" placeholder="Estado" value="${escapeHtml(exemplar.estado || "")}" data-exemplar="estado" class="h-10 rounded-[8px] border border-[#8497A3] px-2 text-sm">
+      <input type="text" data-sugerencias="ubicacion" placeholder="Ubicación" value="${escapeHtml(exemplar.ubicacion || "Biblioteca")}" data-exemplar="ubicacion" class="h-10 rounded-[8px] border border-[#8497A3] px-2 text-sm">
       <label class="flex items-center gap-1 text-xs"><input type="checkbox" data-exemplar="disponible" ${exemplar.disponible !== false ? "checked" : ""} class="accent-[#00AFC1]">Disp.</label>
       <button type="button" data-remove-row="${rowId}" class="h-9 w-9 rounded-[8px] border border-[#E2A0A0] text-[#C2413B]"><i class="fa-solid fa-xmark"></i></button>
     </div>`;
@@ -30,78 +30,78 @@ function fieldsFormFor(tipo, item = {}) {
   if (tipo === "institucional") {
     return `
       <div class="grid grid-cols-2 gap-4">
-        <div><label class="font-sans text-xs font-bold">Código interno</label><input name="codigo" required value="${escapeHtml(item.codigo)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
-        <div><label class="font-sans text-xs font-bold">Placa institucional</label><input name="placa" value="${escapeHtml(item.placa)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+        <div><label class="font-sans text-xs font-bold">Código interno</label><input name="codigo" required value="${escapeHtml(item.codigo)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#8497A3] px-3"></div>
+        <div><label class="font-sans text-xs font-bold">Placa institucional</label><input name="placa" value="${escapeHtml(item.placa)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#8497A3] px-3"></div>
       </div>
-      <div><label class="font-sans text-xs font-bold">Nombre del activo</label><input name="nombre" required value="${escapeHtml(item.nombre)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
-      <div><label class="font-sans text-xs font-bold">Descripción</label><textarea name="descripcion" rows="2" class="mt-2 w-full rounded-[9px] border border-[#BFD0D8] px-3 py-2">${escapeHtml(item.descripcion)}</textarea></div>
+      <div><label class="font-sans text-xs font-bold">Nombre del activo</label><input name="nombre" required value="${escapeHtml(item.nombre)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#8497A3] px-3"></div>
+      <div><label class="font-sans text-xs font-bold">Descripción</label><textarea name="descripcion" rows="2" class="mt-2 w-full rounded-[9px] border border-[#8497A3] px-3 py-2">${escapeHtml(item.descripcion)}</textarea></div>
       <div class="grid grid-cols-2 gap-4">
-        <div><label class="font-sans text-xs font-bold">Marca</label><input name="marca" value="${escapeHtml(item.marca)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
-        <div><label class="font-sans text-xs font-bold">Estado</label><input name="estado" data-sugerencias="estado" value="${escapeHtml(item.estado)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+        <div><label class="font-sans text-xs font-bold">Marca</label><input name="marca" value="${escapeHtml(item.marca)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#8497A3] px-3"></div>
+        <div><label class="font-sans text-xs font-bold">Estado</label><input name="estado" data-sugerencias="estado" value="${escapeHtml(item.estado)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#8497A3] px-3"></div>
       </div>
       <div class="grid grid-cols-2 gap-4">
-        <div><label class="font-sans text-xs font-bold">Ubicación</label><input name="ubicacion" data-sugerencias="ubicacion" value="${escapeHtml(item.ubicacion)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
-        <div><label class="font-sans text-xs font-bold">Custodio</label><input name="responsable" value="${escapeHtml(item.responsable || "AEMATEC")}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+        <div><label class="font-sans text-xs font-bold">Ubicación</label><input name="ubicacion" data-sugerencias="ubicacion" value="${escapeHtml(item.ubicacion)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#8497A3] px-3"></div>
+        <div><label class="font-sans text-xs font-bold">Custodio</label><input name="responsable" value="${escapeHtml(item.responsable || "AEMATEC")}" class="mt-2 h-11 w-full rounded-[9px] border border-[#8497A3] px-3"></div>
       </div>
-      <div><label class="font-sans text-xs font-bold">Observaciones</label><textarea name="observaciones" rows="2" class="mt-2 w-full rounded-[9px] border border-[#BFD0D8] px-3 py-2">${escapeHtml(item.observaciones)}</textarea></div>`;
+      <div><label class="font-sans text-xs font-bold">Observaciones</label><textarea name="observaciones" rows="2" class="mt-2 w-full rounded-[9px] border border-[#8497A3] px-3 py-2">${escapeHtml(item.observaciones)}</textarea></div>`;
   }
   if (tipo === "aematec") {
     return `
       <div class="grid grid-cols-2 gap-4">
-        <div><label class="font-sans text-xs font-bold">Código</label><input name="codigo" required value="${escapeHtml(item.codigo)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
-        <div><label class="font-sans text-xs font-bold">Categoría</label><input name="categoria" data-sugerencias="categoria" required value="${escapeHtml(item.categoria)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+        <div><label class="font-sans text-xs font-bold">Código</label><input name="codigo" required value="${escapeHtml(item.codigo)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#8497A3] px-3"></div>
+        <div><label class="font-sans text-xs font-bold">Categoría</label><input name="categoria" data-sugerencias="categoria" required value="${escapeHtml(item.categoria)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#8497A3] px-3"></div>
       </div>
-      <div><label class="font-sans text-xs font-bold">Nombre del activo</label><input name="nombre" required value="${escapeHtml(item.nombre)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
-      <div><label class="font-sans text-xs font-bold">Descripción</label><textarea name="descripcion" rows="2" class="mt-2 w-full rounded-[9px] border border-[#BFD0D8] px-3 py-2">${escapeHtml(item.descripcion)}</textarea></div>
+      <div><label class="font-sans text-xs font-bold">Nombre del activo</label><input name="nombre" required value="${escapeHtml(item.nombre)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#8497A3] px-3"></div>
+      <div><label class="font-sans text-xs font-bold">Descripción</label><textarea name="descripcion" rows="2" class="mt-2 w-full rounded-[9px] border border-[#8497A3] px-3 py-2">${escapeHtml(item.descripcion)}</textarea></div>
       <div class="grid grid-cols-2 gap-4">
-        <div><label class="font-sans text-xs font-bold">Marca</label><input name="marca" value="${escapeHtml(item.marca)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
-        <div><label class="font-sans text-xs font-bold">Valor (₡)</label><input name="valor" type="number" min="0" value="${escapeHtml(item.valor)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+        <div><label class="font-sans text-xs font-bold">Marca</label><input name="marca" value="${escapeHtml(item.marca)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#8497A3] px-3"></div>
+        <div><label class="font-sans text-xs font-bold">Valor (₡)</label><input name="valor" type="number" min="0" value="${escapeHtml(item.valor)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#8497A3] px-3"></div>
       </div>
       <div class="grid grid-cols-2 gap-4">
-        <div><label class="font-sans text-xs font-bold">Estado</label><input name="estado" data-sugerencias="estado" value="${escapeHtml(item.estado)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
-        <div><label class="font-sans text-xs font-bold">Ubicación</label><input name="ubicacion" data-sugerencias="ubicacion" value="${escapeHtml(item.ubicacion)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+        <div><label class="font-sans text-xs font-bold">Estado</label><input name="estado" data-sugerencias="estado" value="${escapeHtml(item.estado)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#8497A3] px-3"></div>
+        <div><label class="font-sans text-xs font-bold">Ubicación</label><input name="ubicacion" data-sugerencias="ubicacion" value="${escapeHtml(item.ubicacion)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#8497A3] px-3"></div>
       </div>
-      <div><label class="font-sans text-xs font-bold">Responsable</label><input name="responsable" value="${escapeHtml(item.responsable || "AEMATEC")}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
-      <div><label class="font-sans text-xs font-bold">Observaciones</label><textarea name="observaciones" rows="2" class="mt-2 w-full rounded-[9px] border border-[#BFD0D8] px-3 py-2">${escapeHtml(item.observaciones)}</textarea></div>`;
+      <div><label class="font-sans text-xs font-bold">Responsable</label><input name="responsable" value="${escapeHtml(item.responsable || "AEMATEC")}" class="mt-2 h-11 w-full rounded-[9px] border border-[#8497A3] px-3"></div>
+      <div><label class="font-sans text-xs font-bold">Observaciones</label><textarea name="observaciones" rows="2" class="mt-2 w-full rounded-[9px] border border-[#8497A3] px-3 py-2">${escapeHtml(item.observaciones)}</textarea></div>`;
   }
   if (tipo === "consumible") {
     return `
       <div class="grid grid-cols-2 gap-4">
-        <div><label class="font-sans text-xs font-bold">Código</label><input name="codigo" required value="${escapeHtml(item.codigo)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
-        <div><label class="font-sans text-xs font-bold">Categoría</label><input name="categoria" data-sugerencias="categoria" required value="${escapeHtml(item.categoria)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+        <div><label class="font-sans text-xs font-bold">Código</label><input name="codigo" required value="${escapeHtml(item.codigo)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#8497A3] px-3"></div>
+        <div><label class="font-sans text-xs font-bold">Categoría</label><input name="categoria" data-sugerencias="categoria" required value="${escapeHtml(item.categoria)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#8497A3] px-3"></div>
       </div>
-      <div><label class="font-sans text-xs font-bold">Artículo</label><input name="articulo" required value="${escapeHtml(item.articulo)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+      <div><label class="font-sans text-xs font-bold">Artículo</label><input name="articulo" required value="${escapeHtml(item.articulo)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#8497A3] px-3"></div>
       <div class="grid grid-cols-3 gap-4">
-        <div><label class="font-sans text-xs font-bold">Unidad</label><input name="unidad" value="${escapeHtml(item.unidad)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
-        <div><label class="font-sans text-xs font-bold">Existencia actual</label><input name="existenciaActual" type="number" min="0" value="${escapeHtml(item.existenciaActual ?? 0)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
-        <div><label class="font-sans text-xs font-bold">Existencia mínima</label><input name="existenciaMinima" type="number" min="0" value="${escapeHtml(item.existenciaMinima ?? 0)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+        <div><label class="font-sans text-xs font-bold">Unidad</label><input name="unidad" value="${escapeHtml(item.unidad)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#8497A3] px-3"></div>
+        <div><label class="font-sans text-xs font-bold">Existencia actual</label><input name="existenciaActual" type="number" min="0" value="${escapeHtml(item.existenciaActual ?? 0)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#8497A3] px-3"></div>
+        <div><label class="font-sans text-xs font-bold">Existencia mínima</label><input name="existenciaMinima" type="number" min="0" value="${escapeHtml(item.existenciaMinima ?? 0)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#8497A3] px-3"></div>
       </div>
-      <div><label class="font-sans text-xs font-bold">Ubicación</label><input name="ubicacion" data-sugerencias="ubicacion" value="${escapeHtml(item.ubicacion)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
-      <div><label class="font-sans text-xs font-bold">Observaciones</label><textarea name="observaciones" rows="2" class="mt-2 w-full rounded-[9px] border border-[#BFD0D8] px-3 py-2">${escapeHtml(item.observaciones)}</textarea></div>`;
+      <div><label class="font-sans text-xs font-bold">Ubicación</label><input name="ubicacion" data-sugerencias="ubicacion" value="${escapeHtml(item.ubicacion)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#8497A3] px-3"></div>
+      <div><label class="font-sans text-xs font-bold">Observaciones</label><textarea name="observaciones" rows="2" class="mt-2 w-full rounded-[9px] border border-[#8497A3] px-3 py-2">${escapeHtml(item.observaciones)}</textarea></div>`;
   }
   exemplarRowCount = 0;
   const exemplarRows = (item.ejemplares && item.ejemplares.length ? item.ejemplares : [{ codigo: "", estado: "Bueno", ubicacion: "Biblioteca", disponible: true }])
     .map(exemplarRowHtml).join("");
   return `
-    <div><label class="font-sans text-xs font-bold">Título</label><input name="titulo" required value="${escapeHtml(item.titulo)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
-    <div><label class="font-sans text-xs font-bold">Autor</label><input name="autor" required value="${escapeHtml(item.autor)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+    <div><label class="font-sans text-xs font-bold">Título</label><input name="titulo" required value="${escapeHtml(item.titulo)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#8497A3] px-3"></div>
+    <div><label class="font-sans text-xs font-bold">Autor</label><input name="autor" required value="${escapeHtml(item.autor)}" class="mt-2 h-11 w-full rounded-[9px] border border-[#8497A3] px-3"></div>
     <div class="grid grid-cols-2 gap-4">
-      <div><label class="font-sans text-xs font-bold">Edición</label><input name="edicion" value="${escapeHtml(item.edicion || "N/A")}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
-      <div><label class="font-sans text-xs font-bold">Año</label><input name="anio" value="${escapeHtml(item.anio || "N/A")}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+      <div><label class="font-sans text-xs font-bold">Edición</label><input name="edicion" value="${escapeHtml(item.edicion || "N/A")}" class="mt-2 h-11 w-full rounded-[9px] border border-[#8497A3] px-3"></div>
+      <div><label class="font-sans text-xs font-bold">Año</label><input name="anio" value="${escapeHtml(item.anio || "N/A")}" class="mt-2 h-11 w-full rounded-[9px] border border-[#8497A3] px-3"></div>
     </div>
-    <div><label class="font-sans text-xs font-bold">Categorías <span class="font-normal text-[#607480]">(hasta ${MAX_CATEGORIAS_LIBRO}, separadas por coma)</span></label><input name="categorias" data-sugerencias="categoria" data-multiple value="${escapeHtml(categoriasDe(item).join(", "))}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+    <div><label class="font-sans text-xs font-bold">Categorías <span class="font-normal text-[#607480]">(hasta ${MAX_CATEGORIAS_LIBRO}, separadas por coma)</span></label><input name="categorias" data-sugerencias="categoria" data-multiple value="${escapeHtml(categoriasDe(item).join(", "))}" class="mt-2 h-11 w-full rounded-[9px] border border-[#8497A3] px-3"></div>
     <div>
       <label class="font-sans text-xs font-bold">Portada</label>
       ${item.portadaUrl ? `<img src="${escapeHtml(item.portadaUrl)}" alt="Portada actual" class="mt-2 h-24 w-16 rounded-[8px] border border-[#E2E9EC] object-cover">` : ""}
       <input type="file" id="portada-file" accept="image/jpeg,image/png,image/webp" class="mt-2 w-full text-sm">
       <p class="mt-1 text-xs text-[#607480]">Imagen JPG, PNG o WEBP de máximo 5 MB, o pega un enlace abajo (el archivo tiene prioridad si eliges ambos).</p>
-      <input type="url" id="portada-url" placeholder="https://ejemplo.com/portada.jpg" value="${escapeHtml(item.portadaPath ? "" : (item.portadaUrl || ""))}" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3">
+      <input type="url" id="portada-url" placeholder="https://ejemplo.com/portada.jpg" value="${escapeHtml(item.portadaPath ? "" : (item.portadaUrl || ""))}" class="mt-2 h-11 w-full rounded-[9px] border border-[#8497A3] px-3">
     </div>
-    <div><label class="font-sans text-xs font-bold">Observaciones</label><textarea name="observaciones" rows="2" class="mt-2 w-full rounded-[9px] border border-[#BFD0D8] px-3 py-2">${escapeHtml(item.observaciones)}</textarea></div>
+    <div><label class="font-sans text-xs font-bold">Observaciones</label><textarea name="observaciones" rows="2" class="mt-2 w-full rounded-[9px] border border-[#8497A3] px-3 py-2">${escapeHtml(item.observaciones)}</textarea></div>
     <div class="border-t border-[#E2E9EC] pt-4">
       <div class="flex justify-between items-center">
         <label class="font-sans text-xs font-bold">Ejemplares</label>
-        <button type="button" id="add-exemplar-btn" class="font-sans text-xs font-bold text-[#008F9E]"><i class="fa-solid fa-plus mr-1"></i>Añadir ejemplar</button>
+        <button type="button" id="add-exemplar-btn" class="font-sans text-xs font-bold text-[#00798A]"><i class="fa-solid fa-plus mr-1"></i>Añadir ejemplar</button>
       </div>
       <div id="ejemplares-rows" class="mt-3 space-y-2">${exemplarRows}</div>
     </div>`;
@@ -226,7 +226,7 @@ document.querySelector("#admin-duplicate-btn").addEventListener("click", async (
     const creado = allItems().find(entry => entry.id === nuevo.id);
     if (creado) openAdminModal(creado.tipo, creado);
     status.hidden = false;
-    status.className = "text-sm text-[#087F8C]";
+    status.className = "text-sm text-[#00798A]";
     status.textContent = `Copia creada con el código ${codigos.copia}. Revisa sus datos y guarda si cambias algo.`;
   } catch (error) {
     status.hidden = false;

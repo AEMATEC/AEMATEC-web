@@ -35,7 +35,7 @@ document.querySelector("#loan-form").addEventListener("submit", async event => {
       createdAt: serverTimestamp()
     });
     status.hidden = false;
-    status.className = "text-sm text-[#087F8C]";
+    status.className = "text-sm text-[#00798A]";
     status.textContent = "Solicitud enviada. La Junta Directiva se pondrá en contacto contigo para coordinar la entrega.";
     event.target.reset();
   } catch (error) {
@@ -68,7 +68,7 @@ function estadoBadgeHtml(solicitud) {
   const estados = {
     pendiente: ["bg-[#FDF3D8]", "text-[#8A6D1B]", "Pendiente"],
     entregado: ["bg-[#DCEBFB]", "text-[#215C99]", "Entregado"],
-    devuelto: ["bg-[#DFF6F8]", "text-[#087F8C]", "Devuelto"],
+    devuelto: ["bg-[#DFF6F8]", "text-[#00798A]", "Devuelto"],
     rechazada: ["bg-[#EAF1F4]", "text-[#5F7480]", "Rechazada"]
   };
   const [bg, color, label] = estados[solicitud.estado] || estados.pendiente;
@@ -82,7 +82,7 @@ function loanAdminRowHtml(solicitud) {
     if (solicitud.itemTipo === "biblioteca") {
       const disponibles = (item?.ejemplares || []).filter(exemplar => exemplar.disponible);
       actionsHtml = disponibles.length
-        ? `<select data-ejemplar-select class="h-9 rounded-[8px] border border-[#CBD9DF] px-2 text-xs">
+        ? `<select data-ejemplar-select class="h-9 rounded-[8px] border border-[#8497A3] px-2 text-xs">
              ${disponibles.map(exemplar => `<option value="${escapeHtml(exemplar.codigo)}">${escapeHtml(exemplar.codigo)}</option>`).join("")}
            </select>
            <button type="button" data-action="entregar" data-id="${solicitud.id}" class="h-9 px-3 rounded-[8px] bg-[#0D2B45] text-white font-sans text-xs font-bold">Marcar entregado</button>`
@@ -102,9 +102,9 @@ function loanAdminRowHtml(solicitud) {
         <div class="min-w-0">
           <p class="font-sans font-bold text-sm">${escapeHtml(solicitud.itemNombre)} <span class="text-[#607480] font-normal">(${escapeHtml(solicitud.itemCodigo || "s/c")})</span></p>
           <p class="text-xs text-[#607480] mt-1">${escapeHtml(solicitud.solicitanteNombre)} · Carné ${escapeHtml(solicitud.solicitanteCarne)} · ${escapeHtml(solicitud.solicitanteContacto)}</p>
-          <p class="text-xs text-[#7C8D97] mt-1">Solicitado: ${formatDate(solicitud.createdAt)}${solicitud.fechaPrevista ? ` · Devolución prevista: ${escapeHtml(solicitud.fechaPrevista)}` : ""}</p>
-          ${solicitud.ejemplarCodigo ? `<p class="text-xs text-[#7C8D97] mt-1">Ejemplar entregado: ${escapeHtml(solicitud.ejemplarCodigo)}</p>` : ""}
-          ${solicitud.notas ? `<p class="text-xs text-[#7C8D97] mt-1">Notas: ${escapeHtml(solicitud.notas)}</p>` : ""}
+          <p class="text-xs text-[#566B78] mt-1">Solicitado: ${formatDate(solicitud.createdAt)}${solicitud.fechaPrevista ? ` · Devolución prevista: ${escapeHtml(solicitud.fechaPrevista)}` : ""}</p>
+          ${solicitud.ejemplarCodigo ? `<p class="text-xs text-[#566B78] mt-1">Ejemplar entregado: ${escapeHtml(solicitud.ejemplarCodigo)}</p>` : ""}
+          ${solicitud.notas ? `<p class="text-xs text-[#566B78] mt-1">Notas: ${escapeHtml(solicitud.notas)}</p>` : ""}
         </div>
         <div class="flex flex-col items-end gap-2 flex-shrink-0">
           ${estadoBadgeHtml(solicitud)}

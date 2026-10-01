@@ -51,14 +51,22 @@ export const inv = {
   loanAdminFilter: "pendiente"
 };
 
+// Accesibilidad: al abrir se lleva el foco al diálogo, Escape lo cierra y al cerrar el foco vuelve a donde estaba.
+let focoPrevio = null;
 export function showModal(modal) {
+  focoPrevio = document.activeElement;
   modal.classList.add("is-open");
   document.body.classList.add("overflow-hidden");
+  modal.querySelector("input:not([type=hidden]), select, textarea, button")?.focus();
 }
 export function hideModal(modal) {
   modal.classList.remove("is-open");
   document.body.classList.remove("overflow-hidden");
+  focoPrevio?.focus();
 }
+document.addEventListener("keydown", event => {
+  if (event.key === "Escape") document.querySelector(".is-open [data-close-modal]")?.click();
+});
 
 export const allItems = () => Object.values(inv.itemsByTipo).flat();
 

@@ -63,7 +63,7 @@ document.querySelector("#signup-form").addEventListener("submit", async event =>
     await signOut(auth);
     document.querySelector("#signup-form").reset();
     status.textContent = `Cuenta creada. Revisa ${email} y confirma el enlace de verificación antes de iniciar sesión.`;
-    status.className = "text-sm text-[#087F8C]";
+    status.className = "text-sm text-[#00798A]";
     status.hidden = false;
   } catch (error) {
     status.textContent = mensajeErrorAuth(error);
@@ -81,7 +81,7 @@ document.querySelector("#reset-form").addEventListener("submit", async event => 
   } catch { /* Se ignora para no revelar si el correo tiene cuenta registrada. */ }
   document.querySelector("#reset-form").reset();
   status.textContent = "Si el correo tiene una cuenta registrada, recibirás un enlace para restablecer la contraseña.";
-  status.className = "text-sm text-[#087F8C]";
+  status.className = "text-sm text-[#00798A]";
   status.hidden = false;
 });
 
@@ -108,7 +108,7 @@ onAuthStateChanged(auth, async user => {
     // Los accesos directos solo tienen sentido si la cuenta ve más de una sección.
     document.querySelector("#admin-nav").hidden = SECCIONES.filter(seccion => visibles[seccion.id]).length < 2;
     document.querySelector("#admin-nav").innerHTML = SECCIONES.filter(seccion => visibles[seccion.id]).map(seccion =>
-      `<a href="#${seccion.id}" class="flex items-center gap-2 rounded-full border border-[#BFD0D8] bg-white px-4 py-2 text-[#0D2B45] hover:border-[#00A6B8] hover:text-[#00A6B8]"><i class="fa-solid ${seccion.icono}"></i>${seccion.etiqueta}</a>`
+      `<a href="#${seccion.id}" class="flex items-center gap-2 rounded-full border border-[#8497A3] bg-white px-4 py-2 text-[#0D2B45] hover:border-[#00A6B8] hover:text-[#00798A]"><i class="fa-solid ${seccion.icono}"></i>${seccion.etiqueta}</a>`
     ).join("");
     if (junta || fiscalia) {
       await iniciarAsociacion({ junta });

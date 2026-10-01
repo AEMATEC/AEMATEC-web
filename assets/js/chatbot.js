@@ -37,7 +37,7 @@ function crearWidget() {
           <button type="button" class="chatbot-link chatbot-ir-reportar">¿Encontraste un error? Repórtalo aquí</button>
         </div>
         <div class="chatbot-view" data-view="reportar" hidden>
-          <p class="chatbot-msg">Cuéntanos qué pasó. Si nos dejas tu correo, podemos responderte.</p>
+          <p class="chatbot-msg">Cuéntanos qué pasó. Si nos dejas tu correo, lo usaremos solo para responderte (<a href="legal.html#privacidad">privacidad</a>).</p>
           <form class="chatbot-report-form">
             <textarea class="chatbot-textarea" placeholder="Ej: al iniciar sesión me sale un error..." aria-label="Describe el problema" required maxlength="600" rows="3"></textarea>
             <input type="email" class="chatbot-input" placeholder="Tu correo (opcional)" aria-label="Tu correo (opcional)" maxlength="160">

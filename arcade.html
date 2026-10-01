@@ -184,6 +184,7 @@ nav .btn{padding:8px 12px}
 .foot{margin-top:18px;color:var(--gray);font-size:8px;text-align:center}
 .credits{margin-top:10px;padding:12px;text-align:center;font-size:9px;color:var(--mute);border-top:4px dotted var(--panel)}
 .credits b{color:var(--yellow);font-weight:normal}
+.credits a{color:var(--yellow)}
 .snd{background:var(--panel);min-width:72px;display:inline-flex;align-items:center;justify-content:center;gap:6px}
 .snd.off{opacity:.6}
 .snd .ico{width:14px;height:14px;fill:currentColor;shape-rendering:crispEdges;flex:none}
@@ -314,7 +315,7 @@ nav .btn{padding:8px 12px}
     <div class="who">
       <button id="arcade-volver" type="button" class="btn gray" title="Volver a la página principal de AEMATEC" aria-label="Volver a la página principal de AEMATEC">← AEMATEC</button>
       <label for="name">JUGADOR</label>
-      <input id="name" class="px-in" maxlength="10" placeholder="TU NOMBRE">
+      <input id="name" class="px-in" maxlength="10" placeholder="TU APODO" aria-label="Tu apodo (es público, no uses tu nombre real)" title="ES PÚBLICO: NO USES TU NOMBRE REAL">
       <button class="btn snd" id="snd" type="button" title="Sonido: apaga todo (efectos y música)" aria-label="Sonido (efectos y música)"><svg class="ico" viewBox="0 0 12 12" aria-hidden="true"><path d="M1 4h2v4H1zM3 3h1v6H3zM4 2h1v8H4zM5 1h1v10H5z"/><path class="ico-on" d="M7 4h1v4H7zM9 2h1v1H9zM10 3h1v6h-1zM9 9h1v1H9z"/><path class="ico-off" d="M7 4h1v1H7zM8 5h1v1H8zM9 6h1v1H9zM10 7h1v1h-1zM10 4h1v1h-1zM9 5h1v1H9zM8 6h1v1H8zM7 7h1v1H7z"/></svg><span class="lbl">SÍ</span></button>
       <button class="btn snd" id="mus" type="button" title="Música: apaga solo la música" aria-label="Música"><svg class="ico" viewBox="0 0 12 12" aria-hidden="true"><path d="M5 1h1v8H5zM6 1h1v1H6zM7 2h1v1H7zM8 3h1v2H8zM2 8h3v1H2zM1 9h4v1H1zM2 10h3v1H2z"/><path class="ico-off" d="M1 1h1v1H1zM2 2h1v1H2zM3 3h1v1H3zM9 9h1v1H9zM10 10h1v1h-1zM7 7h1v1H7zM8 8h1v1H8zM4 4h1v1H4zM6 6h1v1H6z"/></svg><span class="lbl">SÍ</span></button>
       <span id="net" class="net">● CONECTANDO…</span>
@@ -873,7 +874,7 @@ nav .btn{padding:8px 12px}
           </div>
           <div class="row left"><button class="btn gray" id="gfb-undo">QUITAR LO ÚLTIMO</button><button class="btn gray" id="gfb-clear">EMPEZAR DE NUEVO</button></div>
           <div class="row left">
-            <input id="gfb-autor" class="px-in" placeholder="TU NOMBRE" maxlength="12">
+            <input id="gfb-autor" class="px-in" placeholder="TU APODO" maxlength="12" aria-label="Tu apodo (es público, no uses tu nombre real)">
             <input id="gfb-nombre" class="px-in" placeholder="NOMBRE DEL HOYO" maxlength="30">
           </div>
           <p class="msg" id="gfb-msg" style="text-align:left"></p>
@@ -996,7 +997,7 @@ nav .btn{padding:8px 12px}
     </aside>
   </section>
 
-  <footer class="credits">REALIZADO POR <b>ANTONY ARIAS</b> 2026 · CON AYUDA DE CLAUDE PARA EL DISEÑO ESTÉTICO</footer>
+  <footer class="credits">REALIZADO POR <b>ANTONY ARIAS</b> 2026 · CON AYUDA DE CLAUDE PARA EL DISEÑO ESTÉTICO · MÚSICA GENERADA PARA AEMATEC CON CLAUDE · LOS APODOS Y PUNTAJES SON PÚBLICOS: NO USES TU NOMBRE REAL · <a href="legal.html#privacidad">PRIVACIDAD</a></footer>
 </div>
 <audio id="menu-music" src="assets/audio/arcade-menu.mp3" loop preload="auto"></audio>
 <div id="intro">
@@ -5361,7 +5362,7 @@ $('#gfb-send').onclick = async () => {
   const msg = $('#gfb-msg');
   if (!GFB.start || !GFB.hole) { msg.textContent = 'PON EL INICIO Y LA BANDERA PRIMERO.'; msg.className = 'msg lose'; return; }
   const autor = $('#gfb-autor').value.trim().slice(0, 12), nombre = $('#gfb-nombre').value.trim().slice(0, 30);
-  if (!autor || !nombre) { msg.textContent = 'ESCRIBE TU NOMBRE Y EL NOMBRE DEL HOYO.'; msg.className = 'msg lose'; return; }
+  if (!autor || !nombre) { msg.textContent = 'ESCRIBE TU APODO Y EL NOMBRE DEL HOYO.'; msg.className = 'msg lose'; return; }
   if (!(await fbReady)) { msg.textContent = 'SIN CONEXIÓN A FIREBASE: NO SE PUEDE ENVIAR AHORA.'; msg.className = 'msg lose'; return; }
   msg.textContent = 'ENVIANDO…'; msg.className = 'msg';
   try {
@@ -5389,8 +5390,8 @@ function gfpItemHtml(id, d) {
   const estadoTxt = { pendiente: 'PENDIENTE', aprobado: 'APROBADO ✓', rechazado: 'RECHAZADO ✗' }[d.estado] || d.estado;
   const estadoCls = d.estado === 'aprobado' ? 'win' : (d.estado === 'rechazado' ? 'lose' : '');
   const canMod = gfpUnlocked && d.estado === 'pendiente';
-  return `<span><b>${esc(d.nombre)}</b> · ${esc((d.theme || '').toUpperCase())}<small>POR ${esc(d.autor)} · PAR ${d.par} · <span class="${estadoCls}">${estadoTxt}</span></small></span>` +
-    (canMod ? `<button class="btn green" data-approve="${id}">APROBAR</button><button class="btn gray" data-reject="${id}">RECHAZAR</button>` : '');
+  return `<span><b>${esc(d.nombre)}</b> · ${esc((d.theme || '').toUpperCase())}<small>POR ${esc(d.autor)} · PAR ${esc(d.par)} · <span class="${estadoCls}">${esc(estadoTxt)}</span></small></span>` +
+    (canMod ? `<button class="btn green" data-approve="${esc(id)}">APROBAR</button><button class="btn gray" data-reject="${esc(id)}">RECHAZAR</button>` : '');
 }
 async function gfpLoad() {
   const list = $('#gfp-list'); list.innerHTML = '<li class="muted">CARGANDO…</li>';
