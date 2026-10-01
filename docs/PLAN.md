@@ -108,11 +108,12 @@ Estos puntos condicionan el diseño y no deberían contradecirse:
 ## Fase 3: consolidar (versión corta acordada)
 - ✅ **3a.** Nombres de archivo sin el prefijo `aematec_`: `repositorio.html`, `repositorio-docentes.html`,
   `repositorio-academicos.html`, `repositorio-subir.html`, `inventario.html`, `junta-directiva.html`, `tramites.html`.
-  Los nombres viejos quedan como páginas de redirección (conservan `?…` y `#…`) para no romper enlaces guardados.
+  Los nombres viejos quedaron un tiempo como redirecciones; se borraron en la limpieza de 2026-10 porque el sitio
+  aún no es público.
   Se descartaron carpetas por módulo: obligarían a cambiar todas las rutas de `assets/` sin beneficio real.
 - ✅ **3b.** Un solo panel de administración (`admin.html`, código en `assets/js/admin/`): un acceso, y cada cuenta
   ve las secciones de sus roles (Asociación para Junta y Fiscalía; Moderación del Repositorio para moderación).
-  Reemplaza a `aematec_biblioteca-moderacion.html` y `aematec_junta-panel.html`, que quedan como redirecciones.
+  Reemplaza a `aematec_biblioteca-moderacion.html` y `aematec_junta-panel.html`, (ya borradas).
   Se corrigió que un moderador nuevo no podía crear su contraseña (la revisión previa leía `moderators` sin
   sesión, algo que las reglas no permiten).
 - *Decisión (2026-09):* Recursos docentes y académicos **siguen como páginas separadas** (públicos distintos y

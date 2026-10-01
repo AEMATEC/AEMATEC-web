@@ -12,12 +12,6 @@ service cloud.firestore {
           && exists(/databases/$(database)/documents/moderators/$(request.auth.token.email)));
     }
 
-    function isAsociado() {
-      return isOwner()
-        || (request.auth != null && request.auth.token.email_verified == true
-          && exists(/databases/$(database)/documents/padron/$(request.auth.token.email)));
-    }
-
     function isJunta() {
       return isOwner()
         || (request.auth != null && request.auth.token.email_verified == true

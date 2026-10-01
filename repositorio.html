@@ -14,13 +14,6 @@
     href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&display=swap"
     rel="stylesheet">
   <script src="assets/firebase-config.js"></script>
-  <script>
-    window.MathJax = {
-      tex: { inlineMath: [["\\(", "\\)"]] },
-      options: { skipHtmlTags: ["script", "style", "textarea", "pre", "code"] }
-    };
-  </script>
-  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
   <style>
     @media (max-width: 767px) {
       [data-design-id="hero-section-16a5bf"] > div { min-height: auto; padding: 3rem 0 2.5rem; }
@@ -374,7 +367,7 @@
       document.body.classList.remove("overflow-hidden");
     };
     const openGlobalModal = resource => {
-      const isAcademic = resource.section === "academico" || resource.section === "academicos";
+      const isAcademic = resource.section === "academico";
       document.querySelector("#global-modal-section").textContent = isAcademic ? "Recurso académico" : "Recurso docente";
       document.querySelector("#global-modal-section").className = `font-sans text-xs font-bold uppercase tracking-[0.12em] ${isAcademic ? "text-[#3B568D]" : "text-[#087F8C]"}`;
       document.querySelector("#global-modal-title").textContent = resource.title || "Recurso sin título";
@@ -415,7 +408,7 @@
       globalSearchPage = Math.min(globalSearchPage, totalPages);
       const visible = resources.slice((globalSearchPage - 1) * globalSearchPageSize, globalSearchPage * globalSearchPageSize);
       globalSearchList.innerHTML = visible.map(resource => {
-        const isAcademic = resource.section === "academico" || resource.section === "academicos";
+        const isAcademic = resource.section === "academico";
         const sectionLabel = isAcademic ? "Recurso académico" : "Recurso docente";
         const sectionClass = isAcademic ? "bg-[#E9EEF9] text-[#3B568D]" : "bg-[#DFF6F8] text-[#087F8C]";
         const metadata = resource.course ? `${courseNames[resource.course] || resource.course}` : (resource.level || "Repositorio AEMATEC");

@@ -84,8 +84,9 @@ revisa la pestaña **Actions** del repositorio en GitHub.
 - Las páginas usan nombres cortos (`repositorio*.html`, `inventario.html`, `junta-directiva.html`, `tramites.html`).
 - Si agregas o renombras una página, agrégala también en `assets/js/site-pages.js` (buscador de la portada y
   asistente).
-- Los archivos `aematec_*.html` que solo contienen una redirección existen para no romper enlaces viejos: no
-  les agregues contenido. Si renombras una página, deja una redirección igual en el nombre anterior.
+- Mientras el sitio no sea público, una página se puede renombrar sin dejar redirección: actualiza todos los enlaces
+  (`node tests/revisar-enlaces.mjs` avisa si queda alguno roto). Cuando el sitio se anuncie, deja una redirección
+  en el nombre anterior para no romper enlaces guardados.
 
 ## Arcade
 `arcade.html` es aparte: tiene su propio estilo y su propio proyecto de Firebase (`arcade-matec`), no usa

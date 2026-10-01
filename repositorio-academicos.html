@@ -249,7 +249,7 @@
       <div class="site-container mx-auto py-[50px] relative overflow-hidden">
         <div aria-hidden="true"
           class="pointer-events-none absolute left-[235px] top-[18px] rotate-[-7deg] font-serif text-[56px] leading-none text-white/[0.08]">
-          \( \displaystyle \int_0^1 \frac{sex}{x}\,dx \)</div>
+          \( \displaystyle \int_0^1 \frac{\sin x}{x}\,dx \)</div>
         <div aria-hidden="true"
           class="pointer-events-none absolute bottom-[-42px] left-[270px] rotate-[-8deg] whitespace-nowrap font-serif text-[92px] font-semibold leading-none text-white/[0.045]">
           \( \displaystyle x=\frac{-b\pm\sqrt{b^2-4ac}}{2a} \)</div>
@@ -635,7 +635,6 @@
     });
     const legend = document.querySelector("#course-legend");
     const legendButton = document.querySelector("#show-course-legend");
-    const legendIcon = document.querySelector("#course-legend-icon");
     const sortedCourses = Object.entries(courseNames).sort(([first], [second]) => first.localeCompare(second, "es", { numeric: true }));
     const renderCourseGroup = (title, courses) => `<div class="sm:col-span-2 lg:col-span-3"><h3 class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#00A6B8]">${title}</h3></div>${courses.map(([code, name]) => `<div class="rounded-[9px] bg-white p-3 text-sm"><strong class="font-sans text-[#008F9E]">${code}</strong><span class="ml-2 text-[#607480]">${name}</span></div>`).join("")}`;
     document.querySelector("#course-legend-list").innerHTML = renderCourseGroup("Cursos de la carrera (EM)", sortedCourses.filter(([code]) => code.startsWith("EM"))) + renderCourseGroup("Cursos de servicio (MA)", sortedCourses.filter(([code]) => code.startsWith("MA")));

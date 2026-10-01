@@ -25,8 +25,7 @@ dependen de él citan el artículo correspondiente en el código y en [`docs/PLA
 | Arcade | `arcade.html` (botón flotante en todas las páginas, `assets/js/arcade-launcher.js`) | Minijuegos pixelados (buscaminas, batalla naval, carreras, etc.) hechos por un estudiante. Es una página aparte, con su propio estilo y su propio proyecto de Firebase (`arcade-matec`, distinto del sitio); no usa cuentas ni datos del padrón. Público, sin inicio de sesión. Sus reglas de Firebase no están en este repositorio: si un cambio escribe datos nuevos, documéntalo para quien administra `arcade-matec` (ver `docs/arcade-firebase-cambios.md`). |
 
 > **Nota de nombres:** el repositorio digital de materiales se llama **Repositorio** (antes "Biblioteca").
-> Los archivos `aematec_*.html` que quedan son solo redirecciones a las páginas nuevas. **Biblioteca** es solo la colección física de
-> libros para préstamo del RI (Art. 128-129), que está en **Inventario → Biblioteca**.
+> **Biblioteca** es solo la colección física de libros para préstamo del RI (Art. 128-129), que está en **Inventario → Biblioteca**.
 
 ## Carrusel de fotos de actividades (portada)
 
