@@ -159,6 +159,13 @@ service cloud.firestore {
         && ((puedeIrVacio && valor == '') || valor.matches('https://[^\\s]+'));
     }
 
+    // Ruta de un archivo del Repositorio en Storage (la escribe quien propone el material). La moderación la usa
+    // para borrar el archivo, así que solo puede apuntar a la carpeta de recursos de su sección.
+    function rutaDeRecurso(ruta, seccion, sufijo) {
+      return ruta is string
+        && ruta.matches('recursos/' + seccion + '/[a-f0-9-]+' + sufijo + '[.](pdf|docx|pptx|xlsx|zip|ggb)');
+    }
+
     match /resources/{resourceId} {
       allow read: if resource.data.published == true
         || isModerator();
@@ -178,10 +185,13 @@ service cloud.firestore {
         && request.resource.data.courseCode is string && request.resource.data.courseCode.size() <= 20
         && enlaceSeguro(request.resource.data.explanationUrl, true)
         && (!('fileUrl' in request.resource.data) || enlaceSeguro(request.resource.data.fileUrl, false))
+        && (!('storagePath' in request.resource.data) || request.resource.data.storagePath == ''
+          || rutaDeRecurso(request.resource.data.storagePath, request.resource.data.section, ''))
         && (!('explanation' in request.resource.data) || request.resource.data.explanation == null
           || (request.resource.data.explanation is map
             && request.resource.data.explanation.keys().hasOnly(['storagePath', 'fileUrl', 'extension', 'size'])
-            && enlaceSeguro(request.resource.data.explanation.fileUrl, false)))
+            && enlaceSeguro(request.resource.data.explanation.fileUrl, false)
+            && rutaDeRecurso(request.resource.data.explanation.storagePath, request.resource.data.section, '-explicacion')))
         && request.resource.data.requiresInternet is bool
         && request.resource.data.type in ['Actividad', 'Juego', 'Planeamiento', 'Guía didáctica', 'Recurso digital', 'Examen', 'Apuntes', 'Solución', 'Práctica']
         && request.resource.data.extension in ['', 'pdf', 'docx', 'pptx', 'xlsx', 'zip', 'ggb']
