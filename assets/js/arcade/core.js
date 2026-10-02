@@ -94,7 +94,7 @@ fbReady.then(ok => {
 
 /* ---------- sonido 8-bit (sintetizado, sin archivos) ---------- */
 export const SFX = {
-  on: store.get('pa_snd', true), ctx: null,
+  on: store.get('pa_snd', false), ctx: null,
   init() {
     if (!this.ctx) { try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch { return; } }
     if (this.ctx.state === 'suspended') this.ctx.resume();
