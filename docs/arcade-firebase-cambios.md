@@ -200,12 +200,17 @@ Cloud Function, ni tocar Google Cloud Console en absoluto.**
 (`assets/js/arcade/moderacion.js`, una segunda app de Firebase aparte de la anónima con la que todo el
 mundo juega, para no perder esa sesión al moderar). La regla `esModerador()` en
 `arcade-firebase/firestore.rules` solo revisa si la sesión actual inició con contraseña (moderador) o es
-anónima (cualquiera jugando) — nada de listas que sincronizar ni de otro proyecto de Firebase. Un clic en
-APROBAR o RECHAZAR decide al momento, sin que haga falta que vote más de una persona.
+anónima (cualquiera jugando) — nada de otro proyecto de Firebase ni Cloud Function. Hace falta que el
+**75% de los moderadores actuales (redondeado hacia arriba)** vote lo mismo para que una propuesta quede
+aprobada o rechazada; `gfpVotar()` en `arcade.html` guarda el correo de quien vota en `votosAprobar` o
+`votosRechazar` dentro del propio documento de la propuesta, cuenta cuántos moderadores hay (ver abajo) y
+decide si ya se alcanzó el 75%.
 
 **Quién puede ser moderador:** cualquier cuenta de correo/contraseña que exista en la Authentication de
-`arcade-matec`. Como ahí no hay ninguna pantalla pública de "crear cuenta" (solo tú las creas desde la
-consola), tener una cuenta ahí YA significa ser moderador — no hace falta una lista aparte.
+`arcade-matec` **y que además tenga su documento en la colección `arcadeModeradores`** (un documento por
+correo, el contenido no importa, solo que exista). Hacen falta las dos cosas porque las reglas de Firestore
+no pueden leer la lista de usuarios de Authentication para contarlos — por eso se lleva una copia simple en
+Firestore, nada más para saber "cuántos moderadores hay" al calcular el 75%.
 
 **Pasos (los haces tú, una sola vez por cada moderador nuevo):**
 
@@ -215,9 +220,14 @@ consola), tener una cuenta ahí YA significa ser moderador — no hace falta una
 2. Pestaña **"Users"** / "Usuarios" → **"Add user"** / "Agregar usuario" → escribe el correo de la persona
    y ponle una contraseña (la que quieras, se la pasas tú directamente, no hace falta que la persona la
    elija ni confirme un correo).
-3. Listo — esa persona ya puede entrar a Golf → "PROPUESTAS DE LA COMUNIDAD" con ese correo y contraseña y
-   va a ver los botones de aprobar/rechazar/borrar. Repite el paso 2 por cada moderador que quieras agregar;
-   para quitarle el acceso a alguien, borra su usuario desde esa misma pantalla.
+3. **Firestore Database → Datos** → colección `arcadeModeradores` (créala si todavía no existe) → "Agregar
+   documento" → como ID del documento escribe el **mismo correo** que usaste en el paso 2 → guarda sin
+   agregarle ningún campo (puede quedar vacío).
+4. Listo — esa persona ya puede entrar a Golf → "PROPUESTAS DE LA COMUNIDAD" con ese correo y contraseña y
+   va a ver los botones de aprobar/rechazar/borrar, y su voto ya cuenta para el 75%. Repite los pasos 2 y 3
+   por cada moderador que quieras agregar; para quitarle el acceso a alguien, borra su usuario en
+   Authentication **y** su documento en `arcadeModeradores` (si solo borras uno de los dos, puede quedar sin
+   poder votar pero sí contando para el total, o al revés).
 
 **Nota:** esta cuenta es independiente de la del sitio principal (la de `admin.html`) — es otra contraseña,
 de otro proyecto. Si prefieres que sea la misma cuenta que ya usan en `admin.html`, es posible pero necesita
@@ -276,11 +286,13 @@ hay que diseñarlo juego por juego y probarlo en línea antes de publicar.
 6. **Animal al Tiro:** juega **DIANA CONTINUA** y revisa el Top 10.
 7. **Creador de hoyos de Golf:** entra a Golf → "CREAR UN HOYO", diseña uno con inicio y bandera, dale "PROBARLO"
    (debe poder jugarse) y luego "ENVIAR PROPUESTA". Debe decir que quedó pendiente, sin error de permisos.
-8. **Moderación de Golf (necesita el paso de la sección 3.3 ya hecho):** entra a "PROPUESTAS DE LA COMUNIDAD"
-   e inicia sesión con la cuenta de moderador que creaste en Authentication → Users de `arcade-matec`. Debe
-   aparecer tu correo y, junto a cada propuesta pendiente, los botones APROBAR/RECHAZAR/BORRAR. Dale
-   APROBAR a una: debe cambiar a "APROBADO" de una vez, sin pedir más votos. Vuelve al menú de Golf y dale
-   "JUGAR SOLO": el hoyo aprobado debe aparecer después del 6.
+8. **Moderación de Golf (necesita el paso de la sección 3.3 ya hecho, con al menos una cuenta de
+   moderador y su documento en `arcadeModeradores`):** entra a "PROPUESTAS DE LA COMUNIDAD" e inicia sesión
+   con esa cuenta. Debe aparecer tu correo y, junto a cada propuesta pendiente, los botones
+   APROBAR/RECHAZAR/BORRAR con el conteo de votos. Con un solo moderador registrado, el 75% redondeado hacia
+   arriba es 1 — dale APROBAR a una propuesta y debe cambiar a "APROBADO" de una vez. Si agregas una segunda
+   cuenta de moderador, el umbral sube a 2: vota con las dos cuentas y confirma que recién con la segunda
+   cambia de estado. Vuelve al menú de Golf y dale "JUGAR SOLO": el hoyo aprobado debe aparecer después del 6.
 9. Si algo no se guarda, abre la consola del navegador (F12). Un error `permission-denied` al votar indica
-   que falta activar "Correo electrónico/contraseña" en Authentication o crear la cuenta de moderador
-   (sección 3.3).
+   que falta activar "Correo electrónico/contraseña" en Authentication, crear la cuenta de moderador o su
+   documento en `arcadeModeradores` (sección 3.3).

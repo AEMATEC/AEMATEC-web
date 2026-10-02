@@ -22,9 +22,12 @@ línea + el creador de hoyos). Busca el bloque `/* === GOLF === */`.
   Desde "PROPUESTAS DE LA COMUNIDAD" se aprueba, rechaza o borra iniciando sesión con una cuenta de
   correo/contraseña PROPIA de `arcade-matec` (no la del sitio, ver `assets/js/arcade/moderacion.js`, una
   segunda app de Firebase aparte de la anónima con la que se juega). Las reglas (`esModerador()`) solo
-  revisan si la sesión inició con contraseña — sin Cloud Function ni tocar Google Cloud. Un clic decide,
-  sin votación. Los hoyos aprobados se agregan después de los 6 base SOLO en "JUGAR SOLO" (el modo en línea
-  sigue usando nada más los 6 de siempre, a propósito, para no complicar la sincronización entre jugadores).
+  revisan si la sesión inició con contraseña — sin Cloud Function ni tocar Google Cloud. Hace falta el 75%
+  de los moderadores (redondeado hacia arriba, cuenta `arcadeModeradores`) votando lo mismo para decidir —
+  el conteo de votos (`votosAprobar`/`votosRechazar`) lo hace `gfpVotar()` en `arcade.html`, las reglas solo
+  confirman que quien escribe es un moderador real. Los hoyos aprobados se agregan después de los 6 base
+  SOLO en "JUGAR SOLO" (el modo en línea sigue usando nada más los 6 de siempre, a propósito, para no
+  complicar la sincronización entre jugadores).
 - **Tiene modo en línea** (hasta 4 jugadores en el mismo recorrido): colección `golf/{code}` y su subcolección
   `players`. Si tocas el modo en línea, prueba con más de una sesión antes de darlo por bueno.
 - Si agregas un campo a la sala o cambias el formato de `golfHoyosPropuestos`, documenta la regla de

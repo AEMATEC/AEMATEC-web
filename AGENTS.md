@@ -132,10 +132,13 @@ cuenta de correo/contraseña **propia de `arcade-matec`** (no la del sitio princ
 `assets/js/arcade/moderacion.js`, una segunda app de Firebase aparte de la anónima con la que todo el mundo
 juega). Las reglas de `arcade-matec` (`esModerador()`) solo revisan si la sesión actual inició con
 contraseña (moderador) o es anónima (cualquiera jugando) — sin Cloud Function, sin cuenta de servicio, sin
-tocar Google Cloud Console. Un clic en APROBAR o RECHAZAR decide, no hace falta que voten varias personas.
-Quién puede moderar lo decides tú creando cuentas a mano en Authentication → Users de `arcade-matec` (ver
+tocar Google Cloud Console. Hace falta que el 75% de los moderadores (redondeado hacia arriba) vote lo mismo
+para que una propuesta quede aprobada o rechazada; el conteo lo hace el propio navegador leyendo la
+colección `arcadeModeradores` (un documento por correo, se administra a mano en la consola de Firestore —
+no hay forma de contar cuentas de Authentication desde el navegador). Quién puede moderar lo decides tú
+creando la cuenta en Authentication → Users **y** su documento en `arcadeModeradores` (ver
 `docs/arcade-firebase-cambios.md`, sección 3.3). Si se agrega este mismo patrón a otro juego con mapas/pistas,
-sigue la misma idea: propuesta pendiente → un moderador del Arcade la aprueba → se integra solo en modo local
+sigue la misma idea: propuesta pendiente → votación de moderadores del Arcade → se integra solo en modo local
 (no se sincronizó para partidas en línea, por simplicidad).
 
 ## Estilo del código
