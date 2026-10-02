@@ -905,9 +905,10 @@ nav .btn{padding:8px 12px}
         </div>
         <div id="gf-proposals" hidden>
           <div class="rc-top"><span class="tag">PROPUESTAS DE LA COMUNIDAD</span><button class="btn gray" id="gfp-back">VOLVER</button></div>
-          <p class="sub">Estos son los hoyos que otras personas diseñaron. Los aprobados se agregan a "JUGAR SOLO" después de los 6 hoyos normales.</p>
-          <p class="keys">Para aprobar o rechazar una propuesta hace falta iniciar sesión con una cuenta de moderador del
-            sitio (la misma de <a href="admin.html">admin.html</a>) y que la mayoría de los moderadores esté de acuerdo.</p>
+          <p class="sub">Estos son los hoyos que otras personas diseñaron. Cualquiera puede darle "▶ PROBARLO" y jugarlos ya
+            mismo. Un hoyo se aprueba cuando la mayoría de los moderadores del sitio lo prueba y vota a favor — ahí se
+            agrega a "JUGAR SOLO", después de los 6 hoyos normales. Si la mayoría vota en contra, queda rechazado.</p>
+          <p class="keys">¿Eres moderador? Inicia sesión abajo con tu cuenta del sitio (la misma de <a href="admin.html">admin.html</a>) para votar o borrar una propuesta.</p>
           <div class="row left" id="gfp-login-row">
             <input id="gfp-email" class="px-in" type="email" placeholder="CORREO DE MODERADOR" autocomplete="username">
             <input id="gfp-pass" class="px-in" type="password" placeholder="CONTRASEÑA" autocomplete="current-password" maxlength="100">
@@ -5468,12 +5469,14 @@ $('#gfb-back').onclick = () => gfView('menu');
    Cloud Function arcadeVotarPropuesta/arcadeBorrarRegistro (functions/arcadeModeracion.js) con su
    propia cuenta de servicio — aquí solo se pide el login y se muestra lo que la función responde. */
 let gfpModeradorEmail = null;
+let gfpDocs = {}; // id -> datos completos de la propuesta, para poder "PROBARLO" sin leerlo de nuevo
 function gfpItemHtml(id, d) {
   const estadoTxt = { pendiente: 'PENDIENTE', aprobado: 'APROBADO ✓', rechazado: 'RECHAZADO ✗' }[d.estado] || d.estado;
   const estadoCls = d.estado === 'aprobado' ? 'win' : (d.estado === 'rechazado' ? 'lose' : '');
   const puedeModerar = gfpModeradorEmail && d.estado === 'pendiente';
   const votos = puedeModerar ? ` · ✔ ${(d.votosAprobar || []).length} ✘ ${(d.votosRechazar || []).length}` : '';
   return `<span><b>${esc(d.nombre)}</b> · ${esc((d.theme || '').toUpperCase())}<small>POR ${esc(d.autor)} · PAR ${esc(d.par)} · <span class="${estadoCls}">${esc(estadoTxt)}</span>${votos}</small></span>` +
+    `<button class="btn" data-test="${esc(id)}">▶ PROBARLO</button>` +
     (puedeModerar ? `<button class="btn green" data-approve="${esc(id)}">APROBAR</button><button class="btn gray" data-reject="${esc(id)}">RECHAZAR</button>` : '') +
     (gfpModeradorEmail ? `<button class="btn red" data-delete="${esc(id)}">BORRAR</button>` : '');
 }
@@ -5484,12 +5487,27 @@ async function gfpLoad() {
     const q = fs.query(fs.collection(db, 'golfHoyosPropuestos'), fs.orderBy('creado', 'desc'), fs.limit(30));
     const snap = await fs.getDocs(q);
     if (snap.empty) { list.innerHTML = '<li class="muted">TODAVÍA NO HAY PROPUESTAS</li>'; return; }
-    list.innerHTML = '';
-    snap.forEach(docSnap => { const li = document.createElement('li'); li.innerHTML = gfpItemHtml(docSnap.id, docSnap.data()); list.appendChild(li); });
+    list.innerHTML = ''; gfpDocs = {};
+    snap.forEach(docSnap => {
+      gfpDocs[docSnap.id] = docSnap.data();
+      const li = document.createElement('li'); li.innerHTML = gfpItemHtml(docSnap.id, docSnap.data()); list.appendChild(li);
+    });
+    list.querySelectorAll('[data-test]').forEach(b => b.onclick = () => gfpTest(b.dataset.test));
     list.querySelectorAll('[data-approve]').forEach(b => b.onclick = () => gfpVotar(b.dataset.approve, 'aprobado'));
     list.querySelectorAll('[data-reject]').forEach(b => b.onclick = () => gfpVotar(b.dataset.reject, 'rechazado'));
     list.querySelectorAll('[data-delete]').forEach(b => b.onclick = () => gfpBorrar(b.dataset.delete));
   } catch (e) { console.error(e); list.innerHTML = '<li class="muted">NO SE PUDO CARGAR</li>'; }
+}
+// Jugarlo de verdad antes de votar, en vez de aprobar a ciegas solo por cómo se ve en el editor.
+function gfpTest(id) {
+  const d = gfpDocs[id]; if (!d) return;
+  const hole = { theme: d.theme, par: d.par, start: d.start, hole: d.hole, walls: d.walls, sand: d.sand, water: d.water, ice: d.ice, ramps: d.ramps, comunitario: true, nombre: d.nombre };
+  GF.mode = 'local'; GF.spectating = false;
+  $('#gf-room2').hidden = true; $('#gf-spec-badge').hidden = true; $('#gf-players').hidden = true;
+  GF.activeHoles = [hole]; GF.holeIdx = 0; GF.totalStrokes = 0; GF.scores = [];
+  $('#gf-over').hidden = true;
+  gfLoadHole(0);
+  SFX.play('start'); gfView('game');
 }
 async function gfpVotar(id, voto) {
   const msg = $('#gfp-msg');

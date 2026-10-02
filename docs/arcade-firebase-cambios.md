@@ -194,7 +194,16 @@ usan — no pueden detectar una grosería o un teléfono disfrazado con números
 
 ---
 
-## 3.3 Moderación de Golf: la cuenta de servicio nueva (paso de consola, una sola vez)
+## 3.3 Moderación de Golf: la cuenta de servicio nueva (paso de consola, URGENTE)
+
+**Este paso no es opcional ni "para más adelante": sin él, la publicación de Cloud Functions está rota.**
+Confirmado en GitHub Actions → pestaña "Firebase": el despliegue del 2026-10-02 falló con
+`Error: In non-interactive mode but have no value for the secret: ARCADE_MATEC_SA`. Eso significa que
+`arcadeVotarPropuesta`/`arcadeBorrarRegistro` **nunca llegaron a publicarse** — si alguien entra a
+"PROPUESTAS DE LA COMUNIDAD", inicia sesión y le da APROBAR/RECHAZAR, no pasa nada de verdad (la propuesta
+se queda en "PENDIENTE" con 0 votos, aunque no siempre se note un error grande en pantalla). Y como todas
+las Cloud Functions se publican juntas en un solo paso, **mientras falte este secreto, tampoco se puede
+publicar ningún otro cambio a Functions** (trámites, correos, etc.) hasta que se corrija esto.
 
 La Cloud Function `arcadeVotarPropuesta`/`arcadeBorrarRegistro` (`functions/arcadeModeracion.js`) necesita
 una forma de escribir en Firestore de `arcade-matec` desde el proyecto del sitio principal. Eso se hace con
@@ -220,10 +229,9 @@ cuentas de moderador siguen siendo las de siempre.
    ```
    Cuando pida el valor, pega el **contenido completo** del archivo JSON que descargaste (ábrelo con un
    editor de texto y copia todo). Puedes borrar el archivo después de esto.
-6. Listo. La próxima vez que se publiquen las Cloud Functions (al mergear un PR que toque `functions/`, el
-   flujo `.github/workflows/firebase.yml` ya lo hace solo), la función queda activa. Si ya habías mergeado
-   este PR antes de hacer este paso, no pasa nada grave: votar/borrar simplemente da un error hasta que
-   completes el paso de arriba.
+6. Listo. **Como el despliegue ya falló una vez, hace falta volver a dispararlo** después de crear el
+   secreto — no se reintenta solo. Lo más simple: avísame y hago un cambio mínimo (o vuelvo a correr el
+   flujo desde la pestaña "Actions" del repositorio, botón "Re-run jobs") para que se publique de nuevo.
 
 ---
 
@@ -241,9 +249,18 @@ Se pidieron dos cosas para las salas en línea (`rooms`, `races`, `fights`, `bla
   `lastSeen`, en `assets/js/arcade/core.js` (función `expiraEn()`) y en los 8 lugares de `arcade.html` que
   usan `presenceLoop`. **Esto no necesitó cambiar ninguna regla** (las reglas actuales de esas colecciones
   ya no limitan qué campos se pueden escribir una vez que estás dentro de la sala).
-  **Falta un paso tuyo en la consola, aparte de pegar las reglas:** Firestore Database → en cada una de
-  las 8 colecciones de arriba → el ícono de "Tiempo de vida (TTL)" → agrega una política con el campo
-  `expiraEn`. Sin ese paso, el campo se guarda pero Firestore nunca borra nada solo.
+  **Falta un paso tuyo en la consola, aparte de pegar las reglas.** Ojo: en el menú de la izquierda de
+  Firebase Console hay dos productos distintos, **"Realtime Database"** y **"Firestore Database"** — son
+  bases de datos diferentes y el Arcade usa Firestore, no Realtime Database. Si entras a "Realtime
+  Database" vas a ver pestañas "Datos / Reglas / Copias de seguridad / Uso" sin nada de TTL: ese no es el
+  lugar.
+  1. En el menú de la izquierda, entra a **"Firestore Database"** (no "Realtime Database").
+  2. Arriba, en las pestañas de Firestore, busca **"Índices"** ("Indexes").
+  3. Dentro de Índices hay una sub-pestaña **"Políticas de TTL"** ("TTL policies").
+  4. "Crear política" → escribe el nombre exacto de la colección (una a la vez, de esta lista: `rooms`,
+     `races`, `fights`, `blackjack`, `pool`, `duelos`, `golf`, `cruces`) → campo `expiraEn` → guardar.
+  5. Repite para las 8. Sin este paso, el campo `expiraEn` se guarda igual, pero Firestore nunca borra nada
+     solo — no rompe nada mientras tanto, solo no limpia las salas abandonadas.
 
 **Lo que NO se hizo, y por qué:** se había pensado en limitar a cada jugador a escribir solo su propio
 "casillero" (`p1`/`p2`, `A`/`B`) en `rooms`, `pool` y `duelos`. Revisando el código real de Batalla Naval,
@@ -275,5 +292,5 @@ hay que diseñarlo juego por juego y probarlo en línea antes de publicar.
    distintas (o hasta llegar al cuórum que te muestre) y confirma que la propuesta cambia a "APROBADO". Vuelve
    al menú de Golf y dale "JUGAR SOLO": el hoyo aprobado debe aparecer después del 6.
 9. Si algo no se guarda, abre la consola del navegador (F12). Un error `permission-denied` indica qué regla
-   falta; un error al votar que mencione "ARCADE_MATEC_SA" o parecido indica que falta el paso de la sección
-   3.2.
+   falta; un error al votar que mencione "ARCADE_MATEC_SA" o parecido indica que falta el paso de la
+   sección 3.3.
