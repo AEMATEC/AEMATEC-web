@@ -130,9 +130,9 @@ Golf tiene un **creador de hoyos**: cualquiera diseña uno y lo envía a `golfHo
 Para aprobarlo, rechazarlo o borrarlo desde "PROPUESTAS DE LA COMUNIDAD" hace falta iniciar sesión con una
 cuenta de correo/contraseña **propia de `arcade-matec`** (no la del sitio principal — ver
 `assets/js/arcade/moderacion.js`, una segunda app de Firebase aparte de la anónima con la que todo el mundo
-juega). Las reglas de `arcade-matec` (`esModerador()`) solo revisan si la sesión actual inició con
-contraseña (moderador) o es anónima (cualquiera jugando) — sin Cloud Function, sin cuenta de servicio, sin
-tocar Google Cloud Console. Hace falta que el 75% de los moderadores (redondeado hacia arriba) vote lo mismo
+juega). Las reglas de `arcade-matec` (`esModerador()`) revisan que la sesión inició con contraseña **y** que
+su correo está en `arcadeModeradores` (solo la contraseña no basta: cualquiera puede crearse una cuenta con la
+API pública de Firebase Auth) — sin Cloud Function, sin cuenta de servicio, sin tocar Google Cloud Console. Hace falta que el 75% de los moderadores (redondeado hacia arriba) vote lo mismo
 para que una propuesta quede aprobada o rechazada; el conteo lo hace el propio navegador leyendo la
 colección `arcadeModeradores` (un documento por correo, se administra a mano en la consola de Firestore —
 no hay forma de contar cuentas de Authentication desde el navegador). Quién puede moderar lo decides tú

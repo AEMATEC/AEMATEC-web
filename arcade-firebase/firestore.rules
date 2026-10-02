@@ -23,11 +23,14 @@ service cloud.firestore {
     }
 
     // Moderador de Golf: una cuenta de correo/contraseña PROPIA de este proyecto (arcade-matec), separada
-    // de la cuenta anónima con la que todo el mundo juega. No hay lista de correos que mantener aquí: la
-    // única forma de tener una cuenta con contraseña en este proyecto es que alguien la haya creado a mano
-    // en Authentication → Users (nadie se la crea sola, no hay pantalla de registro pública para esto).
+    // de la cuenta anónima con la que todo el mundo juega, Y cuyo correo está en `arcadeModeradores`.
+    // OJO: no basta con que la sesión sea de contraseña. Aunque el Arcade no tenga pantalla de registro,
+    // cualquiera puede crearse una cuenta de correo/contraseña llamando a la API pública de Firebase Auth
+    // con la apiKey del proyecto (que está en core.js); por eso la lista es la que decide.
     function esModerador() {
-      return signedIn() && request.auth.token.firebase.sign_in_provider == 'password';
+      return signedIn() && request.auth.token.firebase.sign_in_provider == 'password'
+        && request.auth.token.email is string
+        && exists(/databases/$(database)/documents/arcadeModeradores/$(request.auth.token.email));
     }
 
     // Una sala vencida la puede borrar CUALQUIERA, no solo quien la creó — así cualquiera que abra la

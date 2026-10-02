@@ -17,6 +17,10 @@ const GROSERIAS = [
   'CONCHA', 'CHUCHA', 'MAMAHUEVO', 'MAMAVERGA', 'VERGUIADO',
 ];
 
+// Groserías cortas que aparecen dentro de palabras normales (COMPUTADORA, DISPUTA, PIJAMA, CONCHAL):
+// estas solo se rechazan como palabra suelta (o en plural), no como parte de otra palabra.
+const SOLO_PALABRA_SUELTA = ['PUTA', 'PUTO', 'PIJA', 'CONCHA'];
+
 function quitarTildes(s) {
   return s.normalize('NFD').replace(/[̀-ͯ]/g, '');
 }
@@ -34,6 +38,10 @@ export function filtrarTexto(s) {
   if (texto.includes('@')) return { ok: false, motivo: 'No escribas correos ni usuarios con @.' };
   if (/\d{7,}/.test(texto)) return { ok: false, motivo: 'No escribas números de teléfono ni de carné.' };
   const normal = normalizarParaGroserias(texto);
-  if (GROSERIAS.some(g => normal.includes(g))) return { ok: false, motivo: 'Ese texto no se puede usar aquí.' };
+  const palabras = normal.split(/[^A-Z]+/);
+  const esGroseria = g => SOLO_PALABRA_SUELTA.includes(g)
+    ? palabras.some(p => p === g || p === g + 'S')
+    : normal.includes(g);
+  if (GROSERIAS.some(esGroseria)) return { ok: false, motivo: 'Ese texto no se puede usar aquí.' };
   return { ok: true };
 }
