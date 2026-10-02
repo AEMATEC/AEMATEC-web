@@ -36,15 +36,24 @@ export const fbReady = (async () => {
 })();
 
 /* ---------- utilidades ---------- */
+import { filtrarTexto } from './filtro.js';
+export { filtrarTexto };
 export const $ = s => document.querySelector(s);
 export const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 export const store = {
   get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch { return d; } },
   set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
 };
-const nameIn = $('#name');
+const nameIn = $('#name'), nameWarn = $('#name-warn');
 nameIn.value = store.get('pa_name', '');
-nameIn.addEventListener('input', () => store.set('pa_name', nameIn.value.trim().toUpperCase()));
+// El filtro revisa groserías/teléfonos/correos (las reglas de Firestore solo pueden revisar tamaño
+// y caracteres). Si el texto no pasa, no se guarda y se avisa — pero no se le borra lo que escribió.
+nameIn.addEventListener('input', () => {
+  const v = nameIn.value.trim().toUpperCase();
+  const r = filtrarTexto(v);
+  nameWarn.hidden = r.ok; nameWarn.textContent = r.ok ? '' : r.motivo;
+  if (r.ok) store.set('pa_name', v);
+});
 export const playerName = () => (nameIn.value.trim().toUpperCase() || 'JUGADOR').slice(0, 10);
 // Salas en línea: no se puede crear ni unirse sin nombre. El campo tiembla, "JUGADOR" se pone rojo
 // y en celular la página sube hasta el campo. Aplica a todos los botones *-create y *-join de los juegos.
