@@ -152,8 +152,12 @@ service cloud.firestore {
       }
     }
 
-    // Golf: hoyos que la gente propone con el "Creador de hoyos". Quedan pendientes hasta que alguien
-    // con el código de moderador (ver GFP_MOD_CODE en arcade.html) los apruebe o rechace.
+    // Golf: hoyos que la gente propone con el "Creador de hoyos". Quedan pendientes hasta que la
+    // mayoría de los moderadores del sitio principal los apruebe o rechace (votación, no un código
+    // compartido). Esa votación la hace la Cloud Function arcadeVotarPropuesta (functions/
+    // arcadeModeracion.js), que usa su propia cuenta de servicio y no pasa por estas reglas — por eso
+    // update/delete quedan en `if false`: nadie puede cambiar ni borrar una propuesta desde el
+    // navegador, ni siquiera un moderador real, solo esa función.
     match /golfHoyosPropuestos/{id} {
       allow read: if signedIn();
       allow create: if signedIn()
@@ -166,9 +170,7 @@ service cloud.firestore {
         && request.resource.data.water.size() <= 3 && request.resource.data.ice.size() <= 3
         && request.resource.data.ramps.size() <= 2
         && request.resource.data.creado == request.time;
-      allow update: if signedIn()
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['estado'])
-        && request.resource.data.estado in ['aprobado', 'rechazado'];
+      allow update: if false;
       allow delete: if false;
     }
 

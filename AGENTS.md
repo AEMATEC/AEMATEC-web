@@ -126,11 +126,17 @@ navegación), `crear-musica-arcade` (efectos de sonido y música; cada juego tie
 visual). Sigue separando uno a la vez y probando bien cada uno antes de seguir con el siguiente — no todos
 de golpe.
 
-Golf tiene un **creador de hoyos**: cualquiera diseña uno y lo envía a `golfHoyosPropuestos` (arcade-matec); un
-moderador lo aprueba desde "PROPUESTAS DE LA COMUNIDAD" con un código compartido (constante `GFP_MOD_CODE` en
-`arcade.html`, no es una contraseña fuerte, ver `docs/arcade-firebase-cambios.md`) y ahí se suma a "JUGAR SOLO".
-Si se agrega este mismo patrón a otro juego con mapas/pistas, sigue la misma idea: propuesta pendiente → código
-de moderador → se integra solo en modo local (no se sincronizó para partidas en línea, por simplicidad).
+Golf tiene un **creador de hoyos**: cualquiera diseña uno y lo envía a `golfHoyosPropuestos` (arcade-matec).
+Para aprobarlo o rechazarlo desde "PROPUESTAS DE LA COMUNIDAD" hace falta iniciar sesión con una cuenta de
+moderador **del sitio principal** (la misma de `admin.html`, ver `assets/js/arcade/moderacion.js`) y que la
+mayoría de los moderadores esté de acuerdo (votación, no un código compartido). La votación y el borrado de
+verdad los hace la Cloud Function `arcadeVotarPropuesta`/`arcadeBorrarRegistro`
+(`functions/arcadeModeracion.js`, del proyecto del sitio principal, con su propia cuenta de servicio de
+`arcade-matec`) — las reglas de `arcade-matec` cierran `golfHoyosPropuestos` a `allow update, delete: if false`
+porque esa función es la única vía. Ver `docs/arcade-firebase-cambios.md` para el detalle y el paso de consola
+(un secreto nuevo) que hace falta para que esa función funcione. Si se agrega este mismo patrón a otro juego
+con mapas/pistas, sigue la misma idea: propuesta pendiente → votación de moderadores del sitio → se integra
+solo en modo local (no se sincronizó para partidas en línea, por simplicidad).
 
 ## Estilo del código
 Sitio estático: HTML + Tailwind compilado (`assets/css/tailwind.css`, ver `tailwind.config.js`) + JavaScript modular en línea, con el SDK de Firebase 10.12.2

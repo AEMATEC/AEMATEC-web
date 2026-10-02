@@ -8,6 +8,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/arcade.css">
+<!-- Config pública (no es secreta) del proyecto del sitio principal, solo para el login de moderador
+     de Golf (assets/js/arcade/moderacion.js). El Arcade en sí sigue usando su propio proyecto. -->
+<script src="assets/firebase-config.js"></script>
 <style>
 :root{
   --bg:#1a1c2c; --panel:#333c57; --panel2:#29366f; --ink:#f4f4f4; --mute:#94b0c2; --dark:#0f1020;
@@ -903,9 +906,16 @@ nav .btn{padding:8px 12px}
         <div id="gf-proposals" hidden>
           <div class="rc-top"><span class="tag">PROPUESTAS DE LA COMUNIDAD</span><button class="btn gray" id="gfp-back">VOLVER</button></div>
           <p class="sub">Estos son los hoyos que otras personas diseñaron. Los aprobados se agregan a "JUGAR SOLO" después de los 6 hoyos normales.</p>
-          <div class="row left">
-            <input id="gfp-code" type="password" class="px-in" placeholder="CÓDIGO DE MODERADOR" maxlength="20">
-            <button class="btn" id="gfp-unlock">DESBLOQUEAR</button>
+          <p class="keys">Para aprobar o rechazar una propuesta hace falta iniciar sesión con una cuenta de moderador del
+            sitio (la misma de <a href="admin.html">admin.html</a>) y que la mayoría de los moderadores esté de acuerdo.</p>
+          <div class="row left" id="gfp-login-row">
+            <input id="gfp-email" class="px-in" type="email" placeholder="CORREO DE MODERADOR" autocomplete="username">
+            <input id="gfp-pass" class="px-in" type="password" placeholder="CONTRASEÑA" autocomplete="current-password" maxlength="100">
+            <button class="btn" id="gfp-login">ENTRAR</button>
+          </div>
+          <div class="row left" id="gfp-session-row" hidden>
+            <span class="badge" id="gfp-session-email"></span>
+            <button class="btn gray" id="gfp-logout">CERRAR SESIÓN</button>
           </div>
           <p class="msg" id="gfp-msg" style="text-align:left" aria-live="polite"></p>
           <ul class="plist" id="gfp-list"></ul>
@@ -1052,6 +1062,9 @@ import {
 } from "./assets/js/arcade/core.js";
 import { T, llStart, llSpit, tiroTick, tiroDraw, tgt } from "./assets/js/arcade/tiro.js";
 import { RN, rnStep, rnDraw, rnJumpPress, RN_FOX_SPR } from "./assets/js/arcade/runner.js";
+import {
+  mensajeErrorAuth, onModerador, moderadorLogin, moderadorLogout, votarPropuesta, borrarRegistro,
+} from "./assets/js/arcade/moderacion.js";
 import { MUSIC, setMusicToggleHook } from "./assets/js/arcade/musica.js";
 
 /* ---------- pestañas ---------- */
@@ -5450,17 +5463,19 @@ $('#gfb-send').onclick = async () => {
 $('#gf-builder-open').onclick = () => { gfbThemeRender(); gfbParRender(); gfbToolsRender(); gfView('builder'); gfbDraw(); };
 $('#gfb-back').onclick = () => gfView('menu');
 
-/* ---- Moderar propuestas: código compartido solo para el Arcade (no son cuentas del sitio).
-   No es una barrera de seguridad fuerte —el Arcade entero funciona con sesiones anónimas—, solo evita
-   que cualquiera apruebe hoyos por accidente. Para cambiar el código, edita GFP_MOD_CODE aquí abajo. */
-const GFP_MOD_CODE = 'AEMATEC-GOLF-2026';
-let gfpUnlocked = false;
+/* ---- Moderar propuestas: inicia sesión con una cuenta de moderador del sitio (la misma de
+   admin.html, ver assets/js/arcade/moderacion.js). La votación y el borrado de verdad los hace la
+   Cloud Function arcadeVotarPropuesta/arcadeBorrarRegistro (functions/arcadeModeracion.js) con su
+   propia cuenta de servicio — aquí solo se pide el login y se muestra lo que la función responde. */
+let gfpModeradorEmail = null;
 function gfpItemHtml(id, d) {
   const estadoTxt = { pendiente: 'PENDIENTE', aprobado: 'APROBADO ✓', rechazado: 'RECHAZADO ✗' }[d.estado] || d.estado;
   const estadoCls = d.estado === 'aprobado' ? 'win' : (d.estado === 'rechazado' ? 'lose' : '');
-  const canMod = gfpUnlocked && d.estado === 'pendiente';
-  return `<span><b>${esc(d.nombre)}</b> · ${esc((d.theme || '').toUpperCase())}<small>POR ${esc(d.autor)} · PAR ${esc(d.par)} · <span class="${estadoCls}">${esc(estadoTxt)}</span></small></span>` +
-    (canMod ? `<button class="btn green" data-approve="${esc(id)}">APROBAR</button><button class="btn gray" data-reject="${esc(id)}">RECHAZAR</button>` : '');
+  const puedeModerar = gfpModeradorEmail && d.estado === 'pendiente';
+  const votos = puedeModerar ? ` · ✔ ${(d.votosAprobar || []).length} ✘ ${(d.votosRechazar || []).length}` : '';
+  return `<span><b>${esc(d.nombre)}</b> · ${esc((d.theme || '').toUpperCase())}<small>POR ${esc(d.autor)} · PAR ${esc(d.par)} · <span class="${estadoCls}">${esc(estadoTxt)}</span>${votos}</small></span>` +
+    (puedeModerar ? `<button class="btn green" data-approve="${esc(id)}">APROBAR</button><button class="btn gray" data-reject="${esc(id)}">RECHAZAR</button>` : '') +
+    (gfpModeradorEmail ? `<button class="btn red" data-delete="${esc(id)}">BORRAR</button>` : '');
 }
 async function gfpLoad() {
   const list = $('#gfp-list'); list.innerHTML = '<li class="muted">CARGANDO…</li>';
@@ -5471,20 +5486,46 @@ async function gfpLoad() {
     if (snap.empty) { list.innerHTML = '<li class="muted">TODAVÍA NO HAY PROPUESTAS</li>'; return; }
     list.innerHTML = '';
     snap.forEach(docSnap => { const li = document.createElement('li'); li.innerHTML = gfpItemHtml(docSnap.id, docSnap.data()); list.appendChild(li); });
-    list.querySelectorAll('[data-approve]').forEach(b => b.onclick = () => gfpModerate(b.dataset.approve, 'aprobado'));
-    list.querySelectorAll('[data-reject]').forEach(b => b.onclick = () => gfpModerate(b.dataset.reject, 'rechazado'));
+    list.querySelectorAll('[data-approve]').forEach(b => b.onclick = () => gfpVotar(b.dataset.approve, 'aprobado'));
+    list.querySelectorAll('[data-reject]').forEach(b => b.onclick = () => gfpVotar(b.dataset.reject, 'rechazado'));
+    list.querySelectorAll('[data-delete]').forEach(b => b.onclick = () => gfpBorrar(b.dataset.delete));
   } catch (e) { console.error(e); list.innerHTML = '<li class="muted">NO SE PUDO CARGAR</li>'; }
 }
-async function gfpModerate(id, estado) {
-  try { await fs.updateDoc(fs.doc(db, 'golfHoyosPropuestos', id), { estado }); SFX.play('click'); gfCommunityLoaded = false; gfpLoad(); }
-  catch (e) { console.error(e); window.alert('No se pudo actualizar: ' + e.message); }
-}
-$('#gfp-unlock').onclick = () => {
+async function gfpVotar(id, voto) {
   const msg = $('#gfp-msg');
-  if ($('#gfp-code').value.trim() === GFP_MOD_CODE) { gfpUnlocked = true; msg.textContent = 'MODO MODERADOR ACTIVADO.'; msg.className = 'msg win'; gfpLoad(); }
-  else { msg.textContent = 'CÓDIGO INCORRECTO.'; msg.className = 'msg lose'; }
+  msg.textContent = 'ENVIANDO VOTO…'; msg.className = 'msg';
+  try {
+    const r = await votarPropuesta(id, voto);
+    SFX.play('click');
+    msg.textContent = r.estado === 'pendiente'
+      ? `VOTO REGISTRADO: ✔ ${r.votosAprobar} · ✘ ${r.votosRechazar} (HACEN FALTA ${r.umbral} PARA DECIDIR)`
+      : `PROPUESTA ${r.estado.toUpperCase()}.`;
+    msg.className = 'msg win';
+    gfCommunityLoaded = false; gfpLoad();
+  } catch (e) { console.error(e); msg.textContent = 'NO SE PUDO VOTAR: ' + (e.message || e); msg.className = 'msg lose'; }
+}
+async function gfpBorrar(id) {
+  if (!window.confirm('¿Borrar esta propuesta? No se puede deshacer.')) return;
+  const msg = $('#gfp-msg');
+  try { await borrarRegistro('propuesta', id); SFX.play('click'); gfCommunityLoaded = false; gfpLoad(); }
+  catch (e) { console.error(e); msg.textContent = 'NO SE PUDO BORRAR: ' + (e.message || e); msg.className = 'msg lose'; }
+}
+onModerador(user => {
+  gfpModeradorEmail = user ? user.email : null;
+  $('#gfp-login-row').hidden = !!user;
+  $('#gfp-session-row').hidden = !user;
+  if (user) $('#gfp-session-email').textContent = user.email;
+  gfpLoad();
+});
+$('#gfp-login').onclick = async () => {
+  const msg = $('#gfp-msg'), email = $('#gfp-email').value.trim(), pass = $('#gfp-pass').value;
+  if (!email || !pass) { msg.textContent = 'ESCRIBE TU CORREO Y CONTRASEÑA.'; msg.className = 'msg lose'; return; }
+  msg.textContent = 'ENTRANDO…'; msg.className = 'msg';
+  try { await moderadorLogin(email, pass); $('#gfp-pass').value = ''; msg.textContent = ''; }
+  catch (e) { msg.textContent = mensajeErrorAuth(e); msg.className = 'msg lose'; }
 };
-$('#gf-proposals-open').onclick = () => { gfpUnlocked = false; $('#gfp-code').value = ''; $('#gfp-msg').textContent = ''; gfpLoad(); gfView('proposals'); };
+$('#gfp-logout').onclick = () => moderadorLogout();
+$('#gf-proposals-open').onclick = () => { $('#gfp-msg').textContent = ''; gfpLoad(); gfView('proposals'); };
 $('#gfp-back').onclick = () => gfView('menu');
 
 gfLB(); gfView('menu');
