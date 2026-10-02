@@ -903,8 +903,8 @@ nav .btn{padding:8px 12px}
         <div id="gf-proposals" hidden>
           <div class="rc-top"><span class="tag">PROPUESTAS DE LA COMUNIDAD</span><button class="btn gray" id="gfp-back">VOLVER</button></div>
           <p class="sub">Estos son los hoyos que otras personas diseñaron. Cualquiera puede darle "▶ PROBARLO" y jugarlos ya
-            mismo. Un hoyo se aprueba cuando un moderador del Arcade lo prueba y lo aprueba — ahí se agrega a
-            "JUGAR SOLO", después de los 6 hoyos normales.</p>
+            mismo. Un hoyo se aprueba cuando el 75% de los moderadores del Arcade lo prueba y vota a favor — ahí se
+            agrega a "JUGAR SOLO", después de los 6 hoyos normales. Si el 75% vota en contra, queda rechazado.</p>
           <p class="keys">¿Eres moderador del Arcade? Inicia sesión abajo para aprobar, rechazar o borrar una propuesta.</p>
           <div class="row left" id="gfp-login-row">
             <input id="gfp-email" class="px-in" type="email" placeholder="CORREO DE MODERADOR" autocomplete="username">
@@ -1061,7 +1061,7 @@ import {
 import { T, llStart, llSpit, tiroTick, tiroDraw, tgt } from "./assets/js/arcade/tiro.js";
 import { RN, rnStep, rnDraw, rnJumpPress, RN_FOX_SPR } from "./assets/js/arcade/runner.js";
 import {
-  mensajeErrorAuth, onModerador, moderadorLogin, moderadorLogout, dbMod,
+  mensajeErrorAuth, onModerador, moderadorLogin, moderadorLogout, moderadorActual, dbMod,
 } from "./assets/js/arcade/moderacion.js";
 import { MUSIC, setMusicToggleHook } from "./assets/js/arcade/musica.js";
 
@@ -5464,15 +5464,17 @@ $('#gfb-back').onclick = () => gfView('menu');
 /* ---- Moderar propuestas: cuenta de correo/contraseña PROPIA de arcade-matec (no la del sitio), ver
    assets/js/arcade/moderacion.js. Sin Cloud Function ni cuenta de servicio: las reglas de arcade-matec
    (función esModerador()) ya distinguen una sesión de moderador (con contraseña) de una anónima
-   (cualquiera jugando), así que estas llamadas van directo a Firestore con dbMod. Un solo clic decide,
-   sin votación. */
+   (cualquiera jugando). Hace falta el voto del 75% de los moderadores (redondeado hacia arriba) para que
+   una propuesta quede aprobada o rechazada — el conteo lo hace este mismo código leyendo
+   arcadeModeradores, las reglas no pueden contar documentos. */
 let gfpModeradorEmail = null;
 let gfpDocs = {}; // id -> datos completos de la propuesta, para poder "PROBARLO" sin leerlo de nuevo
 function gfpItemHtml(id, d) {
   const estadoTxt = { pendiente: 'PENDIENTE', aprobado: 'APROBADO ✓', rechazado: 'RECHAZADO ✗' }[d.estado] || d.estado;
   const estadoCls = d.estado === 'aprobado' ? 'win' : (d.estado === 'rechazado' ? 'lose' : '');
   const puedeModerar = gfpModeradorEmail && d.estado === 'pendiente';
-  return `<span><b>${esc(d.nombre)}</b> · ${esc((d.theme || '').toUpperCase())}<small>POR ${esc(d.autor)} · PAR ${esc(d.par)} · <span class="${estadoCls}">${esc(estadoTxt)}</span></small></span>` +
+  const votos = puedeModerar ? ` · ✔ ${(d.votosAprobar || []).length} ✘ ${(d.votosRechazar || []).length}` : '';
+  return `<span><b>${esc(d.nombre)}</b> · ${esc((d.theme || '').toUpperCase())}<small>POR ${esc(d.autor)} · PAR ${esc(d.par)} · <span class="${estadoCls}">${esc(estadoTxt)}</span>${votos}</small></span>` +
     `<button class="btn" data-test="${esc(id)}">▶ PROBARLO</button>` +
     (puedeModerar ? `<button class="btn green" data-approve="${esc(id)}">APROBAR</button><button class="btn gray" data-reject="${esc(id)}">RECHAZAR</button>` : '') +
     (gfpModeradorEmail ? `<button class="btn red" data-delete="${esc(id)}">BORRAR</button>` : '');
@@ -5506,12 +5508,35 @@ function gfpTest(id) {
   gfLoadHole(0);
   SFX.play('start'); gfView('game');
 }
+async function gfpUmbral() {
+  const snap = await fs.getDocs(fs.collection(dbMod, 'arcadeModeradores'));
+  const total = Math.max(1, snap.size);
+  return { total, umbral: Math.ceil(total * 0.75) };
+}
 async function gfpVotar(id, voto) {
   const msg = $('#gfp-msg');
   try {
-    await fs.updateDoc(fs.doc(dbMod, 'golfHoyosPropuestos', id), { estado: voto });
+    const miCorreo = moderadorActual().email;
+    const ref = fs.doc(dbMod, 'golfHoyosPropuestos', id);
+    const snap = await fs.getDoc(ref);
+    if (!snap.exists()) { msg.textContent = 'ESA PROPUESTA YA NO EXISTE.'; msg.className = 'msg lose'; gfpLoad(); return; }
+    const d = snap.data();
+    // Cambiar de opinión mueve el voto de una lista a la otra, nunca cuenta en las dos a la vez.
+    let votosAprobar = (d.votosAprobar || []).filter(c => c !== miCorreo);
+    let votosRechazar = (d.votosRechazar || []).filter(c => c !== miCorreo);
+    (voto === 'aprobado' ? votosAprobar : votosRechazar).push(miCorreo);
+    const { total, umbral } = await gfpUmbral();
+    let estado = d.estado;
+    if (estado === 'pendiente') {
+      if (votosAprobar.length >= umbral) estado = 'aprobado';
+      else if (votosRechazar.length >= umbral) estado = 'rechazado';
+    }
+    await fs.updateDoc(ref, { votosAprobar, votosRechazar, estado });
     SFX.play('click');
-    msg.textContent = `PROPUESTA ${voto.toUpperCase()}.`; msg.className = 'msg win';
+    msg.textContent = estado === 'pendiente'
+      ? `VOTO REGISTRADO: ✔ ${votosAprobar.length} · ✘ ${votosRechazar.length} (HACEN FALTA ${umbral} DE ${total}, EL 75%)`
+      : `PROPUESTA ${estado.toUpperCase()}.`;
+    msg.className = 'msg win';
     gfCommunityLoaded = false; gfpLoad();
   } catch (e) { console.error(e); msg.textContent = 'NO SE PUDO GUARDAR: ' + (e.message || e); msg.className = 'msg lose'; }
 }

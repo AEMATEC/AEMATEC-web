@@ -5,11 +5,13 @@
 //
 // ESTA VERSIÓN TODAVÍA NO ESTÁ PUBLICADA (pendiente desde 2026-10-02): agrega esModerador() —exige
 // también activar el método de acceso "Correo electrónico/contraseña" en Authentication y crear ahí una
-// cuenta por moderador, ver docs/arcade-firebase-cambios.md sección 3.3— y salaCaducada(), para que
-// cualquiera pueda borrar una sala ya vencida (sección 3.2). Pegar estas reglas sin hacer esos pasos
-// primero no rompe nada, simplemente esas dos cosas no funcionan todavía. Si cambias algo en la consola,
-// avísale a quien mantiene este repositorio para que actualice este archivo; si un PR propone un cambio
-// aquí, cópialo tú mismo a la consola para que entre en efecto.
+// cuenta por moderador, ver docs/arcade-firebase-cambios.md sección 3.3—, salaCaducada() (para que
+// cualquiera pueda borrar una sala ya vencida, sección 3.2) y arcadeModeradores (un documento por correo
+// de moderador, administrado a mano en Firestore, para contar el 75% necesario al votar una propuesta de
+// Golf). Pegar estas reglas sin hacer esos pasos primero no rompe nada, simplemente esas cosas no
+// funcionan todavía. Si cambias algo en la consola, avísale a quien mantiene este repositorio para que
+// actualice este archivo; si un PR propone un cambio aquí, cópialo tú mismo a la consola para que entre
+// en efecto.
 
 rules_version = '2';
 
@@ -182,9 +184,21 @@ service cloud.firestore {
       }
     }
 
-    // Golf: hoyos que la gente propone con el "Creador de hoyos". Quedan pendientes hasta que un
-    // moderador del Arcade (cuenta de correo/contraseña propia de este proyecto, ver esModerador() arriba)
-    // la aprueba o rechaza — un clic decide, no hace falta que varios moderadores voten lo mismo.
+    // Lista de moderadores de Golf, para saber cuántos hay y calcular el 75%. Se administra A MANO desde
+    // la consola de Firestore (un documento por correo, el contenido no importa) — cada vez que agregues
+    // o quites un moderador en Authentication, agrega o quita también su documento aquí. Solo los
+    // moderadores pueden leer esta lista (no hace falta que sea pública).
+    match /arcadeModeradores/{email} {
+      allow read: if esModerador();
+      allow write: if false;
+    }
+
+    // Golf: hoyos que la gente propone con el "Creador de hoyos". Quedan pendientes hasta que el 75% de
+    // los moderadores (redondeado hacia arriba) vote lo mismo — ver assets/js/arcade/moderacion.js, que
+    // calcula el umbral leyendo arcadeModeradores y hace el conteo antes de guardar. La regla de aquí no
+    // puede re-verificar ese conteo (las reglas de Firestore no pueden contar documentos), así que confía
+    // en que la cuenta que escribe es de verdad un moderador (esModerador()) — igual que el resto del
+    // Arcade, funciona con confianza básica una vez que alguien tiene una cuenta real.
     match /golfHoyosPropuestos/{id} {
       allow read: if signedIn();
       allow create: if signedIn()
@@ -198,8 +212,9 @@ service cloud.firestore {
         && request.resource.data.ramps.size() <= 2
         && request.resource.data.creado == request.time;
       allow update: if esModerador()
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['estado'])
-        && request.resource.data.estado in ['aprobado', 'rechazado'];
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['estado', 'votosAprobar', 'votosRechazar'])
+        && request.resource.data.estado in ['pendiente', 'aprobado', 'rechazado']
+        && request.resource.data.votosAprobar is list && request.resource.data.votosRechazar is list;
       allow delete: if esModerador();
     }
 
