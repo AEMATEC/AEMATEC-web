@@ -354,6 +354,7 @@ nav .btn{padding:8px 12px}
     <button class="btn tab" data-t="runner">LA HUIDA DEL ZORRO</button>
     <button class="btn tab" data-t="golf">GOLF</button>
     <button class="btn tab" data-t="cruce">CRUZAR LA CALLE</button>
+    <button class="btn tab" data-t="perfil">PERFIL</button>
   </nav>
 
   <!-- ============ MENÚ ============ -->
@@ -1024,6 +1025,64 @@ nav .btn{padding:8px 12px}
     </aside>
   </section>
 
+  <!-- ============ PERFIL (opcional) ============ -->
+  <section class="game" id="g-perfil">
+    <div class="main px">
+      <h3 class="menu-title">PERFIL</h3>
+      <p class="sub">Esto es opcional: puedes seguir jugando sin cuenta. Si creas una cuenta, los récords que ya
+        tenías en este navegador pasan a ser los de tu cuenta, y puedes agregar amigos para ver los suyos.</p>
+
+      <div id="pf-anon">
+        <div class="row left" style="align-items:flex-start">
+          <div class="px" style="flex:1;min-width:230px">
+            <h4>CREAR CUENTA</h4>
+            <input id="pf-reg-user" class="px-in" maxlength="16" placeholder="USUARIO (3-16, SIN ESPACIOS)" autocomplete="username" aria-label="Usuario para la cuenta nueva">
+            <input id="pf-reg-pass" class="px-in" type="password" maxlength="100" placeholder="CONTRASEÑA (MÍNIMO 6)" autocomplete="new-password" aria-label="Contraseña para la cuenta nueva">
+            <input id="pf-reg-pass2" class="px-in" type="password" maxlength="100" placeholder="REPITE LA CONTRASEÑA" autocomplete="new-password" aria-label="Repite la contraseña">
+            <p class="keys" style="color:var(--red)">NO HAY CORREO: SI OLVIDAS TU USUARIO O CONTRASEÑA, NADIE PUEDE RECUPERARLA. ANÓTALA EN UN LUGAR SEGURO.</p>
+            <button class="btn green" id="pf-reg-btn">CREAR CUENTA</button>
+            <p class="msg" id="pf-reg-msg" aria-live="polite"></p>
+          </div>
+          <div class="px" style="flex:1;min-width:230px">
+            <h4>INICIAR SESIÓN</h4>
+            <input id="pf-in-user" class="px-in" maxlength="16" placeholder="USUARIO" autocomplete="username" aria-label="Tu usuario">
+            <input id="pf-in-pass" class="px-in" type="password" maxlength="100" placeholder="CONTRASEÑA" autocomplete="current-password" aria-label="Tu contraseña">
+            <button class="btn" id="pf-in-btn">ENTRAR</button>
+            <p class="msg" id="pf-in-msg" aria-live="polite"></p>
+          </div>
+        </div>
+      </div>
+
+      <div id="pf-cuenta" hidden>
+        <div class="rc-top"><span class="tag" id="pf-usuario"></span><button class="btn gray" id="pf-logout">CERRAR SESIÓN</button></div>
+        <p class="keys">ELIGE TU IMAGEN</p>
+        <div class="row left" id="pf-avatares"></div>
+        <textarea id="pf-desc" class="px-in" maxlength="140" placeholder="UNA DESCRIPCIÓN CORTA (OPCIONAL)" rows="2" style="width:100%;resize:vertical;margin-top:10px" aria-label="Descripción de tu perfil"></textarea>
+        <div class="row left"><button class="btn green" id="pf-guardar">GUARDAR</button></div>
+        <p class="msg" id="pf-msg" aria-live="polite"></p>
+
+        <div class="row" style="align-items:flex-start;gap:24px;flex-wrap:wrap;margin-top:16px;justify-content:flex-start">
+          <div style="flex:1;min-width:240px">
+            <h4>AMIGOS</h4>
+            <div class="row left">
+              <input id="pf-buscar" class="px-in" maxlength="16" placeholder="BUSCAR USUARIO" aria-label="Buscar un usuario para agregar">
+              <button class="btn" id="pf-buscar-btn">AGREGAR</button>
+            </div>
+            <p class="msg" id="pf-amigos-msg" aria-live="polite"></p>
+            <p class="keys" id="pf-solicitudes-tag" hidden>SOLICITUDES RECIBIDAS</p>
+            <ul class="plist" id="pf-solicitudes" aria-live="polite"></ul>
+            <p class="keys">TUS AMIGOS</p>
+            <ul class="plist" id="pf-amigos" aria-live="polite"></ul>
+          </div>
+          <div style="flex:1;min-width:240px">
+            <h4>RECORDS</h4>
+            <ul class="plist" id="pf-records" aria-live="polite"></ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <footer class="credits">REALIZADO POR <b>ANTONY ARIAS</b> 2026 · CON AYUDA DE CLAUDE PARA EL DISEÑO ESTÉTICO · MÚSICA GENERADA PARA AEMATEC CON CLAUDE · LOS APODOS Y PUNTAJES SON PÚBLICOS: NO USES TU NOMBRE REAL · <a href="legal.html#privacidad">PRIVACIDAD</a></footer>
 </div>
 <audio id="menu-music" src="assets/audio/arcade-menu.mp3" loop preload="auto"></audio>
@@ -1058,11 +1117,16 @@ import {
   db, fs, UID, fbReady, $, esc, store, playerName, fmtT, genCode, tsMillis, isStale, liveRooms,
   presenceLoop, SFX, LB, sprite, scaled, pxCircle, SPR, EGG, fitSoon, setUpdateMenuMusicHook, filtrarTexto, expiraEn,
 } from "./assets/js/arcade/core.js";
-import { T, llStart, llSpit, tiroTick, tiroDraw, tgt } from "./assets/js/arcade/tiro.js";
+import { T, llStart, llSpit, tiroTick, tiroDraw, tgt, MODES } from "./assets/js/arcade/tiro.js";
 import { RN, rnStep, rnDraw, rnJumpPress, RN_FOX_SPR } from "./assets/js/arcade/runner.js";
 import {
   mensajeErrorAuth, onModerador, moderadorLogin, moderadorLogout, moderadorActual, dbMod,
 } from "./assets/js/arcade/moderacion.js";
+import {
+  AVATARES, mensajeErrorCuenta, onCuenta, registrarCuenta, iniciarSesion, cerrarSesion,
+  cargarPerfil, guardarPerfil, buscarUsuario, solicitudesRecibidas, enviarSolicitud,
+  aceptarSolicitud, rechazarSolicitud, amigos, quitarAmigo, recordDe,
+} from "./assets/js/arcade/perfiles.js";
 import { MUSIC, setMusicToggleHook } from "./assets/js/arcade/musica.js";
 
 /* ---------- pestañas ---------- */
@@ -6033,6 +6097,148 @@ $('#cr-exit').onclick = () => goTab('menu');
 window.addEventListener('beforeunload', () => { if (CR.mode === 'online') crLeaveOnline(); });
 crLB(); crView('menu');
 
+/* =========================================================
+   PERFIL (opcional): cuenta, amigos y récords.
+   Prefijo "pf". La cuenta/amigos/récords viven en assets/js/arcade/perfiles.js; aquí solo la pantalla,
+   porque el catálogo completo de juegos/variantes (pistas de Carreras, modos de Animal al Tiro...) solo
+   se conoce en este archivo (ver AGENTS.md: lo que conecta a TODOS los juegos vive en arcade.html).
+   ========================================================= */
+const PF_AVATAR_SPR = { zorro: RN_FOX_SPR.duck[0], llama: SPR.llama, erizo: SPR.erizo, nave: SPR.nave, mina: SPR.mine };
+const PF_AVATAR_N = { zorro: 'ZORRO', llama: 'LLAMA', erizo: 'ERIZO', nave: 'NAVE', mina: 'MINA' };
+let pfAvatarElegido = AVATARES[0];
+// Lista completa de claves de tabla de clasificación que existen hoy, para el panel "Records" — si se
+// agrega un juego, modo o pista nueva, agrégalo también aquí.
+function pfCatalogoRecords() {
+  const lista = [
+    { key: 'batalla', n: 'BATALLA NAVAL', fmt: r => `${r.score} TIROS` },
+    { key: 'minas_facil', n: 'BUSCAMINAS (FÁCIL)', fmt: r => fmtT(r.score) },
+    { key: 'minas_medio', n: 'BUSCAMINAS (MEDIO)', fmt: r => fmtT(r.score) },
+    { key: 'minas_dificil', n: 'BUSCAMINAS (DIFÍCIL)', fmt: r => fmtT(r.score) },
+    { key: 'funciones', n: 'COMBATE DE FUNCIONES', fmt: r => `${r.score} VICTORIAS` },
+    { key: 'veintiuno', n: 'CASINO 21', fmt: r => `${r.score} VICTORIAS` },
+    { key: 'billar_eight', n: 'BILLAR (8 BOLAS)', fmt: r => `${r.score} PARTIDAS` },
+    { key: 'billar_nine', n: 'BILLAR (9 BOLAS)', fmt: r => `${r.score} PARTIDAS` },
+    { key: 'duelo', n: 'DUELO DEL OESTE', fmt: r => `${r.score} VICTORIAS` },
+    { key: 'duelo_reaccion', n: 'DUELO DEL OESTE (REACCIÓN)', fmt: r => `${r.score} MS` },
+    { key: 'runner', n: 'LA HUIDA DEL ZORRO', fmt: r => `${r.score} M` },
+    { key: 'golf', n: 'GOLF', fmt: r => `${r.score} GOLPES` },
+    { key: 'cruce', n: 'CRUZAR LA CALLE', fmt: r => `${r.score} PTS` },
+  ];
+  Object.values(MODES).forEach(m => lista.push({ key: m.key, n: `ANIMAL AL TIRO (${m.n})`, fmt: r => `${r.score} PTS` }));
+  TRACKS.forEach((t, i) => {
+    lista.push({ key: rcLbKey(i, 'lap'), n: `CARRERAS — ${t.n} (VUELTA)`, fmt: r => fmtT(r.score) });
+    lista.push({ key: rcLbKey(i, 'total'), n: `CARRERAS — ${t.n} (TOTAL)`, fmt: r => fmtT(r.score) });
+  });
+  return lista;
+}
+// Los 5 sprites vienen de tamaños nativos muy distintos (el de la mina es chiquito, el de la llama es
+// grande), así que cada uno se dibuja encajado y centrado en un lienzo del mismo tamaño en vez de
+// escalarlos todos por el mismo número — para que las 5 miniaturas se vean parejas en el selector.
+function pfAvatarCanvas(spr, size = 44) {
+  const c = document.createElement('canvas'); c.width = size; c.height = size;
+  const x = c.getContext('2d'); x.imageSmoothingEnabled = false;
+  const k = Math.floor(Math.min(size / spr.width, size / spr.height));
+  const w = spr.width * k, h = spr.height * k;
+  x.drawImage(spr, Math.round((size - w) / 2), Math.round((size - h) / 2), w, h);
+  return c;
+}
+function pfAvatarBtns(sel, onPick) {
+  const cont = $('#pf-avatares'); cont.innerHTML = '';
+  AVATARES.forEach(a => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'btn gray pf-av' + (a === sel ? ' on' : '');
+    b.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px';
+    b.appendChild(pfAvatarCanvas(PF_AVATAR_SPR[a]));
+    const s = document.createElement('span'); s.textContent = PF_AVATAR_N[a]; b.appendChild(s);
+    b.onclick = () => { SFX.play('click'); onPick(a); cont.querySelectorAll('.pf-av').forEach(x => x.classList.toggle('on', x === b)); };
+    cont.appendChild(b);
+  });
+}
+async function pfCargarCuenta(user) {
+  $('#pf-anon').hidden = !!user;
+  $('#pf-cuenta').hidden = !user;
+  if (!user) return;
+  const perfil = await cargarPerfil(user.uid);
+  if (!perfil) return;
+  pfAvatarElegido = perfil.avatar;
+  $('#pf-usuario').textContent = '@' + perfil.usuario;
+  $('#pf-desc').value = perfil.descripcion || '';
+  pfAvatarBtns(pfAvatarElegido, a => pfAvatarElegido = a);
+  pfCargarAmigos();
+  pfCargarRecords(user.uid);
+}
+async function pfCargarRecords(uid) {
+  const ul = $('#pf-records'); ul.innerHTML = '<li class="muted">CARGANDO…</li>';
+  const catalogo = pfCatalogoRecords();
+  const filas = [];
+  for (const it of catalogo) {
+    const r = await recordDe(uid, it.key);
+    if (r) filas.push(`<li><span class="nm">${esc(it.n)}</span><span class="sc">${it.fmt(r)}</span></li>`);
+  }
+  ul.innerHTML = filas.length ? filas.join('') : '<li class="muted">TODAVÍA NO TIENES RÉCORDS.</li>';
+}
+async function pfCargarAmigos() {
+  const msg = $('#pf-amigos-msg');
+  try {
+    const [solicitudes, lista] = await Promise.all([solicitudesRecibidas(), amigos()]);
+    const tag = $('#pf-solicitudes-tag'); tag.hidden = solicitudes.length === 0;
+    $('#pf-solicitudes').innerHTML = solicitudes.length
+      ? solicitudes.map(p => `<li><span class="nm">@${esc(p.usuario)}</span>
+          <button class="btn green" data-aceptar="${p.uid}">ACEPTAR</button>
+          <button class="btn gray" data-rechazar="${p.uid}">RECHAZAR</button></li>`).join('')
+      : '';
+    $('#pf-amigos').innerHTML = lista.length
+      ? lista.map(p => `<li><span class="nm">@${esc(p.usuario)}</span><small>${esc(p.descripcion || '')}</small>
+          <button class="btn gray" data-quitar="${p.uid}">QUITAR</button></li>`).join('')
+      : '<li class="muted">AÚN NO TIENES AMIGOS.</li>';
+    $('#pf-solicitudes').querySelectorAll('[data-aceptar]').forEach(b => b.onclick = async () => { await aceptarSolicitud(b.dataset.aceptar); SFX.play('click'); pfCargarAmigos(); });
+    $('#pf-solicitudes').querySelectorAll('[data-rechazar]').forEach(b => b.onclick = async () => { await rechazarSolicitud(b.dataset.rechazar); pfCargarAmigos(); });
+    $('#pf-amigos').querySelectorAll('[data-quitar]').forEach(b => b.onclick = async () => { if (window.confirm('¿QUITAR DE AMIGOS?')) { await quitarAmigo(b.dataset.quitar); pfCargarAmigos(); } });
+  } catch (e) { console.error(e); msg.textContent = 'NO SE PUDO CARGAR.'; msg.className = 'msg lose'; }
+}
+onCuenta(user => pfCargarCuenta(user));
+$('#pf-reg-btn').onclick = async () => {
+  const msg = $('#pf-reg-msg'), usuario = $('#pf-reg-user').value.trim(), p1 = $('#pf-reg-pass').value, p2 = $('#pf-reg-pass2').value;
+  msg.className = 'msg';
+  if (!usuario || !p1) { msg.textContent = 'ESCRIBE UN USUARIO Y UNA CONTRASEÑA.'; msg.className = 'msg lose'; return; }
+  if (p1 !== p2) { msg.textContent = 'LAS CONTRASEÑAS NO COINCIDEN.'; msg.className = 'msg lose'; return; }
+  const r = filtrarTexto(usuario);
+  if (!r.ok) { msg.textContent = r.motivo; msg.className = 'msg lose'; return; }
+  msg.textContent = 'CREANDO CUENTA…';
+  try {
+    pfAvatarElegido = AVATARES[0];
+    await registrarCuenta(usuario, p1, '', pfAvatarElegido);
+    $('#pf-reg-pass').value = ''; $('#pf-reg-pass2').value = ''; msg.textContent = '';
+    SFX.play('win');
+  } catch (e) { console.error(e); msg.textContent = e.code ? mensajeErrorCuenta(e) : e.message; msg.className = 'msg lose'; }
+};
+$('#pf-in-btn').onclick = async () => {
+  const msg = $('#pf-in-msg'), usuario = $('#pf-in-user').value.trim(), pass = $('#pf-in-pass').value;
+  if (!usuario || !pass) { msg.textContent = 'ESCRIBE TU USUARIO Y CONTRASEÑA.'; msg.className = 'msg lose'; return; }
+  msg.textContent = 'ENTRANDO…'; msg.className = 'msg';
+  try { await iniciarSesion(usuario, pass); $('#pf-in-pass').value = ''; msg.textContent = ''; SFX.play('win'); }
+  catch (e) { msg.textContent = e.code ? mensajeErrorCuenta(e) : e.message; msg.className = 'msg lose'; }
+};
+$('#pf-logout').onclick = () => cerrarSesion();
+$('#pf-guardar').onclick = async () => {
+  const msg = $('#pf-msg');
+  const r = filtrarTexto($('#pf-desc').value);
+  if (!r.ok) { msg.textContent = r.motivo; msg.className = 'msg lose'; return; }
+  try { await guardarPerfil($('#pf-desc').value, pfAvatarElegido); msg.textContent = 'GUARDADO.'; msg.className = 'msg win'; SFX.play('click'); }
+  catch (e) { console.error(e); msg.textContent = 'NO SE PUDO GUARDAR.'; msg.className = 'msg lose'; }
+};
+$('#pf-buscar-btn').onclick = async () => {
+  const msg = $('#pf-amigos-msg'), usuario = $('#pf-buscar').value.trim();
+  if (!usuario) return;
+  msg.className = 'msg';
+  try {
+    const perfil = await buscarUsuario(usuario);
+    if (!perfil) { msg.textContent = 'NO EXISTE ESE USUARIO.'; msg.className = 'msg lose'; return; }
+    await enviarSolicitud(perfil.uid);
+    $('#pf-buscar').value = ''; msg.textContent = 'SOLICITUD ENVIADA A @' + perfil.usuario + '.'; msg.className = 'msg win';
+    SFX.play('click');
+  } catch (e) { console.error(e); msg.textContent = e.code ? 'NO SE PUDO ENVIAR LA SOLICITUD.' : e.message; msg.className = 'msg lose'; }
+};
 
 /* ---------- ajuste a la pantalla ----------
    fitAll/fitOver/fitSoon viven en assets/js/arcade/core.js (importados arriba); ese archivo no
@@ -6178,16 +6384,17 @@ document.querySelectorAll('.splash').forEach(sp => {
     updateMenuMusic();
   };
 });
-const splashOn = g => !document.querySelector(`.splash[data-g="${g}"]`).hidden;
+const splashOn = g => { const sp = document.querySelector(`.splash[data-g="${g}"]`); return !!sp && !sp.hidden; };
 
 /* ---------- navegación entre juegos ---------- */
 const menuMusic = $('#menu-music'); menuMusic.volume = 0.45;
 // Menú: la canción del Arcade (archivo). Cada juego: su propia canción (musica.js), a volumen normal en su
-// pantalla de inicio y más baja ya dentro de la partida.
+// pantalla de inicio y más baja ya dentro de la partida. "Perfil" no es un juego (sin splash ni canción
+// propia): se trata como el menú para efectos de música, sin intentar cargar "musica/perfil.js".
 function updateMenuMusic() {
   if (tab === 'menu' && MUSIC.audible()) menuMusic.play().catch(() => {});
   else menuMusic.pause();
-  if (tab === 'menu') MUSIC.stop();
+  if (tab === 'menu' || !document.querySelector(`.splash[data-g="${tab}"]`)) MUSIC.stop();
   else MUSIC.play(tab, splashOn(tab) ? 'full' : 'low');
 }
 setUpdateMenuMusicHook(updateMenuMusic);

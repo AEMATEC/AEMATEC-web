@@ -5,7 +5,8 @@
 //
 // Requisitos en la consola de Firebase (proyecto arcade-matec):
 // 1) Authentication > Método de acceso > activar "Anónimo" (para jugar) y "Correo electrónico/contraseña"
-//    (para los moderadores de Golf, ver assets/js/arcade/moderacion.js)
+//    (para los moderadores de Golf y para los perfiles opcionales, ver assets/js/arcade/moderacion.js y
+//    assets/js/arcade/perfiles.js)
 // 2) Firestore Database creada
 // 3) Publicar las reglas de firestore.rules (ver docs/arcade-firebase-cambios.md)
 
@@ -19,7 +20,7 @@ export const firebaseConfig = {
 };
 const FB_VER = '10.12.2';
 
-export let db = null, fs = null, UID = null;
+export let db = null, fs = null, UID = null, auth = null;
 export const fbReady = (async () => {
   if (window.__FB_MOCK__) { const m = await window.__FB_MOCK__(); fs = m.fs; db = m.db; UID = m.uid; return true; }
   try {
@@ -29,8 +30,18 @@ export const fbReady = (async () => {
     ]);
     const app = appMod.initializeApp(firebaseConfig);
     fs = fsMod; db = fs.getFirestore(app);
-    const cred = await auMod.signInAnonymously(auMod.getAuth(app));
-    UID = cred.user.uid;
+    auth = auMod.getAuth(app);
+    // UID se mantiene al día en cualquier cambio de sesión (crear cuenta, iniciar o cerrar sesión desde
+    // assets/js/arcade/perfiles.js, un perfil opcional). Como se exporta como "let", cualquier archivo que
+    // lo importe ve el valor nuevo solo —es un enlace vivo de los módulos ES— sin que este archivo tenga
+    // que conocer a perfiles.js ni avisarle a nadie.
+    auMod.onAuthStateChanged(auth, u => { if (u) UID = u.uid; });
+    // Si ya había una sesión real guardada (alguien con cuenta que vuelve), Firebase Auth la restaura sola
+    // al cargar la página — sin esto, signInAnonymously la reemplazaría siempre por una sesión anónima nueva.
+    const sesionGuardada = await new Promise(res => {
+      const unsub = auMod.onAuthStateChanged(auth, u => { unsub(); res(u); });
+    });
+    UID = sesionGuardada ? sesionGuardada.uid : (await auMod.signInAnonymously(auth)).user.uid;
     // Sin Google Analytics a propósito: pondría cookies de rastreo sin consentimiento (Ley 8968 Art. 5). Ver legal.html#cookies.
     return true;
   } catch (e) { console.warn('Firebase no disponible, modo local:', e); return false; }
@@ -402,6 +413,21 @@ export const SPR = {
     "....55....55....",
     "................",
   ], { 1: '#e8c39e', 2: '#5a3a22', 3: '#1a1c2c', 4: '#1a1c2c', 5: '#c28866', 6: '#8a5a38' }, 2),
+  // Nave pequeña, para el avatar de perfil "LAS NAVES" (mismos colores del barco de Batalla Naval, ver
+  // drawSplash en arcade.html — ahí se dibuja a mano con fillRect, aquí como sprite reutilizable). De
+  // perfil, horizontal, como el barco de drawSplash: casco ancho abajo, cabina arriba, mástil y bandera.
+  nave: sprite([
+    "................",
+    ".......4........",
+    ".......455......",
+    ".......4........",
+    ".....3333333....",
+    ".....3333333....",
+    "..222222222222..",
+    ".11111111111111.",
+    ".11111111111111.",
+    "..111111111111..",
+  ], { 1: '#333c57', 2: '#566c86', 3: '#94b0c2', 4: '#f4f4f4', 5: '#b13e53' }, 2),
 };
 for (const k of ['flag', 'mine', 'boom', 'splash'])
   document.documentElement.style.setProperty('--' + k, `url(${SPR[k].toDataURL()})`);

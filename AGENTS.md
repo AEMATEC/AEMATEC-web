@@ -130,16 +130,29 @@ Golf tiene un **creador de hoyos**: cualquiera diseña uno y lo envía a `golfHo
 Para aprobarlo, rechazarlo o borrarlo desde "PROPUESTAS DE LA COMUNIDAD" hace falta iniciar sesión con una
 cuenta de correo/contraseña **propia de `arcade-matec`** (no la del sitio principal — ver
 `assets/js/arcade/moderacion.js`, una segunda app de Firebase aparte de la anónima con la que todo el mundo
-juega). Las reglas de `arcade-matec` (`esModerador()`) revisan que la sesión inició con contraseña **y** que
-su correo está en `arcadeModeradores` (solo la contraseña no basta: cualquiera puede crearse una cuenta con la
-API pública de Firebase Auth) — sin Cloud Function, sin cuenta de servicio, sin tocar Google Cloud Console. Hace falta que el 75% de los moderadores (redondeado hacia arriba) vote lo mismo
-para que una propuesta quede aprobada o rechazada; el conteo lo hace el propio navegador leyendo la
+juega). Las reglas de `arcade-matec` (`esModerador()`) revisan que la sesión actual haya iniciado con
+contraseña **y** que ese correo tenga su documento en `arcadeModeradores` — sin Cloud Function, sin cuenta
+de servicio, sin tocar Google Cloud Console (el segundo requisito hace falta porque solo la contraseña no
+basta: cualquiera puede crearse una cuenta de correo/contraseña con la API pública de Firebase Auth, y desde
+los perfiles opcionales de abajo cualquier persona SÍ tiene de verdad una cuenta así). Hace falta que el 75%
+de los moderadores (redondeado hacia arriba) vote lo mismo para que una propuesta quede aprobada o
+rechazada; el conteo lo hace el propio navegador leyendo la
 colección `arcadeModeradores` (un documento por correo, se administra a mano en la consola de Firestore —
 no hay forma de contar cuentas de Authentication desde el navegador). Quién puede moderar lo decides tú
 creando la cuenta en Authentication → Users **y** su documento en `arcadeModeradores` (ver
 `docs/arcade-firebase-cambios.md`, sección 3.3). Si se agrega este mismo patrón a otro juego con mapas/pistas,
 sigue la misma idea: propuesta pendiente → votación de moderadores del Arcade → se integra solo en modo local
 (no se sincronizó para partidas en línea, por simplicidad).
+
+El Arcade tiene **perfiles opcionales** (pestaña "PERFIL"): cuenta con solo usuario y contraseña (sin
+correo real — se arma uno falso interno que nunca se muestra, así que si alguien la olvida no se puede
+recuperar), amigos (solicitud y aceptación) y récords ligados a la cuenta. Registrarse usa
+`linkWithCredential` sobre la sesión anónima de juego, conservando el mismo uid — así los puntajes que esa
+persona ya tenía jugando sin cuenta (siempre con el opt-in de "¿SUBES TU PUNTAJE?", nunca automático) pasan
+a ser los de su cuenta nueva solos, sin mover nada a mano. Toda la lógica de cuenta/amigos vive en
+`assets/js/arcade/perfiles.js`; la pantalla, en `arcade.html` (que también arma el catálogo de claves de
+tabla de clasificación para el panel "Records", porque es el único archivo que conoce TODOS los juegos a la
+vez). Ver `docs/arcade-firebase-cambios.md`, sección 3.4.
 
 ## Estilo del código
 Sitio estático: HTML + Tailwind compilado (`assets/css/tailwind.css`, ver `tailwind.config.js`) + JavaScript modular en línea, con el SDK de Firebase 10.12.2
