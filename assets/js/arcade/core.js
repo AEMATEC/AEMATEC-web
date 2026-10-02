@@ -244,6 +244,31 @@ export const LB = {
     store.set('lb_' + key, arr.slice(0, 10));
     return r ? r.score : 1;
   },
+  // La persona decide si publica su puntaje. `mensaje` es el texto que se le muestra ("¿SUBES TU
+  // TIEMPO DE 45s?"); `publicar` es la función que de verdad guarda (normalmente LB.submit/
+  // LB.increment ya con los datos del juego). Devuelve lo que `publicar` devuelva, o false si la
+  // persona dijo que no — nunca falla, así que el `.then(...)` que refresca la tabla siempre corre.
+  confirmar(mensaje, publicar) {
+    return new Promise(resolve => {
+      const box = $('#lb-confirm'), msg = $('#lb-confirm-msg'), choice = $('#lb-confirm-choice');
+      const step = $('#lb-confirm-name-step'), nombreIn = $('#lb-confirm-name'), nombreMsg = $('#lb-confirm-name-msg');
+      msg.textContent = mensaje;
+      choice.hidden = false; step.hidden = true; nombreMsg.textContent = '';
+      nombreIn.value = playerName();
+      box.hidden = false;
+      const cerrar = r => { box.hidden = true; resolve(r); };
+      $('#lb-confirm-no').onclick = () => cerrar(false);
+      $('#lb-confirm-yes').onclick = () => { choice.hidden = true; step.hidden = false; nombreIn.focus(); };
+      $('#lb-confirm-publish').onclick = async () => {
+        const v = nombreIn.value.trim().toUpperCase().slice(0, 10);
+        if (!v) { nombreMsg.textContent = 'ESCRIBE UN APODO.'; return; }
+        const r = filtrarTexto(v);
+        if (!r.ok) { nombreMsg.textContent = r.motivo; return; }
+        store.set('pa_name', v); $('#name').value = v;
+        cerrar(await publicar());
+      };
+    });
+  },
   async top(key, asc) {
     if (await fbReady) {
       try {
