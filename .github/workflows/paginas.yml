@@ -17,7 +17,6 @@ on:
       - tests/revisar-enlaces.mjs
       - tests/temas.test.js
       - tests/inventario-*.test.js
-      - scripts/categorias/**
       - .github/workflows/paginas.yml
   push:
     branches: [main]
@@ -31,7 +30,6 @@ on:
       - tests/revisar-enlaces.mjs
       - tests/temas.test.js
       - tests/inventario-*.test.js
-      - scripts/categorias/**
       - .github/workflows/paginas.yml
 
 jobs:

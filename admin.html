@@ -34,49 +34,31 @@
         border-right: 3px solid #00A6B8;
         border-bottom: none;
       }
-      .section-content {
-        padding: 1.25rem;
-      }
-      #section-form {
-        flex-direction: column;
-      }
-      #section-form input,
-      #section-form button {
-        width: 100%;
-        min-width: 0;
-      }
-      #section-list li {
-        align-items: flex-start;
-        flex-direction: column;
-        gap: 0.75rem;
-      }
-    }
-  </style>
-  <style>
-    @media (max-width: 767px) {
-      main {
-        padding: 2rem 1rem;
-      }
-      #login-panel {
+      .section-content,
+      #pending-list article {
         padding: 1.25rem;
       }
       #moderacion>div:first-child {
         align-items: flex-start;
       }
+      #section-form,
       #moderator-form {
         flex-direction: column;
       }
+      #section-form input,
+      #section-form button,
       #moderator-form input,
       #moderator-form button {
         width: 100%;
         min-width: 0;
       }
+      #section-list li,
       #moderator-list li {
         align-items: flex-start;
         flex-direction: column;
       }
-      #pending-list article {
-        padding: 1.25rem;
+      #section-list li {
+        gap: 0.75rem;
       }
     }
   </style>
@@ -94,16 +76,16 @@
       <p class="mt-2 text-[#607480]">Para la Junta Directiva, la Fiscalía y el equipo de moderación del Repositorio.</p>
       <form id="login-form" class="mt-6 space-y-4">
         <div><label for="email" class="font-sans text-xs font-bold">Correo</label><input id="email" type="email"
-            required autocomplete="email" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+            required autocomplete="email" class="mt-2 h-11 w-full rounded-[9px] border border-[#8497A3] px-3"></div>
         <div><label for="password" class="font-sans text-xs font-bold">Contraseña</label><input id="password"
             type="password" required autocomplete="current-password"
-            class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+            class="mt-2 h-11 w-full rounded-[9px] border border-[#8497A3] px-3"></div>
         <button class="h-11 w-full rounded-[9px] bg-[#0D2B45] font-sans text-sm font-bold text-white">Iniciar
           sesión</button>
         <p id="login-status" role="alert" class="text-sm text-[#C2413B]" hidden></p>
       </form>
       <div id="login-links" class="mt-4 flex justify-between font-sans text-xs font-bold">
-        <a href="#" id="show-signup-link" class="text-[#008F9E]">Primera vez, crear contraseña</a>
+        <a href="#" id="show-signup-link" class="text-[#00798A]">Primera vez, crear contraseña</a>
         <a href="#" id="show-reset-link" class="text-[#607480]">¿Olvidaste tu contraseña?</a>
       </div>
 
@@ -111,13 +93,13 @@
         <p class="text-sm text-[#607480]">Si tu correo ya fue agregado a la Junta, la Fiscalía o la moderación, crea aquí tu contraseña.</p>
         <div><label for="signup-email" class="font-sans text-xs font-bold">Correo</label><input id="signup-email"
             type="email" required autocomplete="email"
-            class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+            class="mt-2 h-11 w-full rounded-[9px] border border-[#8497A3] px-3"></div>
         <div><label for="signup-password" class="font-sans text-xs font-bold">Contraseña (mínimo 6
             caracteres)</label><input id="signup-password" type="password" required minlength="6"
-            autocomplete="new-password" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+            autocomplete="new-password" class="mt-2 h-11 w-full rounded-[9px] border border-[#8497A3] px-3"></div>
         <div><label for="signup-password-confirm" class="font-sans text-xs font-bold">Confirmar contraseña</label><input
             id="signup-password-confirm" type="password" required minlength="6" autocomplete="new-password"
-            class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+            class="mt-2 h-11 w-full rounded-[9px] border border-[#8497A3] px-3"></div>
         <button class="h-11 w-full rounded-[9px] bg-[#0D2B45] font-sans text-sm font-bold text-white">Crear
           contraseña</button>
         <p id="signup-status" role="status" class="text-sm" hidden></p>
@@ -129,7 +111,7 @@
         <p class="text-sm text-[#607480]">Te enviaremos un enlace a tu correo para restablecer la contraseña.</p>
         <div><label for="reset-email" class="font-sans text-xs font-bold">Correo</label><input id="reset-email"
             type="email" required autocomplete="email"
-            class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+            class="mt-2 h-11 w-full rounded-[9px] border border-[#8497A3] px-3"></div>
         <button class="h-11 w-full rounded-[9px] bg-[#0D2B45] font-sans text-sm font-bold text-white">Enviar
           enlace</button>
         <p id="reset-status" role="status" class="text-sm" hidden></p>
@@ -140,7 +122,7 @@
     <section id="admin-panel" hidden>
       <div class="flex flex-wrap items-end justify-between gap-4 mb-6">
         <div>
-          <p class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#00A6B8]">Administración</p>
+          <p class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#00798A]">Administración</p>
           <h1 class="mt-2 font-sans text-3xl font-bold">Panel de administración</h1>
           <p id="admin-session" class="mt-2 text-sm text-[#607480]"></p>
         </div>
@@ -151,7 +133,7 @@
       <nav id="admin-nav" class="mb-8 flex flex-wrap gap-2 font-sans text-xs font-bold" aria-label="Secciones del panel"></nav>
 
       <section id="tramites" class="mb-12" hidden>
-        <p class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#00A6B8]">Trámites</p>
+        <p class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#00798A]">Trámites</p>
         <h2 class="mt-2 font-sans text-2xl font-bold">Trámites recibidos</h2>
         <p class="mt-2 text-sm text-[#607480]">Plazo de respuesta: 10 días hábiles (RI Art. 111). Los rechazos deben ir motivados;
           la persona recibe por correo la motivación y cómo pedir reconsideración (Art. 82-83).</p>
@@ -160,7 +142,7 @@
           <div class="flex flex-wrap items-center justify-between gap-3">
             <h3 class="font-sans text-lg font-bold">Para la Junta Directiva</h3>
             <label class="font-sans text-xs font-bold">Mostrar
-              <select id="filtro-tramites" class="ml-2 h-9 rounded-[8px] border border-[#BFD0D8] bg-white px-2 text-sm">
+              <select id="filtro-tramites" class="ml-2 h-9 rounded-[8px] border border-[#8497A3] bg-white px-2 text-sm">
                 <option value="abiertos">Abiertos</option>
                 <option value="resuelto">Resueltos</option>
                 <option value="rechazado">Rechazados</option>
@@ -179,21 +161,21 @@
       </section>
 
       <section id="asociacion" class="mb-12" hidden>
-        <p class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#00A6B8]">Asociación</p>
+        <p class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#00798A]">Asociación</p>
         <h2 class="mt-2 mb-5 font-sans text-2xl font-bold">Padrón, Junta, Fiscalía y Medios</h2>
         <div class="rounded-[16px] border border-[#D7E2E7] bg-white p-6 shadow-sm">
         <div class="tabs-container flex border-b border-[#D8E3E9]">
           <button data-tab="padron"
-            class="active tab-btn px-6 py-3 font-sans font-semibold text-sm border-b-2 border-[#00A6B8] text-[#00A6B8]"><i
+            class="active tab-btn px-6 py-3 font-sans font-semibold text-sm border-b-2 border-[#00A6B8] text-[#00798A]"><i
               class="fa-solid fa-id-card mr-2"></i>Padrón de Asociados</button>
           <button data-tab="junta"
-            class="tab-btn px-6 py-3 font-sans font-semibold text-sm border-b-2 border-transparent text-[#607480] hover:text-[#00A6B8]"><i
+            class="tab-btn px-6 py-3 font-sans font-semibold text-sm border-b-2 border-transparent text-[#607480] hover:text-[#00798A]"><i
               class="fa-solid fa-users mr-2"></i>Junta Directiva</button>
           <button data-tab="fiscalia"
-            class="tab-btn px-6 py-3 font-sans font-semibold text-sm border-b-2 border-transparent text-[#607480] hover:text-[#00A6B8]"><i
+            class="tab-btn px-6 py-3 font-sans font-semibold text-sm border-b-2 border-transparent text-[#607480] hover:text-[#00798A]"><i
               class="fa-solid fa-scale-balanced mr-2"></i>Fiscalía</button>
           <button data-tab="medios"
-            class="tab-btn px-6 py-3 font-sans font-semibold text-sm border-b-2 border-transparent text-[#607480] hover:text-[#00A6B8]"><i
+            class="tab-btn px-6 py-3 font-sans font-semibold text-sm border-b-2 border-transparent text-[#607480] hover:text-[#00798A]"><i
               class="fa-solid fa-megaphone mr-2"></i>Medios Oficiales</button>
         </div>
 
@@ -203,7 +185,7 @@
             <div class="relative flex-1">
               <input id="section-email" type="text" required
                 placeholder="correo1@estudiantec.cr; correo2@estudiantec.cr; ..."
-                class="h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3">
+                class="h-11 w-full rounded-[9px] border border-[#8497A3] px-3">
               <ul id="suggestions-list"
                 class="hidden absolute z-10 w-full mt-1 border border-[#D8E3E9] rounded-[9px] bg-white shadow-md max-h-48 overflow-y-auto">
               </ul>
@@ -211,7 +193,7 @@
             <button type="submit"
               class="h-11 rounded-[9px] bg-[#0D2B45] px-5 font-sans text-xs font-bold text-white">Agregar</button>
             <button type="button" id="upload-csv-btn" data-tab-only="padron"
-              class="h-11 rounded-[9px] border border-[#BFD0D8] px-5 font-sans text-xs font-bold hidden"
+              class="h-11 rounded-[9px] border border-[#8497A3] px-5 font-sans text-xs font-bold hidden"
               id="csv-btn-visible">Cargar CSV</button>
           </form>
           <p id="section-status" role="status" class="text-sm" hidden></p>
@@ -230,21 +212,21 @@
           </datalist>
 
           <div id="medios-form" class="space-y-4" style="display: none;">
-            <div><label class="font-sans text-xs font-bold">Correo institucional</label><input id="medios-email"
-                type="text" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"
+            <div><label for="medios-email" class="font-sans text-xs font-bold">Correo institucional</label><input id="medios-email"
+                type="text" class="mt-2 h-11 w-full rounded-[9px] border border-[#8497A3] px-3"
                 placeholder="aematec@estudiantec.cr"></div>
-            <div><label class="font-sans text-xs font-bold">Teléfono fijo</label><input id="medios-phone" type="text"
-                class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3" placeholder="2550-2463"></div>
+            <div><label for="medios-phone" class="font-sans text-xs font-bold">Teléfono fijo</label><input id="medios-phone" type="text"
+                class="mt-2 h-11 w-full rounded-[9px] border border-[#8497A3] px-3" placeholder="2550-2463"></div>
             <div class="border-t border-[#D8E3E9] pt-4">
               <p class="font-sans text-xs font-bold mb-3">Medios de difusión</p>
-              <div><label class="font-sans text-xs font-bold">WhatsApp</label><input id="medios-whatsapp" type="text"
-                  class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"
+              <div><label for="medios-whatsapp" class="font-sans text-xs font-bold">WhatsApp</label><input id="medios-whatsapp" type="text"
+                  class="mt-2 h-11 w-full rounded-[9px] border border-[#8497A3] px-3"
                   placeholder="https://chat.whatsapp.com/..."></div>
-              <div class="mt-3"><label class="font-sans text-xs font-bold">Instagram</label><input id="medios-instagram"
-                  type="text" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"
+              <div class="mt-3"><label for="medios-instagram" class="font-sans text-xs font-bold">Instagram</label><input id="medios-instagram"
+                  type="text" class="mt-2 h-11 w-full rounded-[9px] border border-[#8497A3] px-3"
                   placeholder="https://www.instagram.com/aematec"></div>
-              <div class="mt-3"><label class="font-sans text-xs font-bold">Telegram</label><input id="medios-telegram"
-                  type="text" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"
+              <div class="mt-3"><label for="medios-telegram" class="font-sans text-xs font-bold">Telegram</label><input id="medios-telegram"
+                  type="text" class="mt-2 h-11 w-full rounded-[9px] border border-[#8497A3] px-3"
                   placeholder="https://t.me/comunidadmatec"></div>
             </div>
             <button type="button" id="medios-save"
@@ -257,7 +239,7 @@
       </section>
 
       <section id="tema" class="mb-12" hidden>
-        <p class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#00A6B8]">Sitio</p>
+        <p class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#00798A]">Sitio</p>
         <h2 class="mt-2 font-sans text-2xl font-bold">Tema del sitio</h2>
         <p class="mt-2 text-sm text-[#607480]">Los temas de temporada se activan solos según la fecha. Aquí se pueden
           apagar (por ejemplo, por duelo) o fijar uno, hasta una fecha si se indica. Quien pidió "reducir movimiento" en su
@@ -266,9 +248,9 @@
           <p id="tema-actual" class="font-sans text-sm font-bold"></p>
           <form id="tema-form" class="mt-4 flex flex-wrap items-end gap-3">
             <label class="font-sans text-xs font-bold">Modo
-              <select id="tema-modo" class="mt-2 block h-11 min-w-[260px] rounded-[9px] border border-[#BFD0D8] bg-white px-3 text-sm"></select></label>
+              <select id="tema-modo" class="mt-2 block h-11 min-w-[260px] rounded-[9px] border border-[#8497A3] bg-white px-3 text-sm"></select></label>
             <label class="font-sans text-xs font-bold">Hasta (opcional)
-              <input id="tema-hasta" type="date" class="mt-2 block h-11 rounded-[9px] border border-[#BFD0D8] px-3 text-sm"></label>
+              <input id="tema-hasta" type="date" class="mt-2 block h-11 rounded-[9px] border border-[#8497A3] px-3 text-sm"></label>
             <button class="h-11 rounded-[9px] bg-[#0D2B45] px-5 font-sans text-xs font-bold text-white">Guardar</button>
           </form>
           <p id="tema-estado" role="status" class="mt-3 text-sm" hidden></p>
@@ -280,7 +262,7 @@
       <section id="moderacion" hidden>
       <div class="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#00A6B8]">Repositorio</p>
+          <p class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#00798A]">Repositorio</p>
           <h2 class="mt-2 font-sans text-2xl font-bold">Materiales pendientes de revisión</h2>
         </div>
       </div>
@@ -293,7 +275,7 @@
         <form id="moderator-form" class="mt-5 flex flex-wrap gap-3">
           <label for="moderator-email" class="sr-only">Correo del moderador</label>
           <input id="moderator-email" type="email" required placeholder="correo@ejemplo.com"
-            class="h-11 min-w-[260px] flex-1 rounded-[9px] border border-[#BFD0D8] px-3">
+            class="h-11 min-w-[260px] flex-1 rounded-[9px] border border-[#8497A3] px-3">
           <button class="h-11 rounded-[9px] bg-[#0D2B45] px-5 font-sans text-xs font-bold text-white">Agregar
             moderador</button>
         </form>
@@ -311,7 +293,7 @@
 
         <div class="mt-5">
           <label for="csv-file" class="block font-sans text-xs font-bold mb-2">Archivo CSV</label>
-          <input id="csv-file" type="file" accept=".csv" class="w-full border border-[#BFD0D8] rounded-[9px] px-3 py-2">
+          <input id="csv-file" type="file" accept=".csv" class="w-full border border-[#8497A3] rounded-[9px] px-3 py-2">
           <p class="mt-2 text-xs text-[#607480]">Formato: una fila por correo, o primer valor de cada fila si hay
             múltiples columnas (CSV estándar).</p>
         </div>
@@ -320,7 +302,7 @@
           <h3 class="font-sans text-sm font-bold mb-3">Previsualización de cambios</h3>
           <div class="space-y-3">
             <div id="preview-add" class="hidden">
-              <p class="font-sans text-xs font-bold text-[#087F8C]">Agregar (<span id="count-add">0</span>):</p>
+              <p class="font-sans text-xs font-bold text-[#00798A]">Agregar (<span id="count-add">0</span>):</p>
               <ul id="list-add" class="mt-2 ml-3 space-y-1 text-xs text-[#5B6E7B]"></ul>
             </div>
             <div id="preview-remove" class="hidden">
@@ -336,7 +318,7 @@
 
         <div class="mt-6 flex justify-end gap-3">
           <button type="button" id="modal-cancel"
-            class="px-4 py-2 rounded-[9px] border border-[#BFD0D8] font-sans text-sm font-bold">Cancelar</button>
+            class="px-4 py-2 rounded-[9px] border border-[#8497A3] font-sans text-sm font-bold">Cancelar</button>
           <button type="button" id="modal-apply" disabled
             class="px-4 py-2 rounded-[9px] bg-[#0D2B45] text-white font-sans text-sm font-bold disabled:opacity-50">Sincronizar</button>
         </div>
@@ -352,21 +334,21 @@
       <button id="edit-modal-close" type="button"
         class="absolute right-5 top-5 flex h-10 w-10 items-center justify-center rounded-full bg-[#F0F4F6] text-[#5F7480]"
         aria-label="Cerrar edición"><i class="fa-solid fa-xmark"></i></button>
-      <p class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#00A6B8]">Editar recurso</p>
+      <p class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#00798A]">Editar recurso</p>
       <h2 id="edit-modal-title" class="mt-3 pr-12 font-sans text-2xl font-bold">Editar metadatos</h2>
       <p class="mt-2 text-sm text-[#607480]">El autor y el archivo original no se pueden modificar desde aquí.</p>
       <form id="edit-form" class="mt-6 space-y-4">
         <div><label for="edit-title" class="font-sans text-xs font-bold">Título</label><input id="edit-title" required
-            maxlength="120" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+            maxlength="120" class="mt-2 h-11 w-full rounded-[9px] border border-[#8497A3] px-3"></div>
         <div><label for="edit-description" class="font-sans text-xs font-bold">Descripción</label><textarea
             id="edit-description" required maxlength="300"
-            class="mt-2 h-24 w-full rounded-[9px] border border-[#BFD0D8] px-3 py-2 resize-none"></textarea></div>
+            class="mt-2 h-24 w-full rounded-[9px] border border-[#8497A3] px-3 py-2 resize-none"></textarea></div>
         <div id="edit-labels-wrap"><span class="font-sans text-xs font-bold">Etiquetas</span>
           <div id="edit-labels" class="mt-2 grid grid-cols-2 gap-2 text-xs text-[#526A78]"></div>
         </div>
         <div id="edit-docentes-fields" class="grid grid-cols-2 gap-4 hidden">
           <div><label for="edit-grade" class="font-sans text-xs font-bold">Grado</label><select id="edit-grade"
-              class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] bg-white px-3">
+              class="mt-2 h-11 w-full rounded-[9px] border border-[#8497A3] bg-white px-3">
               <option value="">Seleccionar grado</option>
               <option>Primero</option>
               <option>Segundo</option>
@@ -384,21 +366,21 @@
               <option>Para-universitario</option>
             </select></div>
           <div><label for="edit-materials" class="font-sans text-xs font-bold">Materiales</label><input
-              id="edit-materials" maxlength="300" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3">
+              id="edit-materials" maxlength="300" class="mt-2 h-11 w-full rounded-[9px] border border-[#8497A3] px-3">
           </div>
           <label class="col-span-2 flex items-center gap-3 font-sans text-xs font-bold"><input
               id="edit-requires-internet" type="checkbox" class="h-4 w-4 accent-[#00AFC1]"> Requiere internet</label>
         </div>
         <div id="edit-academico-fields" class="grid grid-cols-2 gap-4 hidden">
           <div><label for="edit-course" class="font-sans text-xs font-bold">Curso</label><input id="edit-course"
-              maxlength="80" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+              maxlength="80" class="mt-2 h-11 w-full rounded-[9px] border border-[#8497A3] px-3"></div>
           <div><label for="edit-course-code" class="font-sans text-xs font-bold">Código de curso</label><input
-              id="edit-course-code" maxlength="20" class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3">
+              id="edit-course-code" maxlength="20" class="mt-2 h-11 w-full rounded-[9px] border border-[#8497A3] px-3">
           </div>
         </div>
         <div><label for="edit-explanation-url" class="font-sans text-xs font-bold">Enlace de explicación
             (opcional)</label><input id="edit-explanation-url" type="url"
-            class="mt-2 h-11 w-full rounded-[9px] border border-[#BFD0D8] px-3"></div>
+            class="mt-2 h-11 w-full rounded-[9px] border border-[#8497A3] px-3"></div>
         <p id="edit-status" role="alert" class="text-sm" hidden></p>
         <div class="flex justify-end gap-3 pt-2"><button type="button" id="edit-cancel"
             class="h-11 rounded-[9px] border border-[#AFC2CB] px-5 font-sans text-xs font-bold">Cancelar</button><button

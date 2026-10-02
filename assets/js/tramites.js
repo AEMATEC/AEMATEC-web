@@ -58,7 +58,7 @@ const leerCorreo = () => { try { return localStorage.getItem(CLAVE_CORREO); } ca
 const fecha = valor => valor?.toDate ? valor.toDate().toLocaleDateString("es-CR", { day: "numeric", month: "long", year: "numeric", timeZone: "America/Costa_Rica" }) : "";
 function mensaje(elemento, texto, tipo = "info") {
   elemento.textContent = texto;
-  elemento.className = `text-sm ${tipo === "error" ? "text-[#C2413B]" : tipo === "ok" ? "text-[#087F8C]" : "text-[#607480]"}`;
+  elemento.className = `text-sm ${tipo === "error" ? "text-[#C2413B]" : tipo === "ok" ? "text-[#00798A]" : "text-[#607480]"}`;
   elemento.hidden = false;
 }
 // Los errores de las funciones traen un mensaje en español preparado en el servidor.
@@ -92,6 +92,7 @@ async function completarEnlace() {
   if (!email) return;
   try {
     await signInWithEmailLink(auth, email.trim().toLowerCase(), location.href);
+    try { localStorage.removeItem(CLAVE_CORREO); } catch { /* sin almacenamiento */ } // ya no hace falta (minimización, Ley 8968 Art. 6)
   } catch (error) {
     mensaje($("#estado-correo"), `El enlace no es válido o ya se usó. Pide uno nuevo. (${textoError(error)})`, "error");
   } finally {
@@ -175,9 +176,9 @@ function mostrarResultado({ codigo }) {
     ? `<h3 class="font-sans text-lg font-bold">Tu caso anónimo fue enviado a la Fiscalía</h3>
        <p class="mt-2 text-sm">Guarda este código. Es la única forma de seguir tu caso y <strong>no podemos recuperarlo</strong>:</p>
        <p class="mt-3 flex flex-wrap items-center gap-3"><code id="codigo-nuevo" class="rounded-[8px] bg-white px-4 py-2 font-sans text-xl font-bold tracking-[0.15em]">${escapeHtml(codigo)}</code>
-       <button type="button" id="copiar-codigo" class="font-sans text-xs font-bold text-[#087F8C] underline">Copiar</button></p>`
+       <button type="button" id="copiar-codigo" class="font-sans text-xs font-bold text-[#00798A] underline">Copiar</button></p>`
     : `<h3 class="font-sans text-lg font-bold">¡Trámite enviado!</h3>
-       <p class="mt-2 text-sm">Te enviamos una confirmación por correo. Puedes ver su estado abajo, en "Mis trámites".</p>`;
+       <p class="mt-2 text-sm">Te enviaremos una confirmación por correo (puede tardar unos minutos). Puedes ver su estado abajo, en "Mis trámites".</p>`;
   resultado.hidden = false;
   $("#copiar-codigo")?.addEventListener("click", () => navigator.clipboard?.writeText(codigo));
   resultado.scrollIntoView({ behavior: "smooth", block: "center" });

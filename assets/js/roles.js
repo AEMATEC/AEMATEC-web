@@ -4,8 +4,9 @@ import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase
 import { db } from "./firebase.js";
 
 // Personas con acceso total al sitio. Si cambian (traspaso de Junta, RI Art. 107), actualízalas
-// también en firestore.rules, storage.rules y functions/index.js (ver skill traspaso-de-junta).
-export const OWNER_EMAILS = ["angeloyeshuac@gmail.com", "angcalderon@estudiantec.cr"];
+// también en firestore.rules, storage.rules y functions/correo.js (ver skill traspaso-de-junta).
+// Son cuentas de la asociación, no personales: en el traspaso solo se cambia su contraseña.
+export const OWNER_EMAILS = ["aematec@estudiantec.cr", "aeemac.tec@gmail.com"];
 
 export const esDueno = email => OWNER_EMAILS.includes(String(email || "").trim().toLowerCase());
 

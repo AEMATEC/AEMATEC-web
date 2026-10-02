@@ -14,8 +14,7 @@ const firebaseConfig = {
   projectId: "arcade-matec",
   storageBucket: "arcade-matec.firebasestorage.app",
   messagingSenderId: "565626556618",
-  appId: "1:565626556618:web:138e123f64765e849fa433",
-  measurementId: "G-W3MKGMT74S"
+  appId: "1:565626556618:web:138e123f64765e849fa433"
 };
 const FB_VER = '10.12.2';
 
@@ -31,7 +30,7 @@ export const fbReady = (async () => {
     fs = fsMod; db = fs.getFirestore(app);
     const cred = await auMod.signInAnonymously(auMod.getAuth(app));
     UID = cred.user.uid;
-    import(base + 'firebase-analytics.js').then(m => m.isSupported().then(ok => ok && m.getAnalytics(app))).catch(() => {});
+    // Sin Google Analytics a propósito: pondría cookies de rastreo sin consentimiento (Ley 8968 Art. 5). Ver legal.html#cookies.
     return true;
   } catch (e) { console.warn('Firebase no disponible, modo local:', e); return false; }
 })();
@@ -155,7 +154,7 @@ export const SFX = {
     }
   }
 };
-function sndBtn() { const b = $('#snd'); b.textContent = SFX.on ? '♪ SÍ' : '♪ NO'; b.classList.toggle('off', !SFX.on); }
+function sndBtn() { const b = $('#snd'); b.querySelector('.lbl').textContent = SFX.on ? 'SÍ' : 'NO'; b.classList.toggle('off', !SFX.on); b.setAttribute('aria-pressed', String(SFX.on)); }
 $('#snd').onclick = () => { SFX.on = !SFX.on; store.set('pa_snd', SFX.on); sndBtn(); SFX.play('click'); updateMenuMusicHook(); };
 sndBtn();
 $('#arcade-volver').onclick = () => window.arcadeTransition('index.html');

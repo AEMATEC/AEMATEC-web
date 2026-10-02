@@ -3,7 +3,7 @@
 import { after, before, beforeEach, describe, test } from "node:test";
 import { readFileSync } from "node:fs";
 import { assertFails, assertSucceeds, initializeTestEnvironment } from "@firebase/rules-unit-testing";
-import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, setDoc, updateDoc } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, query, setDoc, updateDoc, where } from "firebase/firestore";
 import { ref, uploadBytes } from "firebase/storage";
 
 const JUNTA = "jd@estudiantec.cr";
@@ -51,8 +51,14 @@ const recursoNuevo = cambios => ({
 });
 
 describe("Junta Directiva (RI Art. 143)", () => {
-  test("cualquiera puede consultar un correo puntual (registro de cuentas)", async () => {
-    await assertSucceeds(getDoc(doc(anonimo().firestore(), "junta", JUNTA)));
+  test("el público no puede consultar si un correo es de la Junta", async () => {
+    await assertFails(getDoc(doc(anonimo().firestore(), "junta", JUNTA)));
+    await assertFails(getDoc(doc(usuario("otra@estudiantec.cr").firestore(), "junta", JUNTA)));
+  });
+  test("cada cuenta puede leer su propio documento de la Junta (aunque no esté en la lista o sin verificar)", async () => {
+    await assertSucceeds(getDoc(doc(usuario(JUNTA).firestore(), "junta", JUNTA)));
+    await assertSucceeds(getDoc(doc(usuario(JUNTA, false).firestore(), "junta", JUNTA)));
+    await assertSucceeds(getDoc(doc(usuario("otra@estudiantec.cr").firestore(), "junta", "otra@estudiantec.cr")));
   });
   test("el público no puede listar los correos de la Junta", async () => {
     await assertFails(getDocs(collection(anonimo().firestore(), "junta")));
@@ -149,6 +155,38 @@ describe("Biblioteca: recursos y moderación", () => {
   test("nadie puede autopublicar material", async () => {
     await assertFails(addDoc(collection(anonimo().firestore(), "resources"), recursoNuevo({ status: "approved", published: true })));
   });
+  test("los enlaces de un material propuesto deben ser https (se muestran como href públicos)", async () => {
+    const db = anonimo().firestore();
+    await assertSucceeds(addDoc(collection(db, "resources"), recursoNuevo({ fileUrl: "https://ejemplo.com/guia.pdf", explanationUrl: "https://youtu.be/abc" })));
+    await assertFails(addDoc(collection(db, "resources"), recursoNuevo({ fileUrl: "javascript:alert(1)" })));
+    await assertFails(addDoc(collection(db, "resources"), recursoNuevo({ fileUrl: "http://ejemplo.com/guia.pdf" })));
+    await assertFails(addDoc(collection(db, "resources"), recursoNuevo({ explanationUrl: "javascript:alert(1)" })));
+    const explicacion = { storagePath: "recursos/academico/0f3a-explicacion.pdf", fileUrl: "https://ejemplo.com/explicacion.pdf", extension: "pdf", size: 10 };
+    await assertSucceeds(addDoc(collection(db, "resources"), recursoNuevo({ explanation: explicacion })));
+    await assertSucceeds(addDoc(collection(db, "resources"), recursoNuevo({ explanation: null })));
+    await assertFails(addDoc(collection(db, "resources"), recursoNuevo({ explanation: { ...explicacion, fileUrl: "javascript:alert(1)" } })));
+  });
+  test("las rutas de archivo de un material solo apuntan a la carpeta de recursos de su sección", async () => {
+    const db = anonimo().firestore();
+    const explicacion = { storagePath: "recursos/academico/0f3a-1b2c-explicacion.pdf", fileUrl: "https://ejemplo.com/e.pdf", extension: "pdf", size: 10 };
+    await assertSucceeds(addDoc(collection(db, "resources"), recursoNuevo({ storagePath: "recursos/academico/0f3a-1b2c.pdf", explanation: explicacion })));
+    await assertSucceeds(addDoc(collection(db, "resources"), recursoNuevo({ storagePath: "" })));
+    await assertFails(addDoc(collection(db, "resources"), recursoNuevo({ storagePath: "inventario/biblioteca/portada.jpg" })));
+    await assertFails(addDoc(collection(db, "resources"), recursoNuevo({ storagePath: "recursos/docentes/0f3a-1b2c.pdf" })));
+    await assertFails(addDoc(collection(db, "resources"), recursoNuevo({ storagePath: "recursos/academico/../otro.pdf" })));
+    await assertFails(addDoc(collection(db, "resources"), recursoNuevo({ explanation: { ...explicacion, storagePath: "recursos/academico/0f3a-1b2c.pdf" } })));
+  });
+  test("un moderador puede buscar qué materiales usan un archivo (antes de borrarlo)", async () => {
+    const db = usuario(MODERADOR).firestore();
+    await assertSucceeds(getDocs(query(collection(db, "resources"), where("storagePath", "==", "recursos/academico/0f3a.pdf"))));
+    await assertSucceeds(getDocs(query(collection(db, "resources"), where("explanation.storagePath", "==", "recursos/academico/0f3a.pdf"))));
+    await assertFails(getDocs(query(collection(anonimo().firestore(), "resources"), where("storagePath", "==", "recursos/academico/0f3a.pdf"))));
+  });
+  test("un moderador no puede poner un enlace de explicación inseguro", async () => {
+    const db = usuario(MODERADOR).firestore();
+    await assertSucceeds(updateDoc(doc(db, "resources", "pendiente"), { explanationUrl: "https://ejemplo.com/explicacion" }));
+    await assertFails(updateDoc(doc(db, "resources", "pendiente"), { explanationUrl: "javascript:alert(1)" }));
+  });
   test("un moderador aprueba, pero no puede cambiar el autor", async () => {
     const db = usuario(MODERADOR).firestore();
     await assertSucceeds(updateDoc(doc(db, "resources", "pendiente"), { status: "approved", published: true }));
@@ -160,7 +198,7 @@ describe("Biblioteca: recursos y moderación", () => {
 });
 
 describe("Trámites (los crea solo el servidor)", () => {
-  const DUENO = "angeloyeshuac@gmail.com";
+  const DUENO = "aematec@estudiantec.cr";
   beforeEach(async () => {
     await env.withSecurityRulesDisabled(async context => {
       const db = context.firestore();
@@ -206,6 +244,16 @@ describe("Trámites (los crea solo el servidor)", () => {
   test("la Fiscalía actualiza el estado de un caso; la Junta no", async () => {
     await assertSucceeds(updateDoc(doc(usuario(FISCAL).firestore(), "fiscaliaCasos", "f1"), { estado: "en_revision" }));
     await assertFails(updateDoc(doc(usuario(JUNTA).firestore(), "fiscaliaCasos", "f1"), { estado: "resuelto" }));
+  });
+  test("un dueño necesita el correo verificado (si no, cualquiera podría crear antes esa cuenta)", async () => {
+    await assertSucceeds(getDocs(collection(usuario(DUENO).firestore(), "padron")));
+    await assertFails(getDocs(collection(usuario(DUENO, false).firestore(), "padron")));
+  });
+  test("solo la persona Fiscal borra un caso al archivarlo; ni la Junta, ni un dueño, ni quien lo envió", async () => {
+    await assertFails(deleteDoc(doc(usuario(JUNTA).firestore(), "fiscaliaCasos", "f2")));
+    await assertFails(deleteDoc(doc(usuario(DUENO).firestore(), "fiscaliaCasos", "f2")));
+    await assertFails(deleteDoc(doc(cuentaUid("uid-luis", "luis@estudiantec.cr"), "fiscaliaCasos", "f2")));
+    await assertSucceeds(deleteDoc(doc(usuario(FISCAL).firestore(), "fiscaliaCasos", "f2")));
   });
   test("el avance de una AGEC es público pero de solo lectura; los límites son privados", async () => {
     await assertSucceeds(getDoc(doc(anonimo().firestore(), "agecPublicas", "a1")));

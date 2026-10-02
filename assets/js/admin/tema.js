@@ -30,7 +30,7 @@ export async function iniciarTema() {
       <span><strong class="font-sans text-sm">${tema.nombre}</strong>
         <span class="ml-2 rounded-full bg-[#EEF4F6] px-2 py-0.5 font-sans text-[11px] font-bold text-[#405769]">${tema.estilo}</span>
         <span class="block text-sm text-[#607480]">${fechas} de ${anio}</span></span>
-      <a href="index.html?tema=${tema.id}" target="_blank" rel="noopener" class="font-sans text-xs font-bold text-[#087F8C] underline">Vista previa</a>
+      <a href="index.html?tema=${tema.id}" target="_blank" rel="noopener" class="font-sans text-xs font-bold text-[#00798A] underline">Vista previa</a>
     </li>`;
   }).join("");
 
@@ -59,7 +59,7 @@ export async function iniciarTema() {
       try { sessionStorage.removeItem("aematec-tema-config"); } catch { /* sin almacenamiento */ }
       mostrarActual(config);
       estado.textContent = "Guardado. Las páginas lo aplican en unos minutos (o al recargar en una pestaña nueva).";
-      estado.className = "mt-3 text-sm text-[#087F8C]";
+      estado.className = "mt-3 text-sm text-[#00798A]";
     } catch {
       estado.textContent = "No se pudo guardar. Solo la Junta Directiva puede cambiar el tema.";
       estado.className = "mt-3 text-sm text-[#C2413B]";

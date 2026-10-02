@@ -10,6 +10,7 @@ const require = createRequire(new URL("../functions/package.json", import.meta.u
 const fft = require("firebase-functions-test")({ projectId: "demo-aematec-funciones" });
 const funciones = require("../functions/index.js");
 const util = require("../functions/tramites-util.js");
+const { borrarVencidos } = require("../functions/retencion.js");
 const admin = require("firebase-admin");
 const db = admin.firestore();
 
@@ -25,7 +26,7 @@ const llamar = (fn, data, auth) => fn({ data, auth, rawRequest: {} });
 const solicitud = datos => ({ tipo: "solicitud_junta", subtipo: "punto_agenda", datos: { nombre: "Ana", asunto: "Punto", detalle: "Detalle", ...datos } });
 
 async function limpiar() {
-  for (const coleccion of ["tramites", "agecPublicas", "fiscaliaCasos", "limites", "padron"]) {
+  for (const coleccion of ["tramites", "agecPublicas", "fiscaliaCasos", "limites", "padron", "prestamoSolicitudes", "chatbotReportes"]) {
     const docs = await db.collection(coleccion).listDocuments();
     await Promise.all(docs.map(d => db.recursiveDelete(d)));
   }
@@ -171,6 +172,12 @@ describe("Avisos cuando la Junta o la Fiscalía actualizan un trámite", () => {
     assert.match(util.avisoDeCambio(respondido, { ...respondido, estado: "resuelto" }).asunto, /resuelto/);
     assert.equal(util.avisoDeCambio(base, { ...base }), null);
   });
+  test("la respuesta de Fiscalía no va en el correo (RI Art. 42)", () => {
+    const caso = { estado: "recibido", respuestas: [], remitente: { email: "ana@estudiantec.cr" } };
+    const aviso = util.avisoDeCambio(caso, { ...caso, respuestas: [{ texto: "Texto confidencial" }] }, { fiscalia: true });
+    assert.match(aviso.asunto, /Nueva respuesta/);
+    assert.doesNotMatch(aviso.html, /Texto confidencial/);
+  });
   test("al cambiar el estado de una AGEC se actualiza su versión pública", async () => {
     await db.doc("agecPublicas/a1").set({ estado: "recibido" });
     const antes = { ...base, tipo: "agec", estado: "recibido" };
@@ -181,5 +188,35 @@ describe("Avisos cuando la Junta o la Fiscalía actualizan un trámite", () => {
     );
     await alActualizarTramite({ data: cambio, params: { id: "a1" } });
     assert.equal((await db.doc("agecPublicas/a1").get()).data().estado, "resuelto");
+  });
+});
+
+describe("Plazos de conservación (Ley 8968 Art. 6)", () => {
+  const haceDias = dias => admin.firestore.Timestamp.fromMillis(Date.now() - dias * 24 * 60 * 60 * 1000);
+  test("borra solo lo vencido: préstamos 1 año, reportes 90 días, trámites 2 años (con adhesiones y AGEC pública), límites 2 días", async () => {
+    await Promise.all([
+      db.doc("prestamoSolicitudes/devuelto-viejo").set({ estado: "devuelto", createdAt: haceDias(500), fechaDevolucion: haceDias(400) }),
+      db.doc("prestamoSolicitudes/devuelto-reciente").set({ estado: "devuelto", createdAt: haceDias(500), fechaDevolucion: haceDias(100) }),
+      db.doc("prestamoSolicitudes/pendiente-viejo").set({ estado: "pendiente", createdAt: haceDias(400) }),
+      db.doc("prestamoSolicitudes/entregado-viejo").set({ estado: "entregado", createdAt: haceDias(400) }),
+      db.doc("chatbotReportes/viejo").set({ createdAt: haceDias(91) }),
+      db.doc("chatbotReportes/nuevo").set({ createdAt: haceDias(10) }),
+      db.doc("tramites/viejo").set({ createdAt: haceDias(731) }),
+      db.doc("tramites/viejo/adhesiones/ana@estudiantec.cr").set({ nombre: "Ana" }),
+      db.doc("agecPublicas/viejo").set({ estado: "recibido" }),
+      db.doc("tramites/nuevo").set({ createdAt: haceDias(30) }),
+      db.doc("limites/viejo").set({ fecha: "2020-01-01", cuenta: 1 }),
+      db.doc("limites/hoy").set({ fecha: new Date().toISOString().slice(0, 10), cuenta: 1 })
+    ]);
+    const borrados = await borrarVencidos(db);
+    assert.deepEqual(borrados, { prestamos: 2, reportes: 1, tramites: 1, limites: 1 });
+    const existe = async ruta => (await db.doc(ruta).get()).exists;
+    assert.equal(await existe("prestamoSolicitudes/devuelto-reciente"), true);
+    assert.equal(await existe("prestamoSolicitudes/entregado-viejo"), true, "un bien aún prestado no se borra");
+    assert.equal(await existe("chatbotReportes/nuevo"), true);
+    assert.equal(await existe("tramites/nuevo"), true);
+    assert.equal(await existe("tramites/viejo/adhesiones/ana@estudiantec.cr"), false);
+    assert.equal(await existe("agecPublicas/viejo"), false);
+    assert.equal(await existe("limites/hoy"), true);
   });
 });
