@@ -6159,7 +6159,10 @@ async function pfCargarCuenta(user) {
   $('#pf-cuenta').hidden = !user;
   if (!user) return;
   const perfil = await cargarPerfil(user.uid);
-  if (!perfil) return;
+  // Cuenta real pero sin perfil todavía (debería ser rarísimo: registrarCuenta() ya repara este caso solo
+  // en el próximo intento) — mejor volver a la pantalla de crear cuenta/iniciar sesión que dejar la tarjeta
+  // de perfil en blanco sin ninguna salida.
+  if (!perfil) { $('#pf-anon').hidden = false; $('#pf-cuenta').hidden = true; return; }
   pfAvatarElegido = perfil.avatar;
   $('#pf-usuario').textContent = '@' + perfil.usuario;
   $('#pf-desc').value = perfil.descripcion || '';
@@ -6207,17 +6210,23 @@ $('#pf-reg-btn').onclick = async () => {
   msg.textContent = 'CREANDO CUENTA…';
   try {
     pfAvatarElegido = AVATARES[0];
-    await registrarCuenta(usuario, p1, '', pfAvatarElegido);
+    const uid = await registrarCuenta(usuario, p1, '', pfAvatarElegido);
     $('#pf-reg-pass').value = ''; $('#pf-reg-pass2').value = ''; msg.textContent = '';
     SFX.play('win');
+    // onCuenta() no se entera sola de esto (ver el comentario de registrarCuenta en perfiles.js):
+    // refrescamos la pantalla a mano con el uid que acaba de devolver.
+    pfCargarCuenta({ uid });
   } catch (e) { console.error(e); msg.textContent = e.code ? mensajeErrorCuenta(e) : e.message; msg.className = 'msg lose'; }
 };
 $('#pf-in-btn').onclick = async () => {
   const msg = $('#pf-in-msg'), usuario = $('#pf-in-user').value.trim(), pass = $('#pf-in-pass').value;
   if (!usuario || !pass) { msg.textContent = 'ESCRIBE TU USUARIO Y CONTRASEÑA.'; msg.className = 'msg lose'; return; }
   msg.textContent = 'ENTRANDO…'; msg.className = 'msg';
-  try { await iniciarSesion(usuario, pass); $('#pf-in-pass').value = ''; msg.textContent = ''; SFX.play('win'); }
-  catch (e) { msg.textContent = e.code ? mensajeErrorCuenta(e) : e.message; msg.className = 'msg lose'; }
+  try {
+    const uid = await iniciarSesion(usuario, pass);
+    $('#pf-in-pass').value = ''; msg.textContent = ''; SFX.play('win');
+    pfCargarCuenta({ uid });
+  } catch (e) { msg.textContent = e.code ? mensajeErrorCuenta(e) : e.message; msg.className = 'msg lose'; }
 };
 $('#pf-logout').onclick = () => cerrarSesion();
 $('#pf-guardar').onclick = async () => {
