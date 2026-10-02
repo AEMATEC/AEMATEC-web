@@ -23,12 +23,15 @@ service cloud.firestore {
     }
 
     // Moderador de Golf: una cuenta de correo/contraseña PROPIA de este proyecto (arcade-matec), separada
-    // de la cuenta anónima con la que todo el mundo juega. OJO: desde que existen los perfiles opcionales
-    // (sección 3.4), cualquier persona puede tener una cuenta de correo/contraseña (con un correo falso
-    // interno) — por eso ya NO basta con mirar sign_in_provider, hace falta confirmar además que ese
-    // correo está en arcadeModeradores. Los correos falsos de perfiles nunca van a estar en esa lista.
+    // de la cuenta anónima con la que todo el mundo juega, Y cuyo correo está en `arcadeModeradores`.
+    // OJO: no basta con que la sesión sea de contraseña. Aunque el Arcade no tenga pantalla de registro,
+    // cualquiera puede crearse una cuenta de correo/contraseña llamando a la API pública de Firebase Auth
+    // con la apiKey del proyecto (que está en core.js) — y desde los perfiles opcionales (sección 3.4)
+    // cualquier persona SÍ tiene de verdad una cuenta así (con un correo falso interno). Por eso la lista
+    // `arcadeModeradores` es la que de verdad decide: los correos falsos de perfiles nunca van a estar ahí.
     function esModerador() {
       return signedIn() && request.auth.token.firebase.sign_in_provider == 'password'
+        && request.auth.token.email is string
         && exists(/databases/$(database)/documents/arcadeModeradores/$(request.auth.token.email));
     }
 

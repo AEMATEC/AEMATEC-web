@@ -193,6 +193,18 @@ usan — no pueden detectar una grosería o un teléfono disfrazado con números
 
 ## 3.3 Moderación de Golf: cuenta de moderador propia del Arcade (sin Google Cloud)
 
+> **Corrección de seguridad (2026-10-02), hay que publicarla a mano.** La primera versión de `esModerador()`
+> solo revisaba que la sesión fuera de contraseña. Pero **cualquiera puede crearse una cuenta de
+> correo/contraseña** en `arcade-matec` llamando a la API pública de Firebase Auth con la apiKey que está en
+> `core.js`, aunque el Arcade no tenga pantalla de registro. Con eso podía borrar puntajes y aprobar o
+> borrar hoyos. Ahora la regla también exige que el correo esté en `arcadeModeradores`. Para que tome efecto:
+> 1. Publica `arcade-firebase/firestore.rules` en la consola de `arcade-matec` (Firestore → Reglas → pegar →
+>    Publicar), como se explica en la sección 0.
+> 2. Recomendado además: Authentication → Configuración → **Acciones del usuario** → desmarca **"Habilitar
+>    la creación (registro)"**, así solo se pueden crear cuentas desde la consola. Las sesiones anónimas
+>    para jugar siguen funcionando.
+> 3. Revisa Authentication → Usuarios: si hay cuentas de correo que no creaste tú, bórralas.
+
 Se descartó el diseño anterior (Cloud Function + cuenta de servicio de Google Cloud): complicaba de más
 algo que se puede resolver directo en las reglas de `arcade-matec`. **Ya no hace falta ningún secreto, ni
 Cloud Function, ni tocar Google Cloud Console en absoluto.**
@@ -202,12 +214,13 @@ Cloud Function, ni tocar Google Cloud Console en absoluto.**
 mundo juega, para no perder esa sesión al moderar). La regla `esModerador()` en
 `arcade-firebase/firestore.rules` revisa que la sesión actual haya iniciado con contraseña **y** que ese
 correo tenga su documento en `arcadeModeradores` (ver abajo) — nada de otro proyecto de Firebase ni Cloud
-Function. El segundo requisito (`arcadeModeradores`) hizo falta a partir de los perfiles opcionales
-(sección 3.4): ahí cualquier persona puede crear una cuenta de correo/contraseña, así que ya no basta con
-mirar solo el tipo de sesión. Hace falta que el **75% de los moderadores actuales (redondeado hacia
-arriba)** vote lo mismo para que una propuesta quede aprobada o rechazada; `gfpVotar()` en `arcade.html`
-guarda el correo de quien vota en `votosAprobar` o `votosRechazar` dentro del propio documento de la
-propuesta, cuenta cuántos moderadores hay (ver abajo) y decide si ya se alcanzó el 75%.
+Function. El segundo requisito (`arcadeModeradores`) hace falta porque solo la contraseña no basta:
+cualquiera puede crearse una cuenta de correo/contraseña con la API pública de Firebase Auth, y desde los
+perfiles opcionales (sección 3.4) cualquier persona SÍ tiene de verdad una cuenta así. Hace falta que el
+**75% de los moderadores actuales (redondeado hacia arriba)** vote lo mismo para que una propuesta quede
+aprobada o rechazada; `gfpVotar()` en `arcade.html` guarda el correo de quien vota en `votosAprobar` o
+`votosRechazar` dentro del propio documento de la propuesta, cuenta cuántos moderadores hay (ver abajo) y
+decide si ya se alcanzó el 75%.
 
 **Quién puede ser moderador:** cualquier cuenta de correo/contraseña que exista en la Authentication de
 `arcade-matec` **y que además tenga su documento en la colección `arcadeModeradores`** (un documento por

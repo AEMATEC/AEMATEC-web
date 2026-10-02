@@ -132,10 +132,11 @@ cuenta de correo/contraseña **propia de `arcade-matec`** (no la del sitio princ
 `assets/js/arcade/moderacion.js`, una segunda app de Firebase aparte de la anónima con la que todo el mundo
 juega). Las reglas de `arcade-matec` (`esModerador()`) revisan que la sesión actual haya iniciado con
 contraseña **y** que ese correo tenga su documento en `arcadeModeradores` — sin Cloud Function, sin cuenta
-de servicio, sin tocar Google Cloud Console (el segundo requisito hizo falta al agregar los perfiles
-opcionales de abajo: ya no basta con mirar solo el tipo de sesión, porque cualquier persona puede tener una
-cuenta de correo/contraseña). Hace falta que el 75% de los moderadores (redondeado hacia arriba) vote lo
-mismo para que una propuesta quede aprobada o rechazada; el conteo lo hace el propio navegador leyendo la
+de servicio, sin tocar Google Cloud Console (el segundo requisito hace falta porque solo la contraseña no
+basta: cualquiera puede crearse una cuenta de correo/contraseña con la API pública de Firebase Auth, y desde
+los perfiles opcionales de abajo cualquier persona SÍ tiene de verdad una cuenta así). Hace falta que el 75%
+de los moderadores (redondeado hacia arriba) vote lo mismo para que una propuesta quede aprobada o
+rechazada; el conteo lo hace el propio navegador leyendo la
 colección `arcadeModeradores` (un documento por correo, se administra a mano en la consola de Firestore —
 no hay forma de contar cuentas de Authentication desde el navegador). Quién puede moderar lo decides tú
 creando la cuenta en Authentication → Users **y** su documento en `arcadeModeradores` (ver
