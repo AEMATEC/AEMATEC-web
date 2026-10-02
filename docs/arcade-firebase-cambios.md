@@ -175,6 +175,26 @@ Function a `arcade-matec`, que es un cambio más grande.
 
 ---
 
+## 3.1 Filtro de apodos y propuestas (apodo, autor, nombre del hoyo)
+
+El apodo de jugador (`name` en `leaderboards`) y el autor/nombre de una propuesta de Golf (`autor`,
+`nombre` en `golfHoyosPropuestos`) ahora tienen una regla de caracteres más estricta, además del filtro de
+contenido (groserías, teléfonos, correos) que ya hace `arcade.html` del lado del navegador antes de guardar
+nada:
+
+```
+request.resource.data.name.matches('^[A-Z0-9 ÁÉÍÓÚÑÜ._-]{1,10}$')      // leaderboards: name
+request.resource.data.autor.matches('^[A-Z0-9 ÁÉÍÓÚÑÜ._-]{1,12}$')     // golfHoyosPropuestos: autor
+request.resource.data.nombre.matches('^[A-Z0-9 ÁÉÍÓÚÑÜ._!¡?¿-]{1,30}$') // golfHoyosPropuestos: nombre
+```
+
+`name` baja de 12 a 10 caracteres para que coincida exactamente con lo que ya hace `playerName()` en
+`core.js` (corta a 10 y pone todo en mayúsculas). Las reglas solo pueden revisar tamaño y qué caracteres se
+usan — no pueden detectar una grosería o un teléfono disfrazado con números por letras; eso lo hace
+`filtrarTexto()` en `assets/js/arcade/filtro.js` antes de que el dato llegue a Firestore.
+
+---
+
 ## 4. Cómo comprobarlo después de publicar las reglas
 
 1. Abre <https://aematec.github.io/AEMATEC-web/arcade.html>, escribe un nombre y espera a que diga **● ONLINE**.

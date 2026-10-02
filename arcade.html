@@ -312,6 +312,7 @@ nav .btn{padding:8px 12px}
       <button id="arcade-volver" type="button" class="btn gray" title="Volver a la página principal de AEMATEC" aria-label="Volver a la página principal de AEMATEC">← AEMATEC</button>
       <label for="name">JUGADOR</label>
       <input id="name" class="px-in" maxlength="10" placeholder="TU NOMBRE">
+      <span id="name-warn" class="net" style="color:var(--red)" hidden aria-live="polite"></span>
       <button class="btn snd" id="snd" title="Sonido">♪ SÍ</button>
       <span id="net" class="net">● CONECTANDO…</span>
     </div>
@@ -1008,7 +1009,7 @@ nav .btn{padding:8px 12px}
 <script type="module">
 import {
   db, fs, UID, fbReady, $, esc, store, playerName, fmtT, genCode, tsMillis, isStale, liveRooms,
-  presenceLoop, SFX, LB, sprite, scaled, pxCircle, SPR, EGG, fitSoon, setUpdateMenuMusicHook,
+  presenceLoop, SFX, LB, sprite, scaled, pxCircle, SPR, EGG, fitSoon, setUpdateMenuMusicHook, filtrarTexto,
 } from "./assets/js/arcade/core.js";
 import { T, llStart, llSpit, tiroTick, tiroDraw, tgt } from "./assets/js/arcade/tiro.js";
 import { RN, rnStep, rnDraw, rnJumpPress, RN_FOX_SPR } from "./assets/js/arcade/runner.js";
@@ -5357,6 +5358,9 @@ $('#gfb-send').onclick = async () => {
   if (!GFB.start || !GFB.hole) { msg.textContent = 'PON EL INICIO Y LA BANDERA PRIMERO.'; msg.className = 'msg lose'; return; }
   const autor = $('#gfb-autor').value.trim().slice(0, 12), nombre = $('#gfb-nombre').value.trim().slice(0, 30);
   if (!autor || !nombre) { msg.textContent = 'ESCRIBE TU NOMBRE Y EL NOMBRE DEL HOYO.'; msg.className = 'msg lose'; return; }
+  const filtroAutor = filtrarTexto(autor), filtroNombre = filtrarTexto(nombre);
+  if (!filtroAutor.ok) { msg.textContent = filtroAutor.motivo; msg.className = 'msg lose'; return; }
+  if (!filtroNombre.ok) { msg.textContent = filtroNombre.motivo; msg.className = 'msg lose'; return; }
   if (!(await fbReady)) { msg.textContent = 'SIN CONEXIÓN A FIREBASE: NO SE PUEDE ENVIAR AHORA.'; msg.className = 'msg lose'; return; }
   msg.textContent = 'ENVIANDO…'; msg.className = 'msg';
   try {
