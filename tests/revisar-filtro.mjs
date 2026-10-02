@@ -54,6 +54,14 @@ caso("no rechaza una palabra normal que solo se parece a una grosería", () => {
   assert.equal(filtrarTexto("CARRO").ok, true);
 });
 
+caso("no rechaza palabras normales que contienen una grosería corta", () => {
+  for (const texto of ["COMPUTADORA", "DISPUTA", "COMPUTO", "PIJAMA", "CONCHAL"]) assert.equal(filtrarTexto(texto).ok, true, texto);
+});
+
+caso("sí rechaza la grosería corta sola, en plural o dentro de una frase", () => {
+  for (const texto of ["PUTA", "PUTOS", "HOYO PUTO", "P1JA"]) assert.equal(filtrarTexto(texto).ok, false, texto);
+});
+
 if (process.exitCode === 1) {
   console.error(`\nAlgún caso falló.`);
 } else {
