@@ -113,11 +113,11 @@ Huida del Zorro, Buscaminas, Batalla Naval, 21 y Billar.
 ## 3. Golf: colección nueva para el "Creador de hoyos" (`golfHoyosPropuestos`)
 
 Golf tiene ahora una pantalla para que cualquiera diseñe un hoyo (tema, par, paredes, arena, agua, hielo,
-rampas) y lo envíe. Queda **pendiente** hasta que la mayoría de los moderadores del sitio principal lo
-apruebe (votación, ver sección 3.3 más abajo) desde la pantalla "PROPUESTAS DE LA COMUNIDAD"; ahí es cuando
-se suma a "JUGAR SOLO" (después de los 6 hoyos de siempre). Todo esto es nuevo en Firestore: **sin esta
-colección y sus reglas, la pantalla de creación sigue funcionando (se puede diseñar y probar el hoyo), pero
-"ENVIAR PROPUESTA" falla con un error de permisos.**
+rampas) y lo envíe. Cualquiera puede probarlo ("▶ PROBARLO") desde "PROPUESTAS DE LA COMUNIDAD". Queda
+**pendiente** hasta que un moderador del Arcade lo aprueba o rechaza ahí mismo (ver sección 3.3 más abajo);
+ahí es cuando se suma a "JUGAR SOLO" (después de los 6 hoyos de siempre). Todo esto es nuevo en Firestore:
+**sin esta colección y sus reglas, la pantalla de creación sigue funcionando (se puede diseñar y probar el
+hoyo), pero "ENVIAR PROPUESTA" falla con un error de permisos.**
 
 Un documento de `golfHoyosPropuestos/{id}` (id lo genera Firestore):
 
@@ -135,15 +135,11 @@ Un documento de `golfHoyosPropuestos/{id}` (id lo genera Firestore):
   ramps: [{x,y,w,h,dir,dist}, …]   (máx. 2, dir: 'right'|'left'|'up'|'down'),
   estado: 'pendiente' | 'aprobado' | 'rechazado',
   creado: serverTimestamp,
-  votosAprobar: [correo, …],   // lo escribe SOLO la Cloud Function, nunca el navegador
-  votosRechazar: [correo, …],  // ídem
 }
 ```
 
 No guarda uid ni ningún dato personal de quien lo envía, solo el apodo que la persona escribe (igual que el
-nombre de jugador en los puntajes). `votosAprobar`/`votosRechazar` sí guardan el correo del moderador que
-votó — eso es aparte, lo escribe la Cloud Function con su propia cuenta de servicio, nunca llega a este
-documento por el navegador.
+nombre de jugador en los puntajes).
 
 Reglas (ver `arcade-firebase/firestore.rules`, que ya las tiene):
 
@@ -160,17 +156,17 @@ match /golfHoyosPropuestos/{id} {
     && request.resource.data.water.size() <= 3 && request.resource.data.ice.size() <= 3
     && request.resource.data.ramps.size() <= 2
     && request.resource.data.creado == request.time;
-  allow update: if false;
-  allow delete: if false;
+  allow update: if esModerador()
+    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['estado'])
+    && request.resource.data.estado in ['aprobado', 'rechazado'];
+  allow delete: if esModerador();
 }
 ```
 
-**Sobre "quién puede aprobar":** `update`/`delete` quedan en `if false` a propósito — **nadie** puede cambiar
-ni borrar una propuesta desde el navegador, ni siquiera un moderador real con su sesión iniciada. Lo único
-que puede es la Cloud Function `arcadeVotarPropuesta`/`arcadeBorrarRegistro`
-(`functions/arcadeModeracion.js`), que corre en el proyecto del **sitio principal** (`biblioteca-aematec`,
-se despliega con el resto de Functions) y usa su propia cuenta de servicio de `arcade-matec` (Admin SDK, no
-pasa por estas reglas). Ver la sección 3.3 para el paso de consola que falta para que esa función funcione.
+**Sobre "quién puede aprobar":** solo `esModerador()` puede cambiar `estado` o borrar — es decir, solo una
+sesión que inició con correo/contraseña **de este mismo proyecto** (`arcade-matec`), nunca una sesión
+anónima (con la que juega todo el mundo). No hace falta Cloud Function ni tocar otro proyecto de Firebase.
+Ver la sección 3.3 para cómo se crean esas cuentas de moderador.
 
 ---
 
@@ -194,44 +190,38 @@ usan — no pueden detectar una grosería o un teléfono disfrazado con números
 
 ---
 
-## 3.3 Moderación de Golf: la cuenta de servicio nueva (paso de consola, URGENTE)
+## 3.3 Moderación de Golf: cuenta de moderador propia del Arcade (sin Google Cloud)
 
-**Este paso no es opcional ni "para más adelante": sin él, la publicación de Cloud Functions está rota.**
-Confirmado en GitHub Actions → pestaña "Firebase": el despliegue del 2026-10-02 falló con
-`Error: In non-interactive mode but have no value for the secret: ARCADE_MATEC_SA`. Eso significa que
-`arcadeVotarPropuesta`/`arcadeBorrarRegistro` **nunca llegaron a publicarse** — si alguien entra a
-"PROPUESTAS DE LA COMUNIDAD", inicia sesión y le da APROBAR/RECHAZAR, no pasa nada de verdad (la propuesta
-se queda en "PENDIENTE" con 0 votos, aunque no siempre se note un error grande en pantalla). Y como todas
-las Cloud Functions se publican juntas en un solo paso, **mientras falte este secreto, tampoco se puede
-publicar ningún otro cambio a Functions** (trámites, correos, etc.) hasta que se corrija esto.
+Se descartó el diseño anterior (Cloud Function + cuenta de servicio de Google Cloud): complicaba de más
+algo que se puede resolver directo en las reglas de `arcade-matec`. **Ya no hace falta ningún secreto, ni
+Cloud Function, ni tocar Google Cloud Console en absoluto.**
 
-La Cloud Function `arcadeVotarPropuesta`/`arcadeBorrarRegistro` (`functions/arcadeModeracion.js`) necesita
-una forma de escribir en Firestore de `arcade-matec` desde el proyecto del sitio principal. Eso se hace con
-una **cuenta de servicio** de `arcade-matec`, guardada como secreto — nunca en el repositorio ni en el chat.
+**Cómo funciona:** el moderador inicia sesión con correo y contraseña **propios de `arcade-matec`**
+(`assets/js/arcade/moderacion.js`, una segunda app de Firebase aparte de la anónima con la que todo el
+mundo juega, para no perder esa sesión al moderar). La regla `esModerador()` en
+`arcade-firebase/firestore.rules` solo revisa si la sesión actual inició con contraseña (moderador) o es
+anónima (cualquiera jugando) — nada de listas que sincronizar ni de otro proyecto de Firebase. Un clic en
+APROBAR o RECHAZAR decide al momento, sin que haga falta que vote más de una persona.
 
-**Quién puede votar/borrar:** cualquier cuenta de `moderators` del sitio principal (la misma lista de
-`admin.html`), o las cuentas dueñas del sitio. No hace falta nada nuevo en `arcade-matec` para esto — las
-cuentas de moderador siguen siendo las de siempre.
+**Quién puede ser moderador:** cualquier cuenta de correo/contraseña que exista en la Authentication de
+`arcade-matec`. Como ahí no hay ninguna pantalla pública de "crear cuenta" (solo tú las creas desde la
+consola), tener una cuenta ahí YA significa ser moderador — no hace falta una lista aparte.
 
-**Pasos (los haces tú, una sola vez; después de esto, mergear el PR ya alcanza):**
+**Pasos (los haces tú, una sola vez por cada moderador nuevo):**
 
-1. En [Google Cloud Console](https://console.cloud.google.com/iam-admin/serviceaccounts), con el proyecto
-   **`arcade-matec`** seleccionado (arriba a la izquierda) → "CREAR CUENTA DE SERVICIO".
-2. Nombre sugerido: `arcade-moderacion`. No hace falta darle acceso a nadie más en ese paso.
-3. Rol: **"Editor de Cloud Datastore"** (`roles/datastore.user`) — alcanza para leer y escribir
-   `golfHoyosPropuestos` y `leaderboards`, sin darle de más.
-4. Entra a la cuenta de servicio recién creada → pestaña "CLAVES" → "AGREGAR CLAVE" → "Crear clave nueva" →
-   JSON. Se descarga un archivo — **no lo subas a ningún lado ni lo compartas por chat**.
-5. En tu computadora, con la [CLI de Firebase](https://firebase.google.com/docs/cli) instalada y conectada a
-   `biblioteca-aematec` (el proyecto del sitio, NO `arcade-matec`):
-   ```
-   firebase functions:secrets:set ARCADE_MATEC_SA --project biblioteca-aematec
-   ```
-   Cuando pida el valor, pega el **contenido completo** del archivo JSON que descargaste (ábrelo con un
-   editor de texto y copia todo). Puedes borrar el archivo después de esto.
-6. Listo. **Como el despliegue ya falló una vez, hace falta volver a dispararlo** después de crear el
-   secreto — no se reintenta solo. Lo más simple: avísame y hago un cambio mínimo (o vuelvo a correr el
-   flujo desde la pestaña "Actions" del repositorio, botón "Re-run jobs") para que se publique de nuevo.
+1. Firebase Console → proyecto **`arcade-matec`** → **Authentication** → pestaña "Sign-in method" /
+   "Método de acceso" → activa **"Correo electrónico/contraseña"** (si no estaba activo; "Anónimo" se
+   queda activo igual, es el que usa todo el mundo para jugar).
+2. Pestaña **"Users"** / "Usuarios" → **"Add user"** / "Agregar usuario" → escribe el correo de la persona
+   y ponle una contraseña (la que quieras, se la pasas tú directamente, no hace falta que la persona la
+   elija ni confirme un correo).
+3. Listo — esa persona ya puede entrar a Golf → "PROPUESTAS DE LA COMUNIDAD" con ese correo y contraseña y
+   va a ver los botones de aprobar/rechazar/borrar. Repite el paso 2 por cada moderador que quieras agregar;
+   para quitarle el acceso a alguien, borra su usuario desde esa misma pantalla.
+
+**Nota:** esta cuenta es independiente de la del sitio principal (la de `admin.html`) — es otra contraseña,
+de otro proyecto. Si prefieres que sea la misma cuenta que ya usan en `admin.html`, es posible pero necesita
+el diseño anterior (Cloud Function + Google Cloud), que se descartó justamente para evitar ese paso.
 
 ---
 
@@ -245,22 +235,22 @@ Se pidieron dos cosas para las salas en línea (`rooms`, `races`, `fights`, `bla
   sala (`host`, o `p1`/`A` en las salas 1 contra 1 sin subcolección). Hoy ningún botón del Arcade llama a
   borrar una sala todavía — este cambio deja el permiso listo por si más adelante se agrega un botón
   "cerrar sala", y cierra un hueco (que NADIE pudiera borrar nada).
-- Cada sala ahora escribe un campo `expiraEn` (24 horas desde el último latido de presencia) junto a
-  `lastSeen`, en `assets/js/arcade/core.js` (función `expiraEn()`) y en los 8 lugares de `arcade.html` que
-  usan `presenceLoop`. **Esto no necesitó cambiar ninguna regla** (las reglas actuales de esas colecciones
-  ya no limitan qué campos se pueden escribir una vez que estás dentro de la sala).
-  **Falta un paso tuyo en la consola, aparte de pegar las reglas.** Ojo: en el menú de la izquierda de
-  Firebase Console hay dos productos distintos, **"Realtime Database"** y **"Firestore Database"** — son
-  bases de datos diferentes y el Arcade usa Firestore, no Realtime Database. Si entras a "Realtime
-  Database" vas a ver pestañas "Datos / Reglas / Copias de seguridad / Uso" sin nada de TTL: ese no es el
-  lugar.
-  1. En el menú de la izquierda, entra a **"Firestore Database"** (no "Realtime Database").
-  2. Arriba, en las pestañas de Firestore, busca **"Índices"** ("Indexes").
-  3. Dentro de Índices hay una sub-pestaña **"Políticas de TTL"** ("TTL policies").
-  4. "Crear política" → escribe el nombre exacto de la colección (una a la vez, de esta lista: `rooms`,
-     `races`, `fights`, `blackjack`, `pool`, `duelos`, `golf`, `cruces`) → campo `expiraEn` → guardar.
-  5. Repite para las 8. Sin este paso, el campo `expiraEn` se guarda igual, pero Firestore nunca borra nada
-     solo — no rompe nada mientras tanto, solo no limpia las salas abandonadas.
+- Cada sala escribe un campo `expiraEn` (24 horas desde el último latido de presencia) junto a `lastSeen`,
+  en `assets/js/arcade/core.js` (función `expiraEn()`) y en los 8 lugares de `arcade.html` que usan
+  `presenceLoop`.
+- **Limpieza sin Google Cloud ni Cloud Function:** se descartó configurar una política de TTL en consola
+  (en el rediseño actual de Firebase Console, esa opción vive en Google Cloud Console, no en Firebase
+  Console, y se prefirió evitar ese panel por completo). En su lugar, `liveRooms()` en `core.js` —la función
+  que ya usan los 8 juegos para mostrar "SALAS/MESAS/PARTIDAS EN VIVO"— ahora borra sola cualquier sala
+  cuyo `expiraEn` ya pasó, apenas alguien abre esa lista. La regla nueva `salaCaducada()` en
+  `arcade-firebase/firestore.rules` permite que CUALQUIERA borre una sala vencida, no solo quien la creó,
+  para que esta limpieza funcione sin depender de un dueño específico.
+  **Ojo, cobertura parcial:** esto solo limpia `rooms` (Batalla Naval), `pool` (Billar) y `duelos` (Duelo
+  del Oeste), porque esos tres guardan `expiraEn` en el documento de la sala misma. Los otros 5 juegos
+  (`races`, `fights`, `blackjack`, `golf`, `cruces`) guardan la presencia en la subcolección `players`, no en
+  la sala — limpiarlos también necesitaría más trabajo (revisar si TODOS los jugadores de la sala están
+  vencidos, no un solo documento). Se dejó así a propósito para no alargar este cambio; esas 5 colecciones
+  simplemente no se limpian solas por ahora, lo cual no rompe nada, solo quedan ocupando espacio.
 
 **Lo que NO se hizo, y por qué:** se había pensado en limitar a cada jugador a escribir solo su propio
 "casillero" (`p1`/`p2`, `A`/`B`) en `rooms`, `pool` y `duelos`. Revisando el código real de Batalla Naval,
@@ -287,10 +277,10 @@ hay que diseñarlo juego por juego y probarlo en línea antes de publicar.
 7. **Creador de hoyos de Golf:** entra a Golf → "CREAR UN HOYO", diseña uno con inicio y bandera, dale "PROBARLO"
    (debe poder jugarse) y luego "ENVIAR PROPUESTA". Debe decir que quedó pendiente, sin error de permisos.
 8. **Moderación de Golf (necesita el paso de la sección 3.3 ya hecho):** entra a "PROPUESTAS DE LA COMUNIDAD"
-   e inicia sesión con una cuenta de moderador del sitio. Debe aparecer tu correo y, junto a cada propuesta
-   pendiente, los botones APROBAR/RECHAZAR/BORRAR con el conteo de votos. Vota con dos cuentas de moderador
-   distintas (o hasta llegar al cuórum que te muestre) y confirma que la propuesta cambia a "APROBADO". Vuelve
-   al menú de Golf y dale "JUGAR SOLO": el hoyo aprobado debe aparecer después del 6.
-9. Si algo no se guarda, abre la consola del navegador (F12). Un error `permission-denied` indica qué regla
-   falta; un error al votar que mencione "ARCADE_MATEC_SA" o parecido indica que falta el paso de la
-   sección 3.3.
+   e inicia sesión con la cuenta de moderador que creaste en Authentication → Users de `arcade-matec`. Debe
+   aparecer tu correo y, junto a cada propuesta pendiente, los botones APROBAR/RECHAZAR/BORRAR. Dale
+   APROBAR a una: debe cambiar a "APROBADO" de una vez, sin pedir más votos. Vuelve al menú de Golf y dale
+   "JUGAR SOLO": el hoyo aprobado debe aparecer después del 6.
+9. Si algo no se guarda, abre la consola del navegador (F12). Un error `permission-denied` al votar indica
+   que falta activar "Correo electrónico/contraseña" en Authentication o crear la cuenta de moderador
+   (sección 3.3).

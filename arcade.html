@@ -8,9 +8,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/arcade.css">
-<!-- Config pública (no es secreta) del proyecto del sitio principal, solo para el login de moderador
-     de Golf (assets/js/arcade/moderacion.js). El Arcade en sí sigue usando su propio proyecto. -->
-<script src="assets/firebase-config.js"></script>
 <style>
 :root{
   --bg:#1a1c2c; --panel:#333c57; --panel2:#29366f; --ink:#f4f4f4; --mute:#94b0c2; --dark:#0f1020;
@@ -906,9 +903,9 @@ nav .btn{padding:8px 12px}
         <div id="gf-proposals" hidden>
           <div class="rc-top"><span class="tag">PROPUESTAS DE LA COMUNIDAD</span><button class="btn gray" id="gfp-back">VOLVER</button></div>
           <p class="sub">Estos son los hoyos que otras personas diseñaron. Cualquiera puede darle "▶ PROBARLO" y jugarlos ya
-            mismo. Un hoyo se aprueba cuando la mayoría de los moderadores del sitio lo prueba y vota a favor — ahí se
-            agrega a "JUGAR SOLO", después de los 6 hoyos normales. Si la mayoría vota en contra, queda rechazado.</p>
-          <p class="keys">¿Eres moderador? Inicia sesión abajo con tu cuenta del sitio (la misma de <a href="admin.html">admin.html</a>) para votar o borrar una propuesta.</p>
+            mismo. Un hoyo se aprueba cuando un moderador del Arcade lo prueba y lo aprueba — ahí se agrega a
+            "JUGAR SOLO", después de los 6 hoyos normales.</p>
+          <p class="keys">¿Eres moderador del Arcade? Inicia sesión abajo para aprobar, rechazar o borrar una propuesta.</p>
           <div class="row left" id="gfp-login-row">
             <input id="gfp-email" class="px-in" type="email" placeholder="CORREO DE MODERADOR" autocomplete="username">
             <input id="gfp-pass" class="px-in" type="password" placeholder="CONTRASEÑA" autocomplete="current-password" maxlength="100">
@@ -1064,7 +1061,7 @@ import {
 import { T, llStart, llSpit, tiroTick, tiroDraw, tgt } from "./assets/js/arcade/tiro.js";
 import { RN, rnStep, rnDraw, rnJumpPress, RN_FOX_SPR } from "./assets/js/arcade/runner.js";
 import {
-  mensajeErrorAuth, onModerador, moderadorLogin, moderadorLogout, votarPropuesta, borrarRegistro,
+  mensajeErrorAuth, onModerador, moderadorLogin, moderadorLogout, dbMod,
 } from "./assets/js/arcade/moderacion.js";
 import { MUSIC, setMusicToggleHook } from "./assets/js/arcade/musica.js";
 
@@ -5464,18 +5461,18 @@ $('#gfb-send').onclick = async () => {
 $('#gf-builder-open').onclick = () => { gfbThemeRender(); gfbParRender(); gfbToolsRender(); gfView('builder'); gfbDraw(); };
 $('#gfb-back').onclick = () => gfView('menu');
 
-/* ---- Moderar propuestas: inicia sesión con una cuenta de moderador del sitio (la misma de
-   admin.html, ver assets/js/arcade/moderacion.js). La votación y el borrado de verdad los hace la
-   Cloud Function arcadeVotarPropuesta/arcadeBorrarRegistro (functions/arcadeModeracion.js) con su
-   propia cuenta de servicio — aquí solo se pide el login y se muestra lo que la función responde. */
+/* ---- Moderar propuestas: cuenta de correo/contraseña PROPIA de arcade-matec (no la del sitio), ver
+   assets/js/arcade/moderacion.js. Sin Cloud Function ni cuenta de servicio: las reglas de arcade-matec
+   (función esModerador()) ya distinguen una sesión de moderador (con contraseña) de una anónima
+   (cualquiera jugando), así que estas llamadas van directo a Firestore con dbMod. Un solo clic decide,
+   sin votación. */
 let gfpModeradorEmail = null;
 let gfpDocs = {}; // id -> datos completos de la propuesta, para poder "PROBARLO" sin leerlo de nuevo
 function gfpItemHtml(id, d) {
   const estadoTxt = { pendiente: 'PENDIENTE', aprobado: 'APROBADO ✓', rechazado: 'RECHAZADO ✗' }[d.estado] || d.estado;
   const estadoCls = d.estado === 'aprobado' ? 'win' : (d.estado === 'rechazado' ? 'lose' : '');
   const puedeModerar = gfpModeradorEmail && d.estado === 'pendiente';
-  const votos = puedeModerar ? ` · ✔ ${(d.votosAprobar || []).length} ✘ ${(d.votosRechazar || []).length}` : '';
-  return `<span><b>${esc(d.nombre)}</b> · ${esc((d.theme || '').toUpperCase())}<small>POR ${esc(d.autor)} · PAR ${esc(d.par)} · <span class="${estadoCls}">${esc(estadoTxt)}</span>${votos}</small></span>` +
+  return `<span><b>${esc(d.nombre)}</b> · ${esc((d.theme || '').toUpperCase())}<small>POR ${esc(d.autor)} · PAR ${esc(d.par)} · <span class="${estadoCls}">${esc(estadoTxt)}</span></small></span>` +
     `<button class="btn" data-test="${esc(id)}">▶ PROBARLO</button>` +
     (puedeModerar ? `<button class="btn green" data-approve="${esc(id)}">APROBAR</button><button class="btn gray" data-reject="${esc(id)}">RECHAZAR</button>` : '') +
     (gfpModeradorEmail ? `<button class="btn red" data-delete="${esc(id)}">BORRAR</button>` : '');
@@ -5511,21 +5508,17 @@ function gfpTest(id) {
 }
 async function gfpVotar(id, voto) {
   const msg = $('#gfp-msg');
-  msg.textContent = 'ENVIANDO VOTO…'; msg.className = 'msg';
   try {
-    const r = await votarPropuesta(id, voto);
+    await fs.updateDoc(fs.doc(dbMod, 'golfHoyosPropuestos', id), { estado: voto });
     SFX.play('click');
-    msg.textContent = r.estado === 'pendiente'
-      ? `VOTO REGISTRADO: ✔ ${r.votosAprobar} · ✘ ${r.votosRechazar} (HACEN FALTA ${r.umbral} PARA DECIDIR)`
-      : `PROPUESTA ${r.estado.toUpperCase()}.`;
-    msg.className = 'msg win';
+    msg.textContent = `PROPUESTA ${voto.toUpperCase()}.`; msg.className = 'msg win';
     gfCommunityLoaded = false; gfpLoad();
-  } catch (e) { console.error(e); msg.textContent = 'NO SE PUDO VOTAR: ' + (e.message || e); msg.className = 'msg lose'; }
+  } catch (e) { console.error(e); msg.textContent = 'NO SE PUDO GUARDAR: ' + (e.message || e); msg.className = 'msg lose'; }
 }
 async function gfpBorrar(id) {
   if (!window.confirm('¿Borrar esta propuesta? No se puede deshacer.')) return;
   const msg = $('#gfp-msg');
-  try { await borrarRegistro('propuesta', id); SFX.play('click'); gfCommunityLoaded = false; gfpLoad(); }
+  try { await fs.deleteDoc(fs.doc(dbMod, 'golfHoyosPropuestos', id)); SFX.play('click'); gfCommunityLoaded = false; gfpLoad(); }
   catch (e) { console.error(e); msg.textContent = 'NO SE PUDO BORRAR: ' + (e.message || e); msg.className = 'msg lose'; }
 }
 onModerador(user => {
