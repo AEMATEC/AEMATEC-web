@@ -3,10 +3,11 @@
 // al hacer merge a main. Quien administra "arcade-matec" sigue copiando y pegando el contenido a mano en
 // Firebase Console → Firestore Database → Reglas, igual que siempre.
 //
-// Última confirmación de que esto es lo publicado: 2026-10-01 (la persona de la Junta lo pegó tal cual
-// desde la consola). Si cambias algo en la consola, avísale a quien mantiene este repositorio para que
-// actualice este archivo; si un PR propone un cambio aquí, cópialo tú mismo a la consola para que entre
-// en efecto — ver docs/arcade-firebase-cambios.md.
+// Última confirmación de que esto es lo publicado: 2026-10-01 (la persona de la Junta pegó esta versión
+// completa en la consola, con el filtro de caracteres de apodos/propuestas, "solo el anfitrión borra su
+// sala" y golfHoyosPropuestos cerrado a allow update/delete: if false). Si cambias algo en la consola,
+// avísale a quien mantiene este repositorio para que actualice este archivo; si un PR propone un cambio
+// aquí, cópialo tú mismo a la consola para que entre en efecto — ver docs/arcade-firebase-cambios.md.
 
 rules_version = '2';
 
