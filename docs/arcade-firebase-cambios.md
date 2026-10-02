@@ -2,9 +2,23 @@
 
 Para: quien administra el proyecto de Firebase **`arcade-matec`** (el del Arcade, no el del sitio AEMATEC).
 
-Las reglas de `arcade-matec` **no están en este repositorio** y no se publican solas al hacer merge. Esta
-versión del Arcade escribe algunos datos nuevos en Firestore. Si tus reglas limitan las claves, los campos
-o los rangos, hay que actualizarlas en **Firebase Console → Firestore Database → Reglas**.
+## 0. Dónde vive el historial de las reglas
+
+Las reglas de `arcade-matec` **no viven de verdad en este repositorio** y **no se publican solas** al hacer
+merge (ni con un comando, ni con un flujo de GitHub Actions) — eso es a propósito, para que nadie publique
+reglas de ese proyecto por accidente. Lo único que hay en el repositorio es
+[`arcade-firebase/firestore.rules`](../arcade-firebase/firestore.rules): una **copia de referencia** de lo
+último que la persona que administra `arcade-matec` confirmó que está pegado en
+**Firebase Console → Firestore Database → Reglas**.
+
+- Si tú cambias algo directamente en la consola, avísale a quien mantiene este repositorio para actualizar
+  `arcade-firebase/firestore.rules` y que quede igual.
+- Si un cambio de código (un PR) necesita una regla nueva o distinta, el PR va a traer el archivo
+  `arcade-firebase/firestore.rules` ya actualizado con el cambio propuesto — pero **tienes que copiarlo tú
+  mismo a mano** en la consola de Firebase para que entre en efecto. Nada de esto se publica solo.
+
+Esta versión del Arcade escribe algunos datos nuevos en Firestore. Si tus reglas limitan las claves, los
+campos o los rangos, hay que actualizarlas en **Firebase Console → Firestore Database → Reglas**.
 
 Si tus reglas ya aceptan cualquier documento de `leaderboards` y cualquier campo en las salas, no tienes que
 cambiar nada. Aun así, revisa la lista de abajo.

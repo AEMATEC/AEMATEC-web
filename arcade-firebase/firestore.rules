@@ -1,0 +1,194 @@
+// Copia de las reglas de Firestore publicadas en el proyecto de Firebase "arcade-matec" (el del Arcade,
+// NO el del sitio principal). Este archivo es solo HISTORIAL: no se publica solo, ni con un comando, ni
+// al hacer merge a main. Quien administra "arcade-matec" sigue copiando y pegando el contenido a mano en
+// Firebase Console → Firestore Database → Reglas, igual que siempre.
+//
+// Última confirmación de que esto es lo publicado: 2026-10-01 (la persona de la Junta lo pegó tal cual
+// desde la consola). Si cambias algo en la consola, avísale a quien mantiene este repositorio para que
+// actualice este archivo; si un PR propone un cambio aquí, cópialo tú mismo a la consola para que entre
+// en efecto — ver docs/arcade-firebase-cambios.md.
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isIncGame(game) {
+      return game in ['funciones', 'veintiuno', 'billar_eight', 'billar_nine', 'duelo'];
+    }
+
+    function validScore(game, s) {
+      return s is number && (
+        (game in ['minas_facil', 'minas_medio', 'minas_dificil'] && s >= 1 && s <= 3600) ||
+        (game == 'batalla' && s >= 17 && s <= 100) ||
+        (game in ['tiro', 'tiro_uno'] && s >= 1 && s <= 1500) ||
+        (game == 'tiro_diana' && s >= 1 && s <= 14100) ||
+        (game in ['carrera_0', 'carrera_1', 'carrera_2', 'carrera_3'] && s >= 4 && s <= 1800) ||
+        (game in ['carrera_0_total', 'carrera_1_total', 'carrera_2_total', 'carrera_3_total'] && s >= 4 && s <= 1800) ||
+        (game == 'duelo_reaccion' && s >= 80 && s <= 5000) ||
+        (game == 'runner' && s >= 1 && s <= 20000) ||
+        (game == 'golf' && s >= 1 && s <= 200) ||
+        (game == 'cruce' && s >= 0 && s <= 5000)
+      );
+    }
+
+    match /leaderboards/{game}/scores/{uid} {
+      allow read: if true;
+      allow create, update: if signedIn()
+        && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['name', 'score', 'extra', 'ts'])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() >= 1
+        && request.resource.data.name.size() <= 12
+        && request.resource.data.extra is string
+        && request.resource.data.extra.size() <= 24
+        && request.resource.data.ts == request.time
+        && request.resource.data.score is number
+        && (
+          (!isIncGame(game) && validScore(game, request.resource.data.score))
+          || (isIncGame(game) && resource == null && request.resource.data.score == 1)
+          || (isIncGame(game) && resource != null && request.resource.data.score == resource.data.score + 1)
+        );
+      allow delete: if false;
+    }
+
+    match /rooms/{code} {
+      allow read: if signedIn();
+      allow create: if signedIn()
+        && request.resource.data.p1.uid == request.auth.uid
+        && request.resource.data.p2 == null;
+      allow update: if signedIn() && (
+        request.auth.uid == resource.data.p1.uid
+        || (resource.data.p2 != null && request.auth.uid == resource.data.p2.uid)
+        || (resource.data.p2 == null
+            && request.resource.data.p2.uid == request.auth.uid
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['p2']))
+      );
+      allow delete: if false;
+    }
+
+    match /races/{code} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.host == request.auth.uid;
+      allow update: if signedIn() && resource.data.host == request.auth.uid;
+      allow delete: if false;
+
+      match /players/{uid} {
+        allow read: if signedIn();
+        allow create, update, delete: if signedIn() && request.auth.uid == uid;
+      }
+    }
+
+    match /fights/{code} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.host == request.auth.uid;
+      allow update: if signedIn()
+        && exists(/databases/$(database)/documents/fights/$(code)/players/$(request.auth.uid));
+      allow delete: if false;
+
+      match /players/{uid} {
+        allow read: if signedIn();
+        allow create, update, delete: if signedIn() && request.auth.uid == uid;
+      }
+    }
+
+    match /blackjack/{code} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.host == request.auth.uid;
+      allow update: if signedIn()
+        && exists(/databases/$(database)/documents/blackjack/$(code)/players/$(request.auth.uid));
+      allow delete: if false;
+
+      match /players/{uid} {
+        allow read: if signedIn();
+        allow create, update, delete: if signedIn() && request.auth.uid == uid;
+      }
+    }
+
+    match /pool/{code} {
+      allow read: if signedIn();
+      allow create: if signedIn()
+        && request.resource.data.p1.uid == request.auth.uid
+        && request.resource.data.p2 == null;
+      allow update: if signedIn() && (
+        request.auth.uid == resource.data.p1.uid
+        || (resource.data.p2 != null && request.auth.uid == resource.data.p2.uid)
+        || (resource.data.p2 == null
+            && request.resource.data.p2.uid == request.auth.uid
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['p2']))
+      );
+      allow delete: if false;
+    }
+
+    match /duelos/{code} {
+      allow read: if signedIn();
+      allow create: if signedIn()
+        && request.resource.data.A.uid == request.auth.uid
+        && request.resource.data.B == null;
+      allow update: if signedIn() && (
+        request.auth.uid == resource.data.A.uid
+        || (resource.data.B != null && request.auth.uid == resource.data.B.uid)
+        || (resource.data.B == null
+            && request.resource.data.B.uid == request.auth.uid
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['B']))
+      );
+      allow delete: if false;
+    }
+
+    // Golf: partida compartida de hasta 4 personas en el mismo recorrido, por turnos.
+    match /golf/{code} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.host == request.auth.uid;
+      allow update: if signedIn()
+        && exists(/databases/$(database)/documents/golf/$(code)/players/$(request.auth.uid));
+      allow delete: if false;
+
+      match /players/{uid} {
+        allow read: if signedIn();
+        allow create, update, delete: if signedIn() && request.auth.uid == uid;
+      }
+    }
+
+    // Golf: hoyos que la gente propone con el "Creador de hoyos". Quedan pendientes hasta que alguien
+    // con el código de moderador (ver GFP_MOD_CODE en arcade.html) los apruebe o rechace.
+    match /golfHoyosPropuestos/{id} {
+      allow read: if signedIn();
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['nombre','autor','theme','par','start','hole','walls','sand','water','ice','ramps','estado','creado'])
+        && request.resource.data.estado == 'pendiente'
+        && request.resource.data.nombre is string && request.resource.data.nombre.size() <= 30
+        && request.resource.data.autor is string && request.resource.data.autor.size() <= 12
+        && request.resource.data.par is number && request.resource.data.par >= 2 && request.resource.data.par <= 6
+        && request.resource.data.walls.size() <= 6 && request.resource.data.sand.size() <= 3
+        && request.resource.data.water.size() <= 3 && request.resource.data.ice.size() <= 3
+        && request.resource.data.ramps.size() <= 2
+        && request.resource.data.creado == request.time;
+      allow update: if signedIn()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['estado'])
+        && request.resource.data.estado in ['aprobado', 'rechazado'];
+      allow delete: if false;
+    }
+
+    // Cruzar la Calle: hasta 4 personas, cada quien su rana, mismo tablero en tiempo real.
+    match /cruces/{code} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.host == request.auth.uid;
+      allow update: if signedIn()
+        && exists(/databases/$(database)/documents/cruces/$(code)/players/$(request.auth.uid));
+      allow delete: if false;
+
+      match /players/{uid} {
+        allow read: if signedIn();
+        allow create, update, delete: if signedIn() && request.auth.uid == uid;
+      }
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
