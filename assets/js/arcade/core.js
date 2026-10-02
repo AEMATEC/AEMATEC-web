@@ -14,8 +14,7 @@ const firebaseConfig = {
   projectId: "arcade-matec",
   storageBucket: "arcade-matec.firebasestorage.app",
   messagingSenderId: "565626556618",
-  appId: "1:565626556618:web:138e123f64765e849fa433",
-  measurementId: "G-W3MKGMT74S"
+  appId: "1:565626556618:web:138e123f64765e849fa433"
 };
 const FB_VER = '10.12.2';
 
@@ -31,7 +30,7 @@ export const fbReady = (async () => {
     fs = fsMod; db = fs.getFirestore(app);
     const cred = await auMod.signInAnonymously(auMod.getAuth(app));
     UID = cred.user.uid;
-    import(base + 'firebase-analytics.js').then(m => m.isSupported().then(ok => ok && m.getAnalytics(app))).catch(() => {});
+    // Sin Google Analytics a propósito: pondría cookies de rastreo sin consentimiento (Ley 8968 Art. 5). Ver legal.html#cookies.
     return true;
   } catch (e) { console.warn('Firebase no disponible, modo local:', e); return false; }
 })();
@@ -77,12 +76,15 @@ export const fmtT = s => { const m = Math.floor(s / 60), r = s - m * 60; return 
 export function genCode() { const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let s = ''; for (let i = 0; i < 5; i++) s += A[(Math.random() * A.length) | 0]; return s; }
 
 /* ---------- presencia en línea (detectar desconexiones) ---------- */
-const HEARTBEAT_MS = 5000, STALE_MS = 13000;
+const HEARTBEAT_MS = 5000, STALE_MS = 13000, SALA_TTL_MS = 24 * 60 * 60 * 1000;
 export function presenceLoop(writeFn) {
   writeFn();
   const id = setInterval(writeFn, HEARTBEAT_MS);
   return () => clearInterval(id);
 }
+// Campo para la política de TTL de Firestore (se configura en la consola, no en las reglas): una
+// sala sin latidos se borra sola 24h después del último. Se escribe junto a cada "lastSeen".
+export function expiraEn() { return fs.Timestamp.fromMillis(Date.now() + SALA_TTL_MS); }
 export function tsMillis(ts) { return ts ? (ts.toMillis ? ts.toMillis() : (ts.seconds ? ts.seconds * 1000 : 0)) : 0; }
 export function isStale(ts, now) { const t = tsMillis(ts); return t > 0 && now - t > STALE_MS; }
 export async function liveRooms(coll, limit = 12) {
@@ -103,7 +105,7 @@ fbReady.then(ok => {
 
 /* ---------- sonido 8-bit (sintetizado, sin archivos) ---------- */
 export const SFX = {
-  on: store.get('pa_snd', true), ctx: null,
+  on: store.get('pa_snd', false), ctx: null,
   init() {
     if (!this.ctx) { try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch { return; } }
     if (this.ctx.state === 'suspended') this.ctx.resume();
@@ -155,7 +157,7 @@ export const SFX = {
     }
   }
 };
-function sndBtn() { const b = $('#snd'); b.textContent = SFX.on ? '♪ SÍ' : '♪ NO'; b.classList.toggle('off', !SFX.on); }
+function sndBtn() { const b = $('#snd'); b.querySelector('.lbl').textContent = SFX.on ? 'SÍ' : 'NO'; b.classList.toggle('off', !SFX.on); b.setAttribute('aria-pressed', String(SFX.on)); }
 $('#snd').onclick = () => { SFX.on = !SFX.on; store.set('pa_snd', SFX.on); sndBtn(); SFX.play('click'); updateMenuMusicHook(); };
 sndBtn();
 $('#arcade-volver').onclick = () => window.arcadeTransition('index.html');
@@ -243,6 +245,31 @@ export const LB = {
     arr.sort((a, b) => b.score - a.score);
     store.set('lb_' + key, arr.slice(0, 10));
     return r ? r.score : 1;
+  },
+  // La persona decide si publica su puntaje. `mensaje` es el texto que se le muestra ("¿SUBES TU
+  // TIEMPO DE 45s?"); `publicar` es la función que de verdad guarda (normalmente LB.submit/
+  // LB.increment ya con los datos del juego). Devuelve lo que `publicar` devuelva, o false si la
+  // persona dijo que no — nunca falla, así que el `.then(...)` que refresca la tabla siempre corre.
+  confirmar(mensaje, publicar) {
+    return new Promise(resolve => {
+      const box = $('#lb-confirm'), msg = $('#lb-confirm-msg'), choice = $('#lb-confirm-choice');
+      const step = $('#lb-confirm-name-step'), nombreIn = $('#lb-confirm-name'), nombreMsg = $('#lb-confirm-name-msg');
+      msg.textContent = mensaje;
+      choice.hidden = false; step.hidden = true; nombreMsg.textContent = '';
+      nombreIn.value = playerName();
+      box.hidden = false;
+      const cerrar = r => { box.hidden = true; resolve(r); };
+      $('#lb-confirm-no').onclick = () => cerrar(false);
+      $('#lb-confirm-yes').onclick = () => { choice.hidden = true; step.hidden = false; nombreIn.focus(); };
+      $('#lb-confirm-publish').onclick = async () => {
+        const v = nombreIn.value.trim().toUpperCase().slice(0, 10);
+        if (!v) { nombreMsg.textContent = 'ESCRIBE UN APODO.'; return; }
+        const r = filtrarTexto(v);
+        if (!r.ok) { nombreMsg.textContent = r.motivo; return; }
+        store.set('pa_name', v); $('#name').value = v;
+        cerrar(await publicar());
+      };
+    });
   },
   async top(key, asc) {
     if (await fbReady) {

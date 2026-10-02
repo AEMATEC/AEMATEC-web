@@ -114,7 +114,7 @@ Huida del Zorro, Buscaminas, Batalla Naval, 21 y Billar.
 
 Golf tiene ahora una pantalla para que cualquiera diseñe un hoyo (tema, par, paredes, arena, agua, hielo,
 rampas) y lo envíe. Queda **pendiente** hasta que la mayoría de los moderadores del sitio principal lo
-apruebe (votación, ver sección 3.2 más abajo) desde la pantalla "PROPUESTAS DE LA COMUNIDAD"; ahí es cuando
+apruebe (votación, ver sección 3.3 más abajo) desde la pantalla "PROPUESTAS DE LA COMUNIDAD"; ahí es cuando
 se suma a "JUGAR SOLO" (después de los 6 hoyos de siempre). Todo esto es nuevo en Firestore: **sin esta
 colección y sus reglas, la pantalla de creación sigue funcionando (se puede diseñar y probar el hoyo), pero
 "ENVIAR PROPUESTA" falla con un error de permisos.**
@@ -170,7 +170,7 @@ ni borrar una propuesta desde el navegador, ni siquiera un moderador real con su
 que puede es la Cloud Function `arcadeVotarPropuesta`/`arcadeBorrarRegistro`
 (`functions/arcadeModeracion.js`), que corre en el proyecto del **sitio principal** (`biblioteca-aematec`,
 se despliega con el resto de Functions) y usa su propia cuenta de servicio de `arcade-matec` (Admin SDK, no
-pasa por estas reglas). Ver la sección 3.2 para el paso de consola que falta para que esa función funcione.
+pasa por estas reglas). Ver la sección 3.3 para el paso de consola que falta para que esa función funcione.
 
 ---
 
@@ -194,7 +194,7 @@ usan — no pueden detectar una grosería o un teléfono disfrazado con números
 
 ---
 
-## 3.2 Moderación de Golf: la cuenta de servicio nueva (paso de consola, una sola vez)
+## 3.3 Moderación de Golf: la cuenta de servicio nueva (paso de consola, una sola vez)
 
 La Cloud Function `arcadeVotarPropuesta`/`arcadeBorrarRegistro` (`functions/arcadeModeracion.js`) necesita
 una forma de escribir en Firestore de `arcade-matec` desde el proyecto del sitio principal. Eso se hace con
@@ -227,6 +227,36 @@ cuentas de moderador siguen siendo las de siempre.
 
 ---
 
+## 3.2 Salas: borrar y "caducar" solas
+
+Se pidieron dos cosas para las salas en línea (`rooms`, `races`, `fights`, `blackjack`, `pool`, `duelos`,
+`golf`, `cruces`): que solo el anfitrión pueda borrar la sala, y que una sala abandonada se borre sola.
+
+**Lo que SÍ se hizo:**
+- `allow delete` pasa de `if false` (nadie podía borrar, ni el anfitrión) a permitir solo a quien creó la
+  sala (`host`, o `p1`/`A` en las salas 1 contra 1 sin subcolección). Hoy ningún botón del Arcade llama a
+  borrar una sala todavía — este cambio deja el permiso listo por si más adelante se agrega un botón
+  "cerrar sala", y cierra un hueco (que NADIE pudiera borrar nada).
+- Cada sala ahora escribe un campo `expiraEn` (24 horas desde el último latido de presencia) junto a
+  `lastSeen`, en `assets/js/arcade/core.js` (función `expiraEn()`) y en los 8 lugares de `arcade.html` que
+  usan `presenceLoop`. **Esto no necesitó cambiar ninguna regla** (las reglas actuales de esas colecciones
+  ya no limitan qué campos se pueden escribir una vez que estás dentro de la sala).
+  **Falta un paso tuyo en la consola, aparte de pegar las reglas:** Firestore Database → en cada una de
+  las 8 colecciones de arriba → el ícono de "Tiempo de vida (TTL)" → agrega una política con el campo
+  `expiraEn`. Sin ese paso, el campo se guarda pero Firestore nunca borra nada solo.
+
+**Lo que NO se hizo, y por qué:** se había pensado en limitar a cada jugador a escribir solo su propio
+"casillero" (`p1`/`p2`, `A`/`B`) en `rooms`, `pool` y `duelos`. Revisando el código real de Batalla Naval,
+Billar y Duelo del Oeste, esto **rompería el juego en línea**: campos como `winner`, `turn`, `shots_p1`,
+`balls`, `state`, `winsA` no son "de un jugador", son del PARTIDO completo, y los escribe quien le toca el
+turno — no siempre el mismo. Limitarlo mal habría bloqueado jugadas válidas sin que se note hasta que
+alguien lo prueba en línea de verdad. Como no hay forma de probar esto con dos sesiones contra las reglas
+reales sin publicarlas primero, se dejó tal cual (ya validan que seas uno de los dos jugadores de la sala,
+que es la protección real) en vez de arriesgar romper el juego. Si más adelante se quiere apretar esto más,
+hay que diseñarlo juego por juego y probarlo en línea antes de publicar.
+
+---
+
 ## 4. Cómo comprobarlo después de publicar las reglas
 
 1. Abre <https://aematec.github.io/AEMATEC-web/arcade.html>, escribe un nombre y espera a que diga **● ONLINE**.
@@ -239,7 +269,7 @@ cuentas de moderador siguen siendo las de siempre.
 6. **Animal al Tiro:** juega **DIANA CONTINUA** y revisa el Top 10.
 7. **Creador de hoyos de Golf:** entra a Golf → "CREAR UN HOYO", diseña uno con inicio y bandera, dale "PROBARLO"
    (debe poder jugarse) y luego "ENVIAR PROPUESTA". Debe decir que quedó pendiente, sin error de permisos.
-8. **Moderación de Golf (necesita el paso de la sección 3.2 ya hecho):** entra a "PROPUESTAS DE LA COMUNIDAD"
+8. **Moderación de Golf (necesita el paso de la sección 3.3 ya hecho):** entra a "PROPUESTAS DE LA COMUNIDAD"
    e inicia sesión con una cuenta de moderador del sitio. Debe aparecer tu correo y, junto a cada propuesta
    pendiente, los botones APROBAR/RECHAZAR/BORRAR con el conteo de votos. Vota con dos cuentas de moderador
    distintas (o hasta llegar al cuórum que te muestre) y confirma que la propuesta cambia a "APROBADO". Vuelve

@@ -1,8 +1,9 @@
 // Moderación del Repositorio: materiales pendientes, edición de metadatos y equipo de moderación.
 // La carga admin.html (vía panel.js) solo para cuentas con rol de moderación.
 import { app } from "../firebase.js";
-import { escapeHtml } from "../util.js";
+import { escapeHtml, safeHttpsUrl } from "../util.js";
 import { esDueno } from "../roles.js";
+import { enlaceExplicacion } from "../recursos.js";
 import { getFirestore, collection, getDocs, getDoc, query, where, updateDoc, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getStorage, ref, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
@@ -84,11 +85,19 @@ editForm.addEventListener("submit", async event => {
     editStatus.hidden = false;
     return;
   }
+  // Solo https: el enlace se muestra como href en las páginas públicas (firestore.rules también lo exige).
+  const explanationUrl = document.querySelector("#edit-explanation-url").value.trim();
+  if (explanationUrl && !safeHttpsUrl(explanationUrl)) {
+    editStatus.textContent = "El enlace de explicación debe comenzar con https://.";
+    editStatus.className = "text-sm text-[#C2413B]";
+    editStatus.hidden = false;
+    return;
+  }
   const updates = {
     title: document.querySelector("#edit-title").value.trim(),
     description: document.querySelector("#edit-description").value.trim(),
     labels, type: typeMap[labels[0]],
-    explanationUrl: document.querySelector("#edit-explanation-url").value.trim()
+    explanationUrl
   };
   if (isDocente) {
     updates.grade = document.querySelector("#edit-grade").value;
@@ -127,7 +136,7 @@ document.querySelector("#moderator-form").addEventListener("submit", async event
     event.target.reset();
     await loadModerators();
     status.textContent = "Moderador agregado.";
-    status.className = "mt-3 text-sm text-[#087F8C]";
+    status.className = "mt-3 text-sm text-[#00798A]";
     status.hidden = false;
   } catch (error) {
     status.textContent = `No se pudo agregar el moderador: ${error.message}`;
@@ -153,6 +162,13 @@ async function loadModerators() {
   }));
 }
 
+// Explicación opcional del recurso (archivo o enlace, ver assets/js/recursos.js).
+function explicacionHtml(resource) {
+  const explicacion = enlaceExplicacion(resource);
+  if (!explicacion) return "";
+  return `<a href="${escapeHtml(explicacion.href)}" target="_blank" rel="noopener" class="rounded-[8px] border border-[#9DB6C1] px-4 py-2 font-sans text-xs font-bold">${explicacion.descarga ? "Ver explicación (archivo)" : "Ver explicación (enlace)"}</a>`;
+}
+
 async function loadPending() {
   panelStatus.textContent = "Cargando materiales...";
   const snapshot = await getDocs(query(collection(db, "resources"), where("status", "==", "pending")));
@@ -165,14 +181,36 @@ async function loadPending() {
   pendingList.innerHTML = snapshot.docs.map(item => {
     const resource = item.data();
     return `<article class="rounded-[16px] border border-[#D7E2E7] bg-white p-6 shadow-sm">
-      <div class="flex flex-wrap items-start justify-between gap-3"><div><span class="font-sans text-[10px] font-bold uppercase text-[#00A6B8]">${escapeHtml(resource.type)}</span><h2 class="mt-2 font-sans text-xl font-bold">${escapeHtml(resource.title)}</h2></div><span class="rounded-full bg-[#FFF1D9] px-3 py-1 font-sans text-[10px] font-bold text-[#946316]">PENDIENTE</span></div>
+      <div class="flex flex-wrap items-start justify-between gap-3"><div><span class="font-sans text-[10px] font-bold uppercase text-[#00798A]">${escapeHtml(resource.type)}</span><h2 class="mt-2 font-sans text-xl font-bold">${escapeHtml(resource.title)}</h2></div><span class="rounded-full bg-[#FFF1D9] px-3 py-1 font-sans text-[10px] font-bold text-[#946316]">PENDIENTE</span></div>
       <p class="mt-3 leading-6 text-[#607480]">${escapeHtml(resource.description)}</p>
       <dl class="mt-4 grid gap-2 text-sm text-[#405968] sm:grid-cols-2"><div><strong>Autor:</strong> ${escapeHtml(resource.author)}</div><div><strong>Curso:</strong> ${escapeHtml(resource.course || "No indicado")}</div><div><strong>Materiales:</strong> ${escapeHtml(resource.materials || "No indicados")}</div><div><strong>Internet:</strong> ${resource.requiresInternet ? "Sí" : "No"} · ${escapeHtml((resource.extension || "").toUpperCase())} · ${fileSize(resource.size)}</div></dl>
-      <div class="mt-5 flex flex-wrap gap-3"><a href="${escapeHtml(resource.fileUrl)}" target="_blank" rel="noopener" class="rounded-[8px] border border-[#9DB6C1] px-4 py-2 font-sans text-xs font-bold">Ver archivo</a><button data-edit-id="${item.id}" class="rounded-[8px] border border-[#9DB6C1] px-4 py-2 font-sans text-xs font-bold"><i class="fa-solid fa-pen mr-1"></i>Editar</button><button data-action="approved" data-id="${item.id}" class="rounded-[8px] bg-[#00AFC1] px-4 py-2 font-sans text-xs font-bold text-white">Aprobar y publicar</button><button data-action="rejected" data-id="${item.id}" class="rounded-[8px] border border-[#C2413B] px-4 py-2 font-sans text-xs font-bold text-[#C2413B]">Rechazar</button><button data-action="delete" data-id="${item.id}" class="rounded-[8px] border border-[#AFC2CB] px-4 py-2 font-sans text-xs font-bold">Eliminar</button></div>
+      <div class="mt-5 flex flex-wrap gap-3"><a href="${escapeHtml(safeHttpsUrl(resource.fileUrl) || "#")}" target="_blank" rel="noopener" class="rounded-[8px] border border-[#9DB6C1] px-4 py-2 font-sans text-xs font-bold">Ver archivo</a>${explicacionHtml(resource)}<button data-edit-id="${item.id}" class="rounded-[8px] border border-[#9DB6C1] px-4 py-2 font-sans text-xs font-bold"><i class="fa-solid fa-pen mr-1"></i>Editar</button><button data-action="approved" data-id="${item.id}" class="rounded-[8px] bg-[#087F8C] px-4 py-2 font-sans text-xs font-bold text-white">Aprobar y publicar</button><button data-action="rejected" data-id="${item.id}" class="rounded-[8px] border border-[#C2413B] px-4 py-2 font-sans text-xs font-bold text-[#C2413B]">Rechazar</button><button data-action="delete" data-id="${item.id}" class="rounded-[8px] border border-[#AFC2CB] px-4 py-2 font-sans text-xs font-bold">Eliminar</button></div>
     </article>`;
   }).join("");
   pendingList.querySelectorAll("button[data-action]").forEach(button => button.addEventListener("click", () => handleAction(button.dataset.action, button.dataset.id)));
   pendingList.querySelectorAll("[data-edit-id]").forEach(button => button.addEventListener("click", () => openEditFromId(button.dataset.editId)));
+}
+
+// Las rutas de los archivos las escribe quien propone el material, así que no se confía en ellas: solo se borra
+// un archivo de la carpeta de recursos y si ningún otro material lo usa (evita que una propuesta falsa que
+// apunte al archivo de un material bueno lo haga borrar).
+async function borrarArchivosDe(resource) {
+  const rutas = [resource.storagePath, resource.explanation?.storagePath]
+    .filter(ruta => typeof ruta === "string" && /^recursos\/(docentes|academico)\/[a-f0-9-]+(-explicacion)?\.[a-z]+$/.test(ruta));
+  const noBorrados = [];
+  for (const ruta of rutas) {
+    try {
+      const [comoArchivo, comoExplicacion] = await Promise.all([
+        getDocs(query(collection(db, "resources"), where("storagePath", "==", ruta))),
+        getDocs(query(collection(db, "resources"), where("explanation.storagePath", "==", ruta)))
+      ]);
+      if (comoArchivo.empty && comoExplicacion.empty) await deleteObject(ref(storage, ruta));
+      else noBorrados.push(ruta);
+    } catch (error) {
+      if (error.code !== "storage/object-not-found") noBorrados.push(ruta);
+    }
+  }
+  if (noBorrados.length) console.warn("Archivos que no se borraron (en uso o con error):", noBorrados);
 }
 
 async function handleAction(action, id) {
@@ -182,8 +220,10 @@ async function handleAction(action, id) {
   try {
     if (action === "delete") {
       if (!confirm("¿Eliminar este material y su archivo definitivamente?")) return;
-      if (resource.storagePath) await deleteObject(ref(storage, resource.storagePath));
+      // Primero el documento: si algo falla después, queda a lo sumo un archivo sin usar, nunca un material
+      // publicado cuyo archivo ya no existe.
       await deleteDoc(doc(db, "resources", id));
+      await borrarArchivosDe(resource);
     } else {
       await updateDoc(doc(db, "resources", id), { status: action, published: action === "approved" });
     }

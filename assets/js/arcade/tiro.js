@@ -105,7 +105,7 @@ function llEnd() {
   SFX.play(T.score > 0 ? 'win' : 'lose');
   T.lbMode = T.mode;
   const lbTxt = T.mode === 'cont' ? `${ANIMALS[T.animal].n} ${T.hits}×${acc}%` : `${ANIMALS[T.animal].n} ${acc}%`;
-  if (T.score > 0) LB.submit(MODES[T.mode].key, T.score, false, lbTxt).then(llLB); else llLB();
+  if (T.score > 0) LB.confirmar(`¿SUBES TU PUNTAJE DE ${T.score} A LA TABLA?`, () => LB.submit(MODES[T.mode].key, T.score, false, lbTxt)).then(llLB); else llLB();
 }
 function llLB() {
   $('#ll-lb-tabs').innerHTML = '';

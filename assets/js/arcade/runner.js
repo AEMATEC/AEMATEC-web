@@ -256,7 +256,7 @@ function rnGameOver() {
   $('#rn-over-p').textContent = `LOGRASTE ESCAPAR ${m} M`;
   $('#rn-over').hidden = false;
   SFX.play('lose');
-  LB.submit('runner', m, false).then(rnLB);
+  LB.confirmar(`¿SUBES TUS ${m} M A LA TABLA?`, () => LB.submit('runner', m, false)).then(rnLB);
 }
 function rnSpawnPlatformSection() {
   let x = RN_CVW + 10;

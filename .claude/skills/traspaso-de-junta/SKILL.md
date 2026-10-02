@@ -23,7 +23,9 @@ de los repositorios. Guía a la persona por estos pasos, uno a la vez, y marca c
 ## Lo que requiere un PR (lo haces tú)
 6. **Correos de dueño.** Están en `assets/js/roles.js` (`OWNER_EMAILS`), en `isOwner()` de `firestore.rules`, en
    `isModerator()`/`isJunta()` de `storage.rules`, y como correo de respaldo (`CORREO_RESPALDO`) en
-   `functions/correo.js`. Confírmalo con `grep -rn "angeloyeshuac\|angcalderon"` (o los correos vigentes), actualiza todos en el mismo PR y ajusta
+   `functions/correo.js`. Desde 2026-10 son cuentas de la asociación (`aematec@estudiantec.cr` y `aeemac.tec@gmail.com`): en el traspaso
+   normalmente basta con cambiar sus contraseñas y no hace falta este paso. Si cambian, confírmalo con
+   `grep -rn "aematec@estudiantec.cr"`, actualiza todos en el mismo PR y ajusta
    `tests/reglas.test.js` si hace falta.
 7. Si cambia la cuenta de Gmail de la Junta, actualiza `gmailAddress` en `functions/correo.js`.
 

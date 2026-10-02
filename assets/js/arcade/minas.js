@@ -99,7 +99,7 @@ function msCheck() {
   $('#ms-face').textContent = 'B)';
   SFX.play('win');
   msMsg(`¡GANASTE EN ${t.toFixed(1)}s!`, 'win');
-  LB.submit('minas_' + MS.lv, t, true).then(msLB);
+  LB.confirmar(`¿SUBES TU TIEMPO DE ${t.toFixed(1)}s A LA TABLA?`, () => LB.submit('minas_' + MS.lv, t, true)).then(msLB);
 }
 function msDraw() {
   const cells = msBoard.children;

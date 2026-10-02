@@ -16,15 +16,10 @@
   <script src="assets/firebase-config.js"></script>
   <style>
     @media (max-width: 767px) {
-      [data-design-id="hero-section-aematec"] > div { min-height: auto; padding: 3rem 0 2.5rem; }
-      [data-design-id="hero-section-aematec"] h1 { max-width: 100%; font-size: clamp(2rem, 8.5vw, 3.2rem); overflow-wrap: break-word; }
-      [data-design-id="hero-section-aematec"] p { max-width: 100%; font-size: 1rem; line-height: 1.7; }
-      [data-design-id="modules-section"] .grid { grid-template-columns: 1fr; }
-      [data-design-id="medios-section"] .grid { grid-template-columns: 1fr; }
+      .index-modulos .grid { grid-template-columns: 1fr; }
+      .index-medios .grid { grid-template-columns: 1fr; }
     }
     @media (min-width: 768px) {
-      [data-design-id="hero-section-aematec"] > div { padding-top: clamp(3rem, 5vw, 5.5rem); padding-bottom: clamp(3rem, 5vw, 5.5rem); }
-      [data-design-id="hero-section-aematec"] h1 { font-size: clamp(2.25rem, 3.2vw, 4rem); }
     }
     #hero-trig { pointer-events: none; opacity: .38; }
   </style>
@@ -34,20 +29,20 @@
 <body class="bg-[#F4F8FA] text-[#0D2B45] font-serif" style="background-image: radial-gradient(circle at 12% 18%, rgba(0, 175, 193, 0.13) 0, rgba(0, 175, 193, 0.13) 1.2px, transparent 1.8px), radial-gradient(circle at 84% 72%, rgba(13, 43, 69, 0.09) 0, rgba(13, 43, 69, 0.09) 1.2px, transparent 1.8px); background-size: 28px 28px, 36px 36px;">
   <script src="assets/js/layout.js" data-part="header" data-active="inicio"></script>
 
-  <main data-design-id="main-aematec">
-    <section data-design-id="hero-section-aematec" class="bg-[#EAF5F7] border-b border-[#D5E5EA]">
+  <main>
+    <section class="hero-portada bg-[#EAF5F7] border-b border-[#D5E5EA]">
       <div class="relative isolate overflow-hidden">
         <canvas id="hero-trig" class="absolute inset-0 h-full w-full" aria-hidden="true"></canvas>
         <div class="relative z-10 site-container mx-auto min-h-[420px] pt-[76px] pb-[64px] text-left">
-          <h1 class="font-sans text-[54px] leading-[1.08] tracking-[-0.04em] font-bold mt-0 max-w-[620px]">Tu asociación,<br><span class="text-[#00A6B8]">a un clic de distancia.</span></h1>
+          <h1 class="font-sans text-[54px] leading-[1.08] tracking-[-0.04em] font-bold mt-0 max-w-[620px]">Tu asociación,<br><span class="text-[#00798A]">a un clic de distancia.</span></h1>
           <p class="mt-5 text-[19px] leading-8 text-[#526574] max-w-[560px]">La Asociación de Estudiantes de Enseñanza de la Matemática con Entornos Tecnológicos representa, acompaña y conecta a la comunidad estudiantil de MATEC en el TEC.</p>
-          <form id="home-search-form" class="mt-8 w-full max-w-[560px] h-[62px] bg-white border-2 border-[#B8D3DC] rounded-[16px] shadow-[0_12px_35px_rgba(13,43,69,0.10)] flex items-center p-2">
-            <i class="fa-solid fa-magnifying-glass text-[#00A6B8] text-lg ml-3"></i>
+          <form id="home-search-form" class="mt-8 w-full max-w-[560px] h-[62px] bg-white border-2 border-[#8497A3] rounded-[16px] shadow-[0_12px_35px_rgba(13,43,69,0.10)] flex items-center p-2">
+            <i class="fa-solid fa-magnifying-glass text-[#00798A] text-lg ml-3"></i>
             <input aria-label="Buscar en el sitio o en el Repositorio"
-              class="flex-1 h-full px-4 outline-none text-[16px] text-[#233F53] placeholder:text-[#7C909D]"
+              class="flex-1 h-full px-4 outline-none text-[16px] text-[#233F53] placeholder:text-[#627683]"
               placeholder="Buscar páginas del sitio o materiales del Repositorio...">
             <button type="submit"
-              class="h-[46px] px-6 rounded-[10px] bg-[#00AFC1] text-white font-sans font-bold text-sm hover:bg-[#009AAA]">Buscar</button>
+              class="h-[46px] px-6 rounded-[10px] bg-[#087F8C] text-white font-sans font-bold text-sm hover:bg-[#066F7C]">Buscar</button>
           </form>
         </div>
       </div>
@@ -57,10 +52,10 @@
       <div class="site-container mx-auto">
         <div class="flex items-end justify-between mb-7">
           <div>
-            <p class="font-sans text-xs font-bold uppercase tracking-[0.18em] text-[#00A6B8]">Resultados de búsqueda</p>
+            <p class="font-sans text-xs font-bold uppercase tracking-[0.18em] text-[#00798A]">Resultados de búsqueda</p>
             <h2 id="home-search-title" class="font-sans text-[26px] font-bold mt-2"></h2>
           </div>
-          <button id="home-search-clear" type="button" class="font-sans text-sm font-bold text-[#0C8190]">Limpiar búsqueda</button>
+          <button id="home-search-clear" type="button" class="font-sans text-sm font-bold text-[#00798A]">Limpiar búsqueda</button>
         </div>
         <p id="home-search-status" class="text-[#627683] mb-6"></p>
         <div id="home-search-pages" class="mb-6" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem"></div>
@@ -68,9 +63,9 @@
       </div>
     </section>
 
-    <section data-design-id="modules-section" class="site-container mx-auto py-[62px]">
+    <section class="index-modulos site-container mx-auto py-[62px]">
       <div class="mb-7">
-        <p class="font-sans text-xs font-bold uppercase tracking-[0.18em] text-[#00A6B8]">¿Qué necesitas hoy?</p>
+        <p class="font-sans text-xs font-bold uppercase tracking-[0.18em] text-[#00798A]">¿Qué necesitas hoy?</p>
         <h2 class="font-sans text-[30px] font-bold tracking-[-0.02em] mt-2">Accede a los servicios de la asociación</h2>
       </div>
       <div class="grid grid-cols-2 gap-6">
@@ -81,7 +76,7 @@
           </div>
           <div class="flex-1">
             <div class="flex justify-between">
-              <h3 class="font-sans font-bold text-[23px]">Repositorio</h3><i class="fa-solid fa-arrow-right text-[#00A6B8] group-hover:translate-x-1 transition"></i>
+              <h3 class="font-sans font-bold text-[23px]">Repositorio</h3><i class="fa-solid fa-arrow-right text-[#00798A] group-hover:translate-x-1 transition"></i>
             </div>
             <p class="mt-3 text-[#5B6E7B] leading-6">Recursos docentes y académicos compartidos por la comunidad, de acceso público.</p>
           </div>
@@ -93,26 +88,26 @@
           </div>
           <div class="flex-1">
             <div class="flex justify-between">
-              <h3 class="font-sans font-bold text-[23px]">Inventario</h3><i id="inv-card-chevron" class="fa-solid fa-chevron-down text-[#00A6B8] transition-transform"></i>
+              <h3 class="font-sans font-bold text-[23px]">Inventario</h3><i id="inv-card-chevron" class="fa-solid fa-chevron-down text-[#00798A] transition-transform"></i>
             </div>
             <p class="mt-3 text-[#5B6E7B] leading-6">Consulta los bienes de la asociación y solicita préstamos como Asociado.</p>
           </div>
         </a>
         <div id="inv-card-panel" hidden class="col-span-2 bg-[#F4FAFB] border border-[#D8E3E9] rounded-[20px] p-6 -mt-2" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem">
           <a href="inventario.html?tipo=institucional" class="bg-white border border-[#D8E3E9] rounded-[14px] p-5 flex flex-col items-center text-center gap-2 hover:border-[#00B5C8]">
-            <i class="fa-solid fa-building text-[22px] text-[#00A6B8]"></i>
+            <i class="fa-solid fa-building text-[22px] text-[#00798A]"></i>
             <span class="font-sans font-bold text-sm">Institucional</span>
           </a>
           <a href="inventario.html?tipo=aematec" class="bg-white border border-[#D8E3E9] rounded-[14px] p-5 flex flex-col items-center text-center gap-2 hover:border-[#00B5C8]">
-            <i class="fa-solid fa-toolbox text-[22px] text-[#00A6B8]"></i>
+            <i class="fa-solid fa-toolbox text-[22px] text-[#00798A]"></i>
             <span class="font-sans font-bold text-sm">AEMATEC</span>
           </a>
           <a href="inventario.html?tipo=biblioteca" class="bg-white border border-[#D8E3E9] rounded-[14px] p-5 flex flex-col items-center text-center gap-2 hover:border-[#00B5C8]">
-            <i class="fa-solid fa-book text-[22px] text-[#00A6B8]"></i>
+            <i class="fa-solid fa-book text-[22px] text-[#00798A]"></i>
             <span class="font-sans font-bold text-sm">Biblioteca</span>
           </a>
           <a href="inventario.html?tipo=consumible" class="bg-white border border-[#D8E3E9] rounded-[14px] p-5 flex flex-col items-center text-center gap-2 hover:border-[#00B5C8]">
-            <i class="fa-solid fa-box-open text-[22px] text-[#00A6B8]"></i>
+            <i class="fa-solid fa-box-open text-[22px] text-[#00798A]"></i>
             <span class="font-sans font-bold text-sm">Consumibles</span>
           </a>
         </div>
@@ -143,12 +138,12 @@
       </div>
     </section>
 
-    <section data-design-id="carrusel-actividades-section" class="site-container mx-auto pb-[62px]">
+    <section class="site-container mx-auto pb-[62px]">
       <div class="mb-7">
-        <p class="font-sans text-xs font-bold uppercase tracking-[0.18em] text-[#00A6B8]">Vida estudiantil</p>
+        <p class="font-sans text-xs font-bold uppercase tracking-[0.18em] text-[#00798A]">Vida estudiantil</p>
         <h2 class="font-sans text-[30px] font-bold tracking-[-0.02em] mt-2">Actividades de la asociación</h2>
       </div>
-      <div id="carrusel-actividades" class="relative rounded-[20px] overflow-hidden border border-[#D8E3E9] bg-[#0D2B45] shadow-[0_10px_28px_rgba(13,43,69,0.08)]">
+      <div id="carrusel-actividades" role="region" aria-roledescription="carrusel" aria-label="Fotos de actividades" class="relative rounded-[20px] overflow-hidden border border-[#D8E3E9] bg-[#0D2B45] shadow-[0_10px_28px_rgba(13,43,69,0.08)]">
         <div id="carrusel-track" class="flex transition-transform duration-500 ease-out">
           <div class="w-full shrink-0 aspect-[16/9] md:aspect-[21/9]"><img src="assets/img/actividades/parada-nocturna.jpg" alt="Estudiantes de MATEC reunidos en una parada nocturna del TEC" class="w-full h-full object-cover" loading="lazy"></div>
           <div class="w-full shrink-0 aspect-[16/9] md:aspect-[21/9]"><img src="assets/img/actividades/charla-egresados.jpg" alt="Charla sobre salidas laborales para la carrera MATEC" class="w-full h-full object-cover" loading="lazy"></div>
@@ -162,30 +157,30 @@
           <div class="w-full shrink-0 aspect-[16/9] md:aspect-[21/9]"><img src="assets/img/actividades/charla-cientec-pi.jpg" alt="Charla sobre el número pi en el TEC" class="w-full h-full object-cover" loading="lazy"></div>
           <div class="w-full shrink-0 aspect-[16/9] md:aspect-[21/9]"><img src="assets/img/actividades/dinamica-bienvenida.jpg" alt="Dinámica de bienvenida con estudiantes de MATEC" class="w-full h-full object-cover" loading="lazy"></div>
           <div class="w-full shrink-0 aspect-[16/9] md:aspect-[21/9]"><img src="assets/img/actividades/taller-poker-probabilidad.jpg" alt="Taller de probabilidad con cartas de MATEC" class="w-full h-full object-cover" loading="lazy"></div>
-          <div class="w-full shrink-0 aspect-[16/9] md:aspect-[21/9]"><img src="assets/img/actividades/dinamica-grupal-colegios.jpg" alt="Dinámica grupal con estudiantes de colegio invitados por MATEC" class="w-full h-full object-cover" loading="lazy"></div>
           <div class="w-full shrink-0 aspect-[16/9] md:aspect-[21/9]"><img src="assets/img/actividades/picnic-generacion-2025.jpg" alt="Picnic de la generación 2025 de MATEC y mural de bienvenida" class="w-full h-full object-cover" loading="lazy"></div>
           <div class="w-full shrink-0 aspect-[16/9] md:aspect-[21/9]"><img src="assets/img/actividades/charla-tec-auditorio.jpg" alt="Charla académica en el auditorio del TEC" class="w-full h-full object-cover" loading="lazy"></div>
         </div>
-        <button id="carrusel-prev" type="button" aria-label="Foto anterior" class="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/85 text-[#0D2B45] flex items-center justify-center hover:bg-white"><i class="fa-solid fa-chevron-left"></i></button>
-        <button id="carrusel-next" type="button" aria-label="Foto siguiente" class="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/85 text-[#0D2B45] flex items-center justify-center hover:bg-white"><i class="fa-solid fa-chevron-right"></i></button>
+        <button id="carrusel-prev" type="button" aria-label="Foto anterior" class="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/85 text-[#0D2B45] flex items-center justify-center hover:bg-white"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>
+        <button id="carrusel-next" type="button" aria-label="Foto siguiente" class="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/85 text-[#0D2B45] flex items-center justify-center hover:bg-white"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>
+        <button id="carrusel-pausa" type="button" aria-label="Pausar el carrusel" aria-pressed="false" class="absolute right-3 bottom-3 w-10 h-10 rounded-full bg-white/85 text-[#0D2B45] flex items-center justify-center hover:bg-white"><i class="fa-solid fa-pause" aria-hidden="true"></i></button>
         <div id="carrusel-dots" class="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2"></div>
       </div>
     </section>
 
-    <section data-design-id="medios-section" class="bg-[#EAF1F4] border-y border-[#D7E3E8] py-[56px]">
+    <section class="index-medios bg-[#EAF1F4] border-y border-[#D7E3E8] py-[56px]">
       <div class="site-container mx-auto">
         <div class="mb-7">
-          <p class="font-sans text-xs font-bold uppercase tracking-[0.18em] text-[#00A6B8]">Medios Oficiales</p>
+          <p class="font-sans text-xs font-bold uppercase tracking-[0.18em] text-[#00798A]">Medios Oficiales</p>
           <h2 class="font-sans text-[30px] font-bold mt-2">Canales oficiales de comunicación</h2>
         </div>
         <div id="medios-grid" class="grid grid-cols-4 gap-5">
-          <a id="medio-email" href="mailto:aematec@estudiantec.cr" class="rounded-[16px] border border-[#D8E3E9] bg-white p-6 hover:border-[#00B5C8] transition"><i class="fa-solid fa-envelope text-2xl text-[#00A6B8]"></i><h3 class="mt-4 font-sans font-bold">Correo institucional</h3><p id="medio-email-text" class="mt-2 text-sm text-[#627683]">aematec@estudiantec.cr</p></a>
+          <a id="medio-email" href="mailto:aematec@estudiantec.cr" class="rounded-[16px] border border-[#D8E3E9] bg-white p-6 hover:border-[#00B5C8] transition"><i class="fa-solid fa-envelope text-2xl text-[#00798A]"></i><h3 class="mt-4 font-sans font-bold">Correo institucional</h3><p id="medio-email-text" class="mt-2 text-sm text-[#627683]">aematec@estudiantec.cr</p></a>
           <a id="medio-telegram" href="https://t.me/comunidadmatec" target="_blank" rel="noopener" class="rounded-[16px] border border-[#D8E3E9] bg-white p-6 hover:border-[#00B5C8] transition"><i class="fa-brands fa-telegram text-2xl text-[#486398]"></i><h3 class="mt-4 font-sans font-bold">Telegram</h3><p class="mt-2 text-sm text-[#627683]">Comunidad oficial</p></a>
           <a id="medio-whatsapp" href="https://chat.whatsapp.com/HyBk6tUHyf44MlURrVgiTi" target="_blank" rel="noopener" class="rounded-[16px] border border-[#D8E3E9] bg-white p-6 hover:border-[#00B5C8] transition"><i class="fa-brands fa-whatsapp text-2xl text-[#3B8F5B]"></i><h3 class="mt-4 font-sans font-bold">WhatsApp</h3><p class="mt-2 text-sm text-[#627683]">Comunidad oficial</p></a>
           <div class="rounded-[16px] border border-[#D8E3E9] bg-white p-6"><i class="fa-solid fa-graduation-cap text-2xl text-[#0D2B45]"></i><h3 class="mt-4 font-sans font-bold">TECDigital</h3><p class="mt-2 text-sm text-[#627683]">Noticias del subgrupo Estudiantes EMA</p></div>
         </div>
         <p class="mt-6 text-sm text-[#627683]">Las convocatorias, acuerdos y notificaciones se comunican por estos Medios Oficiales (Reglamento Interno, Art. 102). Este sitio y las redes sociales, como
-          <a id="medio-instagram" href="https://www.instagram.com/aematec?stkn=enY1bDVmY3p1a3J4" target="_blank" rel="noopener" class="font-semibold text-[#0C8190] hover:text-[#00A6B8]"><i class="fa-brands fa-instagram"></i> Instagram</a>,
+          <a id="medio-instagram" href="https://www.instagram.com/aematec?stkn=enY1bDVmY3p1a3J4" target="_blank" rel="noopener" class="font-semibold text-[#00798A] hover:text-[#00798A]"><i class="fa-brands fa-instagram"></i> Instagram</a>,
           son medios informativos y no sustituyen esas notificaciones (Art. 104).</p>
       </div>
     </section>
@@ -247,24 +242,10 @@
   <script type="module">
     // Buscador de la página principal: busca a la vez entre las páginas del sitio (lista fija)
     // y los recursos publicados del Repositorio (Firestore), como pidió la Junta ("Ambos").
-    import { app } from "./assets/js/firebase.js";
     import { escapeHtml } from "./assets/js/util.js";
-    import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { SITE_PAGES } from "./assets/js/site-pages.js";
+    import { cargarPublicados } from "./assets/js/recursos.js";
 
-    const SITE_PAGES = [
-      { title: "Repositorio", desc: "Materiales docentes y académicos compartidos por la comunidad, de acceso público.", href: "repositorio.html", kw: "materiales recursos biblioteca compartir" },
-      { title: "Recursos docentes", desc: "Actividades, juegos y planeamientos listos para llevar al aula.", href: "repositorio-docentes.html", kw: "actividades juegos planeamientos docentes" },
-      { title: "Recursos académicos", desc: "Exámenes anteriores, apuntes y soluciones para acompañarte en la carrera.", href: "repositorio-academicos.html", kw: "examenes apuntes soluciones cursos academicos" },
-      { title: "Subir material", desc: "Comparte un recurso con la comunidad de MATEC.", href: "repositorio-subir.html", kw: "subir compartir aportar material" },
-      { title: "Inventario", desc: "Consulta los bienes de la asociación y solicita préstamos como Asociado.", href: "inventario.html", kw: "bienes prestamos equipo inventario" },
-      { title: "Inventario institucional", desc: "Bienes institucionales a cargo de la asociación.", href: "inventario.html?tipo=institucional", kw: "institucional inventario" },
-      { title: "Inventario AEMATEC", desc: "Bienes propios de AEMATEC.", href: "inventario.html?tipo=aematec", kw: "aematec inventario" },
-      { title: "Biblioteca", desc: "Colección física de libros del Inventario.", href: "inventario.html?tipo=biblioteca", kw: "libros biblioteca inventario" },
-      { title: "Consumibles", desc: "Materiales consumibles disponibles para préstamo o uso.", href: "inventario.html?tipo=consumible", kw: "consumibles materiales inventario" },
-      { title: "Junta Directiva", desc: "Quiénes integran la Junta y cómo contactarlos.", href: "junta-directiva.html", kw: "junta directiva contacto correo integrantes" },
-      { title: "Trámites", desc: "Solicita préstamos, denuncias u otros trámites de la asociación.", href: "tramites.html", kw: "prestamo tramite solicitud denuncia fiscalia" },
-      { title: "Arcade AEMATEC", desc: "Minijuegos de la asociación para pasar el rato.", href: "arcade.html", kw: "juegos arcade minijuegos" }
-    ];
 
     const searchForm = document.querySelector("#home-search-form");
     const searchInput = searchForm.querySelector("input");
@@ -276,6 +257,7 @@
     let publishedResources = [];
     let resourcesLoaded = false;
     let pendingQuery = "";
+    let cargando = null;
 
     const renderSearch = queryText => {
       const normalized = queryText.toLocaleLowerCase("es");
@@ -295,18 +277,18 @@
 
       searchPages.innerHTML = matchedPages.map(page => `
         <a href="${escapeHtml(page.href)}" class="bg-white border border-[#D8E3E9] rounded-[14px] p-5 hover:border-[#00B5C8]">
-          <p class="font-sans text-[11px] font-bold uppercase tracking-[0.1em] text-[#00A6B8]">Página del sitio</p>
+          <p class="font-sans text-[11px] font-bold uppercase tracking-[0.1em] text-[#00798A]">Página del sitio</p>
           <h3 class="font-sans font-bold text-base mt-1">${escapeHtml(page.title)}</h3>
           <p class="text-sm text-[#627683] mt-1">${escapeHtml(page.desc)}</p>
         </a>`).join("");
 
       searchResourcesBox.innerHTML = matchedResources.map(resource => {
-        const isAcademic = resource.section === "academico" || resource.section === "academicos";
+        const isAcademic = resource.section === "academico";
         const destino = isAcademic ? "repositorio-academicos.html" : "repositorio-docentes.html";
         return `<a href="${destino}?q=${encodeURIComponent(queryText)}" class="block bg-[#F8FBFC] border border-[#D6E2E7] rounded-[15px] p-5 hover:border-[#00B5C8]">
-          <span class="font-sans text-[10px] font-bold ${isAcademic ? "bg-[#E9EEF9] text-[#3B568D]" : "bg-[#DFF6F8] text-[#087F8C]"} px-2.5 py-1 rounded-full">${isAcademic ? "Recurso académico" : "Recurso docente"}</span>
+          <span class="font-sans text-[10px] font-bold ${isAcademic ? "bg-[#E9EEF9] text-[#3B568D]" : "bg-[#DFF6F8] text-[#00798A]"} px-2.5 py-1 rounded-full">${isAcademic ? "Recurso académico" : "Recurso docente"}</span>
           <h3 class="font-sans font-bold text-[17px] mt-2">${escapeHtml(resource.title || "Material sin título")}</h3>
-          <p class="text-sm text-[#687B86] mt-1">${escapeHtml(resource.description || "Sin descripción disponible.")}</p>
+          <p class="text-sm text-[#566B78] mt-1">${escapeHtml(resource.description || "Sin descripción disponible.")}</p>
         </a>`;
       }).join("");
     };
@@ -326,6 +308,7 @@
         renderSearch(queryText);
       } else {
         pendingQuery = queryText;
+        cargando ??= cargarRecursos();
         searchResults.classList.remove("hidden");
         searchTitle.textContent = `Resultados para “${queryText}”`;
         searchStatus.textContent = "Cargando materiales del Repositorio...";
@@ -342,21 +325,22 @@
       searchInput.focus();
     });
 
-    const config = window.AEMATEC_FIREBASE_CONFIG;
-    if (config?.projectId && config.projectId !== "REEMPLAZAR") {
+    // Los materiales se descargan solo la primera vez que alguien busca (la mayoría de visitas no usa el buscador).
+    async function cargarRecursos() {
       try {
-        const resourcesSnapshot = await getDocs(query(collection(getFirestore(app), "resources"), where("published", "==", true)));
-        publishedResources = resourcesSnapshot.docs.map(item => ({ id: item.id, ...item.data() }));
-        resourcesLoaded = true;
-        if (pendingQuery) {
-          const queryText = pendingQuery;
-          pendingQuery = "";
-          renderSearch(queryText);
-        }
+        publishedResources = await cargarPublicados();
       } catch (error) {
         console.error("No se pudieron cargar los materiales del Repositorio para el buscador:", error);
       }
+      resourcesLoaded = true;
+      if (pendingQuery) {
+        const queryText = pendingQuery;
+        pendingQuery = "";
+        renderSearch(queryText);
+      }
     }
+    // Empieza a descargar en cuanto la persona entra al buscador, para que al enviar ya esté listo.
+    searchInput.addEventListener("focus", () => { cargando ??= cargarRecursos(); }, { once: true });
   </script>
 </body>
 

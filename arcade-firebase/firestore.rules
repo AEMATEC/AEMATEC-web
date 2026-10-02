@@ -67,14 +67,14 @@ service cloud.firestore {
             && request.resource.data.p2.uid == request.auth.uid
             && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['p2']))
       );
-      allow delete: if false;
+      allow delete: if signedIn() && request.auth.uid == resource.data.p1.uid;
     }
 
     match /races/{code} {
       allow read: if signedIn();
       allow create: if signedIn() && request.resource.data.host == request.auth.uid;
       allow update: if signedIn() && resource.data.host == request.auth.uid;
-      allow delete: if false;
+      allow delete: if signedIn() && request.auth.uid == resource.data.host;
 
       match /players/{uid} {
         allow read: if signedIn();
@@ -87,7 +87,7 @@ service cloud.firestore {
       allow create: if signedIn() && request.resource.data.host == request.auth.uid;
       allow update: if signedIn()
         && exists(/databases/$(database)/documents/fights/$(code)/players/$(request.auth.uid));
-      allow delete: if false;
+      allow delete: if signedIn() && request.auth.uid == resource.data.host;
 
       match /players/{uid} {
         allow read: if signedIn();
@@ -100,7 +100,7 @@ service cloud.firestore {
       allow create: if signedIn() && request.resource.data.host == request.auth.uid;
       allow update: if signedIn()
         && exists(/databases/$(database)/documents/blackjack/$(code)/players/$(request.auth.uid));
-      allow delete: if false;
+      allow delete: if signedIn() && request.auth.uid == resource.data.host;
 
       match /players/{uid} {
         allow read: if signedIn();
@@ -120,7 +120,7 @@ service cloud.firestore {
             && request.resource.data.p2.uid == request.auth.uid
             && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['p2']))
       );
-      allow delete: if false;
+      allow delete: if signedIn() && request.auth.uid == resource.data.p1.uid;
     }
 
     match /duelos/{code} {
@@ -135,7 +135,7 @@ service cloud.firestore {
             && request.resource.data.B.uid == request.auth.uid
             && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['B']))
       );
-      allow delete: if false;
+      allow delete: if signedIn() && request.auth.uid == resource.data.A.uid;
     }
 
     // Golf: partida compartida de hasta 4 personas en el mismo recorrido, por turnos.
@@ -144,7 +144,7 @@ service cloud.firestore {
       allow create: if signedIn() && request.resource.data.host == request.auth.uid;
       allow update: if signedIn()
         && exists(/databases/$(database)/documents/golf/$(code)/players/$(request.auth.uid));
-      allow delete: if false;
+      allow delete: if signedIn() && request.auth.uid == resource.data.host;
 
       match /players/{uid} {
         allow read: if signedIn();
@@ -180,7 +180,7 @@ service cloud.firestore {
       allow create: if signedIn() && request.resource.data.host == request.auth.uid;
       allow update: if signedIn()
         && exists(/databases/$(database)/documents/cruces/$(code)/players/$(request.auth.uid));
-      allow delete: if false;
+      allow delete: if signedIn() && request.auth.uid == resource.data.host;
 
       match /players/{uid} {
         allow read: if signedIn();

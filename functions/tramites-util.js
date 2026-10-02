@@ -37,7 +37,8 @@ function avisoDeCambio(antes, despues, { fiscalia = false } = {}) {
   const tipo = fiscalia ? "fiscalia" : despues.tipo;
   const titulo = NOMBRES_TIPO[tipo] || "Trámite";
   const nuevas = (despues.respuestas || []).slice((antes.respuestas || []).length);
-  const bloqueRespuestas = nuevas.map(r => `<blockquote style="border-left:3px solid #00A6B8;margin:12px 0;padding:4px 12px">${escapar(r.texto)}</blockquote>`).join("");
+  // RI Art. 42: las respuestas de Fiscalía no van en el correo (sale del Gmail de la Junta); se leen en tramites.html.
+  const bloqueRespuestas = fiscalia ? "" : nuevas.map(r => `<blockquote style="border-left:3px solid #00A6B8;margin:12px 0;padding:4px 12px">${escapar(r.texto)}</blockquote>`).join("");
   const enlace = `<p>Puedes ver tu trámite en <a href="${SITIO}/tramites.html">${SITIO}/tramites.html</a>.</p>`;
   if (!fiscalia && despues.estado === "rechazado" && antes.estado !== "rechazado") {
     return {

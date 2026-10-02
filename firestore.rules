@@ -2,20 +2,16 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     function isOwner() {
-      return request.auth != null
-        && request.auth.token.email in ['angeloyeshuac@gmail.com', 'angcalderon@estudiantec.cr'];
+      // Cuentas de la asociación, no personales (RI Art. 143): pasan de Junta en Junta cambiando la contraseña.
+      // El correo verificado evita que alguien cree antes una cuenta con ese correo sin tener acceso al buzón.
+      return request.auth != null && request.auth.token.email_verified == true
+        && request.auth.token.email in ['aematec@estudiantec.cr', 'aeemac.tec@gmail.com'];
     }
 
     function isModerator() {
       return isOwner()
         || (request.auth != null && request.auth.token.email_verified == true
           && exists(/databases/$(database)/documents/moderators/$(request.auth.token.email)));
-    }
-
-    function isAsociado() {
-      return isOwner()
-        || (request.auth != null && request.auth.token.email_verified == true
-          && exists(/databases/$(database)/documents/padron/$(request.auth.token.email)));
     }
 
     function isJunta() {
@@ -46,11 +42,11 @@ service cloud.firestore {
       allow read, create, update, delete: if isJunta();
     }
 
-    // Cualquiera puede consultar un correo puntual (lo usa el registro de cuentas de Junta),
-    // pero el listado completo con correos solo lo ve la Junta. La página pública lee
-    // config/junta_publica, que contiene únicamente nombre y puesto (RI Art. 143).
+    // Solo la Junta consulta y edita la lista. Cada cuenta puede leer su propio documento (lo hace roles.js
+    // para saber si es Junta); ya nadie anónimo puede consultar si un correo es de la Junta (RI Art. 143).
+    // La página pública lee config/junta_publica, que contiene únicamente nombre y puesto.
     match /junta/{email} {
-      allow get: if true;
+      allow get: if isJunta() || (request.auth != null && request.auth.token.email == email);
       allow list: if isJunta();
       allow create, update, delete: if isJunta();
     }
@@ -148,7 +144,9 @@ service cloud.firestore {
     match /fiscaliaCasos/{casoId} {
       allow read: if esPersonaFiscal()
         || (request.auth != null && resource.data.remitenteUid == request.auth.uid);
-      allow create, delete: if false;
+      allow create: if false;
+      // Al archivar el caso, después de guardar su informe, la persona Fiscal lo borra del sitio (decisión de la Junta, 2026-10).
+      allow delete: if esPersonaFiscal();
       allow update: if esPersonaFiscal()
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['estado', 'respuestas', 'actualizadoEn'])
         && request.resource.data.estado in ['recibido', 'en_revision', 'resuelto'];
@@ -157,6 +155,19 @@ service cloud.firestore {
     // Límite diario de trámites por cuenta; solo lo usan las funciones.
     match /limites/{uid} {
       allow read, write: if false;
+    }
+
+    // Los enlaces de los materiales se muestran como href en páginas públicas: solo https (evita javascript: y otros).
+    function enlaceSeguro(valor, puedeIrVacio) {
+      return valor is string && valor.size() <= 2048
+        && ((puedeIrVacio && valor == '') || valor.matches('https://[^\\s]+'));
+    }
+
+    // Ruta de un archivo del Repositorio en Storage (la escribe quien propone el material). La moderación la usa
+    // para borrar el archivo, así que solo puede apuntar a la carpeta de recursos de su sección.
+    function rutaDeRecurso(ruta, seccion, sufijo) {
+      return ruta is string
+        && ruta.matches('recursos/' + seccion + '/[a-f0-9-]+' + sufijo + '[.](pdf|docx|pptx|xlsx|zip|ggb)');
     }
 
     match /resources/{resourceId} {
@@ -176,7 +187,15 @@ service cloud.firestore {
         && request.resource.data.educationalCycle is string && request.resource.data.educationalCycle.size() <= 40
         && request.resource.data.course is string && request.resource.data.course.size() <= 80
         && request.resource.data.courseCode is string && request.resource.data.courseCode.size() <= 20
-        && request.resource.data.explanationUrl is string && request.resource.data.explanationUrl.size() <= 500
+        && enlaceSeguro(request.resource.data.explanationUrl, true)
+        && (!('fileUrl' in request.resource.data) || enlaceSeguro(request.resource.data.fileUrl, false))
+        && (!('storagePath' in request.resource.data) || request.resource.data.storagePath == ''
+          || rutaDeRecurso(request.resource.data.storagePath, request.resource.data.section, ''))
+        && (!('explanation' in request.resource.data) || request.resource.data.explanation == null
+          || (request.resource.data.explanation is map
+            && request.resource.data.explanation.keys().hasOnly(['storagePath', 'fileUrl', 'extension', 'size'])
+            && enlaceSeguro(request.resource.data.explanation.fileUrl, false)
+            && rutaDeRecurso(request.resource.data.explanation.storagePath, request.resource.data.section, '-explicacion')))
         && request.resource.data.requiresInternet is bool
         && request.resource.data.type in ['Actividad', 'Juego', 'Planeamiento', 'Guía didáctica', 'Recurso digital', 'Examen', 'Apuntes', 'Solución', 'Práctica']
         && request.resource.data.extension in ['', 'pdf', 'docx', 'pptx', 'xlsx', 'zip', 'ggb']
@@ -191,6 +210,8 @@ service cloud.firestore {
       // Los moderadores pueden editar los metadatos de cualquier recurso (incluso ya
       // publicado), pero nunca el autor ni el archivo/contenido original.
       allow update: if isModerator()
+        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['explanationUrl'])
+          || enlaceSeguro(request.resource.data.explanationUrl, true))
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
           'title', 'description', 'labels', 'type', 'explanationUrl',
           'grade', 'materials', 'requiresInternet', 'course', 'courseCode',

@@ -1,7 +1,6 @@
 // Categorías de los libros de la Biblioteca: cómo se escriben y cómo se agrupan.
 //
-// Lo usan inventario.html (window.InventarioCategorias), la migración scripts/categorias/migrar.js,
-// la importación scripts/import-inventario.js y las pruebas tests/inventario-categorias.test.js.
+// Lo usan inventario.html (window.InventarioCategorias) y las pruebas tests/inventario-categorias.test.js.
 // Decisiones aprobadas por la Junta (2026-09): unificar la escritura, fusionar variantes y agrupar
 // en categorías "padre" que solo usa el filtro (el libro conserva sus 1 a 3 categorías).
 //
@@ -74,9 +73,9 @@
     return [...vistas.values()];
   }
 
-  // Categorías de un libro: la lista `categorias` o, si aún no se migró, el texto viejo `categoria`.
+  // Categorías de un libro (lista `categorias`, con los nombres unificados).
   function categoriasDeLibro(libro) {
-    return normalizarLista(Array.isArray(libro?.categorias) ? libro.categorias : libro?.categoria);
+    return normalizarLista(Array.isArray(libro?.categorias) ? libro.categorias : []);
   }
 
   const grupoDe = categoria => PADRE.get(normalizarCategoria(categoria)) || null;
