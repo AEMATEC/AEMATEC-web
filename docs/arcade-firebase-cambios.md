@@ -113,10 +113,11 @@ Huida del Zorro, Buscaminas, Batalla Naval, 21 y Billar.
 ## 3. Golf: colección nueva para el "Creador de hoyos" (`golfHoyosPropuestos`)
 
 Golf tiene ahora una pantalla para que cualquiera diseñe un hoyo (tema, par, paredes, arena, agua, hielo,
-rampas) y lo envíe. Queda **pendiente** hasta que alguien con el código de moderador lo apruebe desde la
-pantalla "PROPUESTAS DE LA COMUNIDAD"; ahí es cuando se suma a "JUGAR SOLO" (después de los 6 hoyos de
-siempre). Todo esto es nuevo en Firestore: **sin esta colección y sus reglas, la pantalla de creación sigue
-funcionando (se puede diseñar y probar el hoyo), pero "ENVIAR PROPUESTA" falla con un error de permisos.**
+rampas) y lo envíe. Queda **pendiente** hasta que la mayoría de los moderadores del sitio principal lo
+apruebe (votación, ver sección 3.2 más abajo) desde la pantalla "PROPUESTAS DE LA COMUNIDAD"; ahí es cuando
+se suma a "JUGAR SOLO" (después de los 6 hoyos de siempre). Todo esto es nuevo en Firestore: **sin esta
+colección y sus reglas, la pantalla de creación sigue funcionando (se puede diseñar y probar el hoyo), pero
+"ENVIAR PROPUESTA" falla con un error de permisos.**
 
 Un documento de `golfHoyosPropuestos/{id}` (id lo genera Firestore):
 
@@ -134,13 +135,17 @@ Un documento de `golfHoyosPropuestos/{id}` (id lo genera Firestore):
   ramps: [{x,y,w,h,dir,dist}, …]   (máx. 2, dir: 'right'|'left'|'up'|'down'),
   estado: 'pendiente' | 'aprobado' | 'rechazado',
   creado: serverTimestamp,
+  votosAprobar: [correo, …],   // lo escribe SOLO la Cloud Function, nunca el navegador
+  votosRechazar: [correo, …],  // ídem
 }
 ```
 
 No guarda uid ni ningún dato personal de quien lo envía, solo el apodo que la persona escribe (igual que el
-nombre de jugador en los puntajes).
+nombre de jugador en los puntajes). `votosAprobar`/`votosRechazar` sí guardan el correo del moderador que
+votó — eso es aparte, lo escribe la Cloud Function con su propia cuenta de servicio, nunca llega a este
+documento por el navegador.
 
-Reglas sugeridas:
+Reglas (ver `arcade-firebase/firestore.rules`, que ya las tiene):
 
 ```
 match /golfHoyosPropuestos/{id} {
@@ -148,30 +153,24 @@ match /golfHoyosPropuestos/{id} {
   allow create: if signedIn()
     && request.resource.data.keys().hasOnly(['nombre','autor','theme','par','start','hole','walls','sand','water','ice','ramps','estado','creado'])
     && request.resource.data.estado == 'pendiente'
-    && request.resource.data.nombre is string && request.resource.data.nombre.size() <= 30
-    && request.resource.data.autor is string && request.resource.data.autor.size() <= 12
+    && request.resource.data.nombre is string && request.resource.data.nombre.matches('^[A-Z0-9 ÁÉÍÓÚÑÜ._!¡?¿-]{1,30}$')
+    && request.resource.data.autor is string && request.resource.data.autor.matches('^[A-Z0-9 ÁÉÍÓÚÑÜ._-]{1,12}$')
     && request.resource.data.par is number && request.resource.data.par >= 2 && request.resource.data.par <= 6
     && request.resource.data.walls.size() <= 6 && request.resource.data.sand.size() <= 3
     && request.resource.data.water.size() <= 3 && request.resource.data.ice.size() <= 3
     && request.resource.data.ramps.size() <= 2
     && request.resource.data.creado == request.time;
-  allow update: if signedIn()
-    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['estado'])
-    && request.resource.data.estado in ['aprobado', 'rechazado'];
+  allow update: if false;
   allow delete: if false;
 }
 ```
 
-**Sobre "quién puede aprobar":** el Arcade no tiene cuentas (todo el mundo entra como invitado anónimo), así
-que no hay una forma segura de darle el permiso de `update` solo a "los moderadores" sin agregar cuentas o
-una Cloud Function — ninguna de las dos existe hoy en `arcade-matec`. Por eso el `allow update` de arriba lo
-permite a cualquier persona conectada, igual que ya pasa con las salas y los puntajes del resto del Arcade
-(todo funciona con confianza básica, no hay datos sensibles de por medio). Lo que sí protege la pantalla de
-moderación es un **código compartido dentro del propio código de `arcade.html`** (constante `GFP_MOD_CODE`,
-buscar "Moderar propuestas"): sin ese código no aparecen los botones de aprobar/rechazar en el navegador. No
-es una contraseña fuerte, es solo para que nadie apruebe hoyos sin querer — cualquiera que mire el código
-fuente puede verlo. Si más adelante se quiere una protección real, hay que agregar cuentas o una Cloud
-Function a `arcade-matec`, que es un cambio más grande.
+**Sobre "quién puede aprobar":** `update`/`delete` quedan en `if false` a propósito — **nadie** puede cambiar
+ni borrar una propuesta desde el navegador, ni siquiera un moderador real con su sesión iniciada. Lo único
+que puede es la Cloud Function `arcadeVotarPropuesta`/`arcadeBorrarRegistro`
+(`functions/arcadeModeracion.js`), que corre en el proyecto del **sitio principal** (`biblioteca-aematec`,
+se despliega con el resto de Functions) y usa su propia cuenta de servicio de `arcade-matec` (Admin SDK, no
+pasa por estas reglas). Ver la sección 3.2 para el paso de consola que falta para que esa función funcione.
 
 ---
 
@@ -195,6 +194,39 @@ usan — no pueden detectar una grosería o un teléfono disfrazado con números
 
 ---
 
+## 3.2 Moderación de Golf: la cuenta de servicio nueva (paso de consola, una sola vez)
+
+La Cloud Function `arcadeVotarPropuesta`/`arcadeBorrarRegistro` (`functions/arcadeModeracion.js`) necesita
+una forma de escribir en Firestore de `arcade-matec` desde el proyecto del sitio principal. Eso se hace con
+una **cuenta de servicio** de `arcade-matec`, guardada como secreto — nunca en el repositorio ni en el chat.
+
+**Quién puede votar/borrar:** cualquier cuenta de `moderators` del sitio principal (la misma lista de
+`admin.html`), o las cuentas dueñas del sitio. No hace falta nada nuevo en `arcade-matec` para esto — las
+cuentas de moderador siguen siendo las de siempre.
+
+**Pasos (los haces tú, una sola vez; después de esto, mergear el PR ya alcanza):**
+
+1. En [Google Cloud Console](https://console.cloud.google.com/iam-admin/serviceaccounts), con el proyecto
+   **`arcade-matec`** seleccionado (arriba a la izquierda) → "CREAR CUENTA DE SERVICIO".
+2. Nombre sugerido: `arcade-moderacion`. No hace falta darle acceso a nadie más en ese paso.
+3. Rol: **"Editor de Cloud Datastore"** (`roles/datastore.user`) — alcanza para leer y escribir
+   `golfHoyosPropuestos` y `leaderboards`, sin darle de más.
+4. Entra a la cuenta de servicio recién creada → pestaña "CLAVES" → "AGREGAR CLAVE" → "Crear clave nueva" →
+   JSON. Se descarga un archivo — **no lo subas a ningún lado ni lo compartas por chat**.
+5. En tu computadora, con la [CLI de Firebase](https://firebase.google.com/docs/cli) instalada y conectada a
+   `biblioteca-aematec` (el proyecto del sitio, NO `arcade-matec`):
+   ```
+   firebase functions:secrets:set ARCADE_MATEC_SA --project biblioteca-aematec
+   ```
+   Cuando pida el valor, pega el **contenido completo** del archivo JSON que descargaste (ábrelo con un
+   editor de texto y copia todo). Puedes borrar el archivo después de esto.
+6. Listo. La próxima vez que se publiquen las Cloud Functions (al mergear un PR que toque `functions/`, el
+   flujo `.github/workflows/firebase.yml` ya lo hace solo), la función queda activa. Si ya habías mergeado
+   este PR antes de hacer este paso, no pasa nada grave: votar/borrar simplemente da un error hasta que
+   completes el paso de arriba.
+
+---
+
 ## 4. Cómo comprobarlo después de publicar las reglas
 
 1. Abre <https://aematec.github.io/AEMATEC-web/arcade.html>, escribe un nombre y espera a que diga **● ONLINE**.
@@ -207,6 +239,11 @@ usan — no pueden detectar una grosería o un teléfono disfrazado con números
 6. **Animal al Tiro:** juega **DIANA CONTINUA** y revisa el Top 10.
 7. **Creador de hoyos de Golf:** entra a Golf → "CREAR UN HOYO", diseña uno con inicio y bandera, dale "PROBARLO"
    (debe poder jugarse) y luego "ENVIAR PROPUESTA". Debe decir que quedó pendiente, sin error de permisos.
-   Entra a "PROPUESTAS DE LA COMUNIDAD", escribe el código de moderador (`GFP_MOD_CODE` en `arcade.html`) y
-   aprueba ese hoyo. Vuelve al menú de Golf y dale "JUGAR SOLO": el hoyo aprobado debe aparecer después del 6.
-8. Si algo no se guarda, abre la consola del navegador (F12). Un error `permission-denied` indica qué regla falta.
+8. **Moderación de Golf (necesita el paso de la sección 3.2 ya hecho):** entra a "PROPUESTAS DE LA COMUNIDAD"
+   e inicia sesión con una cuenta de moderador del sitio. Debe aparecer tu correo y, junto a cada propuesta
+   pendiente, los botones APROBAR/RECHAZAR/BORRAR con el conteo de votos. Vota con dos cuentas de moderador
+   distintas (o hasta llegar al cuórum que te muestre) y confirma que la propuesta cambia a "APROBADO". Vuelve
+   al menú de Golf y dale "JUGAR SOLO": el hoyo aprobado debe aparecer después del 6.
+9. Si algo no se guarda, abre la consola del navegador (F12). Un error `permission-denied` indica qué regla
+   falta; un error al votar que mencione "ARCADE_MATEC_SA" o parecido indica que falta el paso de la sección
+   3.2.
