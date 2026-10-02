@@ -195,6 +195,36 @@ usan — no pueden detectar una grosería o un teléfono disfrazado con números
 
 ---
 
+## 3.2 Salas: borrar y "caducar" solas
+
+Se pidieron dos cosas para las salas en línea (`rooms`, `races`, `fights`, `blackjack`, `pool`, `duelos`,
+`golf`, `cruces`): que solo el anfitrión pueda borrar la sala, y que una sala abandonada se borre sola.
+
+**Lo que SÍ se hizo:**
+- `allow delete` pasa de `if false` (nadie podía borrar, ni el anfitrión) a permitir solo a quien creó la
+  sala (`host`, o `p1`/`A` en las salas 1 contra 1 sin subcolección). Hoy ningún botón del Arcade llama a
+  borrar una sala todavía — este cambio deja el permiso listo por si más adelante se agrega un botón
+  "cerrar sala", y cierra un hueco (que NADIE pudiera borrar nada).
+- Cada sala ahora escribe un campo `expiraEn` (24 horas desde el último latido de presencia) junto a
+  `lastSeen`, en `assets/js/arcade/core.js` (función `expiraEn()`) y en los 8 lugares de `arcade.html` que
+  usan `presenceLoop`. **Esto no necesitó cambiar ninguna regla** (las reglas actuales de esas colecciones
+  ya no limitan qué campos se pueden escribir una vez que estás dentro de la sala).
+  **Falta un paso tuyo en la consola, aparte de pegar las reglas:** Firestore Database → en cada una de
+  las 8 colecciones de arriba → el ícono de "Tiempo de vida (TTL)" → agrega una política con el campo
+  `expiraEn`. Sin ese paso, el campo se guarda pero Firestore nunca borra nada solo.
+
+**Lo que NO se hizo, y por qué:** se había pensado en limitar a cada jugador a escribir solo su propio
+"casillero" (`p1`/`p2`, `A`/`B`) en `rooms`, `pool` y `duelos`. Revisando el código real de Batalla Naval,
+Billar y Duelo del Oeste, esto **rompería el juego en línea**: campos como `winner`, `turn`, `shots_p1`,
+`balls`, `state`, `winsA` no son "de un jugador", son del PARTIDO completo, y los escribe quien le toca el
+turno — no siempre el mismo. Limitarlo mal habría bloqueado jugadas válidas sin que se note hasta que
+alguien lo prueba en línea de verdad. Como no hay forma de probar esto con dos sesiones contra las reglas
+reales sin publicarlas primero, se dejó tal cual (ya validan que seas uno de los dos jugadores de la sala,
+que es la protección real) en vez de arriesgar romper el juego. Si más adelante se quiere apretar esto más,
+hay que diseñarlo juego por juego y probarlo en línea antes de publicar.
+
+---
+
 ## 4. Cómo comprobarlo después de publicar las reglas
 
 1. Abre <https://aematec.github.io/AEMATEC-web/arcade.html>, escribe un nombre y espera a que diga **● ONLINE**.

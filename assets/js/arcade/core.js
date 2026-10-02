@@ -77,12 +77,15 @@ export const fmtT = s => { const m = Math.floor(s / 60), r = s - m * 60; return 
 export function genCode() { const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let s = ''; for (let i = 0; i < 5; i++) s += A[(Math.random() * A.length) | 0]; return s; }
 
 /* ---------- presencia en línea (detectar desconexiones) ---------- */
-const HEARTBEAT_MS = 5000, STALE_MS = 13000;
+const HEARTBEAT_MS = 5000, STALE_MS = 13000, SALA_TTL_MS = 24 * 60 * 60 * 1000;
 export function presenceLoop(writeFn) {
   writeFn();
   const id = setInterval(writeFn, HEARTBEAT_MS);
   return () => clearInterval(id);
 }
+// Campo para la política de TTL de Firestore (se configura en la consola, no en las reglas): una
+// sala sin latidos se borra sola 24h después del último. Se escribe junto a cada "lastSeen".
+export function expiraEn() { return fs.Timestamp.fromMillis(Date.now() + SALA_TTL_MS); }
 export function tsMillis(ts) { return ts ? (ts.toMillis ? ts.toMillis() : (ts.seconds ? ts.seconds * 1000 : 0)) : 0; }
 export function isStale(ts, now) { const t = tsMillis(ts); return t > 0 && now - t > STALE_MS; }
 export async function liveRooms(coll, limit = 12) {

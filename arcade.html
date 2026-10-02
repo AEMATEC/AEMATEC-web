@@ -1009,7 +1009,7 @@ nav .btn{padding:8px 12px}
 <script type="module">
 import {
   db, fs, UID, fbReady, $, esc, store, playerName, fmtT, genCode, tsMillis, isStale, liveRooms,
-  presenceLoop, SFX, LB, sprite, scaled, pxCircle, SPR, EGG, fitSoon, setUpdateMenuMusicHook, filtrarTexto,
+  presenceLoop, SFX, LB, sprite, scaled, pxCircle, SPR, EGG, fitSoon, setUpdateMenuMusicHook, filtrarTexto, expiraEn,
 } from "./assets/js/arcade/core.js";
 import { T, llStart, llSpit, tiroTick, tiroDraw, tgt } from "./assets/js/arcade/tiro.js";
 import { RN, rnStep, rnDraw, rnJumpPress, RN_FOX_SPR } from "./assets/js/arcade/runner.js";
@@ -1145,7 +1145,7 @@ function bsListen() {
     onRoom(s.data());
   });
   BS.forfeitSent = false;
-  BS.hbStop = presenceLoop(() => fs.updateDoc(fs.doc(db, 'rooms', BS.room), { [BS.me + '.lastSeen']: fs.serverTimestamp() }).catch(() => {}));
+  BS.hbStop = presenceLoop(() => fs.updateDoc(fs.doc(db, 'rooms', BS.room), { [BS.me + '.lastSeen']: fs.serverTimestamp(), expiraEn: expiraEn() }).catch(() => {}));
 }
 function onRoom(d) {
   const opp = BS.me === 'p1' ? 'p2' : 'p1', meD = d[BS.me] || {}, oppD = d[opp];
@@ -1915,7 +1915,7 @@ function rcEnterLobby() {
     const m = {}; s.forEach(d => m[d.id] = d.data()); RC.roomPlayers = m;
     rcOnPlayers();
   }));
-  RC.hbStop = presenceLoop(() => fs.updateDoc(rcMeDoc(), { lastSeen: fs.serverTimestamp() }).catch(() => {}));
+  RC.hbStop = presenceLoop(() => fs.updateDoc(rcMeDoc(), { lastSeen: fs.serverTimestamp(), expiraEn: expiraEn() }).catch(() => {}));
 }
 function rcOnRoom() {
   const d = RC.roomData;
@@ -2922,7 +2922,7 @@ function fcEnterLobby() {
   FC.unsubs.push(fs.onSnapshot(fs.collection(db, 'fights', FC.room, 'players'), s => {
     const m = {}; s.forEach(d => m[d.id] = d.data()); FC.roomPlayers = m; fcSyncPlayers(); fcSync();
   }));
-  if (!FC.spectating) FC.hbStop = presenceLoop(() => fs.updateDoc(fs.doc(db, 'fights', FC.room, 'players', UID), { lastSeen: fs.serverTimestamp() }).catch(() => {}));
+  if (!FC.spectating) FC.hbStop = presenceLoop(() => fs.updateDoc(fs.doc(db, 'fights', FC.room, 'players', UID), { lastSeen: fs.serverTimestamp(), expiraEn: expiraEn() }).catch(() => {}));
 }
 async function fcSpecOpen(code) {
   fcToMenu();
@@ -3286,7 +3286,7 @@ function bjEnterLobby() {
   BJ.unsubs.push(fs.onSnapshot(fs.collection(db, 'blackjack', BJ.room, 'players'), s => {
     const m = {}; s.forEach(d => m[d.id] = d.data()); BJ.roomPlayers = m; bjSync();
   }));
-  if (!BJ.spectating) BJ.hbStop = presenceLoop(() => fs.updateDoc(fs.doc(db, 'blackjack', BJ.room, 'players', UID), { lastSeen: fs.serverTimestamp() }).catch(() => {}));
+  if (!BJ.spectating) BJ.hbStop = presenceLoop(() => fs.updateDoc(fs.doc(db, 'blackjack', BJ.room, 'players', UID), { lastSeen: fs.serverTimestamp(), expiraEn: expiraEn() }).catch(() => {}));
   BJ._hostTimer = setInterval(bjHostPoll, 3000);
 }
 async function bjSpecOpen(code) {
@@ -3988,7 +3988,7 @@ function blEnterLobby() {
     if (!s.exists()) { if (BL.spectating) { blMenuMsg('LA MESA SE CERRÓ.', 'lose'); blToMenu(); } return; }
     blSyncOnline(s.data());
   }));
-  if (!BL.spectating) BL.hbStop = presenceLoop(() => fs.updateDoc(fs.doc(db, 'pool', BL.room), { [(BL.me === 1 ? 'p2' : 'p1') + '.lastSeen']: fs.serverTimestamp() }).catch(() => {}));
+  if (!BL.spectating) BL.hbStop = presenceLoop(() => fs.updateDoc(fs.doc(db, 'pool', BL.room), { [(BL.me === 1 ? 'p2' : 'p1') + '.lastSeen']: fs.serverTimestamp(), expiraEn: expiraEn() }).catch(() => {}));
 }
 async function blSpecOpen(code) {
   blToMenu();
@@ -4497,7 +4497,7 @@ function dlListen() {
     if (!s.exists()) { dlLeaveOnline(); dlMenuMsg('LA SALA SE CERRÓ.', 'lose'); return; }
     dlOnRoom(s.data());
   });
-  DL.hbStop = presenceLoop(() => fs.updateDoc(fs.doc(db, 'duelos', DL.room), { [DL.me + '.lastSeen']: fs.serverTimestamp() }).catch(() => {}));
+  DL.hbStop = presenceLoop(() => fs.updateDoc(fs.doc(db, 'duelos', DL.room), { [DL.me + '.lastSeen']: fs.serverTimestamp(), expiraEn: expiraEn() }).catch(() => {}));
 }
 function dlOnRoom(d) {
   const oppKey = DL.me === 'A' ? 'B' : 'A', oppD = d[oppKey];
@@ -5068,7 +5068,7 @@ function gfEnterLobby() {
   GF.unsubs.push(fs.onSnapshot(fs.collection(db, 'golf', GF.room, 'players'), s => {
     const m = {}; s.forEach(d => m[d.id] = d.data()); GF.roomPlayers = m; gfSync();
   }));
-  if (!GF.spectating) GF.hbStop = presenceLoop(() => fs.updateDoc(fs.doc(db, 'golf', GF.room, 'players', UID), { lastSeen: fs.serverTimestamp() }).catch(() => {}));
+  if (!GF.spectating) GF.hbStop = presenceLoop(() => fs.updateDoc(fs.doc(db, 'golf', GF.room, 'players', UID), { lastSeen: fs.serverTimestamp(), expiraEn: expiraEn() }).catch(() => {}));
   GF._hostTimer = setInterval(gfHostPoll, 3000);
 }
 async function gfSpecOpen(code) {
@@ -5764,7 +5764,7 @@ function crEnterLobby() {
     });
     crSync();
   }));
-  if (!CR.spectating) CR.hbStop = presenceLoop(() => fs.updateDoc(fs.doc(db, 'cruces', CR.room, 'players', UID), { lastSeen: fs.serverTimestamp() }).catch(() => {}));
+  if (!CR.spectating) CR.hbStop = presenceLoop(() => fs.updateDoc(fs.doc(db, 'cruces', CR.room, 'players', UID), { lastSeen: fs.serverTimestamp(), expiraEn: expiraEn() }).catch(() => {}));
   CR._hostTimer = setInterval(crHostPoll, 3000);
 }
 async function crSpecOpen(code) { crToMenu(); CR.spectating = true; CR.room = code; $('#cr-spec-list').hidden = true; crEnterLobby(); }
