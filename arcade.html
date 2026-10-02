@@ -268,6 +268,12 @@ nav .btn{padding:8px 12px}
 #egg p{color:var(--yellow);font-size:14px;margin:0;text-shadow:3px 3px 0 var(--red)}
 @keyframes eggIn{from{transform:scale(.2) rotate(-12deg)}to{transform:none}}
 
+/* Confirmar puntaje */
+#lb-confirm{position:fixed;inset:0;z-index:96;display:flex;align-items:center;justify-content:center;background:rgba(15,16,32,.85);padding:16px}
+.lb-confirm-box{max-width:320px;padding:20px;text-align:center}
+.lb-confirm-box #lb-confirm-msg{margin:0 0 14px}
+.lb-confirm-box .px-in{width:100%;margin:6px 0}
+
 /* === CARRERAS v2 === */
 .rc-lb-modes{margin-bottom:2px}
 .rc-lb-modes .btn{background:var(--panel2);color:var(--ink)}
@@ -1020,6 +1026,22 @@ nav .btn{padding:8px 12px}
 </div>
 <div id="egg" hidden><img id="egg-img" alt="Easter egg"><p>¡EASTER EGG!</p></div>
 
+<!-- Confirmar si se sube el puntaje: lo controla LB.confirmar() en core.js, lo usa cualquier juego. -->
+<div id="lb-confirm" hidden>
+  <div class="px lb-confirm-box">
+    <p id="lb-confirm-msg"></p>
+    <div class="row" id="lb-confirm-choice">
+      <button class="btn green" id="lb-confirm-yes">SUBIR</button>
+      <button class="btn gray" id="lb-confirm-no">NO SUBIR</button>
+    </div>
+    <div id="lb-confirm-name-step" hidden>
+      <input id="lb-confirm-name" class="px-in" maxlength="10" placeholder="TU APODO">
+      <p class="msg" id="lb-confirm-name-msg" aria-live="polite"></p>
+      <button class="btn orange" id="lb-confirm-publish">PUBLICAR</button>
+    </div>
+  </div>
+</div>
+
 <script src="assets/js/arcade-transition.js"></script>
 <script type="module" src="assets/js/arcade/core.js"></script>
 <script type="module" src="assets/js/arcade/minas.js"></script>
@@ -1265,7 +1287,8 @@ function bsWin() {
   if (BS.submitted) return;
   BS.submitted = true;
   setTimeout(() => SFX.play('win'), 500);
-  LB.submit('batalla', Math.max(17, G.myShots.length), true, BS.mode === 'cpu' ? 'VS CPU' : 'ONLINE').then(bsLB);
+  { const tiros = Math.max(17, G.myShots.length), modo = BS.mode === 'cpu' ? 'VS CPU' : 'ONLINE';
+    LB.confirmar(`¡GANASTE EN ${tiros} TIROS! ¿LO SUBES A LA TABLA?`, () => LB.submit('batalla', tiros, true, modo)).then(bsLB); }
 }
 function bsLB() {
   LB.render($('#bs-lb'), 'batalla', true, r => `${r.score} TIROS${r.extra ? `<small>${esc(r.extra)}</small>` : ''}`);
@@ -1785,9 +1808,14 @@ function rcFinish() {
   if (me && me.best != null && !RC.submitted) {
     RC.submitted = true;
     const ex = `${CHARS[me.char].n} · ${VEH[me.veh].n}`, sec = (v, lo) => Math.min(1800, Math.max(lo, Math.round(v * 100) / 100));
-    const jobs = [LB.submit(rcLbKey(RC.trackIdx, 'lap'), sec(me.best, 5), true, ex)];
-    if (me.fin != null) jobs.push(LB.submit(rcLbKey(RC.trackIdx, 'total'), sec(me.fin, 15), true, ex));
-    Promise.all(jobs).then(() => { RC.lbTrack = RC.trackIdx; rcLB(); });
+    const vuelta = sec(me.best, 5), total = me.fin != null ? sec(me.fin, 15) : null;
+    const resumen = total != null ? `VUELTA: ${fmtT(vuelta)} · CIRCUITO: ${fmtT(total)}` : `VUELTA: ${fmtT(vuelta)}`;
+    LB.confirmar(`¿SUBES TU TIEMPO A LA TABLA? ${resumen}`, async () => {
+      const jobs = [LB.submit(rcLbKey(RC.trackIdx, 'lap'), vuelta, true, ex)];
+      if (total != null) jobs.push(LB.submit(rcLbKey(RC.trackIdx, 'total'), total, true, ex));
+      await Promise.all(jobs);
+      return true;
+    }).then(() => { RC.lbTrack = RC.trackIdx; rcLB(); });
   }
   if (RC.mode === 'online') rcSendMe(true);
   $('#rc-res').hidden = false;
@@ -2732,7 +2760,8 @@ function fcOver(winner) {
     // Contra bots: solo cuentan las victorias en DIFÍCIL (si algún rival es humano, cuenta como siempre).
     const foes = FC.seats.filter(s => s.team !== myTeam), vsBots = FC.mode === 'local' && foes.length && foes.every(s => s.bot);
     if (vsBots && !foes.every(s => s.lvl === 2)) $('#fc-over-p').textContent = (names ? names + ' · ' : '') + 'LAS VICTORIAS CONTRA BOTS FÁCIL O MEDIO NO SUMAN AL TOP 10.';
-    else LB.increment('funciones', FC.mode === 'local' ? (vsBots ? 'BOT DIFÍCIL · ' : '') + FC.localLbl : FC_FMT[FC.fmt].n).then(fcLB);
+    else { const ex = FC.mode === 'local' ? (vsBots ? 'BOT DIFÍCIL · ' : '') + FC.localLbl : FC_FMT[FC.fmt].n;
+      LB.confirmar('¡GANASTE! ¿SUMAS ESTA VICTORIA A LA TABLA?', () => LB.increment('funciones', ex)).then(fcLB); }
   } else SFX.play(winner < 0 ? 'miss' : 'lose');
 }
 
@@ -3184,7 +3213,10 @@ const BJ = {
   mode: null, phase: 'menu', spectating: false,
   room: null, isHost: false, roomData: null, roomPlayers: {}, unsubs: [], hbStop: null, _hostTimer: null, _dealerRunning: false,
   round: 0, resultShown: false, showValue: store.get('pa_bj_showval', true),
-  deck: [], hand: [], dealer: [], dealerHidden: true, status: 'playing', dealTimer: null
+  deck: [], hand: [], dealer: [], dealerHidden: true, status: 'playing', dealTimer: null,
+  // Preguntamos una sola vez por sentada en la mesa si quiere publicar sus victorias (no en cada
+  // mano, sería muy molesto): null = todavía no se preguntó, true/false = ya decidió.
+  subiendo: null,
 };
 function bjToggleValBtn() { $('#bj-toggle-val').textContent = BJ.showValue ? 'OCULTAR VALOR' : 'MOSTRAR VALOR'; }
 $('#bj-toggle-val').onclick = () => {
@@ -3230,11 +3262,19 @@ function bjLocalResolveDealer() {
   };
   BJ.dealTimer = setTimeout(step, 700);
 }
+// Preguntar "¿subes tu puntaje?" en cada mano sería muy molesto (una mesa dura muchas manos), así
+// que se pregunta una sola vez por sentada (BJ.subiendo) y las siguientes manos se suman solas.
+function bjSubirVictoria() {
+  if (BJ.subiendo === true) { LB.increment('veintiuno').then(bjLB); return; }
+  if (BJ.subiendo === false) return;
+  LB.confirmar('¡GANASTE! ¿QUIERES QUE TUS VICTORIAS EN ESTA MESA SE PUBLIQUEN EN LA TABLA?', () => LB.increment('veintiuno'))
+    .then(ok => { BJ.subiendo = !!ok; bjLB(); });
+}
 function bjLocalFinish() {
   BJ.phase = 'over';
   const res = bjResult(BJ.hand, BJ.dealer);
   bjRenderLocal(); bjShowResult(res);
-  if (res === 'win' || res === 'blackjack') { SFX.play('win'); LB.increment('veintiuno').then(bjLB); }
+  if (res === 'win' || res === 'blackjack') { SFX.play('win'); bjSubirVictoria(); }
   else if (res === 'push') SFX.play('click'); else SFX.play('lose');
   $('#bj-ctrl').hidden = true; $('#bj-again-row').hidden = false;
 }
@@ -3265,7 +3305,7 @@ function bjHandOf(uid) { return (BJ.roomData && BJ.roomData.hands && BJ.roomData
 function bjTurnUid() { for (const [uid] of bjSeatList()) if (bjStatusOf(uid) === 'playing') return uid; return null; }
 async function bjCreate() {
   if (!(await fbReady)) return bjMenuMsg('SIN CONEXIÓN A FIREBASE: SOLO SE PUEDE JUGAR SOLO.', 'lose');
-  bjLeaveOnline(); bjMenuMsg('CREANDO MESA…');
+  bjLeaveOnline(); BJ.subiendo = null; bjMenuMsg('CREANDO MESA…');
   try {
     let code, ref;
     for (let k = 0; k < 5; k++) { code = genCode(); ref = fs.doc(db, 'blackjack', code); if (!(await fs.getDoc(ref)).exists()) break; }
@@ -3279,7 +3319,7 @@ async function bjJoin() {
   const code = $('#bj-code').value.trim().toUpperCase();
   if (code.length < 5) return bjMenuMsg('ESCRIBE EL CÓDIGO DE 5 LETRAS.', 'lose');
   if (!(await fbReady)) return bjMenuMsg('SIN CONEXIÓN A FIREBASE: SOLO SE PUEDE JUGAR SOLO.', 'lose');
-  bjLeaveOnline(); bjMenuMsg('ENTRANDO…');
+  bjLeaveOnline(); BJ.subiendo = null; bjMenuMsg('ENTRANDO…');
   try {
     const d = await fs.getDoc(fs.doc(db, 'blackjack', code));
     if (!d.exists()) throw new Error('ESA MESA NO EXISTE');
@@ -3371,7 +3411,7 @@ function bjOnlineShowResult() {
   if (bjStatusOf(UID) === 'waiting' || !hand.length) { bjMsg(''); return; }
   const res = bjResult(hand, BJ.roomData.dealerHand || []);
   bjShowResult(res);
-  if (res === 'win' || res === 'blackjack') { SFX.play('win'); LB.increment('veintiuno').then(bjLB); }
+  if (res === 'win' || res === 'blackjack') { SFX.play('win'); bjSubirVictoria(); }
   else if (res === 'push') SFX.play('click'); else SFX.play('lose');
 }
 async function bjOnlineHit() {
@@ -3455,7 +3495,7 @@ function bjLeaveOnline() {
 function bjToMenu() {
   clearTimeout(BJ.dealTimer);
   if (BJ.mode === 'online') bjLeaveOnline();
-  BJ.mode = null; BJ.phase = 'menu'; BJ.spectating = false;
+  BJ.mode = null; BJ.phase = 'menu'; BJ.spectating = false; BJ.subiendo = null;
   bjView('menu');
 }
 $('#bj-spec-btn').onclick = async () => {
@@ -3470,7 +3510,7 @@ $('#bj-spec-btn').onclick = async () => {
     : '<li class="muted">NO HAY MESAS RECIENTES</li>';
   list.querySelectorAll('[data-code]').forEach(b => b.onclick = () => { SFX.play('click'); bjSpecOpen(b.dataset.code); });
 };
-$('#bj-local').onclick = () => { SFX.play('start'); bjLocalDeal(); };
+$('#bj-local').onclick = () => { SFX.play('start'); BJ.subiendo = null; bjLocalDeal(); };
 $('#bj-create').onclick = bjCreate;
 $('#bj-join').onclick = bjJoin;
 $('#bj-code').addEventListener('keydown', e => { if (e.key === 'Enter') bjJoin(); });
@@ -3883,7 +3923,7 @@ function blOver(winnerIdx, forfeit) {
   $('#bl-over').hidden = false;
   $('#bl-again').hidden = BL.mode === 'online' ? (!BL.isHost || BL.spectating) : false;
   SFX.play(BL.spectating ? 'win' : (iWon ? 'win' : 'lose'));
-  if (!BL.spectating && iWon && !BL.submitted) { BL.submitted = true; LB.increment('billar_' + BL.variant).then(blLB); }
+  if (!BL.spectating && iWon && !BL.submitted) { BL.submitted = true; LB.confirmar('¡GANASTE! ¿SUMAS ESTA VICTORIA A LA TABLA?', () => LB.increment('billar_' + BL.variant)).then(blLB); }
   blUI(); blDraw();
   if (BL.mode === 'online' && !BL.spectating) {
     fs.updateDoc(fs.doc(db, 'pool', BL.room), { state: 'over', winner: winnerIdx === 0 ? 'p1' : 'p2', forfeit: !!forfeit, balls: blBallsOut(), shooting: null }).catch(console.error);
@@ -3931,7 +3971,7 @@ function blApplyRemoteOver(d) {
   $('#bl-over').hidden = false;
   $('#bl-again').hidden = !BL.isHost || BL.spectating;
   SFX.play(BL.spectating ? 'win' : (iWon ? 'win' : 'lose'));
-  if (!BL.spectating && iWon && !BL.submitted) { BL.submitted = true; LB.increment('billar_' + BL.variant).then(blLB); }
+  if (!BL.spectating && iWon && !BL.submitted) { BL.submitted = true; LB.confirmar('¡GANASTE! ¿SUMAS ESTA VICTORIA A LA TABLA?', () => LB.increment('billar_' + BL.variant)).then(blLB); }
 }
 function blSyncOnline(d) {
   BL.roomData = d;
@@ -4084,7 +4124,8 @@ const DL = {
   names: { A: 'JUGADOR 1', B: 'JUGADOR 2' }, wins: { A: 0, B: 0 },
   phase: 'idle', countN: 3, yaAt: 0, roundActive: false, currentRoundSeq: 0, roundSeqCounter: 0,
   appliedRoundSeq: 0, lastResultRoundSeq: -1, appliedMatchSeq: 0, timers: [], shot: null,
-  looks: { A: null, B: null }, lbKey: 'duelo', lookTimer: null
+  looks: { A: null, B: null }, lbKey: 'duelo', lookTimer: null,
+  matchBestRt: null, // mejor tiempo de reacción de ESTE duelo; se pregunta una sola vez al terminar
 };
 function dlMsg(t, cls) { const m = $('#dl-msg'); m.textContent = t; m.className = 'msg' + (cls ? ' ' + cls : ''); }
 function dlMenuMsg(t, cls) { const m = $('#dl-menu-msg'); m.textContent = t; m.className = 'msg' + (cls ? ' ' + cls : ''); }
@@ -4347,7 +4388,16 @@ function dlMatchOver(id) {
   $('#dl-over-t').textContent = `¡${winner} GANA EL DUELO!`;
   $('#dl-over-p').textContent = `${DL.wins.A} - ${DL.wins.B}`;
   $('#dl-over').hidden = false; $('#dl-fire').hidden = true; $('#dl-fire2').hidden = true;
-  if (DL.mode === 'cpu' && id === 'A') LB.increment('duelo').then(() => { if (DL.lbKey === 'duelo') dlRenderLB(); });
+  if (DL.mode === 'cpu' && id === 'A') {
+    LB.confirmar('¡GANASTE EL DUELO! ¿SUMAS ESTA VICTORIA A LA TABLA?', () => LB.increment('duelo'))
+      .then(() => { if (DL.lbKey === 'duelo') dlRenderLB(); });
+  }
+  if ((DL.mode === 'cpu' || DL.mode === 'online') && DL.matchBestRt != null) {
+    const ms = DL.matchBestRt, extra = `${dlToday()} ${DL.mode === 'cpu' ? 'CPU' : 'ONLINE'}`;
+    DL.matchBestRt = null;
+    LB.confirmar(`TU MEJOR REACCIÓN FUE ${ms} MS. ¿LA SUBES A LA TABLA?`, () => LB.submit('duelo_reaccion', ms, true, extra))
+      .then(ok => { if (ok && DL.lbKey === 'duelo_reaccion') dlRenderLB(); });
+  }
 }
 
 /* ---------- tiempo de reacción (Top 10 "duelo_reaccion") ---------- */
@@ -4364,11 +4414,11 @@ function dlRecordReaction(rt) {
   if (DL.mode !== 'cpu' && DL.mode !== 'online') return;
   const ms = Math.round(rt);
   if (!Number.isFinite(ms) || ms < DL_RT_MIN || ms > DL_RT_MAX) return;
+  if (DL.matchBestRt == null || ms < DL.matchBestRt) DL.matchBestRt = ms;
   const prev = store.get('dl_best_rt', 0), better = !prev || ms < prev;
   if (better) store.set('dl_best_rt', ms);
   $('#dl-best').textContent = better ? `¡NUEVA MEJOR REACCIÓN: ${ms} MS!` : dlBestText();
-  LB.submit('duelo_reaccion', ms, true, `${dlToday()} ${DL.mode === 'cpu' ? 'CPU' : 'ONLINE'}`)
-    .then(ok => { if (ok && DL.lbKey === 'duelo_reaccion') dlRenderLB(); });
+  // Ya no se sube sola cada ronda: se pregunta una sola vez en dlMatchOver() al terminar el duelo.
 }
 const DL_LB_CFG = {
   duelo: { asc: false, sub: 'DUELOS GANADOS VS CPU', fmt: r => `${Number(r.score) || 0}` },
@@ -4454,7 +4504,7 @@ function dlStartRound() {
 }
 function dlCpu() {
   dlLeaveOnline(true);
-  DL.mode = 'cpu'; DL.me = 'A'; DL.names = { A: playerName() || 'JUGADOR 1', B: 'CPU' }; DL.wins = { A: 0, B: 0 };
+  DL.mode = 'cpu'; DL.me = 'A'; DL.names = { A: playerName() || 'JUGADOR 1', B: 'CPU' }; DL.wins = { A: 0, B: 0 }; DL.matchBestRt = null;
   DL.looks = { A: dlMyLook(), B: null };
   $('#dl-over').hidden = true; dlShow('game');
   DL.phase = 'idle'; dlMsg(''); $('#dl-best').textContent = dlBestText(); dlDraw();
@@ -4543,7 +4593,7 @@ function dlOnRoom(d) {
 function dlEnterGame(d) {
   $('#dl-over').hidden = true; dlShow('game');
   DL.names = { A: (d.A && d.A.name) || 'JUGADOR 1', B: (d.B && d.B.name) || 'JUGADOR 2' };
-  DL.wins = { A: d.winsA || 0, B: d.winsB || 0 };
+  DL.wins = { A: d.winsA || 0, B: d.winsB || 0 }; DL.matchBestRt = null;
   DL.appliedRoundSeq = 0; DL.lastResultRoundSeq = -1; DL.phase = 'idle'; DL.roundActive = false;
   dlMsg(''); $('#dl-best').textContent = dlBestText(); dlDraw();
 }
@@ -4790,7 +4840,7 @@ function gfFinish() {
   const diffTxt = diff === 0 ? 'PAR' : (diff > 0 ? '+' + diff : String(diff));
   $('#gf-over-p').innerHTML = GF.activeHoles.map((h, i) => `HOYO ${i + 1}${h.comunitario ? ' · ' + esc(h.nombre) : ''}: ${GF.scores[i]} (PAR ${h.par})`).join('<br>') + `<br><br><b>TOTAL: ${GF.totalStrokes} GOLPES (${diffTxt})</b>`;
   $('#gf-over').hidden = false; $('#gf-again').hidden = false;
-  LB.submit('golf', GF.totalStrokes, true, diffTxt).then(gfLB);
+  LB.confirmar(`TERMINASTE CON ${GF.totalStrokes} GOLPES (${diffTxt}). ¿LO SUBES A LA TABLA?`, () => LB.submit('golf', GF.totalStrokes, true, diffTxt)).then(gfLB);
 }
 function gfAdvance() {
   if (GF.pending === 'next') { GF.holeIdx++; gfLoadHole(GF.holeIdx); }
@@ -5152,7 +5202,10 @@ function gfOnlineFinish() {
   $('#gf-again').hidden = !GF.isHost || GF.spectating;
   if (!GF.spectating) {
     const mine = totals.find(t => t.uid === UID);
-    if (mine) { const diff = mine.total - totalPar; LB.submit('golf', mine.total, true, diff === 0 ? 'PAR' : (diff > 0 ? '+' + diff : String(diff))).then(gfLB); }
+    if (mine) {
+      const diff = mine.total - totalPar, diffTxt = diff === 0 ? 'PAR' : (diff > 0 ? '+' + diff : String(diff));
+      LB.confirmar(`TERMINASTE CON ${mine.total} GOLPES (${diffTxt}). ¿LO SUBES A LA TABLA?`, () => LB.submit('golf', mine.total, true, diffTxt)).then(gfLB);
+    }
   }
 }
 async function gfOnlineShoot(vx, vy) {
@@ -5579,7 +5632,7 @@ function crGameOver() {
 function crFinish() {
   $('#cr-over-p').textContent = `PUNTAJE: ${CR.score}`;
   $('#cr-over').hidden = false; $('#cr-again').hidden = false;
-  LB.submit('cruce', CR.score, false).then(crLB);
+  LB.confirmar(`PUNTAJE: ${CR.score}. ¿LO SUBES A LA TABLA?`, () => LB.submit('cruce', CR.score, false)).then(crLB);
 }
 function crLB() { LB.render($('#cr-lb'), 'cruce', false, r => r.score + ' PTS'); }
 function crStep(dt) {
@@ -5849,7 +5902,7 @@ function crOnlineFinish() {
   totals.sort((a, b) => b.score - a.score);
   $('#cr-over-p').innerHTML = totals.map((t, i) => `${i + 1}. ${esc(t.name)}${t.uid === UID ? ' (TÚ)' : ''}: ${t.score} PTS`).join('<br>');
   $('#cr-again').hidden = !CR.isHost || CR.spectating;
-  if (!CR.spectating) LB.submit('cruce', CR.score, false).then(crLB);
+  if (!CR.spectating) LB.confirmar(`PUNTAJE: ${CR.score}. ¿LO SUBES A LA TABLA?`, () => LB.submit('cruce', CR.score, false)).then(crLB);
 }
 function crHostPoll() {
   if (CR.mode !== 'online' || !CR.isHost || CR.spectating || !CR.roomData) return;
