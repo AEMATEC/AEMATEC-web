@@ -157,8 +157,9 @@ match /golfHoyosPropuestos/{id} {
     && request.resource.data.ramps.size() <= 2
     && request.resource.data.creado == request.time;
   allow update: if esModerador()
-    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['estado'])
-    && request.resource.data.estado in ['aprobado', 'rechazado'];
+    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['estado', 'votosAprobar', 'votosRechazar'])
+    && request.resource.data.estado in ['pendiente', 'aprobado', 'rechazado']
+    && request.resource.data.votosAprobar is list && request.resource.data.votosRechazar is list;
   allow delete: if esModerador();
 }
 ```
@@ -199,12 +200,14 @@ Cloud Function, ni tocar Google Cloud Console en absoluto.**
 **Cómo funciona:** el moderador inicia sesión con correo y contraseña **propios de `arcade-matec`**
 (`assets/js/arcade/moderacion.js`, una segunda app de Firebase aparte de la anónima con la que todo el
 mundo juega, para no perder esa sesión al moderar). La regla `esModerador()` en
-`arcade-firebase/firestore.rules` solo revisa si la sesión actual inició con contraseña (moderador) o es
-anónima (cualquiera jugando) — nada de otro proyecto de Firebase ni Cloud Function. Hace falta que el
-**75% de los moderadores actuales (redondeado hacia arriba)** vote lo mismo para que una propuesta quede
-aprobada o rechazada; `gfpVotar()` en `arcade.html` guarda el correo de quien vota en `votosAprobar` o
-`votosRechazar` dentro del propio documento de la propuesta, cuenta cuántos moderadores hay (ver abajo) y
-decide si ya se alcanzó el 75%.
+`arcade-firebase/firestore.rules` revisa que la sesión actual haya iniciado con contraseña **y** que ese
+correo tenga su documento en `arcadeModeradores` (ver abajo) — nada de otro proyecto de Firebase ni Cloud
+Function. El segundo requisito (`arcadeModeradores`) hizo falta a partir de los perfiles opcionales
+(sección 3.4): ahí cualquier persona puede crear una cuenta de correo/contraseña, así que ya no basta con
+mirar solo el tipo de sesión. Hace falta que el **75% de los moderadores actuales (redondeado hacia
+arriba)** vote lo mismo para que una propuesta quede aprobada o rechazada; `gfpVotar()` en `arcade.html`
+guarda el correo de quien vota en `votosAprobar` o `votosRechazar` dentro del propio documento de la
+propuesta, cuenta cuántos moderadores hay (ver abajo) y decide si ya se alcanzó el 75%.
 
 **Quién puede ser moderador:** cualquier cuenta de correo/contraseña que exista en la Authentication de
 `arcade-matec` **y que además tenga su documento en la colección `arcadeModeradores`** (un documento por
@@ -274,6 +277,57 @@ hay que diseñarlo juego por juego y probarlo en línea antes de publicar.
 
 ---
 
+## 3.4 Perfiles opcionales: cuenta, amigos y récords (colecciones nuevas)
+
+Pantalla nueva "PERFIL" en el Arcade (pestaña del menú). Es **opcional**: se puede seguir jugando sin
+cuenta exactamente igual que antes. Toda la lógica vive en `assets/js/arcade/perfiles.js`; la pantalla, en
+el bloque "PERFIL" de `arcade.html`.
+
+**Cómo funciona sin correo real:** Firebase Auth no tiene un login "solo usuario", así que se arma un
+correo falso interno (`usuario + "@arcade.aematec.local"`) y se usa con las funciones normales de
+correo/contraseña — ese correo falso nunca se muestra en ninguna pantalla. **Importante:** esto significa
+que si alguien olvida su usuario o contraseña, nadie puede recuperarla (no hay correo real al que enviar
+nada) — la pantalla de registro ya avisa esto.
+
+**Por qué los récords pasan solos a la cuenta nueva:** registrarse usa `linkWithCredential` sobre la sesión
+anónima con la que esa persona ya estaba jugando, **conservando el mismo uid**. Como los puntajes se
+guardan por uid (`leaderboards/{juego}/scores/{uid}`), todo lo que esa persona ya había guardado jugando
+sin cuenta (con el opt-in de siempre, ver sección 1) pasa a ser automáticamente lo de su cuenta nueva, sin
+mover nada a mano. Iniciar sesión en OTRO dispositivo sí cambia de uid al de la cuenta real — los récords
+de ESE dispositivo, jugados sin cuenta, quedan atrás (igual que ya pasa hoy sin conexión).
+
+Documentos nuevos:
+
+```
+usuariosTomados/{usuarioMinusculas}   { uid }
+perfiles/{uid}                        { usuario, usuarioMin, descripcion, avatar, creado }
+perfiles/{uid}/solicitudesRecibidas/{deUid}   { de, creado }
+perfiles/{uid}/amigos/{otroUid}               { desde }
+```
+
+`avatar` es uno de `'zorro' | 'llama' | 'erizo' | 'nave' | 'mina'` (sprites ya existentes del Arcade,
+`SPR.llama`/`SPR.erizo`/`SPR.nave`/`SPR.mine` en `core.js` y `RN_FOX_SPR.duck` en `runner.js`). Nada de
+correo real, teléfono ni nombre legal — solo lo que la persona escribe a propósito para su tarjeta pública.
+
+**"Usuario único" sin Cloud Function:** `usuariosTomados/{usuarioMinusculas}` solo se puede **crear**, nunca
+actualizar (ver las reglas en `arcade-firebase/firestore.rules`) — así un segundo registro con el mismo
+usuario choca solo porque el documento ya existe, sin que ninguna regla tenga que contar ni comparar nada.
+
+**Amigos (solicitud y aceptación):** quien envía la solicitud escribe un documento en
+`perfiles/{destino}/solicitudesRecibidas/{miUid}` (el id es quien la envía, para que nadie pueda fingir ser
+otra persona). Al aceptar, se crea la amistad espejada en los dos perfiles
+(`perfiles/A/amigos/B` y `perfiles/B/amigos/A`) en una sola transacción y se borra la solicitud. Cualquiera
+de los dos lados puede crear o borrar esa amistad espejada — es la misma confianza básica que ya se usa en
+el conteo de votos de Golf (sección 3.3): las reglas no pueden verificar que las DOS copias se escriban
+siempre juntas, así que confían en que quien tiene una cuenta real actúa de buena fe.
+
+**Ojo con la moderación de Golf:** desde que existen los perfiles, `esModerador()` (sección 3.3) tuvo que
+cambiar para seguir revisando también `arcadeModeradores` — si solo mirara "inició con contraseña", CUALQUIER
+persona con un perfil quedaría tratada como moderadora. Revisa que tu copia de las reglas en consola tenga
+ese cambio junto con las colecciones de esta sección.
+
+---
+
 ## 4. Cómo comprobarlo después de publicar las reglas
 
 1. Abre <https://aematec.github.io/AEMATEC-web/arcade.html>, escribe un nombre y espera a que diga **● ONLINE**.
@@ -296,3 +350,14 @@ hay que diseñarlo juego por juego y probarlo en línea antes de publicar.
 9. Si algo no se guarda, abre la consola del navegador (F12). Un error `permission-denied` al votar indica
    que falta activar "Correo electrónico/contraseña" en Authentication, crear la cuenta de moderador o su
    documento en `arcadeModeradores` (sección 3.3).
+10. **Perfiles (sección 3.4):** entra a la pestaña "PERFIL", crea una cuenta con usuario y contraseña.
+    Debe pasar a la tarjeta de perfil (sin error de permisos). Cambia el avatar y la descripción y dale
+    "GUARDAR". Cierra sesión y vuelve a iniciar sesión con el mismo usuario y contraseña: debe volver a
+    aparecer tu perfil. Antes de crear la cuenta, juega algo y sube un puntaje (sección 1); después de
+    crear la cuenta, revisa que ese puntaje aparezca en el panel "RECORDS".
+11. **Amigos:** con dos cuentas de perfil distintas (dos navegadores o uno en incógnito), busca el usuario
+    de la otra cuenta y dale "AGREGAR". Desde la otra cuenta debe aparecer en "SOLICITUDES RECIBIDAS" con
+    botones ACEPTAR/RECHAZAR. Acepta y confirma que aparece en "TUS AMIGOS" en AMBAS cuentas.
+12. **Que la moderación de Golf siga funcionando:** con una cuenta de PERFIL (no de moderador), entra a
+    Golf → "PROPUESTAS DE LA COMUNIDAD" — NO debe mostrar los botones de aprobar/rechazar/borrar (si los
+    muestra, `esModerador()` no se actualizó bien en la consola).

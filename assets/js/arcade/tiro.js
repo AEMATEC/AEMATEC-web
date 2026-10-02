@@ -8,7 +8,9 @@ const ANIMALS = {
 /* Modo interno 'cont' = "DIANA CONTINUA". Su puntaje es ACIERTOS × PRECISIÓN%, con la precisión redondeada a
    entero (la misma que se ve en el HUD): p. ej. 30 aciertos en 40 disparos → 75% → 30 × 75 = 2250 puntos.
    Como cambió la escala, usa la clave de tabla 'tiro_diana' (la vieja 'tiro' ya no se muestra). */
-const MODES = {
+// Exportado para que el panel "Records" de perfiles (arcade.html) sepa qué claves de tabla existen,
+// sin tener que repetir esta lista a mano en otro archivo.
+export const MODES = {
   cont: { n: 'DIANA CONTINUA', key: 'tiro_diana', help: 'EL BLANCO SE MUEVE SIN PARAR Y CADA VEZ MÁS RÁPIDO.<br>PUNTOS = ACIERTOS × PRECISIÓN % (SE REDONDEA A ENTERO)' },
   uno:  { n: 'UNO A UNO', key: 'tiro_uno', help: 'APARECEN BLANCOS AL AZAR QUE SE MUEVEN CADA VEZ MÁS RÁPIDO: DESAPARECEN SI LOS ACIERTAS O SI SE ACABA SU TIEMPO.<br>AMARILLO 10 · ROJO 5 · BLANCO 3 · BORDE 1' },
 };

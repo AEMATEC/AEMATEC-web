@@ -6,12 +6,12 @@
 // ESTA VERSIÓN TODAVÍA NO ESTÁ PUBLICADA (pendiente desde 2026-10-02): agrega esModerador() —exige
 // también activar el método de acceso "Correo electrónico/contraseña" en Authentication y crear ahí una
 // cuenta por moderador, ver docs/arcade-firebase-cambios.md sección 3.3—, salaCaducada() (para que
-// cualquiera pueda borrar una sala ya vencida, sección 3.2) y arcadeModeradores (un documento por correo
+// cualquiera pueda borrar una sala ya vencida, sección 3.2), arcadeModeradores (un documento por correo
 // de moderador, administrado a mano en Firestore, para contar el 75% necesario al votar una propuesta de
-// Golf). Pegar estas reglas sin hacer esos pasos primero no rompe nada, simplemente esas cosas no
-// funcionan todavía. Si cambias algo en la consola, avísale a quien mantiene este repositorio para que
-// actualice este archivo; si un PR propone un cambio aquí, cópialo tú mismo a la consola para que entre
-// en efecto.
+// Golf) y usuariosTomados/perfiles (perfiles opcionales: cuenta, amigos y récords, sección 3.4). Pegar
+// estas reglas sin hacer esos pasos primero no rompe nada, simplemente esas cosas no funcionan todavía.
+// Si cambias algo en la consola, avísale a quien mantiene este repositorio para que actualice este
+// archivo; si un PR propone un cambio aquí, cópialo tú mismo a la consola para que entre en efecto.
 
 rules_version = '2';
 
@@ -23,11 +23,13 @@ service cloud.firestore {
     }
 
     // Moderador de Golf: una cuenta de correo/contraseña PROPIA de este proyecto (arcade-matec), separada
-    // de la cuenta anónima con la que todo el mundo juega. No hay lista de correos que mantener aquí: la
-    // única forma de tener una cuenta con contraseña en este proyecto es que alguien la haya creado a mano
-    // en Authentication → Users (nadie se la crea sola, no hay pantalla de registro pública para esto).
+    // de la cuenta anónima con la que todo el mundo juega. OJO: desde que existen los perfiles opcionales
+    // (sección 3.4), cualquier persona puede tener una cuenta de correo/contraseña (con un correo falso
+    // interno) — por eso ya NO basta con mirar sign_in_provider, hace falta confirmar además que ese
+    // correo está en arcadeModeradores. Los correos falsos de perfiles nunca van a estar en esa lista.
     function esModerador() {
-      return signedIn() && request.auth.token.firebase.sign_in_provider == 'password';
+      return signedIn() && request.auth.token.firebase.sign_in_provider == 'password'
+        && exists(/databases/$(database)/documents/arcadeModeradores/$(request.auth.token.email));
     }
 
     // Una sala vencida la puede borrar CUALQUIERA, no solo quien la creó — así cualquiera que abra la
@@ -230,6 +232,62 @@ service cloud.firestore {
         allow read: if signedIn();
         allow create, update: if signedIn() && request.auth.uid == uid;
         allow delete: if signedIn() && (request.auth.uid == uid || salaCaducada(resource.data));
+      }
+    }
+
+    // Perfiles opcionales (cuenta, amigos y récords) — ver assets/js/arcade/perfiles.js y
+    // docs/arcade-firebase-cambios.md sección 3.4. Nada de correo real, teléfono ni nombre legal: solo lo
+    // que la persona escribe a propósito para su tarjeta pública.
+    //
+    // "Usuario único" sin Cloud Function: este documento solo se puede CREAR, nunca actualizar (no hay
+    // "allow update" más abajo) — así un segundo registro con el mismo usuario choca solo porque el
+    // documento ya existe, sin que ninguna regla tenga que contar ni comparar nada.
+    match /usuariosTomados/{usuarioMin} {
+      allow read: if true;
+      allow create: if signedIn() && request.resource.data.keys().hasOnly(['uid'])
+        && request.resource.data.uid == request.auth.uid
+        && usuarioMin.matches('^[a-z0-9_]{3,16}$');
+      allow update, delete: if false;
+    }
+
+    match /perfiles/{uid} {
+      allow read: if true;
+      allow create: if signedIn() && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['usuario', 'usuarioMin', 'descripcion', 'avatar', 'creado'])
+        && request.resource.data.usuario is string && request.resource.data.usuario.matches('^[A-Za-z0-9_]{3,16}$')
+        && request.resource.data.usuarioMin == request.resource.data.usuario.lower()
+        && request.resource.data.descripcion is string && request.resource.data.descripcion.size() <= 140
+        && request.resource.data.avatar in ['zorro', 'llama', 'erizo', 'nave', 'mina']
+        && request.resource.data.creado == request.time;
+      // Solo descripción y avatar se pueden cambiar después — el usuario queda fijo (cambiarlo dejaría
+      // "suelto" el documento viejo en usuariosTomados, que nadie puede borrar).
+      allow update: if signedIn() && request.auth.uid == uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['descripcion', 'avatar'])
+        && request.resource.data.descripcion is string && request.resource.data.descripcion.size() <= 140
+        && request.resource.data.avatar in ['zorro', 'llama', 'erizo', 'nave', 'mina'];
+      allow delete: if false;
+
+      // Solicitudes de amistad pendientes: el id del documento es el uid de quien la envía, así nadie
+      // puede mandar una "solicitud" fingiendo ser otra persona.
+      match /solicitudesRecibidas/{deUid} {
+        allow read, delete: if signedIn() && request.auth.uid == uid;
+        allow create: if signedIn() && request.auth.uid == deUid && deUid != uid
+          && request.resource.data.keys().hasOnly(['de', 'creado'])
+          && request.resource.data.de == deUid
+          && request.resource.data.creado == request.time;
+        allow update: if false;
+      }
+
+      // Amistad confirmada: se guarda espejada en los dos perfiles (perfiles/A/amigos/B y
+      // perfiles/B/amigos/A). Aceptar o quitar amistad escribe o borra las DOS copias en una sola acción,
+      // por eso cualquiera de los dos lados (el dueño del perfil o la persona nombrada en el id) puede
+      // crear o borrar — misma confianza básica que ya se usa en el conteo de votos de Golf.
+      match /amigos/{otroUid} {
+        allow read: if signedIn() && request.auth.uid == uid;
+        allow create: if signedIn() && (request.auth.uid == uid || request.auth.uid == otroUid)
+          && request.resource.data.keys().hasOnly(['desde']);
+        allow delete: if signedIn() && (request.auth.uid == uid || request.auth.uid == otroUid);
+        allow update: if false;
       }
     }
 
