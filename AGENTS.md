@@ -127,16 +127,16 @@ visual). Sigue separando uno a la vez y probando bien cada uno antes de seguir c
 de golpe.
 
 Golf tiene un **creador de hoyos**: cualquiera diseña uno y lo envía a `golfHoyosPropuestos` (arcade-matec).
-Para aprobarlo o rechazarlo desde "PROPUESTAS DE LA COMUNIDAD" hace falta iniciar sesión con una cuenta de
-moderador **del sitio principal** (la misma de `admin.html`, ver `assets/js/arcade/moderacion.js`) y que la
-mayoría de los moderadores esté de acuerdo (votación, no un código compartido). La votación y el borrado de
-verdad los hace la Cloud Function `arcadeVotarPropuesta`/`arcadeBorrarRegistro`
-(`functions/arcadeModeracion.js`, del proyecto del sitio principal, con su propia cuenta de servicio de
-`arcade-matec`) — las reglas de `arcade-matec` cierran `golfHoyosPropuestos` a `allow update, delete: if false`
-porque esa función es la única vía. Ver `docs/arcade-firebase-cambios.md` para el detalle y el paso de consola
-(un secreto nuevo) que hace falta para que esa función funcione. Si se agrega este mismo patrón a otro juego
-con mapas/pistas, sigue la misma idea: propuesta pendiente → votación de moderadores del sitio → se integra
-solo en modo local (no se sincronizó para partidas en línea, por simplicidad).
+Para aprobarlo, rechazarlo o borrarlo desde "PROPUESTAS DE LA COMUNIDAD" hace falta iniciar sesión con una
+cuenta de correo/contraseña **propia de `arcade-matec`** (no la del sitio principal — ver
+`assets/js/arcade/moderacion.js`, una segunda app de Firebase aparte de la anónima con la que todo el mundo
+juega). Las reglas de `arcade-matec` (`esModerador()`) solo revisan si la sesión actual inició con
+contraseña (moderador) o es anónima (cualquiera jugando) — sin Cloud Function, sin cuenta de servicio, sin
+tocar Google Cloud Console. Un clic en APROBAR o RECHAZAR decide, no hace falta que voten varias personas.
+Quién puede moderar lo decides tú creando cuentas a mano en Authentication → Users de `arcade-matec` (ver
+`docs/arcade-firebase-cambios.md`, sección 3.3). Si se agrega este mismo patrón a otro juego con mapas/pistas,
+sigue la misma idea: propuesta pendiente → un moderador del Arcade la aprueba → se integra solo en modo local
+(no se sincronizó para partidas en línea, por simplicidad).
 
 ## Estilo del código
 Sitio estático: HTML + Tailwind compilado (`assets/css/tailwind.css`, ver `tailwind.config.js`) + JavaScript modular en línea, con el SDK de Firebase 10.12.2

@@ -3,11 +3,13 @@
 // al hacer merge a main. Quien administra "arcade-matec" sigue copiando y pegando el contenido a mano en
 // Firebase Console → Firestore Database → Reglas, igual que siempre.
 //
-// Última confirmación de que esto es lo publicado: 2026-10-01 (la persona de la Junta pegó esta versión
-// completa en la consola, con el filtro de caracteres de apodos/propuestas, "solo el anfitrión borra su
-// sala" y golfHoyosPropuestos cerrado a allow update/delete: if false). Si cambias algo en la consola,
+// ESTA VERSIÓN TODAVÍA NO ESTÁ PUBLICADA (pendiente desde 2026-10-02): agrega esModerador() —exige
+// también activar el método de acceso "Correo electrónico/contraseña" en Authentication y crear ahí una
+// cuenta por moderador, ver docs/arcade-firebase-cambios.md sección 3.3— y salaCaducada(), para que
+// cualquiera pueda borrar una sala ya vencida (sección 3.2). Pegar estas reglas sin hacer esos pasos
+// primero no rompe nada, simplemente esas dos cosas no funcionan todavía. Si cambias algo en la consola,
 // avísale a quien mantiene este repositorio para que actualice este archivo; si un PR propone un cambio
-// aquí, cópialo tú mismo a la consola para que entre en efecto — ver docs/arcade-firebase-cambios.md.
+// aquí, cópialo tú mismo a la consola para que entre en efecto.
 
 rules_version = '2';
 
@@ -16,6 +18,29 @@ service cloud.firestore {
 
     function signedIn() {
       return request.auth != null;
+    }
+
+    // Moderador de Golf: una cuenta de correo/contraseña PROPIA de este proyecto (arcade-matec), separada
+    // de la cuenta anónima con la que todo el mundo juega. No hay lista de correos que mantener aquí: la
+    // única forma de tener una cuenta con contraseña en este proyecto es que alguien la haya creado a mano
+    // en Authentication → Users (nadie se la crea sola, no hay pantalla de registro pública para esto).
+    function esModerador() {
+      return signedIn() && request.auth.token.firebase.sign_in_provider == 'password';
+    }
+
+    // Una sala vencida la puede borrar CUALQUIERA, no solo quien la creó — así cualquiera que abra la
+    // lista de "salas en vivo" puede limpiarla (ver liveRooms() en core.js), sin necesitar una Cloud
+    // Function ni una política de TTL en la consola. Dos señales, porque no todas las colecciones guardan
+    // lo mismo:
+    // - expiraEn: lo escribe el latido de presencia (lastSeen + 24h). Existe en el documento de la sala
+    //   misma en rooms/pool/duelos; en races/fights/blackjack/golf/cruces vive en cada jugador
+    //   (subcolección players), por eso ahí también se permite en esa subcolección más abajo.
+    // - creado hace más de 24h (campo `created`, que todas las colecciones ya escriben para ordenar la
+    //   lista de salas en vivo): respaldo para cuando no hay expiraEn en el documento mismo, o si alguien
+    //   se queda con la pestaña abierta sin que el latido llegue a escribirse.
+    function salaCaducada(datos) {
+      return (datos.get('expiraEn', null) != null && request.time > datos.expiraEn)
+        || (datos.get('created', null) != null && request.time > datos.created + duration.value(24, 'h'));
     }
 
     function isIncGame(game) {
@@ -53,7 +78,7 @@ service cloud.firestore {
           || (isIncGame(game) && resource == null && request.resource.data.score == 1)
           || (isIncGame(game) && resource != null && request.resource.data.score == resource.data.score + 1)
         );
-      allow delete: if false;
+      allow delete: if esModerador();
     }
 
     match /rooms/{code} {
@@ -68,18 +93,19 @@ service cloud.firestore {
             && request.resource.data.p2.uid == request.auth.uid
             && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['p2']))
       );
-      allow delete: if signedIn() && request.auth.uid == resource.data.p1.uid;
+      allow delete: if signedIn() && (request.auth.uid == resource.data.p1.uid || salaCaducada(resource.data));
     }
 
     match /races/{code} {
       allow read: if signedIn();
       allow create: if signedIn() && request.resource.data.host == request.auth.uid;
       allow update: if signedIn() && resource.data.host == request.auth.uid;
-      allow delete: if signedIn() && request.auth.uid == resource.data.host;
+      allow delete: if signedIn() && (request.auth.uid == resource.data.host || salaCaducada(resource.data));
 
       match /players/{uid} {
         allow read: if signedIn();
-        allow create, update, delete: if signedIn() && request.auth.uid == uid;
+        allow create, update: if signedIn() && request.auth.uid == uid;
+        allow delete: if signedIn() && (request.auth.uid == uid || salaCaducada(resource.data));
       }
     }
 
@@ -88,11 +114,12 @@ service cloud.firestore {
       allow create: if signedIn() && request.resource.data.host == request.auth.uid;
       allow update: if signedIn()
         && exists(/databases/$(database)/documents/fights/$(code)/players/$(request.auth.uid));
-      allow delete: if signedIn() && request.auth.uid == resource.data.host;
+      allow delete: if signedIn() && (request.auth.uid == resource.data.host || salaCaducada(resource.data));
 
       match /players/{uid} {
         allow read: if signedIn();
-        allow create, update, delete: if signedIn() && request.auth.uid == uid;
+        allow create, update: if signedIn() && request.auth.uid == uid;
+        allow delete: if signedIn() && (request.auth.uid == uid || salaCaducada(resource.data));
       }
     }
 
@@ -101,11 +128,12 @@ service cloud.firestore {
       allow create: if signedIn() && request.resource.data.host == request.auth.uid;
       allow update: if signedIn()
         && exists(/databases/$(database)/documents/blackjack/$(code)/players/$(request.auth.uid));
-      allow delete: if signedIn() && request.auth.uid == resource.data.host;
+      allow delete: if signedIn() && (request.auth.uid == resource.data.host || salaCaducada(resource.data));
 
       match /players/{uid} {
         allow read: if signedIn();
-        allow create, update, delete: if signedIn() && request.auth.uid == uid;
+        allow create, update: if signedIn() && request.auth.uid == uid;
+        allow delete: if signedIn() && (request.auth.uid == uid || salaCaducada(resource.data));
       }
     }
 
@@ -121,7 +149,7 @@ service cloud.firestore {
             && request.resource.data.p2.uid == request.auth.uid
             && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['p2']))
       );
-      allow delete: if signedIn() && request.auth.uid == resource.data.p1.uid;
+      allow delete: if signedIn() && (request.auth.uid == resource.data.p1.uid || salaCaducada(resource.data));
     }
 
     match /duelos/{code} {
@@ -136,7 +164,7 @@ service cloud.firestore {
             && request.resource.data.B.uid == request.auth.uid
             && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['B']))
       );
-      allow delete: if signedIn() && request.auth.uid == resource.data.A.uid;
+      allow delete: if signedIn() && (request.auth.uid == resource.data.A.uid || salaCaducada(resource.data));
     }
 
     // Golf: partida compartida de hasta 4 personas en el mismo recorrido, por turnos.
@@ -145,20 +173,18 @@ service cloud.firestore {
       allow create: if signedIn() && request.resource.data.host == request.auth.uid;
       allow update: if signedIn()
         && exists(/databases/$(database)/documents/golf/$(code)/players/$(request.auth.uid));
-      allow delete: if signedIn() && request.auth.uid == resource.data.host;
+      allow delete: if signedIn() && (request.auth.uid == resource.data.host || salaCaducada(resource.data));
 
       match /players/{uid} {
         allow read: if signedIn();
-        allow create, update, delete: if signedIn() && request.auth.uid == uid;
+        allow create, update: if signedIn() && request.auth.uid == uid;
+        allow delete: if signedIn() && (request.auth.uid == uid || salaCaducada(resource.data));
       }
     }
 
-    // Golf: hoyos que la gente propone con el "Creador de hoyos". Quedan pendientes hasta que la
-    // mayoría de los moderadores del sitio principal los apruebe o rechace (votación, no un código
-    // compartido). Esa votación la hace la Cloud Function arcadeVotarPropuesta (functions/
-    // arcadeModeracion.js), que usa su propia cuenta de servicio y no pasa por estas reglas — por eso
-    // update/delete quedan en `if false`: nadie puede cambiar ni borrar una propuesta desde el
-    // navegador, ni siquiera un moderador real, solo esa función.
+    // Golf: hoyos que la gente propone con el "Creador de hoyos". Quedan pendientes hasta que un
+    // moderador del Arcade (cuenta de correo/contraseña propia de este proyecto, ver esModerador() arriba)
+    // la aprueba o rechaza — un clic decide, no hace falta que varios moderadores voten lo mismo.
     match /golfHoyosPropuestos/{id} {
       allow read: if signedIn();
       allow create: if signedIn()
@@ -171,8 +197,10 @@ service cloud.firestore {
         && request.resource.data.water.size() <= 3 && request.resource.data.ice.size() <= 3
         && request.resource.data.ramps.size() <= 2
         && request.resource.data.creado == request.time;
-      allow update: if false;
-      allow delete: if false;
+      allow update: if esModerador()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['estado'])
+        && request.resource.data.estado in ['aprobado', 'rechazado'];
+      allow delete: if esModerador();
     }
 
     // Cruzar la Calle: hasta 4 personas, cada quien su rana, mismo tablero en tiempo real.
@@ -181,11 +209,12 @@ service cloud.firestore {
       allow create: if signedIn() && request.resource.data.host == request.auth.uid;
       allow update: if signedIn()
         && exists(/databases/$(database)/documents/cruces/$(code)/players/$(request.auth.uid));
-      allow delete: if signedIn() && request.auth.uid == resource.data.host;
+      allow delete: if signedIn() && (request.auth.uid == resource.data.host || salaCaducada(resource.data));
 
       match /players/{uid} {
         allow read: if signedIn();
-        allow create, update, delete: if signedIn() && request.auth.uid == uid;
+        allow create, update: if signedIn() && request.auth.uid == uid;
+        allow delete: if signedIn() && (request.auth.uid == uid || salaCaducada(resource.data));
       }
     }
 

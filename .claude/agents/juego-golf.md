@@ -18,13 +18,13 @@ línea + el creador de hoyos). Busca el bloque `/* === GOLF === */`.
 - Control de tiro: tocar hacia donde quieres tirar, barra de fuerza (`#gf-power`) y botón "¡GOLPEAR!"
   (`#gf-shoot`) — igual que Billar, no vuelvas al arrastrar-y-soltar viejo.
 - **Creador de hoyos**: cualquiera diseña uno en "CREAR UN HOYO" y lo envía a `golfHoyosPropuestos`
-  (Firestore, `arcade-matec`) como pendiente. Desde "PROPUESTAS DE LA COMUNIDAD" se aprueba o rechaza
-  iniciando sesión con una cuenta de moderador DEL SITIO PRINCIPAL (la misma de `admin.html`, ver
-  `assets/js/arcade/moderacion.js`) y necesita que la mayoría de los moderadores vote lo mismo — la votación
-  de verdad la hace la Cloud Function `arcadeVotarPropuesta` (`functions/arcadeModeracion.js`, en el
-  proyecto del sitio principal), no el navegador directamente (ver `docs/arcade-firebase-cambios.md`). Los
-  hoyos aprobados se agregan después de los 6 base SOLO en "JUGAR SOLO" (el modo en línea sigue usando nada
-  más los 6 de siempre, a propósito, para no complicar la sincronización entre jugadores).
+  (Firestore, `arcade-matec`) como pendiente. Cualquiera puede darle "▶ PROBARLO" a una propuesta y jugarla.
+  Desde "PROPUESTAS DE LA COMUNIDAD" se aprueba, rechaza o borra iniciando sesión con una cuenta de
+  correo/contraseña PROPIA de `arcade-matec` (no la del sitio, ver `assets/js/arcade/moderacion.js`, una
+  segunda app de Firebase aparte de la anónima con la que se juega). Las reglas (`esModerador()`) solo
+  revisan si la sesión inició con contraseña — sin Cloud Function ni tocar Google Cloud. Un clic decide,
+  sin votación. Los hoyos aprobados se agregan después de los 6 base SOLO en "JUGAR SOLO" (el modo en línea
+  sigue usando nada más los 6 de siempre, a propósito, para no complicar la sincronización entre jugadores).
 - **Tiene modo en línea** (hasta 4 jugadores en el mismo recorrido): colección `golf/{code}` y su subcolección
   `players`. Si tocas el modo en línea, prueba con más de una sesión antes de darlo por bueno.
 - Si agregas un campo a la sala o cambias el formato de `golfHoyosPropuestos`, documenta la regla de

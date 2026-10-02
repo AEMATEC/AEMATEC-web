@@ -85,5 +85,4 @@ exports.notifyProblemReport = onDocumentCreated(
 );
 
 Object.assign(exports, require("./tramites"));
-Object.assign(exports, require("./arcadeModeracion"));
 exports.borrarDatosVencidos = require("./retencion").borrarDatosVencidos;

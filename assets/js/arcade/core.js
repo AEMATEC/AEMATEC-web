@@ -4,11 +4,12 @@
 // todavía viven dentro del <script> de arcade.html también importan de aquí (ver ese archivo).
 //
 // Requisitos en la consola de Firebase (proyecto arcade-matec):
-// 1) Authentication > Método de acceso > activar "Anónimo"
+// 1) Authentication > Método de acceso > activar "Anónimo" (para jugar) y "Correo electrónico/contraseña"
+//    (para los moderadores de Golf, ver assets/js/arcade/moderacion.js)
 // 2) Firestore Database creada
 // 3) Publicar las reglas de firestore.rules (ver docs/arcade-firebase-cambios.md)
 
-const firebaseConfig = {
+export const firebaseConfig = {
   apiKey: "AIzaSyAuzcpEMIEupO2DV6ERt4ydTzkeo15-N38",
   authDomain: "arcade-matec.firebaseapp.com",
   projectId: "arcade-matec",
@@ -82,17 +83,37 @@ export function presenceLoop(writeFn) {
   const id = setInterval(writeFn, HEARTBEAT_MS);
   return () => clearInterval(id);
 }
-// Campo para la política de TTL de Firestore (se configura en la consola, no en las reglas): una
-// sala sin latidos se borra sola 24h después del último. Se escribe junto a cada "lastSeen".
+// Campo para limpiar salas abandonadas sin usar la consola de Google Cloud (que tiene el TTL de
+// Firestore): cada sala guarda hasta cuándo es válida, y liveRooms() (abajo) borra las que ya vencieron
+// apenas alguien mira la lista de "salas en vivo" — no hace falta una Cloud Function con reloj. La misma
+// cuenta (lastSeen + 24h) la revisan las reglas en salaCaducada() del lado de Firestore.
 export function expiraEn() { return fs.Timestamp.fromMillis(Date.now() + SALA_TTL_MS); }
 export function tsMillis(ts) { return ts ? (ts.toMillis ? ts.toMillis() : (ts.seconds ? ts.seconds * 1000 : 0)) : 0; }
 export function isStale(ts, now) { const t = tsMillis(ts); return t > 0 && now - t > STALE_MS; }
+// Borra una sala vencida y, si tiene, su subcolección "players" (races/fights/blackjack/golf/cruces).
+// En segundo plano: no hace falta esperarla para mostrar la lista de salas en vivo.
+function limpiarSala(coll, id) {
+  fs.getDocs(fs.collection(db, coll, id, 'players'))
+    .then(snap => snap.docs.forEach(p => fs.deleteDoc(p.ref).catch(() => {})))
+    .catch(() => {});
+  fs.deleteDoc(fs.doc(db, coll, id)).catch(() => {});
+}
 export async function liveRooms(coll, limit = 12) {
   if (!(await fbReady)) return [];
   try {
     const q = fs.query(fs.collection(db, coll), fs.orderBy('created', 'desc'), fs.limit(limit));
     const snap = await fs.getDocs(q);
-    return snap.docs.map(d => ({ code: d.id, data: d.data() }));
+    const ahora = Date.now(), vivas = [];
+    snap.docs.forEach(d => {
+      const data = d.data();
+      // rooms/pool/duelos guardan expiraEn en la sala misma; los demás juegos (presencia por jugador, no
+      // aquí) no tienen ese campo, así que se cae al respaldo: más de 24h desde que se creó la sala.
+      const exp = tsMillis(data.expiraEn), creada = tsMillis(data.created);
+      const vencida = exp ? exp < ahora : (creada > 0 && ahora - creada > SALA_TTL_MS);
+      if (vencida) limpiarSala(coll, d.id);
+      else vivas.push({ code: d.id, data });
+    });
+    return vivas;
   } catch (e) { console.warn(e); return null; }
 }
 

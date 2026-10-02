@@ -1,38 +1,30 @@
-// Login de moderador para el "Creador de hoyos" de Golf. Reusa la MISMA cuenta de correo y contraseña
-// del panel de administración del sitio principal (admin.html) — no es una cuenta nueva del Arcade.
-// El Arcade sigue sin cuentas propias: esto es una SEGUNDA app de Firebase, aparte de la de
-// assets/js/arcade/core.js (que sigue siendo anónima, para jugar), apuntando al proyecto del sitio
-// (biblioteca-aematec) solo para que la persona pruebe quién es. Quien de verdad decide si puede votar
-// o borrar algo es la Cloud Function (functions/arcadeModeracion.js) — aquí no se revisa ningún rol,
-// porque hacerlo solo cambiaría qué se muestra, nunca lo que de verdad se puede hacer (ver AGENTS.md).
+// Login de moderador para el "Creador de hoyos" de Golf. Es una cuenta de correo y contraseña **del
+// propio proyecto `arcade-matec`**, separada de la cuenta anónima con la que todo el mundo juega — y
+// separada también de las cuentas del sitio principal (no se reusa admin.html). Esto evita por completo
+// necesitar una Cloud Function o una cuenta de servicio de Google Cloud: las reglas de `arcade-matec`
+// (ver arcade-firebase/firestore.rules, función esModerador()) distinguen directo si la sesión actual
+// inició con contraseña (moderador) o es anónima (cualquiera jugando), sin tocar ningún otro proyecto.
 //
-// No se puede usar assets/js/firebase.js/roles.js tal cual: esos inicializan la app de Firebase SIN
-// nombre ("[DEFAULT]"), y core.js ya usa ese nombre para arcade-matec — inicializarla dos veces con
-// configuraciones distintas da error. Por eso esta app lleva un nombre propio.
+// Por qué una SEGUNDA app de Firebase, si es el mismo proyecto: la app de core.js ya tiene una sesión
+// anónima abierta (la de jugar). Iniciar sesión con contraseña en esa MISMA instancia reemplazaría esa
+// sesión anónima (y su UID, usado en salas y puntajes) por la del moderador. Con una segunda app con
+// nombre propio, apuntando a la misma configuración pública de arcade-matec, las dos sesiones conviven:
+// la persona sigue pudiendo jugar mientras modera.
 import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
   getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-functions.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { mensajeErrorAuth } from "../util.js";
+import { firebaseConfig } from "./core.js";
 
 const NOMBRE_APP = "arcade-moderacion";
-const app = getApps().find(a => a.name === NOMBRE_APP)
-  || initializeApp(window.AEMATEC_FIREBASE_CONFIG, NOMBRE_APP);
+const app = getApps().find(a => a.name === NOMBRE_APP) || initializeApp(firebaseConfig, NOMBRE_APP);
 const auth = getAuth(app);
-const functions = getFunctions(app);
+export const dbMod = getFirestore(app);
 
 export { mensajeErrorAuth };
 export const moderadorActual = () => auth.currentUser;
 export const onModerador = cb => onAuthStateChanged(auth, cb);
 export const moderadorLogin = (email, password) => signInWithEmailAndPassword(auth, email, password);
 export const moderadorLogout = () => signOut(auth);
-
-export async function votarPropuesta(id, voto) {
-  const { data } = await httpsCallable(functions, "arcadeVotarPropuesta")({ id, voto });
-  return data;
-}
-export async function borrarRegistro(tipo, id, juego) {
-  const { data } = await httpsCallable(functions, "arcadeBorrarRegistro")({ tipo, id, juego });
-  return data;
-}

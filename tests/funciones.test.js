@@ -19,7 +19,6 @@ const adherir = fft.wrap(funciones.adherirAgec);
 const seguimiento = fft.wrap(funciones.consultarSeguimiento);
 const enviarEnlace = fft.wrap(funciones.enviarEnlaceCorreo);
 const alActualizarTramite = fft.wrap(funciones.alActualizarTramite);
-const arcadeVotar = fft.wrap(funciones.arcadeVotarPropuesta);
 
 let contador = 0;
 const cuenta = (email, { verificado = true } = {}) => ({ uid: `uid-${++contador}`, token: { email, email_verified: verificado } });
@@ -27,13 +26,12 @@ const llamar = (fn, data, auth) => fn({ data, auth, rawRequest: {} });
 const solicitud = datos => ({ tipo: "solicitud_junta", subtipo: "punto_agenda", datos: { nombre: "Ana", asunto: "Punto", detalle: "Detalle", ...datos } });
 
 async function limpiar() {
-  for (const coleccion of ["tramites", "agecPublicas", "fiscaliaCasos", "limites", "padron", "moderators", "prestamoSolicitudes", "chatbotReportes"]) {
+  for (const coleccion of ["tramites", "agecPublicas", "fiscaliaCasos", "limites", "padron", "prestamoSolicitudes", "chatbotReportes"]) {
     const docs = await db.collection(coleccion).listDocuments();
     await Promise.all(docs.map(d => db.recursiveDelete(d)));
   }
 }
 async function padron(...emails) { await Promise.all(emails.map(e => db.doc(`padron/${e}`).set({ email: e }))); }
-async function moderadores(...emails) { await Promise.all(emails.map(e => db.doc(`moderators/${e}`).set({ email: e }))); }
 const rechaza = (promesa, codigo) => assert.rejects(promesa, error => error.code === codigo);
 
 before(limpiar);
@@ -190,20 +188,6 @@ describe("Avisos cuando la Junta o la Fiscalía actualizan un trámite", () => {
     );
     await alActualizarTramite({ data: cambio, params: { id: "a1" } });
     assert.equal((await db.doc("agecPublicas/a1").get()).data().estado, "resuelto");
-  });
-});
-
-describe("arcadeVotarPropuesta: solo moderadores del sitio pueden votar", () => {
-  // Solo se prueba el rechazo: votar de verdad necesita el secreto ARCADE_MATEC_SA (la cuenta de
-  // servicio del proyecto del Arcade), que no existe en este entorno de pruebas.
-  test("sin sesión, sin verificar o sin ser moderador se rechaza antes de tocar el Arcade", async () => {
-    await rechaza(llamar(arcadeVotar, { id: "x1", voto: "aprobado" }), "unauthenticated");
-    await rechaza(llamar(arcadeVotar, { id: "x1", voto: "aprobado" }, cuenta("m@gmail.com", { verificado: false })), "unauthenticated");
-    await rechaza(llamar(arcadeVotar, { id: "x1", voto: "aprobado" }, cuenta("nadie@gmail.com")), "permission-denied");
-  });
-  test("una cuenta de la lista de moderadores sí pasa el permiso (se detiene después, al intentar conectar al Arcade)", async () => {
-    await moderadores("m@gmail.com");
-    await assert.rejects(llamar(arcadeVotar, { id: "x1", voto: "aprobado" }, cuenta("m@gmail.com")), error => error.code !== "permission-denied" && error.code !== "unauthenticated");
   });
 });
 
