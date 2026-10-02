@@ -21,7 +21,7 @@
 // usuario choca solo porque el documento ya existe, sin que nadie tenga que contarlos ni compararlos.
 import {
   onAuthStateChanged, signInAnonymously, signOut,
-  EmailAuthProvider, linkWithCredential, signInWithEmailAndPassword,
+  EmailAuthProvider, linkWithCredential, signInWithEmailAndPassword, updatePassword,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { db, fs, auth, fbReady } from "./core.js";
 
@@ -51,6 +51,7 @@ export function mensajeErrorCuenta(e) {
     case 'auth/weak-password': return 'LA CONTRASEÑA DEBE TENER AL MENOS 6 CARACTERES.';
     case 'auth/too-many-requests': return 'DEMASIADOS INTENTOS SEGUIDOS. ESPERA UNOS MINUTOS.';
     case 'auth/network-request-failed': return 'NO HAY CONEXIÓN A INTERNET.';
+    case 'auth/requires-recent-login': return 'PASÓ DEMASIADO TIEMPO. RECARGA LA PÁGINA E INTENTA DE NUEVO.';
     default: return 'NO SE PUDO COMPLETAR LA ACCIÓN. INTENTA DE NUEVO.';
   }
 }
@@ -59,30 +60,46 @@ export function onCuenta(cb) {
   fbReady.then(ok => { if (ok) onAuthStateChanged(auth, u => cb(u && !u.isAnonymous ? u : null)); });
 }
 
-// Crea la cuenta (sobre la sesión anónima actual, ver arriba) y el perfil público. Si el usuario
-// elegido ya estaba tomado, la transacción del perfil falla SIN deshacer la cuenta —a propósito: borrar
-// la cuenta recién vinculada obligaría a crear una sesión anónima nueva, con un uid distinto, perdiendo
-// los récords que la persona ya tenía. En vez de eso, si ya existe una cuenta real sin perfil (un intento
-// anterior con un usuario tomado), este mismo intento reusa esa cuenta y solo prueba con el usuario nuevo.
+// Crea la cuenta (sobre la sesión anónima actual, ver arriba) y el perfil público. OJO: linkWithCredential
+// convierte la sesión anónima EN SITIO (mismo objeto de usuario, mismo uid) y Firebase Auth no vuelve a
+// avisar a onCuenta()/onAuthStateChanged cuando pasa esto —sí avisa con signOut/signInAnonymously/
+// signInWithEmailAndPassword, porque ahí sí hay una sesión nueva de verdad—, así que quien llama a esta
+// función debe actualizar la pantalla a mano con el uid que devuelve, no esperar a que onCuenta() reaccione
+// solo.
+//
+// Si el usuario ya existe de verdad, Firebase Auth rechaza el propio linkWithCredential
+// ("auth/email-already-in-use") SIN tocar la sesión anónima — no hay nada que deshacer. El caso raro que sí
+// hay que cuidar es otro: que linkWithCredential funcione bien pero la escritura en Firestore falle por algo
+// ajeno al usuario (una falla pasajera, o estas reglas todavía sin publicar) — ahí la sesión queda "a
+// medias": ya no es anónima, pero no tiene perfil. Un reintento entonces NO puede cambiar el correo de esa
+// cuenta a uno nuevo (Firebase exige verificarlo antes, y estos correos son falsos, no se puede verificar
+// nada) — así que sigue el registro con el USUARIO YA VINCULADO (el que corresponde al correo actual),
+// ignorando el usuario que se acaba de escribir; sí actualiza la contraseña, por si no la recuerda. Si la
+// cuenta YA tiene perfil, es una cuenta de verdad en uso, no una a medias: no se toca nada.
 export async function registrarCuenta(usuario, contrasena, descripcion, avatar) {
   const errU = validarUsuario(usuario); if (errU) throw new Error(errU);
+  const errC = validarContrasena(contrasena); if (errC) throw new Error(errC);
   if (!AVATARES.includes(avatar)) avatar = AVATARES[0];
   descripcion = String(descripcion || '').slice(0, 140);
-  const usuarioMin = usuario.toLowerCase();
-  let uid;
+  let uid, usuarioFinal = usuario, usuarioMinFinal = usuario.toLowerCase();
   if (auth.currentUser.isAnonymous) {
-    const errC = validarContrasena(contrasena); if (errC) throw new Error(errC);
     const cred = EmailAuthProvider.credential(correoFalso(usuario), contrasena);
     const res = await linkWithCredential(auth.currentUser, cred);
     uid = res.user.uid;
   } else {
+    if (await cargarPerfil(auth.currentUser.uid)) throw new Error('YA TIENES UNA CUENTA. CIERRA SESIÓN SI QUIERES CREAR OTRA.');
+    const correoActual = auth.currentUser.email || '';
+    usuarioMinFinal = correoActual.slice(0, correoActual.indexOf(DOMINIO_FALSO));
+    if (!usuarioMinFinal) throw new Error('NO SE PUDO CONTINUAR EL REGISTRO. RECARGA LA PÁGINA E INTENTA DE NUEVO.');
+    usuarioFinal = usuarioMinFinal;
+    await updatePassword(auth.currentUser, contrasena);
     uid = auth.currentUser.uid;
   }
   try {
     await fs.runTransaction(db, async tx => {
-      tx.set(fs.doc(db, 'usuariosTomados', usuarioMin), { uid });
+      tx.set(fs.doc(db, 'usuariosTomados', usuarioMinFinal), { uid });
       tx.set(fs.doc(db, 'perfiles', uid), {
-        usuario, usuarioMin, descripcion, avatar, creado: fs.serverTimestamp(),
+        usuario: usuarioFinal, usuarioMin: usuarioMinFinal, descripcion, avatar, creado: fs.serverTimestamp(),
       });
     });
   } catch (e) {
@@ -96,7 +113,8 @@ export async function registrarCuenta(usuario, contrasena, descripcion, avatar) 
 
 export async function iniciarSesion(usuario, contrasena) {
   const errU = validarUsuario(usuario); if (errU) throw new Error(errU);
-  await signInWithEmailAndPassword(auth, correoFalso(usuario), contrasena);
+  const res = await signInWithEmailAndPassword(auth, correoFalso(usuario), contrasena);
+  return res.user.uid;
 }
 
 export async function cerrarSesion() {
