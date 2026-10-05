@@ -1145,6 +1145,8 @@ const SHIPS = [
   { n: 'SUBMARINO', l: 3 }, { n: 'DESTRUCTOR', l: 2 }
 ];
 const BS_LVLS = ['FÁCIL', 'MEDIO', 'DIFÍCIL'];
+// Los botones ABANDONAR / SALIR de dentro de una partida piden confirmación: un toque sin querer no debe tirar la partida.
+function pedirAbandonar(salir) { return () => { if (window.confirm('¿ABANDONAR LA PARTIDA?')) salir(); }; }
 const BS = { mode: null, phase: 'menu', me: null, room: null, unsub: null, placed: [], hor: true, hover: -1, lvl: store.get('pa_bs_lvl', 1), cpuTimer: null, submitted: false, hbStop: null, forfeitSent: false, spectating: false, specUnsub: null };
 const G = { myBoard: '', oppBoard: '', myShots: [], oppShots: [], myTurn: false, winner: null, oppName: '', oppJoined: false, oppReady: false, meReady: false, oppGone: false };
 
@@ -1197,7 +1199,7 @@ $('#bs-rot').onclick = () => { BS.hor = !BS.hor; bsRender(); };
 $('#bs-rand').onclick = () => { BS.placed = randomFleet(); bsRender(); };
 $('#bs-clear').onclick = () => { BS.placed = []; bsRender(); };
 $('#bs-ready').onclick = bsReady;
-$('#bs-leave').onclick = () => bsLeave();
+$('#bs-leave').onclick = () => { if (BS.phase === 'over' || window.confirm('¿ABANDONAR LA PARTIDA?')) bsLeave(); }; // terminada la partida no hace falta preguntar
 $('#bs-again').onclick = () => { if (BS.mode === 'cpu') bsCpu(); else bsLeave(); };
 $('#bs-cpu').onclick = bsCpu;
 $('#bs-create').onclick = bsCreate;
@@ -2195,7 +2197,7 @@ $('#rc-code').addEventListener('keydown', e => { if (e.key === 'Enter') rcJoin()
 $('#rc-go').onclick = rcStartOnline;
 $('#rc-leave').onclick = rcToMenu;
 $('#rc-exit').onclick = rcToMenu;
-$('#rc-quit').onclick = rcToMenu;
+$('#rc-quit').onclick = pedirAbandonar(rcToMenu);
 $('#rc-again').onclick = () => {
   if (RC.mode === 'local') rcLocal(RC.players);
   else if (RC.isHost) fs.updateDoc(fs.doc(db, 'races', RC.room), { state: 'lobby' }).catch(console.error);
@@ -3222,7 +3224,7 @@ $('#fc-code').addEventListener('keydown', e => { if (e.key === 'Enter') fcJoin()
 $('#fc-go').onclick = fcGoOnline;
 $('#fc-leave').onclick = fcToMenu;
 $('#fc-exit').onclick = fcToMenu;
-$('#fc-quit').onclick = fcToMenu;
+$('#fc-quit').onclick = pedirAbandonar(fcToMenu);
 $('#fc-again').onclick = () => {
   if (FC.mode === 'local') { FC.seats.forEach(s => s.units = []); fcBeginPlacement(); }
   else if (FC.isHost) fs.updateDoc(fs.doc(db, 'fights', FC.room), { state: 'lobby' }).catch(console.error);
@@ -3636,7 +3638,7 @@ $('#bj-join').onclick = bjJoin;
 $('#bj-code').addEventListener('keydown', e => { if (e.key === 'Enter') bjJoin(); });
 $('#bj-go').onclick = bjOnlineDeal;
 $('#bj-leave').onclick = bjToMenu;
-$('#bj-quit').onclick = bjToMenu;
+$('#bj-quit').onclick = pedirAbandonar(bjToMenu);
 $('#bj-hit').onclick = () => { BJ.mode === 'local' ? bjLocalHit() : bjOnlineHit(); };
 $('#bj-stand').onclick = () => { BJ.mode === 'local' ? bjLocalStand() : bjOnlineStand(); };
 $('#bj-again').onclick = () => { if (BJ.mode === 'local') bjLocalDeal(); else if (BJ.isHost) bjOnlineDeal(); };
@@ -3882,8 +3884,9 @@ function blSyncShootBtn() {
   const canShoot = blCanAct() && BL.placing == null;
   const cue = BL.balls.find(b => b.num === 0);
   const aimed = BL.aimPointer && cue && Math.hypot(BL.aimPointer.x - cue.x, BL.aimPointer.y - cue.y) > 4;
-  $('#bl-shoot').disabled = !canShoot || !aimed;
-  $('#bl-power').disabled = !canShoot;
+  const shoot = $('#bl-shoot'), power = $('#bl-power'); // blDraw lo llama en cada fotograma: solo escribe si cambió
+  if (shoot.disabled !== (!canShoot || !aimed)) shoot.disabled = !canShoot || !aimed;
+  if (power.disabled !== !canShoot) power.disabled = !canShoot;
 }
 function blLB() {
   $('#bl-lb-tabs').innerHTML = '';
@@ -3894,27 +3897,47 @@ function blLB() {
   });
   LB.render($('#bl-lb'), 'billar_' + BL.lbVariant, false, r => `${r.score} ${r.score === 1 ? 'PARTIDA' : 'PARTIDAS'}`);
 }
-function blDrawBall(b) {
-  const x = Math.round(b.x + BL_RAIL), y = Math.round(b.y + BL_RAIL);
-  if (b.num === 0) {
-    pxCircle(blx, x, y, BL_R, '#0a0a0a');
-    pxCircle(blx, x, y, BL_R - 1, '#f4f4f4');
-    blx.fillStyle = 'rgba(255,255,255,.95)'; blx.fillRect(x - 3, y - 4, 2, 2);
+// Pintar una bola pixel por pixel son cientos de fillRect; blDraw corre en cada fotograma con 16 bolas, y eso
+// era lo que daba tirones. Cada bola (y la mesa con sus agujeros) se pinta UNA vez en un canvas aparte y luego
+// solo se copia con drawImage. Se ve idéntico: las posiciones ya se redondeaban al píxel.
+function blPaintBall(g, x, y, num) {
+  if (num === 0) {
+    pxCircle(g, x, y, BL_R, '#0a0a0a');
+    pxCircle(g, x, y, BL_R - 1, '#f4f4f4');
+    g.fillStyle = 'rgba(255,255,255,.95)'; g.fillRect(x - 3, y - 4, 2, 2);
     return;
   }
-  const col = BL_COLORS[b.num], stripe = blStripe(b.num);
-  pxCircle(blx, x, y, BL_R, '#0a0a0a');
-  pxCircle(blx, x, y, BL_R - 1, stripe ? '#f4f4f4' : col);
-  if (stripe) { blx.fillStyle = col; blx.fillRect(x - BL_R + 1, y - 2, (BL_R - 1) * 2, 5); }
-  pxCircle(blx, x, y, 3, '#f4f4f4');
-  const str = String(b.num); tinyText(blx, str, x - str.length * 2, y - 2, col);
-  blx.fillStyle = 'rgba(255,255,255,.75)'; blx.fillRect(x - 3, y - 4, 2, 2);
+  const col = BL_COLORS[num], stripe = blStripe(num);
+  pxCircle(g, x, y, BL_R, '#0a0a0a');
+  pxCircle(g, x, y, BL_R - 1, stripe ? '#f4f4f4' : col);
+  if (stripe) { g.fillStyle = col; g.fillRect(x - BL_R + 1, y - 2, (BL_R - 1) * 2, 5); }
+  pxCircle(g, x, y, 3, '#f4f4f4');
+  const str = String(num); tinyText(g, str, x - str.length * 2, y - 2, col);
+  g.fillStyle = 'rgba(255,255,255,.75)'; g.fillRect(x - 3, y - 4, 2, 2);
+}
+const blBallImgs = {};
+function blBallImg(num) {
+  if (blBallImgs[num]) return blBallImgs[num];
+  const c = document.createElement('canvas'); c.width = c.height = BL_R * 2 + 1;
+  blPaintBall(c.getContext('2d'), BL_R, BL_R, num);
+  return blBallImgs[num] = c;
+}
+function blDrawBall(b) {
+  blx.drawImage(blBallImg(b.num), Math.round(b.x + BL_RAIL) - BL_R, Math.round(b.y + BL_RAIL) - BL_R);
+}
+let blTableImg = null;
+function blTable() {
+  if (blTableImg) return blTableImg;
+  const c = document.createElement('canvas'); c.width = BL_CW; c.height = BL_CH;
+  const g = c.getContext('2d');
+  g.fillStyle = '#6b4226'; g.fillRect(0, 0, BL_CW, BL_CH);
+  g.fillStyle = '#0e5c3f'; g.fillRect(BL_RAIL, BL_RAIL, BL_PW, BL_PH);
+  g.strokeStyle = 'rgba(0,0,0,.25)'; g.lineWidth = 2; g.strokeRect(BL_RAIL + 1, BL_RAIL + 1, BL_PW - 2, BL_PH - 2);
+  for (const p of BL_POCKETS) pxCircle(g, Math.round(p.x + BL_RAIL), Math.round(p.y + BL_RAIL), BL_POCKET_R, '#0a0a0a');
+  return blTableImg = c;
 }
 function blDraw() {
-  blx.fillStyle = '#6b4226'; blx.fillRect(0, 0, BL_CW, BL_CH);
-  blx.fillStyle = '#0e5c3f'; blx.fillRect(BL_RAIL, BL_RAIL, BL_PW, BL_PH);
-  blx.strokeStyle = 'rgba(0,0,0,.25)'; blx.lineWidth = 2; blx.strokeRect(BL_RAIL + 1, BL_RAIL + 1, BL_PW - 2, BL_PH - 2);
-  for (const p of BL_POCKETS) pxCircle(blx, Math.round(p.x + BL_RAIL), Math.round(p.y + BL_RAIL), BL_POCKET_R, '#0a0a0a');
+  blx.drawImage(blTable(), 0, 0);
   if (BL.placing != null && BL.placePreview) {
     const ok = blPlaceOk(BL.placePreview.x, BL.placePreview.y);
     blx.globalAlpha = .65; pxCircle(blx, Math.round(BL.placePreview.x + BL_RAIL), Math.round(BL.placePreview.y + BL_RAIL), BL_R, ok ? '#f4f4f4' : '#b13e53'); blx.globalAlpha = 1;
@@ -4248,7 +4271,7 @@ $('#bl-code').addEventListener('keydown', e => { if (e.key === 'Enter') blJoin()
 $('#bl-go').onclick = blStartOnline;
 $('#bl-leave').onclick = blToMenu;
 $('#bl-exit').onclick = blToMenu;
-$('#bl-quit').onclick = blToMenu;
+$('#bl-quit').onclick = pedirAbandonar(blToMenu);
 $('#bl-again').onclick = () => {
   if (BL.mode === 'cpu' || BL.mode === 'local2') blNewGame(BL.variant);
   else if (BL.isHost) blStartOnline();
@@ -4807,7 +4830,7 @@ $('#dl-create').onclick = () => { SFX.play('click'); dlCreate(); };
 $('#dl-join').onclick = () => { SFX.play('click'); dlJoin(); };
 $('#dl-go').onclick = () => { SFX.play('start'); dlGo(); };
 $('#dl-leave').onclick = () => dlLeaveOnline();
-$('#dl-quit').onclick = () => dlQuit();
+$('#dl-quit').onclick = pedirAbandonar(dlQuit);
 $('#dl-again').onclick = () => { SFX.play('start'); dlAgain(); };
 $('#dl-exit').onclick = () => dlQuit();
 $('#dl-fire').onclick = () => dlHumanFire();
@@ -5496,7 +5519,7 @@ $('#gf-join').onclick = gfJoin;
 $('#gf-code').addEventListener('keydown', e => { if (e.key === 'Enter') gfJoin(); });
 $('#gf-go').onclick = gfOnlineStart;
 $('#gf-leave').onclick = gfToMenu;
-$('#gf-quit').onclick = gfToMenu;
+$('#gf-quit').onclick = pedirAbandonar(gfToMenu);
 $('#gf-again').onclick = () => { if (GF.mode === 'local') { SFX.play('start'); gfStart(); } else if (GF.isHost) gfOnlineStart(); };
 $('#gf-exit').onclick = () => goTab('menu');
 window.addEventListener('beforeunload', () => { if (GF.mode === 'online') gfLeaveOnline(); });
@@ -6196,7 +6219,7 @@ $('#cr-join').onclick = crJoin;
 $('#cr-code').addEventListener('keydown', e => { if (e.key === 'Enter') crJoin(); });
 $('#cr-go').onclick = crOnlineStart;
 $('#cr-leave').onclick = crToMenu;
-$('#cr-quit').onclick = crToMenu;
+$('#cr-quit').onclick = pedirAbandonar(crToMenu);
 $('#cr-again').onclick = () => { if (CR.mode === 'local') { SFX.play('start'); crReset(); } else if (CR.isHost) crOnlineStart(); };
 $('#cr-exit').onclick = () => goTab('menu');
 window.addEventListener('beforeunload', () => { if (CR.mode === 'online') crLeaveOnline(); });
