@@ -1395,7 +1395,9 @@ function bsWin() {
   if (BS.submitted) return;
   BS.submitted = true;
   setTimeout(() => SFX.play('win'), 500);
-  { const tiros = Math.max(17, G.myShots.length), modo = BS.mode === 'cpu' ? 'VS CPU' : 'ONLINE';
+  // VS CPU solo cuentan las victorias en DIFÍCIL (como Combate de Funciones); en línea cuenta siempre.
+  if (BS.mode === 'cpu' && BS.lvl !== 2) return;
+  { const tiros = Math.max(17, G.myShots.length), modo = BS.mode === 'cpu' ? 'VS CPU DIFÍCIL' : 'ONLINE';
     LB.confirmar(`¡GANASTE EN ${tiros} TIROS! ¿LO SUBES A LA TABLA?`, () => LB.submit('batalla', tiros, true, modo)).then(bsLB); }
 }
 function bsLB() {
@@ -1454,7 +1456,7 @@ function bsRender() {
   } else if (BS.phase === 'play') {
     bsStatus(G.myTurn ? '¡TU TURNO! DISPARA AL TABLERO ENEMIGO' : `TURNO DE ${G.oppName || 'RIVAL'}…`);
   } else if (BS.phase === 'over') {
-    if (G.winner === 'me') bsStatus(`¡VICTORIA${G.forfeitWin ? ' POR DESCONEXIÓN DEL RIVAL' : ` EN ${G.myShots.length} DISPAROS`}!`, 'big win');
+    if (G.winner === 'me') bsStatus(`¡VICTORIA${G.forfeitWin ? ' POR DESCONEXIÓN DEL RIVAL' : ` EN ${G.myShots.length} DISPAROS`}!${BS.mode === 'cpu' && BS.lvl !== 2 ? ' (FÁCIL O MEDIO NO SUMAN AL TOP 10)' : ''}`, 'big win');
     else bsStatus(`DERROTA… ${G.oppName} HUNDIÓ TU FLOTA`, 'big lose');
   }
   if (BS.mode === 'online' && G.oppGone && BS.phase !== 'over') {
@@ -4550,7 +4552,9 @@ function dlMatchOver(id) {
   $('#dl-over-t').textContent = `¡${winner} GANA EL DUELO!`;
   $('#dl-over-p').textContent = `${DL.wins.A} - ${DL.wins.B}`;
   $('#dl-over').hidden = false; $('#dl-fire').hidden = true; $('#dl-fire2').hidden = true;
-  if (DL.mode === 'cpu' && id === 'A') {
+  // Solo cuentan las victorias VS CPU en DIFÍCIL, como en Combate de Funciones.
+  if (DL.mode === 'cpu' && id === 'A' && dlBotLvl !== 2) $('#dl-over-p').textContent += ' · LAS VICTORIAS VS CPU FÁCIL O MEDIO NO SUMAN AL TOP 10.';
+  else if (DL.mode === 'cpu' && id === 'A') {
     LB.confirmar('¡GANASTE EL DUELO! ¿SUMAS ESTA VICTORIA A LA TABLA?', () => LB.increment('duelo'))
       .then(() => { if (DL.lbKey === 'duelo') dlRenderLB(); });
   }
@@ -4583,7 +4587,7 @@ function dlRecordReaction(rt) {
   // Ya no se sube sola cada ronda: se pregunta una sola vez en dlMatchOver() al terminar el duelo.
 }
 const DL_LB_CFG = {
-  duelo: { asc: false, sub: 'DUELOS GANADOS VS CPU', fmt: r => `${Number(r.score) || 0}` },
+  duelo: { asc: false, sub: 'DUELOS GANADOS VS CPU EN DIFÍCIL', fmt: r => `${Number(r.score) || 0}` },
   duelo_reaccion: { asc: true, sub: 'MEJOR TIEMPO DE REACCIÓN (VS CPU Y EN LÍNEA). MENOS ES MEJOR.', fmt: r => `${Number(r.score) || 0} MS` }
 };
 function dlDate(r) {
