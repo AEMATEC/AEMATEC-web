@@ -402,6 +402,7 @@ nav .btn{padding:8px 12px}
           <button class="btn green" id="bs-cpu">VS CPU</button>
           <button class="btn" id="bs-create">CREAR SALA ONLINE</button>
         </div>
+        <div class="rc-sec" id="bs-lvl-sec"><h4>DIFICULTAD VS CPU</h4><div class="pick" id="bs-lvl"></div></div>
         <div class="row left" style="margin-top:6px">
           <input id="bs-code" class="px-in" placeholder="CÓDIGO" maxlength="5">
           <button class="btn orange" id="bs-join">UNIRSE A SALA</button>
@@ -1140,7 +1141,8 @@ const SHIPS = [
   { n: 'PORTAAVIONES', l: 5 }, { n: 'ACORAZADO', l: 4 }, { n: 'CRUCERO', l: 3 },
   { n: 'SUBMARINO', l: 3 }, { n: 'DESTRUCTOR', l: 2 }
 ];
-const BS = { mode: null, phase: 'menu', me: null, room: null, unsub: null, placed: [], hor: true, hover: -1, cpuTargets: [], cpuTimer: null, submitted: false, hbStop: null, forfeitSent: false, spectating: false, specUnsub: null };
+const BS_LVLS = ['FÁCIL', 'MEDIO', 'DIFÍCIL'];
+const BS = { mode: null, phase: 'menu', me: null, room: null, unsub: null, placed: [], hor: true, hover: -1, lvl: store.get('pa_bs_lvl', 1), cpuTimer: null, submitted: false, hbStop: null, forfeitSent: false, spectating: false, specUnsub: null };
 const G = { myBoard: '', oppBoard: '', myShots: [], oppShots: [], myTurn: false, winner: null, oppName: '', oppJoined: false, oppReady: false, meReady: false, oppGone: false };
 
 function shipCells(start, len, hor) {
@@ -1199,10 +1201,13 @@ $('#bs-create').onclick = bsCreate;
 $('#bs-join').onclick = bsJoin;
 $('#bs-code').addEventListener('keydown', e => { if (e.key === 'Enter') bsJoin(); });
 
+if (![0, 1, 2].includes(BS.lvl)) BS.lvl = 1;
+function bsLvlRender() { pickRow($('#bs-lvl'), BS_LVLS.map(n => ({ html: n })), BS.lvl, i => { SFX.play('click'); BS.lvl = i; store.set('pa_bs_lvl', i); bsLvlRender(); }); }
+bsLvlRender();
 function bsMenuMsg(t, cls = '') { const m = $('#bs-menu-msg'); m.textContent = t; m.className = 'msg ' + cls; m.style.textAlign = 'left'; }
 function resetG() { Object.assign(G, { myBoard: '', oppBoard: '', myShots: [], oppShots: [], myTurn: false, winner: null, oppName: '', oppJoined: false, oppReady: false, meReady: false, oppGone: false }); }
 function bsStartPlacing() {
-  BS.placed = []; BS.hor = true; BS.phase = 'place'; BS.submitted = false; BS.cpuTargets = [];
+  BS.placed = []; BS.hor = true; BS.phase = 'place'; BS.submitted = false;
   resetG();
   $('#bs-menu').hidden = true; $('#bs-game').hidden = false;
   $('#bs-mine-title').textContent = 'TU FLOTA'; $('#bs-place').hidden = false; $('#bs-again').hidden = true;
@@ -1326,27 +1331,52 @@ async function bsFire(i) {
     } catch (e) { console.error(e); G.myTurn = true; bsRender(); }
   }
 }
+/* Dificultad del bot (0 FÁCIL, 1 MEDIO, 2 DIFÍCIL): FÁCIL solo dispara al azar; MEDIO caza en tablero
+   de ajedrez y, tras un acierto, remata (si ya hay 2 aciertos seguidos, solo sigue esa línea); DIFÍCIL
+   remata igual pero caza donde caben más posiciones de los barcos que aún flotan.
+   Sin estado: todo se deduce del tablero y los tiros, así un barco hundido deja de ser objetivo solo. */
+function cpuPick(board, shots, lvl) {
+  const shot = new Set(shots), sunk = sunkIds(board, shots), free = k => k >= 0 && k < 100 && !shot.has(k);
+  const all = []; for (let k = 0; k < 100; k++) if (free(k)) all.push(k);
+  const rnd = a => a[(Math.random() * a.length) | 0];
+  if (lvl === 0) return rnd(all);
+  const hits = new Set(shots.filter(k => board[k] !== '.' && !sunk.has(board[k])));
+  if (hits.size) {
+    const line = [], near = [];
+    const at = (x, y) => x >= 0 && x < 10 && y >= 0 && y < 10 ? y * 10 + x : -1; // -1 = fuera del tablero
+    hits.forEach(h => [[1, 0], [0, 1]].forEach(([dx, dy]) => {
+      const x = h % 10, y = (h / 10) | 0;
+      if (!hits.has(at(x + dx, y + dy))) return; // h y su vecino forman una línea
+      let n = 0; while (hits.has(at(x - n * dx, y - n * dy))) n++; // retrocede hasta el extremo
+      let m = 0; while (hits.has(at(x + m * dx, y + m * dy))) m++; // avanza hasta el otro
+      [at(x - n * dx, y - n * dy), at(x + m * dx, y + m * dy)].forEach(k => { if (k >= 0 && free(k)) line.push(k); });
+    }));
+    if (line.length) return rnd(line);
+    hits.forEach(h => [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(([dx, dy]) => {
+      const X = h % 10 + dx, Y = ((h / 10) | 0) + dy;
+      if (X >= 0 && X < 10 && Y >= 0 && Y < 10 && free(Y * 10 + X)) near.push(Y * 10 + X);
+    }));
+    if (near.length) return rnd(near);
+  }
+  if (lvl === 2) {
+    const w = Array(100).fill(0);
+    SHIPS.forEach((sh, id) => { if (sunk.has(String(id))) return;
+      for (let st = 0; st < 100; st++) [true, false].forEach(hor => {
+        const c = shipCells(st, sh.l, hor); if (c && c.every(free)) c.forEach(k => w[k]++);
+      });
+    });
+    const m = Math.max(...all.map(k => w[k]));
+    return rnd(all.filter(k => w[k] === m));
+  }
+  const par = all.filter(k => (k % 10 + ((k / 10) | 0)) % 2 === 0);
+  return rnd(par.length ? par : all);
+}
 function cpuShoot() {
   if (BS.mode !== 'cpu' || BS.phase !== 'play') return;
-  const shot = new Set(G.oppShots);
-  let i = null;
-  while (BS.cpuTargets.length) { const t = BS.cpuTargets.pop(); if (!shot.has(t)) { i = t; break; } }
-  if (i === null) {
-    let opts = [];
-    for (let k = 0; k < 100; k++) if (!shot.has(k) && ((k % 10 + ((k / 10) | 0)) % 2 === 0)) opts.push(k);
-    if (!opts.length) for (let k = 0; k < 100; k++) if (!shot.has(k)) opts.push(k);
-    i = opts[(Math.random() * opts.length) | 0];
-  }
+  const i = cpuPick(G.myBoard, G.oppShots, BS.lvl);
+  const hit = G.myBoard[i] !== '.';
   G.oppShots.push(i);
   shotSound(G.myBoard, G.oppShots);
-  const hit = G.myBoard[i] !== '.';
-  if (hit) {
-    const x = i % 10, y = (i / 10) | 0;
-    [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(([dx, dy]) => {
-      const X = x + dx, Y = y + dy;
-      if (X >= 0 && X < 10 && Y >= 0 && Y < 10 && !shot.has(Y * 10 + X)) BS.cpuTargets.push(Y * 10 + X);
-    });
-  }
   if (allSunk(G.myBoard, G.oppShots)) { G.winner = 'opp'; BS.phase = 'over'; setTimeout(() => SFX.play('lose'), 500); }
   else if (hit) BS.cpuTimer = setTimeout(cpuShoot, 650);
   else G.myTurn = true;
