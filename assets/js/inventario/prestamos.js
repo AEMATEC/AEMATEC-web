@@ -67,6 +67,7 @@ function estadoBadgeHtml(solicitud) {
   if (atrasado) return `<span class="font-sans text-[11px] font-bold bg-[#FCE9E7] text-[#C2413B] px-2.5 py-1 rounded-full">Atrasado</span>`;
   const estados = {
     pendiente: ["bg-[#FDF3D8]", "text-[#8A6D1B]", "Pendiente"],
+    aprobada: ["bg-[#E6F3E3]", "text-[#2F6B2A]", "Aprobada, por recoger"],
     entregado: ["bg-[#DCEBFB]", "text-[#215C99]", "Entregado"],
     devuelto: ["bg-[#DFF6F8]", "text-[#00798A]", "Devuelto"],
     rechazada: ["bg-[#EAF1F4]", "text-[#5F7480]", "Rechazada"]
@@ -78,17 +79,20 @@ function estadoBadgeHtml(solicitud) {
 function loanAdminRowHtml(solicitud) {
   const item = inv.itemsByTipo[solicitud.itemTipo]?.find(entry => entry.id === solicitud.itemId);
   let actionsHtml = "";
-  if (solicitud.estado === "pendiente") {
+  if (solicitud.estado === "pendiente" || solicitud.estado === "aprobada") {
+    if (solicitud.estado === "pendiente") {
+      actionsHtml = `<button type="button" data-action="aprobar" data-id="${solicitud.id}" class="h-9 px-3 rounded-[8px] bg-[#2F6B2A] text-white font-sans text-xs font-bold">Aprobar y avisar</button>`;
+    }
     if (solicitud.itemTipo === "biblioteca") {
       const disponibles = (item?.ejemplares || []).filter(exemplar => exemplar.disponible);
-      actionsHtml = disponibles.length
+      actionsHtml += disponibles.length
         ? `<select data-ejemplar-select class="h-9 rounded-[8px] border border-[#8497A3] px-2 text-xs">
              ${disponibles.map(exemplar => `<option value="${escapeHtml(exemplar.codigo)}">${escapeHtml(exemplar.codigo)}</option>`).join("")}
            </select>
            <button type="button" data-action="entregar" data-id="${solicitud.id}" class="h-9 px-3 rounded-[8px] bg-[#0D2B45] text-white font-sans text-xs font-bold">Marcar entregado</button>`
         : `<span class="text-xs text-[#C2413B] font-semibold">Sin ejemplares disponibles</span>`;
     } else {
-      actionsHtml = item?.disponible === false
+      actionsHtml += item?.disponible === false
         ? `<span class="text-xs text-[#C2413B] font-semibold">Bien no disponible</span>`
         : `<button type="button" data-action="entregar" data-id="${solicitud.id}" class="h-9 px-3 rounded-[8px] bg-[#0D2B45] text-white font-sans text-xs font-bold">Marcar entregado</button>`;
     }
@@ -103,6 +107,7 @@ function loanAdminRowHtml(solicitud) {
           <p class="font-sans font-bold text-sm">${escapeHtml(solicitud.itemNombre)} <span class="text-[#607480] font-normal">(${escapeHtml(solicitud.itemCodigo || "s/c")})</span></p>
           <p class="text-xs text-[#607480] mt-1">${escapeHtml(solicitud.solicitanteNombre)} · Carné ${escapeHtml(solicitud.solicitanteCarne)} · ${escapeHtml(solicitud.solicitanteContacto)}</p>
           <p class="text-xs text-[#566B78] mt-1">Solicitado: ${formatDate(solicitud.createdAt)}${solicitud.fechaPrevista ? ` · Devolución prevista: ${escapeHtml(solicitud.fechaPrevista)}` : ""}</p>
+          ${solicitud.estado === "aprobada" && solicitud.fechaLimiteRecogida ? `<p class="text-xs text-[#2F6B2A] font-semibold mt-1">Puede recogerlo hasta el ${escapeHtml(solicitud.fechaLimiteRecogida)}${solicitud.avisoCorreo === false ? " · Sin correo: avísale por teléfono" : ""}</p>` : ""}
           ${solicitud.ejemplarCodigo ? `<p class="text-xs text-[#566B78] mt-1">Ejemplar entregado: ${escapeHtml(solicitud.ejemplarCodigo)}</p>` : ""}
           ${solicitud.notas ? `<p class="text-xs text-[#566B78] mt-1">Notas: ${escapeHtml(solicitud.notas)}</p>` : ""}
         </div>
@@ -140,6 +145,23 @@ async function marcarEntregado(solicitud, rowElement) {
   }
   await updateDoc(doc(db, "prestamoSolicitudes", solicitud.id), updates);
   await Promise.all([loadInventory(), loadSolicitudes()]);
+  renderLoanAdmin();
+}
+
+// Aprobar avisa a la persona que puede recoger el bien durante 1 semana. El correo lo envía la Cloud Function
+// notifyLoanApproved al detectar el cambio de estado (si el contacto es un correo); el bien no se reserva hasta entregarlo.
+async function aprobarSolicitud(solicitud) {
+  const limite = new Date();
+  limite.setDate(limite.getDate() + 7);
+  const mensaje = `Se avisará a ${solicitud.solicitanteNombre} que su préstamo fue aceptado y que tiene 1 semana para recogerlo. ¿Continuar?`;
+  if (!confirm(mensaje)) return;
+  await updateDoc(doc(db, "prestamoSolicitudes", solicitud.id), {
+    estado: "aprobada",
+    fechaAprobacion: serverTimestamp(),
+    fechaLimiteRecogida: limite.toLocaleDateString("en-CA"),
+    atendidoPor: auth.currentUser?.email || ""
+  });
+  await loadSolicitudes();
   renderLoanAdmin();
 }
 
@@ -186,6 +208,7 @@ document.querySelector("#loan-admin-list").addEventListener("click", async event
   const row = button.closest("[data-row-id]");
   button.disabled = true;
   try {
+    if (button.dataset.action === "aprobar") await aprobarSolicitud(solicitud);
     if (button.dataset.action === "entregar") await marcarEntregado(solicitud, row);
     if (button.dataset.action === "devolver") await marcarDevuelto(solicitud);
     if (button.dataset.action === "rechazar") await rechazarSolicitud(solicitud);
