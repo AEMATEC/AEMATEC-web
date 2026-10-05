@@ -2353,7 +2353,8 @@ if (!FC_BOT[FC.botLvl]) FC.botLvl = 1;
 { // asientos del modo local: 'h' humano, 'b' bot, '-' vacío (a = equipo azul, b = naranja, f = todos contra todos)
   const L = FC.lseats && typeof FC.lseats === 'object' ? FC.lseats : {}, ok = (v, e) => v === 'h' || v === 'b' || (e && v === '-');
   const arr = (a, n, e, d) => [...Array(n)].map((_, i) => Array.isArray(a) && ok(a[i], e && i > 0) ? a[i] : d[i]);
-  FC.lseats = { a: arr(L.a, 2, true, ['h', '-']), b: arr(L.b, 2, true, ['b', '-']), f: arr(L.f, 4, false, ['h', 'b', 'b', 'b']) };
+  FC.lseats = { a: arr(L.a, 2, true, ['h', '-']), b: arr(L.b, 2, true, ['b', '-']), f: arr(L.f, 4, false, ['h', 'b', 'b', 'b']),
+    tf: [0, 1, 2, 3].map(i => Array.isArray(L.tf) && L.tf[i] >= 0 && L.tf[i] <= 3 ? L.tf[i] | 0 : i) }; // tf: equipo elegido por asiento en TODOS VS TODOS
   FC.lseats.a[0] = 'h'; FC.lseats.f[0] = 'h';
 }
 const fcv = $('#fc-cv'), fx = fcv.getContext('2d');
@@ -2546,6 +2547,11 @@ function fcSeatsRender() {
         fcSetupRender();
       };
       d.appendChild(btn);
+      if (key === 'f') { // equipo de este asiento (solo local): mismo color = aliados
+        const tb = document.createElement('button'), t = L.tf[i]; tb.className = 'btn'; tb.style.color = TEAMC[t]; tb.textContent = 'EQ. ' + TEAMN[t];
+        tb.onclick = () => { SFX.play('click'); L.tf[i] = (t + 1) % 4; fcSetupRender(); };
+        d.appendChild(tb);
+      }
     }
     box.appendChild(d);
   };
@@ -2553,7 +2559,7 @@ function fcSeatsRender() {
   if (ffa) { row('TODOS VS TODOS', TEAMC[3], 'f', FC.ffaN); bots = L.f.slice(0, FC.ffaN).filter(v => v === 'b').length; }
   else { row('EQUIPO AZUL', TEAMC[0], 'a', 2); row('EQUIPO NARANJA', TEAMC[1], 'b', 2); bots = [...L.a, ...L.b].filter(v => v === 'b').length; }
   const na = L.a.filter(v => v !== '-').length, nb = L.b.filter(v => v !== '-').length;
-  $('#fc-seats-lbl').textContent = (ffa ? `${FC.ffaN} JUGADORES, 4 PERSONAJES C/U` : `PARTIDA LOCAL: ${na} VS ${nb} (4 PERSONAJES POR EQUIPO)`) + (bots ? ` · ${bots} BOT${bots > 1 ? 'S' : ''}` : '');
+  $('#fc-seats-lbl').textContent = (ffa ? `${FC.ffaN} JUGADORES, 4 PERSONAJES C/U · TOCA EQ. PARA ELEGIR EQUIPO (IGUAL COLOR = ALIADOS)` : `PARTIDA LOCAL: ${na} VS ${nb} (4 PERSONAJES POR EQUIPO)`) + (bots ? ` · ${bots} BOT${bots > 1 ? 'S' : ''}` : '');
   $('#fc-bot-sec').hidden = online || !bots;
   pickRow($('#fc-bot'), FC_BOT.map((b, i) => ({ html: `${b.n}<br><small>FALLA ~${Math.round(b.miss * 100)}%${i === 2 ? ' · SUMA AL TOP' : ''}</small>` })), FC.botLvl, i => { SFX.play('click'); FC.botLvl = i; fcSetupRender(); });
 }
@@ -2608,6 +2614,7 @@ function fcUI() {
   fitSoon();
 }
 function fcStartLocal() {
+  if (FC.fmt === 'ffa' && new Set(FC.lseats.tf.slice(0, FC.ffaN)).size < 2) { fcMenuMsg('NECESITAS AL MENOS DOS EQUIPOS DISTINTOS: CAMBIA EL EQUIPO (EQ.) DE ALGÚN JUGADOR.', 'lose'); SFX.play('miss'); return; }
   fcLeaveOnline();
   FC.mode = 'local'; FC.me = 0; FC.sched = null;
   const L = FC.lseats; let hn = 0, bn = 0;
@@ -2615,8 +2622,8 @@ function fcStartLocal() {
     ? { name: 'BOT ' + (++bn), bot: true, lvl: FC.botLvl, team, per, zone, units: [] }
     : { name: hn++ === 0 ? playerName() : 'JUGADOR ' + hn, bot: false, team, per, zone, units: [] };
   if (FC.fmt === 'ffa') {
-    FC.seats = L.f.slice(0, FC.ffaN).map((v, i) => mk(i === 0 ? 'h' : v, i, 4, fcZone('ffa', i)));
-    FC.localLbl = 'FFA ' + FC.ffaN;
+    FC.seats = L.f.slice(0, FC.ffaN).map((v, i) => mk(i === 0 ? 'h' : v, L.tf[i], 4, fcZone('ffa', i)));
+    FC.localLbl = 'FFA ' + FC.ffaN + (new Set(L.tf.slice(0, FC.ffaN)).size < FC.ffaN ? ' EQUIPOS' : '');
   } else {
     // Cada equipo tiene 4 personajes: 1 jugador = 4, 2 jugadores = 2 cada uno. Asientos intercalados A, B, A, B.
     const A = L.a.filter(v => v !== '-'), B = L.b.filter(v => v !== '-'), ia = [], ib = [];
