@@ -739,7 +739,7 @@ nav .btn{padding:8px 12px}
           <div class="row left"><button class="btn green" id="bl-go">¡EMPEZAR!</button></div>
         </div>
         <div id="bl-game" hidden>
-          <div class="fc-bar"><span id="bl-turn"></span><span id="bl-spec-badge" class="badge" hidden>👁 ESPECTADOR</span></div>
+          <div class="fc-bar"><span id="bl-turn"></span><span id="bl-clock"></span><span id="bl-spec-badge" class="badge" hidden>👁 ESPECTADOR</span></div>
           <div class="stage">
             <canvas id="bl-cv" width="440" height="240" role="img" aria-label="Mesa de Billar"></canvas>
             <div class="over" id="bl-over" hidden>
@@ -3966,6 +3966,40 @@ $('#bl-shoot').addEventListener('click', () => {
   blShoot(Math.atan2(dy, dx), Math.max(60, BL.power * BL_MAXV));
 });
 
+/* ---- reloj de turno ----
+   30 s: alcanza para apuntar, ajustar la fuerza y tocar GOLPEAR en el celular (sin ser un examen), y es
+   corto para que un rival en línea que se queda pensando no trabe la mesa. Mismo patrón que Combate de
+   Funciones: cada cliente calcula su fecha límite al ver que empieza el turno (no hay campos nuevos en
+   Firestore) y solo quien tiene el turno ejecuta la acción. Se acabó el tiempo = falta: pierde el turno y el
+   rival recibe bola en mano (igual que las otras faltas de blShotDone). Si se acabó mientras COLOCABA la
+   blanca, se coloca sola (blAutoPlaceCue) y sigue su turno con reloj nuevo. El reloj se detiene mientras
+   las bolas ruedan (tirada propia o del rival: d.shooting) y no corre en el turno de la CPU. */
+const BL_TURN_S = 30, blClockEl = $('#bl-clock');
+function blClock(now) {
+  const online = BL.mode === 'online', rd = BL.roomData;
+  const on = BL.mode && !$('#bl-game').hidden && $('#bl-over').hidden && !BL.shotActive
+    && !(online && (BL.phase !== 'play' || (rd && rd.shooting))) && !(BL.mode === 'cpu' && (BL.placing ?? BL.turn) === 1);
+  if (!on) { BL._tKey = null; if (blClockEl.textContent) blClockEl.textContent = ''; return; }
+  const key = BL.turn + '|' + BL.placing;
+  if (key !== BL._tKey) { BL._tKey = key; BL.tEnd = now + BL_TURN_S * 1000; }
+  const left = Math.max(0, Math.ceil((BL.tEnd - now) / 1000));
+  const txt = `⏱ ${left}s`;
+  if (blClockEl.textContent !== txt) { blClockEl.textContent = txt; blClockEl.style.color = left <= 5 ? 'var(--orange)' : ''; }
+  if (left > 0 || BL.spectating) return;
+  const mine = BL.placing != null ? (!online || BL.placing === BL.me) : blCanAct();
+  if (!mine) return; // en línea el rival (o espectadores) esperan: solo quien tiene el turno escribe
+  BL._tKey = null; BL.aimPointer = null; BL.dragging = false;
+  SFX.play('miss');
+  if (BL.placing != null) {
+    blAutoPlaceCue(BL.balls); BL.placing = null; blUI(); blDraw();
+    if (online) fs.updateDoc(fs.doc(db, 'pool', BL.room), { balls: blBallsOut(), placing: null }).catch(console.error);
+    return;
+  }
+  blMsg('SE ACABÓ EL TIEMPO: BOLA EN MANO PARA EL RIVAL', 'lose');
+  BL.turn = 1 - BL.turn; BL.placing = BL.turn;
+  blAfterShotSync();
+}
+
 /* ---- disparo y resolución ---- */
 function blShoot(angle, power) {
   const cue = BL.balls.find(b => b.num === 0);
@@ -4057,7 +4091,7 @@ function blToMenu() {
   clearTimeout(BL.cpuTimer);
   if (BL.mode === 'online') blLeaveOnline();
   BL.mode = null; BL.phase = 'menu'; BL.shotActive = false; BL.dragging = false; BL.aimPointer = null; BL.placing = null; BL.spectating = false;
-  BL._forfeitSent = false; BL._overShown = false;
+  BL._forfeitSent = false; BL._overShown = false; BL._uiKey = null;
   blView('menu'); blSetupRender();
 }
 /* ---- mesa online ---- */
@@ -4092,7 +4126,7 @@ function blSyncOnline(d) {
   BL.names = [d.p1 ? d.p1.name : '', d.p2 ? d.p2.name : ''];
   BL.variant = d.variant || BL.variant;
   if (d.state === 'lobby') {
-    BL._forfeitSent = false; BL._overShown = false; BL.submitted = false;
+    BL._forfeitSent = false; BL._overShown = false; BL.submitted = false; BL._uiKey = null;
     if (BL.phase !== 'lobby') { BL.phase = 'lobby'; blView('lobby'); blSetupRender(); }
     blLobbyRender(d); return;
   }
@@ -4104,7 +4138,12 @@ function blSyncOnline(d) {
   BL.placing = d.placing == null ? null : (d.placing === 'p1' ? 0 : 1);
   if (!BL.shotActive) BL.balls = (d.balls || []).map(b => ({ ...b, vx: 0, vy: 0 }));
   $('#bl-spec-badge').hidden = !BL.spectating;
-  blUI(); blDraw();
+  // Antes esto reconstruía el texto del turno (innerHTML + fitSoon -> medir el layout) y repintaba en CADA
+  // snapshot (~9/s mientras el rival tira, por las posiciones de las bolas). blDraw ya corre cada fotograma
+  // en loop(), y blUI solo cambia si cambia turno/grupos/colocación/bolas metidas.
+  const uiKey = [d.state, d.turn, d.placing, d.openTable, d.groups && d.groups.p1, d.groups && d.groups.p2, BL.spectating, BL.me, BL.names.join('|'),
+    (d.balls || []).reduce((n, b) => n + (b.potted ? 1 : 0), 0)].join();
+  if (uiKey !== BL._uiKey) { BL._uiKey = uiKey; blUI(); }
   if (d.state === 'over') { if (!BL._overShown) { BL._overShown = true; blApplyRemoteOver(d); } }
   else {
     BL._overShown = false;
@@ -6605,6 +6644,7 @@ function loop(now) {
   if (FC.img && (tab === 'funciones' || FC.mode === 'online')) { fcUpdate(dt, now); if (tab === 'funciones') fcDraw(now); }
   if (BL.shotActive) blUpdate(dt);
   if (tab === 'billar') blDraw();
+  if (tab === 'billar' || BL.mode === 'online') blClock(now);
   if (tab === 'duelo') dlDraw();
   if (tab === 'runner') { if (RN.state === 'playing' || RN.state === 'transition') rnStep(dt); rnDraw(); }
   if (tab === 'golf') { gfTick(dt); gfDraw(); }
