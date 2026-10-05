@@ -18,7 +18,7 @@ async function borrarVencidos(db, ahora = new Date()) {
   const prestamos = [
     ...await docs("prestamoSolicitudes", "fechaDevolucion", PLAZOS_DIAS.prestamos),
     ...await docs("prestamoSolicitudes", "fechaResolucion", PLAZOS_DIAS.prestamos),
-    ...(await docs("prestamoSolicitudes", "createdAt", PLAZOS_DIAS.prestamos)).filter(d => d.get("estado") === "pendiente")
+    ...(await docs("prestamoSolicitudes", "createdAt", PLAZOS_DIAS.prestamos)).filter(d => ["pendiente", "aprobada"].includes(d.get("estado")))
   ];
   await Promise.all(prestamos.map(d => d.ref.delete()));
   borrados.prestamos = prestamos.length;

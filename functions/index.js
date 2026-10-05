@@ -1,4 +1,4 @@
-const { onDocumentCreated } = require("firebase-functions/v2/firestore");
+const { onDocumentCreated, onDocumentUpdated } = require("firebase-functions/v2/firestore");
 const { onSchedule } = require("firebase-functions/v2/scheduler");
 const logger = require("firebase-functions/logger");
 const admin = require("firebase-admin");
@@ -63,7 +63,33 @@ exports.notifyLoanRequest = onDocumentCreated(
   }
 );
 
-exports.notifyProblemReport = onDocumentCreated(
+// Cuando la Junta aprueba una solicitud, avisa a la persona que puede recoger el bien en 1 semana.
+// El contacto es texto libre (correo o teléfono): si no hay un correo, deja avisoCorreo=false para que la Junta avise por teléfono.
+exports.notifyLoanApproved = onDocumentUpdated(
+  { document: "prestamoSolicitudes/{solicitudId}", secrets: [gmailAppPassword] },
+  async event => {
+    const antes = event.data?.before.data();
+    const despues = event.data?.after.data();
+    if (!despues || despues.estado !== "aprobada" || antes?.estado === "aprobada") return;
+    const correo = String(despues.solicitanteContacto || "").match(/[^\s@,;<>]+@[^\s@,;<>]+\.[^\s@,;<>]+/)?.[0];
+    if (!correo) {
+      await event.data.after.ref.update({ avisoCorreo: false });
+      return;
+    }
+    await sendEmail(
+      "Tu préstamo fue aceptado — AEMATEC",
+      `<p>Hola, ${escapeHtml(despues.solicitanteNombre)}:</p>
+       <p>Tu solicitud de préstamo de <strong>${escapeHtml(despues.itemNombre)}</strong> fue aceptada.</p>
+       <p>Puedes pasar a recogerlo en un plazo de <strong>1 semana</strong>${despues.fechaLimiteRecogida ? ` (hasta el ${escapeHtml(despues.fechaLimiteRecogida)})` : ""}.
+       Si no puedes, escríbenos a ${escapeHtml("aematec@estudiantec.cr")} para coordinar.</p>`,
+      [correo]
+    );
+    await event.data.after.ref.update({ avisoCorreo: true });
+    logger.info("Aviso de préstamo aprobado enviado", { solicitudId: event.params.solicitudId });
+  }
+);
+
+exports.notifyProblemReport =onDocumentCreated(
   { document: "chatbotReportes/{reporteId}", secrets: [gmailAppPassword] },
   async event => {
     const reporte = event.data?.data();
