@@ -245,6 +245,8 @@ nav .btn{padding:8px 12px}
 .bj-seat{background:rgba(0,0,0,.28);padding:8px;text-align:center;min-height:100px}
 .bj-seat.me{box-shadow:inset 0 0 0 2px var(--yellow)}
 .bj-seat.turn{box-shadow:inset 0 0 0 2px var(--lime)}
+.bj-seat.turn .bj-card{animation:bjglow 1s steps(2,end) infinite}
+@keyframes bjglow{0%{box-shadow:0 -2px 0 0 var(--lime),0 2px 0 0 var(--lime),-2px 0 0 0 var(--lime),2px 0 0 0 var(--lime),0 0 10px 3px var(--lime)}50%{box-shadow:0 -2px 0 0 var(--dark),0 2px 0 0 var(--dark),-2px 0 0 0 var(--dark),2px 0 0 0 var(--dark),0 0 4px 1px var(--lime)}}
 .bj-seat.empty{opacity:.35}
 .bj-name{font-size:10px;color:var(--mute);margin-bottom:4px;min-height:1.4em}
 .bj-name b{color:var(--ink)}
@@ -402,6 +404,7 @@ nav .btn{padding:8px 12px}
           <button class="btn green" id="bs-cpu">VS CPU</button>
           <button class="btn" id="bs-create">CREAR SALA ONLINE</button>
         </div>
+        <div class="rc-sec" id="bs-lvl-sec"><h4>DIFICULTAD VS CPU</h4><div class="pick" id="bs-lvl"></div></div>
         <div class="row left" style="margin-top:6px">
           <input id="bs-code" class="px-in" placeholder="CÓDIGO" maxlength="5">
           <button class="btn orange" id="bs-join">UNIRSE A SALA</button>
@@ -736,7 +739,7 @@ nav .btn{padding:8px 12px}
           <div class="row left"><button class="btn green" id="bl-go">¡EMPEZAR!</button></div>
         </div>
         <div id="bl-game" hidden>
-          <div class="fc-bar"><span id="bl-turn"></span><span id="bl-spec-badge" class="badge" hidden>👁 ESPECTADOR</span></div>
+          <div class="fc-bar"><span id="bl-turn"></span><span id="bl-clock"></span><span id="bl-spec-badge" class="badge" hidden>👁 ESPECTADOR</span></div>
           <div class="stage">
             <canvas id="bl-cv" width="440" height="240" role="img" aria-label="Mesa de Billar"></canvas>
             <div class="over" id="bl-over" hidden>
@@ -773,6 +776,7 @@ nav .btn{padding:8px 12px}
       <div class="gbody" hidden>
         <div id="dl-menu">
           <h4>¿CÓMO QUIERES JUGAR?</h4>
+          <div class="pick" id="dl-bot"></div>
           <div class="row left"><button class="btn green" id="dl-cpu">VS CPU (VAQUERO ROBOT)</button></div>
           <div class="row left"><button class="btn" id="dl-local">2 JUGADORES (MISMO EQUIPO)</button></div>
           <div class="row left">
@@ -1140,7 +1144,8 @@ const SHIPS = [
   { n: 'PORTAAVIONES', l: 5 }, { n: 'ACORAZADO', l: 4 }, { n: 'CRUCERO', l: 3 },
   { n: 'SUBMARINO', l: 3 }, { n: 'DESTRUCTOR', l: 2 }
 ];
-const BS = { mode: null, phase: 'menu', me: null, room: null, unsub: null, placed: [], hor: true, hover: -1, cpuTargets: [], cpuTimer: null, submitted: false, hbStop: null, forfeitSent: false, spectating: false, specUnsub: null };
+const BS_LVLS = ['FÁCIL', 'MEDIO', 'DIFÍCIL'];
+const BS = { mode: null, phase: 'menu', me: null, room: null, unsub: null, placed: [], hor: true, hover: -1, lvl: store.get('pa_bs_lvl', 1), cpuTimer: null, submitted: false, hbStop: null, forfeitSent: false, spectating: false, specUnsub: null };
 const G = { myBoard: '', oppBoard: '', myShots: [], oppShots: [], myTurn: false, winner: null, oppName: '', oppJoined: false, oppReady: false, meReady: false, oppGone: false };
 
 function shipCells(start, len, hor) {
@@ -1199,10 +1204,13 @@ $('#bs-create').onclick = bsCreate;
 $('#bs-join').onclick = bsJoin;
 $('#bs-code').addEventListener('keydown', e => { if (e.key === 'Enter') bsJoin(); });
 
+if (![0, 1, 2].includes(BS.lvl)) BS.lvl = 1;
+function bsLvlRender() { pickRow($('#bs-lvl'), BS_LVLS.map(n => ({ html: n })), BS.lvl, i => { SFX.play('click'); BS.lvl = i; store.set('pa_bs_lvl', i); bsLvlRender(); }); }
+bsLvlRender();
 function bsMenuMsg(t, cls = '') { const m = $('#bs-menu-msg'); m.textContent = t; m.className = 'msg ' + cls; m.style.textAlign = 'left'; }
 function resetG() { Object.assign(G, { myBoard: '', oppBoard: '', myShots: [], oppShots: [], myTurn: false, winner: null, oppName: '', oppJoined: false, oppReady: false, meReady: false, oppGone: false }); }
 function bsStartPlacing() {
-  BS.placed = []; BS.hor = true; BS.phase = 'place'; BS.submitted = false; BS.cpuTargets = [];
+  BS.placed = []; BS.hor = true; BS.phase = 'place'; BS.submitted = false;
   resetG();
   $('#bs-menu').hidden = true; $('#bs-game').hidden = false;
   $('#bs-mine-title').textContent = 'TU FLOTA'; $('#bs-place').hidden = false; $('#bs-again').hidden = true;
@@ -1326,27 +1334,52 @@ async function bsFire(i) {
     } catch (e) { console.error(e); G.myTurn = true; bsRender(); }
   }
 }
+/* Dificultad del bot (0 FÁCIL, 1 MEDIO, 2 DIFÍCIL): FÁCIL solo dispara al azar; MEDIO caza en tablero
+   de ajedrez y, tras un acierto, remata (si ya hay 2 aciertos seguidos, solo sigue esa línea); DIFÍCIL
+   remata igual pero caza donde caben más posiciones de los barcos que aún flotan.
+   Sin estado: todo se deduce del tablero y los tiros, así un barco hundido deja de ser objetivo solo. */
+function cpuPick(board, shots, lvl) {
+  const shot = new Set(shots), sunk = sunkIds(board, shots), free = k => k >= 0 && k < 100 && !shot.has(k);
+  const all = []; for (let k = 0; k < 100; k++) if (free(k)) all.push(k);
+  const rnd = a => a[(Math.random() * a.length) | 0];
+  if (lvl === 0) return rnd(all);
+  const hits = new Set(shots.filter(k => board[k] !== '.' && !sunk.has(board[k])));
+  if (hits.size) {
+    const line = [], near = [];
+    const at = (x, y) => x >= 0 && x < 10 && y >= 0 && y < 10 ? y * 10 + x : -1; // -1 = fuera del tablero
+    hits.forEach(h => [[1, 0], [0, 1]].forEach(([dx, dy]) => {
+      const x = h % 10, y = (h / 10) | 0;
+      if (!hits.has(at(x + dx, y + dy))) return; // h y su vecino forman una línea
+      let n = 0; while (hits.has(at(x - n * dx, y - n * dy))) n++; // retrocede hasta el extremo
+      let m = 0; while (hits.has(at(x + m * dx, y + m * dy))) m++; // avanza hasta el otro
+      [at(x - n * dx, y - n * dy), at(x + m * dx, y + m * dy)].forEach(k => { if (k >= 0 && free(k)) line.push(k); });
+    }));
+    if (line.length) return rnd(line);
+    hits.forEach(h => [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(([dx, dy]) => {
+      const X = h % 10 + dx, Y = ((h / 10) | 0) + dy;
+      if (X >= 0 && X < 10 && Y >= 0 && Y < 10 && free(Y * 10 + X)) near.push(Y * 10 + X);
+    }));
+    if (near.length) return rnd(near);
+  }
+  if (lvl === 2) {
+    const w = Array(100).fill(0);
+    SHIPS.forEach((sh, id) => { if (sunk.has(String(id))) return;
+      for (let st = 0; st < 100; st++) [true, false].forEach(hor => {
+        const c = shipCells(st, sh.l, hor); if (c && c.every(free)) c.forEach(k => w[k]++);
+      });
+    });
+    const m = Math.max(...all.map(k => w[k]));
+    return rnd(all.filter(k => w[k] === m));
+  }
+  const par = all.filter(k => (k % 10 + ((k / 10) | 0)) % 2 === 0);
+  return rnd(par.length ? par : all);
+}
 function cpuShoot() {
   if (BS.mode !== 'cpu' || BS.phase !== 'play') return;
-  const shot = new Set(G.oppShots);
-  let i = null;
-  while (BS.cpuTargets.length) { const t = BS.cpuTargets.pop(); if (!shot.has(t)) { i = t; break; } }
-  if (i === null) {
-    let opts = [];
-    for (let k = 0; k < 100; k++) if (!shot.has(k) && ((k % 10 + ((k / 10) | 0)) % 2 === 0)) opts.push(k);
-    if (!opts.length) for (let k = 0; k < 100; k++) if (!shot.has(k)) opts.push(k);
-    i = opts[(Math.random() * opts.length) | 0];
-  }
+  const i = cpuPick(G.myBoard, G.oppShots, BS.lvl);
+  const hit = G.myBoard[i] !== '.';
   G.oppShots.push(i);
   shotSound(G.myBoard, G.oppShots);
-  const hit = G.myBoard[i] !== '.';
-  if (hit) {
-    const x = i % 10, y = (i / 10) | 0;
-    [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(([dx, dy]) => {
-      const X = x + dx, Y = y + dy;
-      if (X >= 0 && X < 10 && Y >= 0 && Y < 10 && !shot.has(Y * 10 + X)) BS.cpuTargets.push(Y * 10 + X);
-    });
-  }
   if (allSunk(G.myBoard, G.oppShots)) { G.winner = 'opp'; BS.phase = 'over'; setTimeout(() => SFX.play('lose'), 500); }
   else if (hit) BS.cpuTimer = setTimeout(cpuShoot, 650);
   else G.myTurn = true;
@@ -1362,7 +1395,9 @@ function bsWin() {
   if (BS.submitted) return;
   BS.submitted = true;
   setTimeout(() => SFX.play('win'), 500);
-  { const tiros = Math.max(17, G.myShots.length), modo = BS.mode === 'cpu' ? 'VS CPU' : 'ONLINE';
+  // VS CPU solo cuentan las victorias en DIFÍCIL (como Combate de Funciones); en línea cuenta siempre.
+  if (BS.mode === 'cpu' && BS.lvl !== 2) return;
+  { const tiros = Math.max(17, G.myShots.length), modo = BS.mode === 'cpu' ? 'VS CPU DIFÍCIL' : 'ONLINE';
     LB.confirmar(`¡GANASTE EN ${tiros} TIROS! ¿LO SUBES A LA TABLA?`, () => LB.submit('batalla', tiros, true, modo)).then(bsLB); }
 }
 function bsLB() {
@@ -1421,7 +1456,7 @@ function bsRender() {
   } else if (BS.phase === 'play') {
     bsStatus(G.myTurn ? '¡TU TURNO! DISPARA AL TABLERO ENEMIGO' : `TURNO DE ${G.oppName || 'RIVAL'}…`);
   } else if (BS.phase === 'over') {
-    if (G.winner === 'me') bsStatus(`¡VICTORIA${G.forfeitWin ? ' POR DESCONEXIÓN DEL RIVAL' : ` EN ${G.myShots.length} DISPAROS`}!`, 'big win');
+    if (G.winner === 'me') bsStatus(`¡VICTORIA${G.forfeitWin ? ' POR DESCONEXIÓN DEL RIVAL' : ` EN ${G.myShots.length} DISPAROS`}!${BS.mode === 'cpu' && BS.lvl !== 2 ? ' (FÁCIL O MEDIO NO SUMAN AL TOP 10)' : ''}`, 'big win');
     else bsStatus(`DERROTA… ${G.oppName} HUNDIÓ TU FLOTA`, 'big lose');
   }
   if (BS.mode === 'online' && G.oppGone && BS.phase !== 'over') {
@@ -2320,7 +2355,8 @@ if (!FC_BOT[FC.botLvl]) FC.botLvl = 1;
 { // asientos del modo local: 'h' humano, 'b' bot, '-' vacío (a = equipo azul, b = naranja, f = todos contra todos)
   const L = FC.lseats && typeof FC.lseats === 'object' ? FC.lseats : {}, ok = (v, e) => v === 'h' || v === 'b' || (e && v === '-');
   const arr = (a, n, e, d) => [...Array(n)].map((_, i) => Array.isArray(a) && ok(a[i], e && i > 0) ? a[i] : d[i]);
-  FC.lseats = { a: arr(L.a, 2, true, ['h', '-']), b: arr(L.b, 2, true, ['b', '-']), f: arr(L.f, 4, false, ['h', 'b', 'b', 'b']) };
+  FC.lseats = { a: arr(L.a, 2, true, ['h', '-']), b: arr(L.b, 2, true, ['b', '-']), f: arr(L.f, 4, false, ['h', 'b', 'b', 'b']),
+    tf: [0, 1, 2, 3].map(i => Array.isArray(L.tf) && L.tf[i] >= 0 && L.tf[i] <= 3 ? L.tf[i] | 0 : i) }; // tf: equipo elegido por asiento en TODOS VS TODOS
   FC.lseats.a[0] = 'h'; FC.lseats.f[0] = 'h';
 }
 const fcv = $('#fc-cv'), fx = fcv.getContext('2d');
@@ -2513,6 +2549,11 @@ function fcSeatsRender() {
         fcSetupRender();
       };
       d.appendChild(btn);
+      if (key === 'f') { // equipo de este asiento (solo local): mismo color = aliados
+        const tb = document.createElement('button'), t = L.tf[i]; tb.className = 'btn'; tb.style.color = TEAMC[t]; tb.textContent = 'EQ. ' + TEAMN[t];
+        tb.onclick = () => { SFX.play('click'); L.tf[i] = (t + 1) % 4; fcSetupRender(); };
+        d.appendChild(tb);
+      }
     }
     box.appendChild(d);
   };
@@ -2520,7 +2561,7 @@ function fcSeatsRender() {
   if (ffa) { row('TODOS VS TODOS', TEAMC[3], 'f', FC.ffaN); bots = L.f.slice(0, FC.ffaN).filter(v => v === 'b').length; }
   else { row('EQUIPO AZUL', TEAMC[0], 'a', 2); row('EQUIPO NARANJA', TEAMC[1], 'b', 2); bots = [...L.a, ...L.b].filter(v => v === 'b').length; }
   const na = L.a.filter(v => v !== '-').length, nb = L.b.filter(v => v !== '-').length;
-  $('#fc-seats-lbl').textContent = (ffa ? `${FC.ffaN} JUGADORES, 4 PERSONAJES C/U` : `PARTIDA LOCAL: ${na} VS ${nb} (4 PERSONAJES POR EQUIPO)`) + (bots ? ` · ${bots} BOT${bots > 1 ? 'S' : ''}` : '');
+  $('#fc-seats-lbl').textContent = (ffa ? `${FC.ffaN} JUGADORES, 4 PERSONAJES C/U · TOCA EQ. PARA ELEGIR EQUIPO (IGUAL COLOR = ALIADOS)` : `PARTIDA LOCAL: ${na} VS ${nb} (4 PERSONAJES POR EQUIPO)`) + (bots ? ` · ${bots} BOT${bots > 1 ? 'S' : ''}` : '');
   $('#fc-bot-sec').hidden = online || !bots;
   pickRow($('#fc-bot'), FC_BOT.map((b, i) => ({ html: `${b.n}<br><small>FALLA ~${Math.round(b.miss * 100)}%${i === 2 ? ' · SUMA AL TOP' : ''}</small>` })), FC.botLvl, i => { SFX.play('click'); FC.botLvl = i; fcSetupRender(); });
 }
@@ -2575,6 +2616,7 @@ function fcUI() {
   fitSoon();
 }
 function fcStartLocal() {
+  if (FC.fmt === 'ffa' && new Set(FC.lseats.tf.slice(0, FC.ffaN)).size < 2) { fcMenuMsg('NECESITAS AL MENOS DOS EQUIPOS DISTINTOS: CAMBIA EL EQUIPO (EQ.) DE ALGÚN JUGADOR.', 'lose'); SFX.play('miss'); return; }
   fcLeaveOnline();
   FC.mode = 'local'; FC.me = 0; FC.sched = null;
   const L = FC.lseats; let hn = 0, bn = 0;
@@ -2582,8 +2624,8 @@ function fcStartLocal() {
     ? { name: 'BOT ' + (++bn), bot: true, lvl: FC.botLvl, team, per, zone, units: [] }
     : { name: hn++ === 0 ? playerName() : 'JUGADOR ' + hn, bot: false, team, per, zone, units: [] };
   if (FC.fmt === 'ffa') {
-    FC.seats = L.f.slice(0, FC.ffaN).map((v, i) => mk(i === 0 ? 'h' : v, i, 4, fcZone('ffa', i)));
-    FC.localLbl = 'FFA ' + FC.ffaN;
+    FC.seats = L.f.slice(0, FC.ffaN).map((v, i) => mk(i === 0 ? 'h' : v, L.tf[i], 4, fcZone('ffa', i)));
+    FC.localLbl = 'FFA ' + FC.ffaN + (new Set(L.tf.slice(0, FC.ffaN)).size < FC.ffaN ? ' EQUIPOS' : '');
   } else {
     // Cada equipo tiene 4 personajes: 1 jugador = 4, 2 jugadores = 2 cada uno. Asientos intercalados A, B, A, B.
     const A = L.a.filter(v => v !== '-'), B = L.b.filter(v => v !== '-'), ia = [], ib = [];
@@ -3266,9 +3308,9 @@ function bjCardEl(card, hidden) {
   d.innerHTML = `<span>${rank}${info.sym}</span><span class="br">${rank}${info.sym}</span>`;
   return d;
 }
-function bjHandEl(handEl, hand, hideLast) {
+function bjHandEl(handEl, hand, hideLast, hideFirst) {
   handEl.innerHTML = '';
-  hand.forEach((c, i) => handEl.appendChild(bjCardEl(c, hideLast && i === hand.length - 1)));
+  hand.forEach((c, i) => handEl.appendChild(bjCardEl(c, (hideLast && i === hand.length - 1) || (hideFirst && i === 0))));
 }
 function bjMsg(t, cls = '') { const m = $('#bj-msg'); m.textContent = t; m.className = 'msg ' + cls; }
 function bjMenuMsg(t, cls = '') { const m = $('#bj-menu-msg'); m.textContent = t; m.className = 'msg ' + cls; m.style.textAlign = 'left'; }
@@ -3468,12 +3510,15 @@ function bjRenderOnline() {
     seat.className = 'bj-seat' + (uid === UID ? ' me' : '') + (uid === turnUid ? ' turn' : '');
     seat.innerHTML = `<div class="bj-name"><b>${esc(p.name)}</b>${uid === UID ? ' (TÚ)' : ''}${gone ? ' <span class="discon">⚠</span>' : ''}</div>`;
     const cardsEl = document.createElement('div'); cardsEl.className = 'bj-cards';
-    bjHandEl(cardsEl, hand, false);
+    // primera carta de los demás oculta hasta que termina la mano (state 'over'); solo es visual, los datos siguen en Firestore
+    const hideFirst = uid !== UID && d.state === 'play';
+    bjHandEl(cardsEl, hand, false, hideFirst);
     seat.appendChild(cardsEl);
-    const val = document.createElement('div'); val.className = 'bj-val'; val.textContent = (hand.length && BJ.showValue) ? 'VALOR: ' + bjHandValue(hand) : '';
+    const val = document.createElement('div'); val.className = 'bj-val'; val.textContent = (hand.length && BJ.showValue && !hideFirst) ? 'VALOR: ' + bjHandValue(hand) : '';
     seat.appendChild(val);
-    const statusTxt = { waiting: 'ESPERA LA PRÓXIMA MANO', playing: '', stand: 'PLANTADO', bust: 'SE PASÓ', blackjack: '¡21!' }[status] || '';
-    const st = document.createElement('div'); st.className = 'bj-status' + (status === 'bust' ? ' bust' : status === 'blackjack' ? ' bjk' : '');
+    // '¡21!' de otro jugador delataría su mano oculta: se muestra como plantado hasta el final
+    const statusTxt = { waiting: 'ESPERA LA PRÓXIMA MANO', playing: '', stand: 'PLANTADO', bust: 'SE PASÓ', blackjack: hideFirst ? 'PLANTADO' : '¡21!' }[status] || '';
+    const st = document.createElement('div'); st.className = 'bj-status' + (status === 'bust' ? ' bust' : status === 'blackjack' && !hideFirst ? ' bjk' : '');
     st.textContent = statusTxt + (gone ? ' · DESCONECTADO' : ''); seat.appendChild(st);
     seats.appendChild(seat);
   });
@@ -3930,6 +3975,40 @@ $('#bl-shoot').addEventListener('click', () => {
   blShoot(Math.atan2(dy, dx), Math.max(60, BL.power * BL_MAXV));
 });
 
+/* ---- reloj de turno ----
+   30 s: alcanza para apuntar, ajustar la fuerza y tocar GOLPEAR en el celular (sin ser un examen), y es
+   corto para que un rival en línea que se queda pensando no trabe la mesa. Mismo patrón que Combate de
+   Funciones: cada cliente calcula su fecha límite al ver que empieza el turno (no hay campos nuevos en
+   Firestore) y solo quien tiene el turno ejecuta la acción. Se acabó el tiempo = falta: pierde el turno y el
+   rival recibe bola en mano (igual que las otras faltas de blShotDone). Si se acabó mientras COLOCABA la
+   blanca, se coloca sola (blAutoPlaceCue) y sigue su turno con reloj nuevo. El reloj se detiene mientras
+   las bolas ruedan (tirada propia o del rival: d.shooting) y no corre en el turno de la CPU. */
+const BL_TURN_S = 30, blClockEl = $('#bl-clock');
+function blClock(now) {
+  const online = BL.mode === 'online', rd = BL.roomData;
+  const on = BL.mode && !$('#bl-game').hidden && $('#bl-over').hidden && !BL.shotActive
+    && !(online && (BL.phase !== 'play' || (rd && rd.shooting))) && !(BL.mode === 'cpu' && (BL.placing ?? BL.turn) === 1);
+  if (!on) { BL._tKey = null; if (blClockEl.textContent) blClockEl.textContent = ''; return; }
+  const key = BL.turn + '|' + BL.placing;
+  if (key !== BL._tKey) { BL._tKey = key; BL.tEnd = now + BL_TURN_S * 1000; }
+  const left = Math.max(0, Math.ceil((BL.tEnd - now) / 1000));
+  const txt = `⏱ ${left}s`;
+  if (blClockEl.textContent !== txt) { blClockEl.textContent = txt; blClockEl.style.color = left <= 5 ? 'var(--orange)' : ''; }
+  if (left > 0 || BL.spectating) return;
+  const mine = BL.placing != null ? (!online || BL.placing === BL.me) : blCanAct();
+  if (!mine) return; // en línea el rival (o espectadores) esperan: solo quien tiene el turno escribe
+  BL._tKey = null; BL.aimPointer = null; BL.dragging = false;
+  SFX.play('miss');
+  if (BL.placing != null) {
+    blAutoPlaceCue(BL.balls); BL.placing = null; blUI(); blDraw();
+    if (online) fs.updateDoc(fs.doc(db, 'pool', BL.room), { balls: blBallsOut(), placing: null }).catch(console.error);
+    return;
+  }
+  blMsg('SE ACABÓ EL TIEMPO: BOLA EN MANO PARA EL RIVAL', 'lose');
+  BL.turn = 1 - BL.turn; BL.placing = BL.turn;
+  blAfterShotSync();
+}
+
 /* ---- disparo y resolución ---- */
 function blShoot(angle, power) {
   const cue = BL.balls.find(b => b.num === 0);
@@ -4021,7 +4100,7 @@ function blToMenu() {
   clearTimeout(BL.cpuTimer);
   if (BL.mode === 'online') blLeaveOnline();
   BL.mode = null; BL.phase = 'menu'; BL.shotActive = false; BL.dragging = false; BL.aimPointer = null; BL.placing = null; BL.spectating = false;
-  BL._forfeitSent = false; BL._overShown = false;
+  BL._forfeitSent = false; BL._overShown = false; BL._uiKey = null;
   blView('menu'); blSetupRender();
 }
 /* ---- mesa online ---- */
@@ -4056,7 +4135,7 @@ function blSyncOnline(d) {
   BL.names = [d.p1 ? d.p1.name : '', d.p2 ? d.p2.name : ''];
   BL.variant = d.variant || BL.variant;
   if (d.state === 'lobby') {
-    BL._forfeitSent = false; BL._overShown = false; BL.submitted = false;
+    BL._forfeitSent = false; BL._overShown = false; BL.submitted = false; BL._uiKey = null;
     if (BL.phase !== 'lobby') { BL.phase = 'lobby'; blView('lobby'); blSetupRender(); }
     blLobbyRender(d); return;
   }
@@ -4068,7 +4147,12 @@ function blSyncOnline(d) {
   BL.placing = d.placing == null ? null : (d.placing === 'p1' ? 0 : 1);
   if (!BL.shotActive) BL.balls = (d.balls || []).map(b => ({ ...b, vx: 0, vy: 0 }));
   $('#bl-spec-badge').hidden = !BL.spectating;
-  blUI(); blDraw();
+  // Antes esto reconstruía el texto del turno (innerHTML + fitSoon -> medir el layout) y repintaba en CADA
+  // snapshot (~9/s mientras el rival tira, por las posiciones de las bolas). blDraw ya corre cada fotograma
+  // en loop(), y blUI solo cambia si cambia turno/grupos/colocación/bolas metidas.
+  const uiKey = [d.state, d.turn, d.placing, d.openTable, d.groups && d.groups.p1, d.groups && d.groups.p2, BL.spectating, BL.me, BL.names.join('|'),
+    (d.balls || []).reduce((n, b) => n + (b.potted ? 1 : 0), 0)].join();
+  if (uiKey !== BL._uiKey) { BL._uiKey = uiKey; blUI(); }
   if (d.state === 'over') { if (!BL._overShown) { BL._overShown = true; blApplyRemoteOver(d); } }
   else {
     BL._overShown = false;
@@ -4192,7 +4276,12 @@ blSetupRender(); blLB(); blView('menu');
      valores fuera de [DL_RT_MIN, DL_RT_MAX] (menos de 80 ms no es humano).
    ============================================================ */
 const DL_COUNT_STEP = 700, DL_MIN_WAIT = 1000, DL_MAX_WAIT = 3500;
-const DL_CPU_MIN = 220, DL_CPU_MAX = 520, DL_WINS_TO_TAKE = 2;
+// Retraso del CPU tras el "¡YA!" según dificultad. MEDIO = 220..520 ms (como siempre). FÁCIL (450..800) queda
+// por encima del reflejo típico humano (~250 ms) y DIFÍCIL (150..280) lo iguala o lo supera, sin bajar de DL_RT_MIN.
+const DL_BOT = [{ n: 'FÁCIL', min: 450, max: 800 }, { n: 'MEDIO', min: 220, max: 520 }, { n: 'DIFÍCIL', min: 150, max: 280 }];
+let dlBotLvl = store.get('pa_dl_bot', 1);
+if (!DL_BOT[dlBotLvl]) dlBotLvl = 1;
+const DL_WINS_TO_TAKE = 2;
 const DL_RT_MIN = 80, DL_RT_MAX = 5000, DL_SCALE = 3;
 const DL = {
   mode: null, room: null, me: null, isHost: false, unsub: null, hbStop: null, roomData: null,
@@ -4431,7 +4520,7 @@ function dlBeginCountdown(seq, startAt, yaAt) {
   dlSchedule(() => dlTick(seq, 1), startAt + DL_COUNT_STEP * 2 - now);
   dlSchedule(() => dlShowGo(seq), yaAt - now);
   if (DL.mode === 'cpu') {
-    const cpuDelay = DL_CPU_MIN + Math.random() * (DL_CPU_MAX - DL_CPU_MIN);
+    const B = DL_BOT[dlBotLvl], cpuDelay = B.min + Math.random() * (B.max - B.min);
     dlSchedule(() => dlCpuFire(seq), (yaAt - now) + cpuDelay);
   }
 }
@@ -4463,7 +4552,9 @@ function dlMatchOver(id) {
   $('#dl-over-t').textContent = `¡${winner} GANA EL DUELO!`;
   $('#dl-over-p').textContent = `${DL.wins.A} - ${DL.wins.B}`;
   $('#dl-over').hidden = false; $('#dl-fire').hidden = true; $('#dl-fire2').hidden = true;
-  if (DL.mode === 'cpu' && id === 'A') {
+  // Solo cuentan las victorias VS CPU en DIFÍCIL, como en Combate de Funciones.
+  if (DL.mode === 'cpu' && id === 'A' && dlBotLvl !== 2) $('#dl-over-p').textContent += ' · LAS VICTORIAS VS CPU FÁCIL O MEDIO NO SUMAN AL TOP 10.';
+  else if (DL.mode === 'cpu' && id === 'A') {
     LB.confirmar('¡GANASTE EL DUELO! ¿SUMAS ESTA VICTORIA A LA TABLA?', () => LB.increment('duelo'))
       .then(() => { if (DL.lbKey === 'duelo') dlRenderLB(); });
   }
@@ -4496,7 +4587,7 @@ function dlRecordReaction(rt) {
   // Ya no se sube sola cada ronda: se pregunta una sola vez en dlMatchOver() al terminar el duelo.
 }
 const DL_LB_CFG = {
-  duelo: { asc: false, sub: 'DUELOS GANADOS VS CPU', fmt: r => `${Number(r.score) || 0}` },
+  duelo: { asc: false, sub: 'DUELOS GANADOS VS CPU EN DIFÍCIL', fmt: r => `${Number(r.score) || 0}` },
   duelo_reaccion: { asc: true, sub: 'MEJOR TIEMPO DE REACCIÓN (VS CPU Y EN LÍNEA). MENOS ES MEJOR.', fmt: r => `${Number(r.score) || 0} MS` }
 };
 function dlDate(r) {
@@ -4704,6 +4795,10 @@ function dlAgain() {
   if (DL.mode === 'cpu' || DL.mode === 'local') { DL.wins = { A: 0, B: 0 }; dlShow('game'); dlStartRound(); }
   else if (DL.mode === 'online' && DL.isHost) dlGo();
 }
+function dlBotRender() {
+  pickRow($('#dl-bot'), DL_BOT.map(b => ({ html: b.n })), dlBotLvl, i => { SFX.play('click'); dlBotLvl = i; store.set('pa_dl_bot', i); dlBotRender(); });
+}
+dlBotRender();
 $('#dl-cpu').onclick = () => { SFX.play('start'); dlCpu(); };
 $('#dl-local').onclick = () => { SFX.play('click'); dlLocalSetup(); };
 $('#dl-local-go').onclick = () => { SFX.play('start'); dlLocalStart(); };
@@ -4737,7 +4832,7 @@ $("#rn-exit").onclick = () => goTab("menu");
 const GF_CVW = 480, GF_CVH = 300, GF_MARGIN = 20;
 const GF_R = 6, GF_HOLE_R = 10;
 const GF_FRICTION = 210, GF_SAND_FRICTION = 950, GF_ICE_FRICTION = 35, GF_REST = 0.7;
-const GF_MAXV = 620;
+const GF_MAXV = 620, GF_TURN_S = 30;
 const GF_STOP_V = 4, GF_SINK_MAXV = 260, GF_MAX_STROKES = 8;
 const GF_RAMP_MINV = 150, GF_RAMP_AIR_FRICTION = 15;
 const GF_BORDER_WALLS = [
@@ -4863,6 +4958,7 @@ function gfSimulateAll(simIn, hole) {
     }
     for (const u of uids) {
       if (events[u]) continue;
+      if (sim[u].airT > 0) continue; // en el aire por la rampa: igual que en solo (gfStep), no cae al agua ni se hunde
       if (gfInZone(sim[u], hole.water)) { events[u] = 'water'; sim[u].vx = 0; sim[u].vy = 0; continue; }
       const dHole = Math.hypot(sim[u].x - hole.hole.x, sim[u].y - hole.hole.y);
       if (dHole < GF_HOLE_R && Math.hypot(sim[u].vx, sim[u].vy) < GF_SINK_MAXV) { events[u] = 'sunk'; sim[u].vx = 0; sim[u].vy = 0; }
@@ -4942,8 +5038,19 @@ function gfTick(dt) {
       GF.replay.acc += dt;
       const stepDur = 1 / 60, len = Math.max(0, ...Object.values(GF.replay.paths).map(p => p.length));
       while (GF.replay.acc >= stepDur && GF.replay.i < len - 1) { GF.replay.i++; GF.replay.acc -= stepDur; }
-      if (GF.replay.i >= len - 1) GF.replay = null;
+      if (GF.replay.i >= len - 1) {
+        if (Object.values(GF.replay.events || {}).includes('water')) { SFX.play('miss'); GF.popup = { txt: '¡AL AGUA! +1 GOLPE', life: 1.2 }; }
+        GF.replay = null;
+      }
     }
+    // Límite por turno: cada cliente calcula su plazo al ver empezar el turno (como FC.tEnd en Combate, sin campos nuevos).
+    // 30 s alcanzan para apuntar y dar fuerza; si se acaba, el jugador activo "golpea" con fuerza 0: cuenta como golpe y pasa el turno.
+    const d = GF.roomData;
+    if (d && d.state === 'play' && d.order && !GF.replay) {
+      const key = d.holeIdx + ':' + d.turnIdx + ':' + ((d.lastShot && d.lastShot.seq) || 0), now = performance.now();
+      if (key !== GF.tKey) { GF.tKey = key; GF.tEnd = now + GF_TURN_S * 1000; }
+      if (now >= GF.tEnd && !GF.spectating && d.order[d.turnIdx] === UID) { GF.tEnd = Infinity; GF.aimPointer = null; gfOnlineShoot(0, 0); }
+    } else { GF.tEnd = null; GF.tKey = null; }
     return;
   }
   if (GF.state === 'rolling') gfUpdate(dt);
@@ -4967,14 +5074,12 @@ function gfDrawObstacle(ctx, w, theme) {
       pxCircle(ctx, cx, topY - 8, w.w * 0.85, '#2f8f4e'); pxCircle(ctx, cx, topY - 8, w.w * 0.55, '#3fae5e');
       return;
     case 'desierto':
-      ctx.fillStyle = '#3d7a3d';
-      ctx.fillRect(w.x + w.w * 0.32, w.y, w.w * 0.36, w.h);
-      ctx.fillRect(w.x, w.y + w.h * 0.28, w.w * 0.34, w.h * 0.2);
-      ctx.fillRect(w.x + w.w * 0.66, w.y + w.h * 0.48, w.w * 0.34, w.h * 0.2);
+      ctx.fillStyle = '#3d7a3d'; ctx.fillRect(w.x, w.y, w.w, w.h); // todo el rectángulo: es lo que choca
+      ctx.fillStyle = '#2f6a2f'; ctx.fillRect(w.x, w.y + w.h * 0.28, w.w * 0.34, w.h * 0.2); ctx.fillRect(w.x + w.w * 0.66, w.y + w.h * 0.48, w.w * 0.34, w.h * 0.2);
       ctx.fillStyle = 'rgba(0,0,0,.2)'; ctx.fillRect(w.x + w.w * 0.32, w.y, 2, w.h);
       return;
     case 'playa':
-      ctx.fillStyle = '#8a6a3a'; ctx.fillRect(w.x + w.w * 0.36, w.y, w.w * 0.28, w.h);
+      ctx.fillStyle = '#8a6a3a'; ctx.fillRect(w.x, w.y, w.w, w.h);
       pxCircle(ctx, cx, topY - 6, w.w * 0.8, '#38b764'); pxCircle(ctx, cx, topY - 6, w.w * 0.5, '#4fd274');
       return;
     case 'nieve':
@@ -5086,7 +5191,7 @@ function gfDraw() {
     if (d) {
       $('#gf-status').textContent = `HOYO ${d.holeIdx + 1}/${GF_HOLES.length} · PAR ${hole.par}`;
       const turnUid = d.order && d.order[d.turnIdx], turnName = turnUid ? ((GF.roomPlayers[turnUid] || {}).name || '?') : '';
-      $('#gf-score').textContent = d.state === 'play' ? (turnUid === UID ? 'TU TURNO' : `TURNO DE ${esc(turnName)}`) : '';
+      $('#gf-score').textContent = d.state === 'play' ? (turnUid === UID ? 'TU TURNO' : `TURNO DE ${esc(turnName)}`) + (GF.tEnd && GF.tEnd < Infinity ? ` · ⏱ ${Math.max(0, Math.ceil((GF.tEnd - performance.now()) / 1000))}s` : '') : '';
     }
     gfSyncShootBtn();
     return;
@@ -5251,7 +5356,7 @@ function gfSync() {
   $('#gf-spec-badge').hidden = !GF.spectating;
   if (d.lastShot && d.lastShot.seq !== GF._lastSeq) {
     GF._lastSeq = d.lastShot.seq;
-    if (d.lastShot.uid !== UID) GF.replay = { paths: d.lastShot.paths, i: 0, acc: 0 };
+    if (d.lastShot.uid !== UID) GF.replay = { paths: d.lastShot.paths, events: d.lastShot.events, i: 0, acc: 0 };
   }
   if (d.state === 'over' && !GF.resultShown) { GF.resultShown = true; gfOnlineFinish(); }
   gfRenderPlayers();
@@ -5293,7 +5398,7 @@ async function gfOnlineShoot(vx, vy) {
       const hole = GF_HOLES[d.holeIdx], simIn = {};
       d.order.forEach(uid => { const b = d.balls[uid]; if (!b.done) simIn[uid] = { x: b.x, y: b.y, vx: uid === UID ? vx : 0, vy: uid === UID ? vy : 0 }; });
       const { paths, events, finals } = gfSimulateAll(simIn, hole);
-      GF.replay = { paths, i: 0, acc: 0 };
+      GF.replay = { paths, events, i: 0, acc: 0 };
       const balls = { ...d.balls };
       Object.keys(finals).forEach(u => {
         const b = { ...balls[u] };
@@ -5323,7 +5428,7 @@ async function gfOnlineShoot(vx, vy) {
         tx.update(ref, { balls, turnIdx: nextIdx, lastShot: shotMeta });
       }
     });
-  } catch (e) { console.error(e); }
+  } catch (e) { console.error(e); GF.tKey = null; }
 }
 function gfHostPoll() {
   if (GF.mode !== 'online' || !GF.isHost || GF.spectating || !GF.roomData) return;
@@ -6011,7 +6116,7 @@ function crSync() {
   $('#cr-spec-badge').hidden = !CR.spectating;
   if (d.roundStartMs && d.roundStartMs !== CR._seenRoundStart) {
     // todos arman los mismos carriles con la semilla y la hora de inicio de la partida
-    CR._seenRoundStart = d.roundStartMs; CR.seed = d.seed; CR.roundStart = d.roundStartMs; CR.level = 0; CR.lanes = crLanes(d.seed, 0);
+    CR._seenRoundStart = d.roundStartMs; CR.resultShown = false; CR.seed = d.seed; CR.roundStart = d.roundStartMs; CR.level = 0; CR.lanes = crLanes(d.seed, 0);
     if (!CR.spectating) {
       const p = crFrogStart(); CR.x = p.x; CR.y = p.y; CR.row = CR_START_ROW; CR.bestRow = CR_START_ROW;
       CR.lives = CR_LIVES_START; CR.score = 0; CR.state = 'playing'; CR.hop = null; CR.popup = null; CR._sentLevel = null;
@@ -6560,6 +6665,7 @@ function loop(now) {
   if (FC.img && (tab === 'funciones' || FC.mode === 'online')) { fcUpdate(dt, now); if (tab === 'funciones') fcDraw(now); }
   if (BL.shotActive) blUpdate(dt);
   if (tab === 'billar') blDraw();
+  if (tab === 'billar' || BL.mode === 'online') blClock(now);
   if (tab === 'duelo') dlDraw();
   if (tab === 'runner') { if (RN.state === 'playing' || RN.state === 'transition') rnStep(dt); rnDraw(); }
   if (tab === 'golf') { gfTick(dt); gfDraw(); }
