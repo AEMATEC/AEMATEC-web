@@ -17,6 +17,13 @@ el patrón de `assets/js/arcade/tiro.js` para separarlo). Busca el bloque `/* ==
 - Bolas dibujadas con `pxCircle` (bloques de píxel, no `ctx.arc` liso) — mantén ese estilo si rediseñas algo.
 - **Tiene modo en línea**: colección `pool/{code}` en Firestore (`arcade-matec`), con `p1`/`p2`. Si tocas
   algo del modo en línea, prueba con más de una sesión antes de darlo por bueno.
+- `blSyncOnline` solo llama a `blUI()` cuando cambia algo visible (clave `BL._uiKey`: turno, colocación,
+  grupos, nombres, bolas metidas…). Llamarla en cada snapshot (≈9/s mientras el rival tira) causaba los
+  tirones de FPS; no vuelvas a ponerla incondicional. El dibujo lo hace `loop()`, no el snapshot.
+- Tiempo por turno: `BL_TURN_S` (30 s, local y en línea), reloj en `#bl-clock`. Se detiene mientras ruedan las
+  bolas y no corre en el turno de la CPU. Al acabarse es falta (bola en mano para el rival); si se acaba
+  colocando la blanca, se coloca sola (`blAutoPlaceCue`). Cada cliente calcula su propio límite, sin campos
+  nuevos en Firestore; solo escribe el cliente que tiene el turno.
 - Si agregas un campo a la sala, documenta la regla de Firestore que hace falta en
   `docs/arcade-firebase-cambios.md`.
 

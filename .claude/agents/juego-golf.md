@@ -30,6 +30,13 @@ línea + el creador de hoyos). Busca el bloque `/* === GOLF === */`.
   complicar la sincronización entre jugadores).
 - **Tiene modo en línea** (hasta 4 jugadores en el mismo recorrido): colección `golf/{code}` y su subcolección
   `players`. Si tocas el modo en línea, prueba con más de una sesión antes de darlo por bueno.
+- En línea, `gfSimulateAll` también salta agua y hoyo mientras `airT > 0` (antes una pelota que volaba
+  sobre el agua desde una rampa se daba por ahogada). Al caer al agua se ve "¡AL AGUA! +1 GOLPE" en ambos modos.
+- Paredes de cactus (desierto) y tronco de palmera (playa) se dibujan del tamaño completo de su rectángulo
+  de choque: si cambias un dibujo de pared, que siga ocupando todo el rectángulo.
+- Tiempo por turno en línea: `GF_TURN_S` (30 s), con cuenta regresiva. Cada cliente calcula `GF.tEnd` al ver
+  un turno nuevo (como `FC.tEnd` en Combate) y al acabarse el jugador activo tira con fuerza 0
+  (`gfOnlineShoot(0, 0)`: cuenta un golpe y pasa el turno). Sin campos nuevos en Firestore.
 - Si agregas un campo a la sala o cambias el formato de `golfHoyosPropuestos`, documenta la regla de
   Firestore que hace falta en `docs/arcade-firebase-cambios.md`.
 

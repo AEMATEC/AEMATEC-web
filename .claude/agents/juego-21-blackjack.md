@@ -13,6 +13,11 @@ separó a su propio archivo — revisa si `assets/js/arcade/blackjack.js` ya exi
   algo del modo en línea, prueba con más de una sesión antes de darlo por bueno.
 - Reglas clásicas: el crupier pide carta hasta 17, pasarse de 21 pierde automático. Si cambias alguna regla
   de la mesa, dilo claro en el PR (es fácil que alguien no note un cambio de regla si no se explica).
+- En línea, la primera carta de cada rival (y su VALOR, y el "¡21!" de 2 cartas, que se muestra como
+  "PLANTADO") se dibuja boca abajo mientras `state === 'play'`; se revela al pasar a `'over'`
+  (`bjHandEl(…, hideFirst)`). Es solo visual: las manos siguen completas en el documento de la sala.
+- Turnos: `bjTurnUid()` (primer asiento en 'playing'); las cartas de quien tiene el turno brillan
+  (`.bj-seat.turn .bj-card`). El turno solo se hace cumplir en el navegador, no en la transacción.
 - Si agregas un campo a la sala, documenta la regla de Firestore que hace falta en
   `docs/arcade-firebase-cambios.md`.
 

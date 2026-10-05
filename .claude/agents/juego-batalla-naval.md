@@ -13,6 +13,11 @@ patrón de `assets/js/arcade/tiro.js` como ejemplo de cómo separarlo, y actuali
 - **Tiene modo en línea**: colección `rooms/{code}` en Firestore (`arcade-matec`), con `p1`/`p2` y
   actualizaciones por turno. Si tocas algo del flujo en línea, prueba con dos pestañas o dos sesiones (una
   como anfitrión, otra uniéndose) antes de dar el cambio por bueno — no basta con probar el modo CPU.
+- Dificultad VS CPU (`BS.lvl`, guardada en `pa_bs_lvl`): la elige `cpuPick(board, shots, lvl)`, sin estado
+  entre tiros. FÁCIL dispara al azar; MEDIO caza en tablero de ajedrez; DIFÍCIL caza donde caben más barcos
+  que siguen a flote. MEDIO y DIFÍCIL rematan igual: con 2+ aciertos seguidos solo disparan a los extremos
+  de esa línea. Prueba: `node tests/batalla-cpu.mjs`.
+- Tabla `batalla`: VS CPU solo suma en DIFÍCIL (`extra` = `VS CPU DIFÍCIL`); en línea suma siempre.
 - Si agregas un campo nuevo a la sala o cambias su formato, documenta la regla de Firestore que hace falta
   en `docs/arcade-firebase-cambios.md` (no puedes aplicarla tú mismo, esas reglas están fuera de este repo).
 - El bucle principal (al final de `arcade.html`) y el atajo de teclado ("R" para rotar barco al colocar)

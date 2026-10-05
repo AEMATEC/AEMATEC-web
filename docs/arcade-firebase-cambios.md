@@ -50,7 +50,10 @@ Claves que ya existían y cambian algo:
 - `tiro`: ya no se usa (era el modo viejo "Disparo continuo"). Puedes dejarla o quitarla.
 - `funciones`: mismo formato. Las victorias contra bots solo suman si todos los rivales son bots en DIFÍCIL.
   Nuevos textos de `extra`: `1 VS 2`, `FFA 4`, `BOT DIFÍCIL · 1 VS 1`.
-- `duelo`, `tiro_uno`, `cruce`, `runner` y los demás: sin cambios.
+- `duelo`: solo suma victorias VS CPU en DIFÍCIL (desde 2026-10). Mismo formato.
+- `batalla`: VS CPU solo suma en DIFÍCIL (`extra` = `VS CPU DIFÍCIL`); en línea suma siempre (`ONLINE`). Mismo formato.
+- `funciones`: nuevo texto de `extra` en local con equipos elegidos: `FFA 3 EQUIPOS`, `FFA 4 EQUIPOS` (≤24).
+- `tiro_uno`, `cruce`, `runner` y los demás: sin cambios.
 
 La lectura sigue igual: `orderBy('score', 'asc'|'desc')` con `limit(10)`. Si tienes índices o reglas por
 clave, agrega las nuevas.
@@ -107,6 +110,10 @@ function claveValida(k) {
 
 ### Sin cambios en Firebase
 Huida del Zorro, Buscaminas, Batalla Naval, 21 y Billar.
+
+Los arreglos de octubre 2026 (carta oculta y turnos en 21, tiempo por turno en Billar y Golf, agua en Golf,
+segunda partida en Cruzar la Calle) **no agregan campos**: el tiempo por turno lo calcula cada navegador y
+al acabarse escribe lo mismo que un turno normal.
 
 ---
 

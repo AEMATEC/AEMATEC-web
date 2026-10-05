@@ -17,6 +17,9 @@ cambies sin leer esa explicación primero, ya se consideró y descartó "arregla
 - **Tiene modo en línea** (hasta 4 equipos): colección `fights/{code}` y su subcolección `players`, con
   `host`, `turnS` (segundos por turno) y `preview` (vista previa de la trayectoria). Si tocas el modo en
   línea, prueba con más de una sesión antes de darlo por bueno.
+- En local "Todos vs Todos" cada asiento elige su equipo (campo `tf` dentro de `pa_fc_lseats`); hacen falta
+  al menos dos equipos para empezar. Con aliados la etiqueta es `FFA n EQUIPOS`. En 1 VS 1, 2 VS 2 y 1 VS 2
+  el equipo lo da la fila del asiento, y en línea lo fija el formato (`teamOf`).
 - Si agregas un campo a la sala, documenta la regla de Firestore que hace falta en
   `docs/arcade-firebase-cambios.md`.
 
