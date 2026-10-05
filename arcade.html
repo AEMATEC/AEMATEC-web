@@ -245,6 +245,8 @@ nav .btn{padding:8px 12px}
 .bj-seat{background:rgba(0,0,0,.28);padding:8px;text-align:center;min-height:100px}
 .bj-seat.me{box-shadow:inset 0 0 0 2px var(--yellow)}
 .bj-seat.turn{box-shadow:inset 0 0 0 2px var(--lime)}
+.bj-seat.turn .bj-card{animation:bjglow 1s steps(2,end) infinite}
+@keyframes bjglow{0%{box-shadow:0 -2px 0 0 var(--lime),0 2px 0 0 var(--lime),-2px 0 0 0 var(--lime),2px 0 0 0 var(--lime),0 0 10px 3px var(--lime)}50%{box-shadow:0 -2px 0 0 var(--dark),0 2px 0 0 var(--dark),-2px 0 0 0 var(--dark),2px 0 0 0 var(--dark),0 0 4px 1px var(--lime)}}
 .bj-seat.empty{opacity:.35}
 .bj-name{font-size:10px;color:var(--mute);margin-bottom:4px;min-height:1.4em}
 .bj-name b{color:var(--ink)}
@@ -3297,9 +3299,9 @@ function bjCardEl(card, hidden) {
   d.innerHTML = `<span>${rank}${info.sym}</span><span class="br">${rank}${info.sym}</span>`;
   return d;
 }
-function bjHandEl(handEl, hand, hideLast) {
+function bjHandEl(handEl, hand, hideLast, hideFirst) {
   handEl.innerHTML = '';
-  hand.forEach((c, i) => handEl.appendChild(bjCardEl(c, hideLast && i === hand.length - 1)));
+  hand.forEach((c, i) => handEl.appendChild(bjCardEl(c, (hideLast && i === hand.length - 1) || (hideFirst && i === 0))));
 }
 function bjMsg(t, cls = '') { const m = $('#bj-msg'); m.textContent = t; m.className = 'msg ' + cls; }
 function bjMenuMsg(t, cls = '') { const m = $('#bj-menu-msg'); m.textContent = t; m.className = 'msg ' + cls; m.style.textAlign = 'left'; }
@@ -3499,12 +3501,15 @@ function bjRenderOnline() {
     seat.className = 'bj-seat' + (uid === UID ? ' me' : '') + (uid === turnUid ? ' turn' : '');
     seat.innerHTML = `<div class="bj-name"><b>${esc(p.name)}</b>${uid === UID ? ' (TÚ)' : ''}${gone ? ' <span class="discon">⚠</span>' : ''}</div>`;
     const cardsEl = document.createElement('div'); cardsEl.className = 'bj-cards';
-    bjHandEl(cardsEl, hand, false);
+    // primera carta de los demás oculta hasta que termina la mano (state 'over'); solo es visual, los datos siguen en Firestore
+    const hideFirst = uid !== UID && d.state === 'play';
+    bjHandEl(cardsEl, hand, false, hideFirst);
     seat.appendChild(cardsEl);
-    const val = document.createElement('div'); val.className = 'bj-val'; val.textContent = (hand.length && BJ.showValue) ? 'VALOR: ' + bjHandValue(hand) : '';
+    const val = document.createElement('div'); val.className = 'bj-val'; val.textContent = (hand.length && BJ.showValue && !hideFirst) ? 'VALOR: ' + bjHandValue(hand) : '';
     seat.appendChild(val);
-    const statusTxt = { waiting: 'ESPERA LA PRÓXIMA MANO', playing: '', stand: 'PLANTADO', bust: 'SE PASÓ', blackjack: '¡21!' }[status] || '';
-    const st = document.createElement('div'); st.className = 'bj-status' + (status === 'bust' ? ' bust' : status === 'blackjack' ? ' bjk' : '');
+    // '¡21!' de otro jugador delataría su mano oculta: se muestra como plantado hasta el final
+    const statusTxt = { waiting: 'ESPERA LA PRÓXIMA MANO', playing: '', stand: 'PLANTADO', bust: 'SE PASÓ', blackjack: hideFirst ? 'PLANTADO' : '¡21!' }[status] || '';
+    const st = document.createElement('div'); st.className = 'bj-status' + (status === 'bust' ? ' bust' : status === 'blackjack' && !hideFirst ? ' bjk' : '');
     st.textContent = statusTxt + (gone ? ' · DESCONECTADO' : ''); seat.appendChild(st);
     seats.appendChild(seat);
   });
