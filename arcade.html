@@ -3900,25 +3900,38 @@ function blLB() {
 // Pintar una bola pixel por pixel son cientos de fillRect; blDraw corre en cada fotograma con 16 bolas, y eso
 // era lo que daba tirones. Cada bola (y la mesa con sus agujeros) se pinta UNA vez en un canvas aparte y luego
 // solo se copia con drawImage. Se ve idéntico: las posiciones ya se redondeaban al píxel.
-function blPaintBall(g, x, y, num) {
-  if (num === 0) {
-    pxCircle(g, x, y, BL_R, '#0a0a0a');
-    pxCircle(g, x, y, BL_R - 1, '#f4f4f4');
-    g.fillStyle = 'rgba(255,255,255,.95)'; g.fillRect(x - 3, y - 4, 2, 2);
-    return;
+// Aclara (t > 0, mezcla con blanco) u oscurece (t < 0, mezcla con negro) un color '#rrggbb'.
+function blShade(hex, t) {
+  const n = parseInt(hex.slice(1), 16), k = t < 0 ? 0 : 255, a = Math.abs(t);
+  const ch = s => Math.round(((n >> s) & 255) * (1 - a) + k * a);
+  return `rgb(${ch(16)},${ch(8)},${ch(0)})`;
+}
+// Bola con luz desde arriba a la izquierda: tres tonos (claro, base, sombra), contorno negro, disco blanco con el
+// número, brillo y una sombra suave sobre el paño. Se pinta una sola vez (ver blBallImg).
+function blPaintBall(g, cx, cy, num) {
+  const R = BL_R, base = num === 0 ? '#f4f4f4' : BL_COLORS[num], stripe = blStripe(num);
+  const dentro = (x, y, r) => x * x + y * y <= r * r + r * .6;
+  g.fillStyle = 'rgba(0,0,0,.28)';
+  for (let y = -R; y <= R; y++) for (let x = -R; x <= R; x++) if (dentro(x - 1, y - 2, R)) g.fillRect(cx + x, cy + y, 1, 1);
+  for (let y = -R; y <= R; y++) for (let x = -R; x <= R; x++) {
+    if (!dentro(x, y, R)) continue;
+    if (!dentro(x, y, R - 1)) { g.fillStyle = '#0a0a0a'; g.fillRect(cx + x, cy + y, 1, 1); continue; }
+    const luz = (-x * .6 - y * .8) / R; // > 0 mira a la luz
+    const t = luz > .5 ? .35 : luz < -.6 ? -.5 : luz < -.25 ? -.28 : 0;
+    g.fillStyle = blShade(stripe ? (Math.abs(y) <= 2 ? base : '#f4f4f4') : base, t);
+    g.fillRect(cx + x, cy + y, 1, 1);
   }
-  const col = BL_COLORS[num], stripe = blStripe(num);
-  pxCircle(g, x, y, BL_R, '#0a0a0a');
-  pxCircle(g, x, y, BL_R - 1, stripe ? '#f4f4f4' : col);
-  if (stripe) { g.fillStyle = col; g.fillRect(x - BL_R + 1, y - 2, (BL_R - 1) * 2, 5); }
-  pxCircle(g, x, y, 3, '#f4f4f4');
-  const str = String(num); tinyText(g, str, x - str.length * 2, y - 2, col);
-  g.fillStyle = 'rgba(255,255,255,.75)'; g.fillRect(x - 3, y - 4, 2, 2);
+  if (num !== 0) {
+    g.fillStyle = '#f4f4f4';
+    for (let y = -3; y <= 3; y++) for (let x = -3; x <= 3; x++) if (dentro(x, y, 3)) g.fillRect(cx + x, cy + y, 1, 1);
+    const str = String(num); tinyText(g, str, cx - str.length * 2, cy - 2, BL_COLORS[num]);
+  }
+  g.fillStyle = 'rgba(255,255,255,.95)'; g.fillRect(cx - 4, cy - 4, 2, 2); g.fillRect(cx - 2, cy - 5, 1, 1);
 }
 const blBallImgs = {};
 function blBallImg(num) {
   if (blBallImgs[num]) return blBallImgs[num];
-  const c = document.createElement('canvas'); c.width = c.height = BL_R * 2 + 1;
+  const c = document.createElement('canvas'); c.width = BL_R * 2 + 2; c.height = BL_R * 2 + 3; // margen derecho/abajo para la sombra
   blPaintBall(c.getContext('2d'), BL_R, BL_R, num);
   return blBallImgs[num] = c;
 }
@@ -3930,14 +3943,50 @@ function blTable() {
   if (blTableImg) return blTableImg;
   const c = document.createElement('canvas'); c.width = BL_CW; c.height = BL_CH;
   const g = c.getContext('2d');
-  g.fillStyle = '#6b4226'; g.fillRect(0, 0, BL_CW, BL_CH);
-  g.fillStyle = '#0e5c3f'; g.fillRect(BL_RAIL, BL_RAIL, BL_PW, BL_PH);
-  g.strokeStyle = 'rgba(0,0,0,.25)'; g.lineWidth = 2; g.strokeRect(BL_RAIL + 1, BL_RAIL + 1, BL_PW - 2, BL_PH - 2);
-  for (const p of BL_POCKETS) pxCircle(g, Math.round(p.x + BL_RAIL), Math.round(p.y + BL_RAIL), BL_POCKET_R, '#0a0a0a');
+  const F = BL_RAIL, W = BL_CW, H = BL_CH;
+  const r = (x, y, w, h, col) => { g.fillStyle = col; g.fillRect(x, y, w, h); };
+  let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647; // azar fijo: la mesa siempre sale igual
+  // marco de madera con luz arriba-izquierda y veta
+  r(0, 0, W, H, '#2a170c'); r(1, 1, W - 2, H - 2, '#6b4226');
+  r(1, 1, W - 2, 1, '#a0703f'); r(1, 1, 1, H - 2, '#a0703f'); r(2, 2, W - 4, 1, '#865630'); r(2, 2, 1, H - 4, '#865630');
+  r(2, H - 3, W - 3, 1, '#4a2b15'); r(W - 3, 2, 1, H - 3, '#4a2b15');
+  for (let i = 0; i < 90; i++) {
+    const col = rnd() < .5 ? '#5a371d' : '#7c4e2b', len = 8 + (rnd() * 26 | 0), a = 3 + (rnd() * 9 | 0), b = (rnd() * (i % 2 ? W - len : H - len)) | 0;
+    if (i % 2) { r(b, a, len, 1, col); r(b, H - 4 - (a - 3), len, 1, col); } else { r(a, b, 1, len, col); r(W - 4 - (a - 3), b, 1, len, col); }
+  }
+  r(13, 13, W - 26, H - 26, '#2a170c');
+  // bandas (goma verde) alrededor del paño
+  r(14, 14, W - 28, H - 28, '#0b5d3e');
+  r(14, 14, W - 28, 1, '#1a8a5c'); r(14, 14, 1, H - 28, '#1a8a5c'); r(14, H - 15, W - 28, 1, '#08432d'); r(W - 15, 14, 1, H - 28, '#08432d');
+  // paño con textura
+  r(F, F, BL_PW, BL_PH, '#14784f');
+  for (let y = 0; y < BL_PH; y += 2) for (let x = 0; x < BL_PW; x += 2) {
+    const n = rnd(); if (n < .16) r(F + x, F + y, 2, 2, '#168258'); else if (n < .3) r(F + x, F + y, 2, 2, '#11704a');
+  }
+  r(F, F, BL_PW, 2, 'rgba(0,0,0,.28)'); r(F, F, 2, BL_PH, 'rgba(0,0,0,.28)'); // sombra de la banda sobre el paño
+  r(F + (BL_PW * .22 | 0), F, 1, BL_PH, 'rgba(255,255,255,.08)');                // línea de cabecera
+  r(F + (BL_PW * .22 | 0) - 1, F + BL_PH / 2 - 1, 3, 3, 'rgba(255,255,255,.18)');
+  r(F + (BL_PW * .74 | 0) - 1, F + BL_PH / 2 - 1, 3, 3, 'rgba(0,0,0,.25)');       // punto del vértice del triángulo
+  // rombos de madera/nácar: 3 por tramo largo y 3 por lado corto
+  const rombo = (x, y) => { r(x - 1, y - 1, 3, 3, '#efe3c2'); r(x, y, 2, 2, '#3a2312'); r(x - 1, y - 1, 2, 2, '#f8f0d8'); };
+  for (const k of [50, 100, 150]) {
+    rombo(F + k, 6); rombo(F + BL_PW - k, 6); rombo(F + k, H - 7); rombo(F + BL_PW - k, H - 7);
+    rombo(6, F + k); rombo(W - 7, F + k);
+  }
+  // aspilleras: borde de cuero, boca negra y brillo
+  for (const p of BL_POCKETS) {
+    const x = Math.round(p.x + F), y = Math.round(p.y + F);
+    pxCircle(g, x, y, BL_POCKET_R + 3, '#1a0e07'); pxCircle(g, x, y, BL_POCKET_R + 2, '#4a3019');
+    pxCircle(g, x, y, BL_POCKET_R, '#050505'); pxCircle(g, x + 1, y + 1, BL_POCKET_R - 3, '#000');
+    r(x - BL_POCKET_R + 1, y - 3, 1, 5, '#2b1a10');
+  }
   return blTableImg = c;
 }
 function blDraw() {
-  blx.drawImage(blTable(), 0, 0);
+  // Cada fotograma parte de un lienzo limpio y con el estado por defecto; si la mesa pregenerada fallara por
+  // cualquier motivo, se pinta un paño liso en vez de dejar las bolas y el taco "manchando" la pantalla.
+  blx.globalAlpha = 1; blx.globalCompositeOperation = 'source-over'; blx.clearRect(0, 0, BL_CW, BL_CH);
+  try { blx.drawImage(blTable(), 0, 0); } catch (err) { console.error('Billar: mesa', err); blTableImg = null; blx.fillStyle = '#14784f'; blx.fillRect(0, 0, BL_CW, BL_CH); }
   if (BL.placing != null && BL.placePreview) {
     const ok = blPlaceOk(BL.placePreview.x, BL.placePreview.y);
     blx.globalAlpha = .65; pxCircle(blx, Math.round(BL.placePreview.x + BL_RAIL), Math.round(BL.placePreview.y + BL_RAIL), BL_R, ok ? '#f4f4f4' : '#b13e53'); blx.globalAlpha = 1;
@@ -3949,11 +3998,26 @@ function blDraw() {
     if (dist > 4) {
       const ang = Math.atan2(dy0, dx0), ux = Math.cos(ang), uy = Math.sin(ang);
       const cx = cue.x + BL_RAIL, cy = cue.y + BL_RAIL;
-      blx.strokeStyle = 'rgba(244,244,244,.85)'; blx.lineWidth = 1; blx.setLineDash([4, 3]);
-      blx.beginPath(); blx.moveTo(cx, cy); blx.lineTo(cx + ux * 200, cy + uy * 200); blx.stroke(); blx.setLineDash([]);
+      // la línea de mira termina en la primera bola (con la blanca "fantasma" ahí) o en la banda
+      let reach = Math.min(ux > 0 ? (BL_PW - BL_R - cue.x) / ux : ux < 0 ? (BL_R - cue.x) / ux : 1e9, uy > 0 ? (BL_PH - BL_R - cue.y) / uy : uy < 0 ? (BL_R - cue.y) / uy : 1e9), ghost = null;
+      for (const b of BL.balls) {
+        if (b.num === 0 || b.potted) continue;
+        const ox = b.x - cue.x, oy = b.y - cue.y, along = ox * ux + oy * uy, perp2 = ox * ox + oy * oy - along * along, rr = (BL_R * 2) ** 2;
+        if (along <= 0 || perp2 >= rr) continue;
+        const t = along - Math.sqrt(rr - perp2);
+        if (t > 0 && t < reach) { reach = t; ghost = { x: cue.x + ux * t, y: cue.y + uy * t }; }
+      }
+      blx.fillStyle = 'rgba(244,244,244,.85)';
+      for (let d = BL_R + 3; d < reach; d += 5) blx.fillRect(Math.round(cx + ux * d), Math.round(cy + uy * d), 2, 2);
+      if (ghost) { blx.globalAlpha = .45; blx.drawImage(blBallImg(0), Math.round(ghost.x + BL_RAIL) - BL_R, Math.round(ghost.y + BL_RAIL) - BL_R); blx.globalAlpha = 1; }
+      // taco de píxeles: punta con tiza, casquillo blanco, caña de arce y mango oscuro; se aleja al subir la fuerza
       const pull = 10 + BL.power * 70;
-      blx.strokeStyle = '#c9a06a'; blx.lineWidth = 3; blx.lineCap = 'round';
-      blx.beginPath(); blx.moveTo(cx - ux * pull, cy - uy * pull); blx.lineTo(cx - ux * (pull + 45), cy - uy * (pull + 45)); blx.stroke(); blx.lineCap = 'butt';
+      for (let i = 0; i < 125; i++) {
+        const sx = Math.round(cx - ux * (pull + i)), sy = Math.round(cy - uy * (pull + i)), w = i > 75 ? 3 : 2;
+        blx.fillStyle = 'rgba(0,0,0,.25)'; blx.fillRect(sx + 1, sy + 2, w, w);
+        blx.fillStyle = i < 3 ? '#6fb1e8' : i < 6 ? '#f4f4f4' : i < 76 ? (i % 2 ? '#f0cf8e' : '#e6c27c') : i < 80 ? '#c9a24b' : i < 102 ? '#6b3d1e' : '#2a170c';
+        blx.fillRect(sx, sy, w, w);
+      }
     }
   }
   blSyncShootBtn();
@@ -6452,19 +6516,26 @@ function drawSplash(g, c) {
     pxCircle(x, 132, 16, 5, '#d4af37'); pxCircle(x, 132, 16, 3, '#0b3d2e');
   } else if (g === 'billar') {
     c.width = 160; c.height = 72;
-    x.fillStyle = '#6b4226'; x.fillRect(0, 0, 160, 72);
-    x.fillStyle = '#0e5c3f'; x.fillRect(8, 8, 144, 56);
-    [[8, 8], [80, 8], [152, 8], [8, 64], [80, 64], [152, 64]].forEach(([px, py]) => pxCircle(x, px, py, 6, '#0a0a0a'));
-    const ball = (px, py, num, col, stripe) => {
-      pxCircle(x, px, py, 7, stripe ? '#f4f4f4' : col);
-      if (stripe) { x.fillStyle = col; x.fillRect(px - 7, py - 3, 14, 6); }
-      pxCircle(x, px, py, 4, '#f4f4f4');
-      x.font = '7px "Press Start 2P"'; x.fillStyle = col; x.textAlign = 'center'; x.fillText(String(num), px, py + 2);
-    };
-    ball(70, 40, 8, '#1a1c2c', false);
-    ball(90, 30, 9, '#e3b619', true);
-    ball(100, 48, 3, '#c81e2c', false);
-    pxCircle(x, 46, 36, 6, '#f4f4f4');
+    const r = (rx, ry, w, h, col) => { x.fillStyle = col; x.fillRect(rx, ry, w, h); };
+    r(0, 0, 160, 72, '#2a170c'); r(1, 1, 158, 70, '#6b4226'); r(1, 1, 158, 1, '#a0703f'); r(1, 1, 1, 70, '#a0703f'); // marco de madera
+    r(5, 5, 150, 62, '#2a170c'); r(6, 6, 148, 60, '#0b5d3e'); r(6, 6, 148, 1, '#1a8a5c');                              // banda
+    r(8, 8, 144, 56, '#14784f');
+    for (let py = 8; py < 64; py += 2) for (let px = 8; px < 152; px += 2) {                                             // textura del paño
+      const n = (px * 7 + py * 13) % 11; if (n === 0) r(px, py, 2, 2, '#168258'); else if (n === 5) r(px, py, 2, 2, '#11704a');
+    }
+    [30, 55, 105, 130].forEach(dx => { r(dx, 2, 2, 2, '#efe3c2'); r(dx, 68, 2, 2, '#efe3c2'); });                      // rombos
+    [28, 36, 44].forEach(dy => { r(2, dy, 2, 2, '#efe3c2'); r(156, dy, 2, 2, '#efe3c2'); });
+    [[8, 8], [80, 8], [152, 8], [8, 64], [80, 64], [152, 64]].forEach(([px, py]) => {
+      pxCircle(x, px, py, 9, '#1a0e07'); pxCircle(x, px, py, 8, '#4a3019'); pxCircle(x, px, py, 6, '#050505');
+    });
+    // las mismas bolas sombreadas del juego (blBallImg) y un taco
+    const ball = (px, py, num) => x.drawImage(blBallImg(num), px - BL_R, py - BL_R);
+    ball(70, 40, 8); ball(90, 30, 9); ball(100, 48, 3); ball(46, 36, 0);
+    for (let i = 0; i < 40; i++) {
+      const sx = 38 - i, sy = 33 - Math.round(i * .12);
+      x.fillStyle = 'rgba(0,0,0,.25)'; x.fillRect(sx + 1, sy + 2, 2, 2);
+      x.fillStyle = i < 2 ? '#6fb1e8' : i < 4 ? '#f4f4f4' : i < 28 ? (i % 2 ? '#f0cf8e' : '#e6c27c') : '#6b3d1e'; x.fillRect(sx, sy, 2, 2);
+    }
   } else if (g === 'duelo') {
     c.width = 160; c.height = 72;
     const grad = x.createLinearGradient(0, 0, 0, 72);
