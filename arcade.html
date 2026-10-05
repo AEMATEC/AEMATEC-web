@@ -6011,7 +6011,7 @@ function crSync() {
   $('#cr-spec-badge').hidden = !CR.spectating;
   if (d.roundStartMs && d.roundStartMs !== CR._seenRoundStart) {
     // todos arman los mismos carriles con la semilla y la hora de inicio de la partida
-    CR._seenRoundStart = d.roundStartMs; CR.seed = d.seed; CR.roundStart = d.roundStartMs; CR.level = 0; CR.lanes = crLanes(d.seed, 0);
+    CR._seenRoundStart = d.roundStartMs; CR.resultShown = false; CR.seed = d.seed; CR.roundStart = d.roundStartMs; CR.level = 0; CR.lanes = crLanes(d.seed, 0);
     if (!CR.spectating) {
       const p = crFrogStart(); CR.x = p.x; CR.y = p.y; CR.row = CR_START_ROW; CR.bestRow = CR_START_ROW;
       CR.lives = CR_LIVES_START; CR.score = 0; CR.state = 'playing'; CR.hop = null; CR.popup = null; CR._sentLevel = null;
