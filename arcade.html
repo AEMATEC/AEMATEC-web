@@ -752,6 +752,7 @@ nav .btn{padding:8px 12px}
       <div class="gbody" hidden>
         <div id="dl-menu">
           <h4>¿CÓMO QUIERES JUGAR?</h4>
+          <div class="pick" id="dl-bot"></div>
           <div class="row left"><button class="btn green" id="dl-cpu">VS CPU (VAQUERO ROBOT)</button></div>
           <div class="row left"><button class="btn" id="dl-local">2 JUGADORES (MISMO EQUIPO)</button></div>
           <div class="row left">
@@ -4063,7 +4064,12 @@ blSetupRender(); blLB(); blView('menu');
      valores fuera de [DL_RT_MIN, DL_RT_MAX] (menos de 80 ms no es humano).
    ============================================================ */
 const DL_COUNT_STEP = 700, DL_MIN_WAIT = 1000, DL_MAX_WAIT = 3500;
-const DL_CPU_MIN = 220, DL_CPU_MAX = 520, DL_WINS_TO_TAKE = 2;
+// Retraso del CPU tras el "¡YA!" según dificultad. MEDIO = 220..520 ms (como siempre). FÁCIL (450..800) queda
+// por encima del reflejo típico humano (~250 ms) y DIFÍCIL (150..280) lo iguala o lo supera, sin bajar de DL_RT_MIN.
+const DL_BOT = [{ n: 'FÁCIL', min: 450, max: 800 }, { n: 'MEDIO', min: 220, max: 520 }, { n: 'DIFÍCIL', min: 150, max: 280 }];
+let dlBotLvl = store.get('pa_dl_bot', 1);
+if (!DL_BOT[dlBotLvl]) dlBotLvl = 1;
+const DL_WINS_TO_TAKE = 2;
 const DL_RT_MIN = 80, DL_RT_MAX = 5000, DL_SCALE = 3;
 const DL = {
   mode: null, room: null, me: null, isHost: false, unsub: null, hbStop: null, roomData: null,
@@ -4301,7 +4307,7 @@ function dlBeginCountdown(seq, startAt, yaAt) {
   dlSchedule(() => dlTick(seq, 1), startAt + DL_COUNT_STEP * 2 - now);
   dlSchedule(() => dlShowGo(seq), yaAt - now);
   if (DL.mode === 'cpu') {
-    const cpuDelay = DL_CPU_MIN + Math.random() * (DL_CPU_MAX - DL_CPU_MIN);
+    const B = DL_BOT[dlBotLvl], cpuDelay = B.min + Math.random() * (B.max - B.min);
     dlSchedule(() => dlCpuFire(seq), (yaAt - now) + cpuDelay);
   }
 }
@@ -4565,6 +4571,10 @@ function dlAgain() {
   if (DL.mode === 'cpu' || DL.mode === 'local') { DL.wins = { A: 0, B: 0 }; dlShow('game'); dlStartRound(); }
   else if (DL.mode === 'online' && DL.isHost) dlGo();
 }
+function dlBotRender() {
+  pickRow($('#dl-bot'), DL_BOT.map(b => ({ html: b.n })), dlBotLvl, i => { SFX.play('click'); dlBotLvl = i; store.set('pa_dl_bot', i); dlBotRender(); });
+}
+dlBotRender();
 $('#dl-cpu').onclick = () => { SFX.play('start'); dlCpu(); };
 $('#dl-local').onclick = () => { SFX.play('click'); dlLocalSetup(); };
 $('#dl-local-go').onclick = () => { SFX.play('start'); dlLocalStart(); };
