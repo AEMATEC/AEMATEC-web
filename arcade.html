@@ -4598,7 +4598,7 @@ $("#rn-exit").onclick = () => goTab("menu");
 const GF_CVW = 480, GF_CVH = 300, GF_MARGIN = 20;
 const GF_R = 6, GF_HOLE_R = 10;
 const GF_FRICTION = 210, GF_SAND_FRICTION = 950, GF_ICE_FRICTION = 35, GF_REST = 0.7;
-const GF_MAXV = 620;
+const GF_MAXV = 620, GF_TURN_S = 30;
 const GF_STOP_V = 4, GF_SINK_MAXV = 260, GF_MAX_STROKES = 8;
 const GF_RAMP_MINV = 150, GF_RAMP_AIR_FRICTION = 15;
 const GF_BORDER_WALLS = [
@@ -4724,6 +4724,7 @@ function gfSimulateAll(simIn, hole) {
     }
     for (const u of uids) {
       if (events[u]) continue;
+      if (sim[u].airT > 0) continue; // en el aire por la rampa: igual que en solo (gfStep), no cae al agua ni se hunde
       if (gfInZone(sim[u], hole.water)) { events[u] = 'water'; sim[u].vx = 0; sim[u].vy = 0; continue; }
       const dHole = Math.hypot(sim[u].x - hole.hole.x, sim[u].y - hole.hole.y);
       if (dHole < GF_HOLE_R && Math.hypot(sim[u].vx, sim[u].vy) < GF_SINK_MAXV) { events[u] = 'sunk'; sim[u].vx = 0; sim[u].vy = 0; }
@@ -4803,8 +4804,19 @@ function gfTick(dt) {
       GF.replay.acc += dt;
       const stepDur = 1 / 60, len = Math.max(0, ...Object.values(GF.replay.paths).map(p => p.length));
       while (GF.replay.acc >= stepDur && GF.replay.i < len - 1) { GF.replay.i++; GF.replay.acc -= stepDur; }
-      if (GF.replay.i >= len - 1) GF.replay = null;
+      if (GF.replay.i >= len - 1) {
+        if (Object.values(GF.replay.events || {}).includes('water')) { SFX.play('miss'); GF.popup = { txt: '¡AL AGUA! +1 GOLPE', life: 1.2 }; }
+        GF.replay = null;
+      }
     }
+    // Límite por turno: cada cliente calcula su plazo al ver empezar el turno (como FC.tEnd en Combate, sin campos nuevos).
+    // 30 s alcanzan para apuntar y dar fuerza; si se acaba, el jugador activo "golpea" con fuerza 0: cuenta como golpe y pasa el turno.
+    const d = GF.roomData;
+    if (d && d.state === 'play' && d.order && !GF.replay) {
+      const key = d.holeIdx + ':' + d.turnIdx + ':' + ((d.lastShot && d.lastShot.seq) || 0), now = performance.now();
+      if (key !== GF.tKey) { GF.tKey = key; GF.tEnd = now + GF_TURN_S * 1000; }
+      if (now >= GF.tEnd && !GF.spectating && d.order[d.turnIdx] === UID) { GF.tEnd = Infinity; GF.aimPointer = null; gfOnlineShoot(0, 0); }
+    } else { GF.tEnd = null; GF.tKey = null; }
     return;
   }
   if (GF.state === 'rolling') gfUpdate(dt);
@@ -4828,14 +4840,12 @@ function gfDrawObstacle(ctx, w, theme) {
       pxCircle(ctx, cx, topY - 8, w.w * 0.85, '#2f8f4e'); pxCircle(ctx, cx, topY - 8, w.w * 0.55, '#3fae5e');
       return;
     case 'desierto':
-      ctx.fillStyle = '#3d7a3d';
-      ctx.fillRect(w.x + w.w * 0.32, w.y, w.w * 0.36, w.h);
-      ctx.fillRect(w.x, w.y + w.h * 0.28, w.w * 0.34, w.h * 0.2);
-      ctx.fillRect(w.x + w.w * 0.66, w.y + w.h * 0.48, w.w * 0.34, w.h * 0.2);
+      ctx.fillStyle = '#3d7a3d'; ctx.fillRect(w.x, w.y, w.w, w.h); // todo el rectángulo: es lo que choca
+      ctx.fillStyle = '#2f6a2f'; ctx.fillRect(w.x, w.y + w.h * 0.28, w.w * 0.34, w.h * 0.2); ctx.fillRect(w.x + w.w * 0.66, w.y + w.h * 0.48, w.w * 0.34, w.h * 0.2);
       ctx.fillStyle = 'rgba(0,0,0,.2)'; ctx.fillRect(w.x + w.w * 0.32, w.y, 2, w.h);
       return;
     case 'playa':
-      ctx.fillStyle = '#8a6a3a'; ctx.fillRect(w.x + w.w * 0.36, w.y, w.w * 0.28, w.h);
+      ctx.fillStyle = '#8a6a3a'; ctx.fillRect(w.x, w.y, w.w, w.h);
       pxCircle(ctx, cx, topY - 6, w.w * 0.8, '#38b764'); pxCircle(ctx, cx, topY - 6, w.w * 0.5, '#4fd274');
       return;
     case 'nieve':
@@ -4947,7 +4957,7 @@ function gfDraw() {
     if (d) {
       $('#gf-status').textContent = `HOYO ${d.holeIdx + 1}/${GF_HOLES.length} · PAR ${hole.par}`;
       const turnUid = d.order && d.order[d.turnIdx], turnName = turnUid ? ((GF.roomPlayers[turnUid] || {}).name || '?') : '';
-      $('#gf-score').textContent = d.state === 'play' ? (turnUid === UID ? 'TU TURNO' : `TURNO DE ${esc(turnName)}`) : '';
+      $('#gf-score').textContent = d.state === 'play' ? (turnUid === UID ? 'TU TURNO' : `TURNO DE ${esc(turnName)}`) + (GF.tEnd && GF.tEnd < Infinity ? ` · ⏱ ${Math.max(0, Math.ceil((GF.tEnd - performance.now()) / 1000))}s` : '') : '';
     }
     gfSyncShootBtn();
     return;
@@ -5112,7 +5122,7 @@ function gfSync() {
   $('#gf-spec-badge').hidden = !GF.spectating;
   if (d.lastShot && d.lastShot.seq !== GF._lastSeq) {
     GF._lastSeq = d.lastShot.seq;
-    if (d.lastShot.uid !== UID) GF.replay = { paths: d.lastShot.paths, i: 0, acc: 0 };
+    if (d.lastShot.uid !== UID) GF.replay = { paths: d.lastShot.paths, events: d.lastShot.events, i: 0, acc: 0 };
   }
   if (d.state === 'over' && !GF.resultShown) { GF.resultShown = true; gfOnlineFinish(); }
   gfRenderPlayers();
@@ -5151,7 +5161,7 @@ async function gfOnlineShoot(vx, vy) {
       const hole = GF_HOLES[d.holeIdx], simIn = {};
       d.order.forEach(uid => { const b = d.balls[uid]; if (!b.done) simIn[uid] = { x: b.x, y: b.y, vx: uid === UID ? vx : 0, vy: uid === UID ? vy : 0 }; });
       const { paths, events, finals } = gfSimulateAll(simIn, hole);
-      GF.replay = { paths, i: 0, acc: 0 };
+      GF.replay = { paths, events, i: 0, acc: 0 };
       const balls = { ...d.balls };
       Object.keys(finals).forEach(u => {
         const b = { ...balls[u] };
@@ -5181,7 +5191,7 @@ async function gfOnlineShoot(vx, vy) {
         tx.update(ref, { balls, turnIdx: nextIdx, lastShot: shotMeta });
       }
     });
-  } catch (e) { console.error(e); }
+  } catch (e) { console.error(e); GF.tKey = null; }
 }
 function gfHostPoll() {
   if (GF.mode !== 'online' || !GF.isHost || GF.spectating || !GF.roomData) return;
