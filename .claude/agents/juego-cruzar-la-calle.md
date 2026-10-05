@@ -16,6 +16,8 @@ su propio archivo — revisa si `assets/js/arcade/cruce.js` ya existe; si no, si
 - **Tiene modo en línea** (hasta 4 personas, cada quien su rana en el mismo tablero en tiempo real): colección
   `cruces/{code}` y su subcolección `players`, con un campo `level` por jugador (las ranas de otro nivel se
   ven transparentes). Si tocas el modo en línea, prueba con más de una sesión antes de darlo por bueno.
+- En línea, `CR.resultShown` (evita mostrar resultados dos veces) se reinicia en `crSync` al empezar cada
+  partida nueva (`roundStartMs` distinto). Si no, la segunda partida no mostraba resultados ni subía el puntaje.
 - Si agregas un campo a la sala, documenta la regla de Firestore que hace falta en
   `docs/arcade-firebase-cambios.md`.
 

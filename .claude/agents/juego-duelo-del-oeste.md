@@ -14,8 +14,11 @@ su propio archivo — revisa si `assets/js/arcade/duelo.js` ya existe; si no, si
 - **Tiene modo en línea**: colección `duelos/{code}` en Firestore (`arcade-matec`), con `A`/`B` (anfitrión y
   invitado) y su apariencia (`A.look`/`B.look`: `hat`, `hatColor`, `poncho`, `pattern`, cada uno un mapa con
   esas 4 claves). Si tocas algo del modo en línea, prueba con más de una sesión antes de darlo por bueno.
-- Tabla de puntajes doble: `duelo` (duelos ganados) y `duelo_reaccion` (mejor tiempo de reacción en ms,
+- Tabla de puntajes doble: `duelo` (duelos ganados VS CPU, solo en DIFÍCIL) y `duelo_reaccion` (mejor tiempo de reacción en ms,
   menor es mejor; solo cuenta contra CPU o en línea, no en 2 jugadores locales).
+- Dificultad VS CPU (`DL_BOT`, guardada en `pa_dl_bot`): retraso del CPU tras el "¡YA!" de 450–800 ms
+  (FÁCIL), 220–520 ms (MEDIO) y 150–280 ms (DIFÍCIL). El modo en línea NO se toca: gana quien reclama
+  primero la ronda en la transacción de `dlClaim` (decisión de la Junta, 2026-10).
 - Si agregas un campo a la sala, documenta la regla de Firestore que hace falta en
   `docs/arcade-firebase-cambios.md`.
 
