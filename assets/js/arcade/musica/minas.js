@@ -1,57 +1,35 @@
-/* Buscaminas: "Campo de dudas". La menor, 96 bpm, 16 compases (40 s).
-   A (1-8): pregunta y respuesta sobre Am F Dm E. B (9-16): F G Am E, más aguda, para que la vuelta no canse. */
-const arpA = [ // arpegio de 8vos, un compás cada uno
-  'A3 . E4 . C5 . E4 . A3 . E4 . C5 . E4 .',   // Am
-  'F3 . C4 . A4 . C4 . F3 . C4 . A4 . C4 .',   // F
-  'D4 . A4 . F4 . A4 . D4 . A4 . F4 . A4 .',   // Dm
-  'E4 . B4 . G#4 . B4 . E4 . B4 . G#4 . B4 .', // E
+/* Buscaminas: "Marcha del campo minado". Re menor, 120 bpm, 16 compases (32 s).
+   Marcha de guerra: tambor de caja constante, bajo al galope y trompeta con ritmo de fanfarria.
+   A (1-8): Dm Dm Bb A | Dm Dm Gm A. B (9-16): Bb C Dm A | Bb Gm A Dm, más aguda; cada 4 compases un redoble. */
+const ACORDES = ['D2', 'D2', 'Bb2', 'A2', 'D2', 'D2', 'G2', 'A2', 'Bb2', 'C3', 'D2', 'A2', 'Bb2', 'G2', 'A2', 'D2'];
+const trompeta = [
+  // A: la fanfarria llama (1-4) y responde (5-8)
+  'D4 - . D4 D4 - A4 - - - F4 - A4 - - -', 'D5 - - - C5 - A4 - F4 - - - . . . .',
+  'Bb4 - . Bb4 Bb4 - D5 - - - C5 - Bb4 - - -', 'A4 - - - E5 - - - C#5 - - - . . . .',
+  'D4 - . D4 D4 - A4 - - - F4 - A4 - - -', 'F5 - - - E5 - D5 - A4 - - - D5 - - -',
+  'G4 - . G4 G4 - Bb4 - D5 - - - C5 - Bb4 -', 'A4 - - - C#5 - E5 - A5 - - - . . . .',
+  // B: carga al agudo (9-16)
+  'D5 - . D5 D5 - F5 - - - D5 - Bb4 - - -', 'E5 - . E5 E5 - G5 - - - E5 - C5 - - -',
+  'F5 - - - A5 - - - F5 - - - D5 - - -', 'E5 - - - C#5 - - - A4 - - - . . . .',
+  'D5 - F5 - Bb5 - - - A5 - F5 - D5 - - -', 'G5 - F5 - D5 - Bb4 - G4 - . . D5 - - -',
+  'A5 - . A5 A5 - G5 - F5 - E5 - D5 - C#5 -', 'D5 - - - A4 - - - D4 - - - . . . .',
 ];
-const arpB = [ // ritmo 3+3+2 (más inquieto)
-  'F3 . . C4 . . A4 . F3 . . C4 . . A4 .',     // F
-  'G3 . . D4 . . B4 . G3 . . D4 . . B4 .',     // G
-  'A3 . . E4 . . C5 . A3 . . E4 . . C5 .',     // Am
-  'E4 . . B4 . . G#4 . E4 . . B4 . . G#4 .',   // E
-];
-const bajo = {
-  Am: 'A2 - - . C3 - - . E3 - - . C3 - - .',
-  F: 'F2 - - . A2 - - . C3 - - . A2 - - .',
-  Dm: 'D2 - - . F2 - - . A2 - - . F2 - - .',
-  E: 'E2 - - . G#2 - - . B2 - - . G#2 - - .',
-  G: 'G2 - - . B2 - - . D3 - - . B2 - - .',
-};
-const melodia = [
-  // A: pregunta (1-4)
-  'E5 - - - D5 - C5 - B4 - - - C5 - - .',
-  'A4 - - - C5 - - - A4 - - - . . . .',
-  'D5 - - - F5 - E5 - D5 - - - C5 - - .',
-  'B4 - - - G#4 - - - B4 - - - . . . .',
-  // A': respuesta (5-8)
-  'E5 - - - A5 - G5 - E5 - - - C5 - - .',
-  'F5 - - - E5 - C5 - A4 - - - C5 - - .',
-  'D5 - - - E5 - F5 - A5 - - - G5 - F5 -',
-  'E5 - - - D5 - B4 - G#4 - - - . . . .',
-  // B: sube la tensión (9-16)
-  'C5 - - - . . A4 - C5 - - - F5 - - .',
-  'D5 - - - . . B4 - D5 - - - G5 - - .',
-  'E5 - - - . . C5 - E5 - - - A5 - - .',
-  'G#5 - - - E5 - - - B4 - - - . . . .',
-  'A5 - - - C6 - A5 - F5 - - - A5 - - .',
-  'B5 - - - G5 - D5 - B4 - - - D5 - - .',
-  'F5 - - - D5 - F5 - A5 - - - G5 - F5 .',
-  'E5 - - - D5 - B4 - G#4 - - - . . . .',
-];
+const galope = ACORDES.map(r => `${r} . ${r} ${r} ${r} . ${r} ${r} ${r} . ${r} ${r} ${r} . ${r} ${r}`).join(' | ');
+const golpes = ACORDES.map(r => `${r.replace('2', '3')} - - - . . . . ${r.replace('2', '3')} - - - . . . .`).join(' | ');
+// Caja de marcha; el último compás de cada frase de 4 lleva redoble.
+const marcha = 'k . x x s . x x k . x x s . x x';
+const redoble = 'k . x x s x s x s x s x s s s s';
+const tambor = ACORDES.map((_, i) => i % 4 === 3 ? redoble : marcha).join(' | ');
+
 export default {
-  titulo: 'Campo de dudas',
-  bpm: 96,
+  titulo: 'Marcha del campo minado',
+  bpm: 120,
   pasos: 4,
   swing: 0,
   canales: [
-    { onda: 'pulso25', vol: .06, env: 'punteado', vib: 12, notas: melodia.join(' | ') },
-    { onda: 'pulso12', vol: .03, env: 'punteado',
-      notas: [...arpA, ...arpA, ...arpB, ...arpB].join(' | ') },
-    { onda: 'triangle', vol: .09,
-      notas: [bajo.Am, bajo.F, bajo.Dm, bajo.E, bajo.Am, bajo.F, bajo.Dm, bajo.E,
-              bajo.F, bajo.G, bajo.Am, bajo.E, bajo.F, bajo.G, bajo.Dm, bajo.E].join(' | ') },
-    { onda: 'ruido', vol: .03, notas: 'k . . . . . h . . . k . . . h .' },
+    { onda: 'pulso25', vol: .06, env: 'sostenido', vib: 8, notas: trompeta.join(' | ') },
+    { onda: 'pulso12', vol: .03, env: 'punteado', ar: [0, 7, 12], notas: golpes },
+    { onda: 'triangle', vol: .09, notas: galope },
+    { onda: 'ruido', vol: .045, notas: tambor },
   ],
 };
