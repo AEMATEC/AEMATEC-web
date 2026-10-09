@@ -42,5 +42,29 @@ service firebase.storage {
         && isJunta();
       allow delete: if isJunta();
     }
+
+    // Fotos de perfil de la Junta y la Fiscalía (páginas públicas; solo con consentimiento, Ley 8968).
+    // RI Art. 42: la Fiscalía maneja las suyas sin la Junta, pero no toca las de la Junta. La Junta sí puede
+    // editar las de Fiscalía (misma excepción acordada que la lista `fiscalia`).
+    match /perfiles/{lista}/{fileName} {
+      function esDueno() {
+        return request.auth.token.email in ['aematec@estudiantec.cr', 'aeemac.tec@gmail.com'];
+      }
+      function estaEn(coleccion) {
+        return firestore.exists(/databases/(default)/documents/$(coleccion)/$(request.auth.token.email));
+      }
+      function puedeEditar() {
+        return request.auth != null && request.auth.token.email_verified == true
+          && (esDueno() || estaEn('junta') || (lista == 'fiscalia' && estaEn('fiscalia')));
+      }
+
+      allow read: if true;
+      allow write: if lista in ['junta', 'fiscalia']
+        && request.resource.size <= 5 * 1024 * 1024
+        && fileName.matches('^[a-f0-9-]+\\.(jpg|jpeg|png|webp)$')
+        && request.resource.contentType in ['image/jpeg', 'image/png', 'image/webp']
+        && puedeEditar();
+      allow delete: if puedeEditar();
+    }
   }
 }

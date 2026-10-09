@@ -215,18 +215,6 @@
                 id="junta-logout-btn" type="button" class="font-bold text-white underline">Salir</button></div>
           </div>
         </div>
-        <div class="inv-search-row mt-8 max-w-[720px]">
-          <form id="inv-search-form" class="h-[54px] bg-white rounded-[12px] flex items-center p-1.5 shadow-lg flex-1">
-            <i class="fa-solid fa-magnifying-glass text-[#00798A] ml-3"></i>
-            <input id="inv-search" aria-label="Buscar en el inventario" class="flex-1 min-w-0 h-full bg-transparent outline-none px-4 text-base text-[#18384E]"
-              placeholder="Buscar por nombre, código o ubicación...">
-            <button type="submit"
-              class="h-[42px] px-6 bg-[#087F8C] text-white font-sans font-bold text-sm rounded-[9px]">Buscar</button>
-          </form>
-          <button id="open-inv-filters" type="button"
-            class="inv-filter-trigger flex h-[54px] items-center gap-2 rounded-[12px] bg-white px-5 font-sans text-sm font-bold text-[#0D2B45]"
-            aria-label="Abrir filtros"><i class="fa-solid fa-sliders text-[#00798A]"></i><span>Filtros</span></button>
-        </div>
       </div>
     </section>
 
@@ -290,6 +278,18 @@
         <button type="button" data-tipo="consumible"
           class="inv-tab-btn flex-1 h-12 rounded-[10px] border border-[#CBD9DF] bg-white font-sans text-sm font-bold text-[#405968]"><i
             class="fa-solid fa-box-open mr-2"></i>Consumibles</button>
+      </div>
+      <div class="inv-search-row mt-6">
+        <form id="inv-search-form" class="h-[54px] bg-white border-2 border-[#8497A3] rounded-[12px] flex items-center p-1.5 flex-1">
+          <i class="fa-solid fa-magnifying-glass text-[#00798A] ml-3"></i>
+          <input id="inv-search" aria-label="Buscar en el inventario" class="flex-1 min-w-0 h-full bg-transparent outline-none px-4 text-base text-[#18384E]"
+            placeholder="Buscar por nombre, código o ubicación...">
+          <button type="submit"
+            class="h-[42px] px-6 bg-[#087F8C] text-white font-sans font-bold text-sm rounded-[9px]">Buscar</button>
+        </form>
+        <button id="open-inv-filters" type="button"
+          class="inv-filter-trigger flex h-[54px] items-center gap-2 rounded-[12px] bg-[#0D2B45] px-5 font-sans text-sm font-bold text-white"
+          aria-label="Abrir filtros"><i class="fa-solid fa-sliders text-[#39C7D5]"></i><span>Filtros</span></button>
       </div>
 
       <div id="inv-toolbar" class="mt-7 flex flex-wrap justify-between items-center gap-3">

@@ -16,7 +16,7 @@ de los repositorios. Guía a la persona por estos pasos, uno a la vez, y marca c
 3. **Padrón:** recargar el CSV del padrón del periodo (Art. 6: la condición de Asociado sigue la matrícula).
 4. **Medios Oficiales:** confirmar que los enlaces sigan vigentes.
 
-## En `admin.html` → Moderación del Repositorio
+## En Repositorio → Moderación (`repositorio-moderacion.html`)
 5. Revisar el equipo de moderación del Repositorio: agregar a quien corresponda y quitar accesos que ya no
    deban existir. Moderación también recibe por correo los reportes del asistente del sitio.
 

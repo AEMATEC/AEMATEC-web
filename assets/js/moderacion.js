@@ -1,14 +1,12 @@
 // Moderación del Repositorio: materiales pendientes, edición de metadatos y equipo de moderación.
-// La carga admin.html (vía panel.js) solo para cuentas con rol de moderación.
-import { app } from "../firebase.js";
-import { escapeHtml, safeHttpsUrl } from "../util.js";
-import { esDueno } from "../roles.js";
-import { enlaceExplicacion } from "../recursos.js";
+// La carga repositorio-moderacion.html solo para cuentas con rol de moderación (no hace falta ser de la Junta).
+import { app } from "./firebase.js";
+import { escapeHtml, safeHttpsUrl } from "./util.js";
+import { esDueno } from "./roles.js";
+import { enlaceExplicacion, eliminarRecurso } from "./recursos.js";
 import { getFirestore, collection, getDocs, getDoc, query, where, updateDoc, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { getStorage, ref, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
 const db = getFirestore(app);
-const storage = getStorage(app);
 const pendingList = document.querySelector("#pending-list");
 const panelStatus = document.querySelector("#panel-status");
 const fileSize = bytes => bytes ? `${(bytes / 1024 / 1024).toFixed(2)} MB` : "Tamaño no indicado";
@@ -191,28 +189,6 @@ async function loadPending() {
   pendingList.querySelectorAll("[data-edit-id]").forEach(button => button.addEventListener("click", () => openEditFromId(button.dataset.editId)));
 }
 
-// Las rutas de los archivos las escribe quien propone el material, así que no se confía en ellas: solo se borra
-// un archivo de la carpeta de recursos y si ningún otro material lo usa (evita que una propuesta falsa que
-// apunte al archivo de un material bueno lo haga borrar).
-async function borrarArchivosDe(resource) {
-  const rutas = [resource.storagePath, resource.explanation?.storagePath]
-    .filter(ruta => typeof ruta === "string" && /^recursos\/(docentes|academico)\/[a-f0-9-]+(-explicacion)?\.[a-z]+$/.test(ruta));
-  const noBorrados = [];
-  for (const ruta of rutas) {
-    try {
-      const [comoArchivo, comoExplicacion] = await Promise.all([
-        getDocs(query(collection(db, "resources"), where("storagePath", "==", ruta))),
-        getDocs(query(collection(db, "resources"), where("explanation.storagePath", "==", ruta)))
-      ]);
-      if (comoArchivo.empty && comoExplicacion.empty) await deleteObject(ref(storage, ruta));
-      else noBorrados.push(ruta);
-    } catch (error) {
-      if (error.code !== "storage/object-not-found") noBorrados.push(ruta);
-    }
-  }
-  if (noBorrados.length) console.warn("Archivos que no se borraron (en uso o con error):", noBorrados);
-}
-
 async function handleAction(action, id) {
   const resourceDocument = await getDoc(doc(db, "resources", id));
   if (!resourceDocument.exists()) return;
@@ -220,10 +196,7 @@ async function handleAction(action, id) {
   try {
     if (action === "delete") {
       if (!confirm("¿Eliminar este material y su archivo definitivamente?")) return;
-      // Primero el documento: si algo falla después, queda a lo sumo un archivo sin usar, nunca un material
-      // publicado cuyo archivo ya no existe.
-      await deleteDoc(doc(db, "resources", id));
-      await borrarArchivosDe(resource);
+      await eliminarRecurso(id, resource);
     } else {
       await updateDoc(doc(db, "resources", id), { status: action, published: action === "approved" });
     }
@@ -236,7 +209,7 @@ async function handleAction(action, id) {
 export function iniciarModeracion() {
   loadPending().catch(error => { panelStatus.textContent = `No se pudieron cargar los pendientes: ${error.message}`; });
   loadModerators().catch(error => { document.querySelector("#moderator-status").textContent = `No se pudieron cargar los moderadores: ${error.message}`; });
-  // Los botones "Editar" del Repositorio abren admin.html?edit=<id>.
+  // Los botones "Editar" del Repositorio abren repositorio-moderacion.html?edit=<id>.
   const editId = new URLSearchParams(window.location.search).get("edit");
   if (editId) openEditFromId(editId).catch(error => { panelStatus.textContent = `No se pudo abrir el recurso: ${error.message}`; });
 }

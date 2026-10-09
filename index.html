@@ -38,9 +38,9 @@
           <p class="mt-5 text-[19px] leading-8 text-[#526574] max-w-[560px]">La Asociación de Estudiantes de Enseñanza de la Matemática con Entornos Tecnológicos representa, acompaña y conecta a la comunidad estudiantil de MATEC en el TEC.</p>
           <form id="home-search-form" class="mt-8 w-full max-w-[560px] h-[62px] bg-white border-2 border-[#8497A3] rounded-[16px] shadow-[0_12px_35px_rgba(13,43,69,0.10)] flex items-center p-2">
             <i class="fa-solid fa-magnifying-glass text-[#00798A] text-lg ml-3"></i>
-            <input aria-label="Buscar en el sitio o en el Repositorio"
+            <input aria-label="Buscar en todo el sitio: materiales, libros, cursos, Junta, efemérides"
               class="flex-1 min-w-0 h-full px-4 bg-transparent outline-none text-[16px] text-[#233F53] placeholder:text-[#627683]"
-              placeholder="Buscar páginas del sitio o materiales del Repositorio...">
+              placeholder="Buscar en todo el sitio: materiales, libros, cursos...">
             <button type="submit"
               class="h-[46px] px-6 rounded-[10px] bg-[#087F8C] text-white font-sans font-bold text-sm hover:bg-[#066F7C]">Buscar</button>
           </form>
@@ -138,6 +138,19 @@
       </div>
     </section>
 
+    <section class="bg-[#EAF1F4] border-y border-[#D7E3E8] py-[56px] mb-[62px]">
+      <div class="site-container mx-auto">
+      <div class="mb-7">
+        <p class="font-sans text-xs font-bold uppercase tracking-[0.18em] text-[#00798A]">Conócenos</p>
+        <h2 class="font-sans text-[30px] font-bold tracking-[-0.02em] mt-2">Esto es AEMATEC</h2>
+      </div>
+      <video controls preload="none" playsinline poster="assets/video/aematec-promo.jpg" class="block w-full max-w-[960px] mx-auto aspect-video rounded-[20px] border border-[#D8E3E9] bg-[#0D2B45] shadow-[0_10px_28px_rgba(13,43,69,0.08)]">
+        <source src="assets/video/aematec-promo.mp4" type="video/mp4">
+        Tu navegador no puede reproducir el video.
+      </video>
+      </div>
+    </section>
+
     <section class="site-container mx-auto pb-[62px]">
       <div class="mb-7">
         <p class="font-sans text-xs font-bold uppercase tracking-[0.18em] text-[#00798A]">Vida estudiantil</p>
@@ -177,7 +190,7 @@
           <a id="medio-email" href="mailto:aematec@estudiantec.cr" class="rounded-[16px] border border-[#D8E3E9] bg-white p-6 hover:border-[#00B5C8] transition"><i class="fa-solid fa-envelope text-2xl text-[#00798A]"></i><h3 class="mt-4 font-sans font-bold">Correo institucional</h3><p id="medio-email-text" class="mt-2 text-sm text-[#627683]">aematec@estudiantec.cr</p></a>
           <a id="medio-telegram" href="https://t.me/comunidadmatec" target="_blank" rel="noopener" class="rounded-[16px] border border-[#D8E3E9] bg-white p-6 hover:border-[#00B5C8] transition"><i class="fa-brands fa-telegram text-2xl text-[#486398]"></i><h3 class="mt-4 font-sans font-bold">Telegram</h3><p class="mt-2 text-sm text-[#627683]">Comunidad oficial</p></a>
           <a id="medio-whatsapp" href="https://chat.whatsapp.com/HyBk6tUHyf44MlURrVgiTi" target="_blank" rel="noopener" class="rounded-[16px] border border-[#D8E3E9] bg-white p-6 hover:border-[#00B5C8] transition"><i class="fa-brands fa-whatsapp text-2xl text-[#3B8F5B]"></i><h3 class="mt-4 font-sans font-bold">WhatsApp</h3><p class="mt-2 text-sm text-[#627683]">Comunidad oficial</p></a>
-          <div class="rounded-[16px] border border-[#D8E3E9] bg-white p-6"><i class="fa-solid fa-graduation-cap text-2xl text-[#0D2B45]"></i><h3 class="mt-4 font-sans font-bold">TECDigital</h3><p class="mt-2 text-sm text-[#627683]">Noticias del subgrupo Estudiantes EMA</p></div>
+          <a id="medio-tecdigital" href="https://tecdigital.tec.ac.cr/dotlrn/escuela/escuela.EMA/estudiantes.EMA/one-community?page_num=0&amp;loc=" target="_blank" rel="noopener" class="rounded-[16px] border border-[#D8E3E9] bg-white p-6 hover:border-[#00B5C8] transition"><i class="fa-solid fa-graduation-cap text-2xl text-[#0D2B45]"></i><h3 class="mt-4 font-sans font-bold">TECDigital</h3><p class="mt-2 text-sm text-[#627683]">Noticias del subgrupo Estudiantes EMA</p></a>
         </div>
         <p class="mt-6 text-sm text-[#627683]">Las convocatorias, acuerdos y notificaciones se comunican por estos Medios Oficiales (Reglamento Interno, Art. 102). Este sitio y las redes sociales, como
           <a id="medio-instagram" href="https://www.instagram.com/aematec?stkn=enY1bDVmY3p1a3J4" target="_blank" rel="noopener" class="font-semibold text-[#00798A] hover:text-[#00798A]"><i class="fa-brands fa-instagram"></i> Instagram</a>,
@@ -241,12 +254,14 @@
   </script>
 
   <script type="module">
-    // Buscador de la página principal: busca a la vez entre las páginas del sitio (lista fija)
-    // y los recursos publicados del Repositorio (Firestore), como pidió la Junta ("Ambos").
+    // Buscador de la portada: busca en todo el sitio. Páginas y cursos son listas fijas; los demás datos
+    // (Repositorio, Inventario, Junta, Efemérides) se descargan una sola vez, cuando la persona usa el buscador.
     import { escapeHtml } from "./assets/js/util.js";
     import { SITE_PAGES } from "./assets/js/site-pages.js";
+    import { CURSOS } from "./assets/js/cursos.js";
     import { cargarPublicados } from "./assets/js/recursos.js";
-
+    import { db } from "./assets/js/firebase.js";
+    import { getDocs, getDoc, doc, collection } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const searchForm = document.querySelector("#home-search-form");
     const searchInput = searchForm.querySelector("input");
@@ -255,26 +270,45 @@
     const searchStatus = document.querySelector("#home-search-status");
     const searchPages = document.querySelector("#home-search-pages");
     const searchResourcesBox = document.querySelector("#home-search-resources");
-    let publishedResources = [];
+    const POR_GRUPO = 6;
+    const datos = { recursos: [], inventario: [], junta: [], efemerides: [] };
     let resourcesLoaded = false;
     let pendingQuery = "";
     let cargando = null;
 
+    // Sin mayúsculas ni tildes: "calculo" encuentra "Cálculo".
+    const norm = texto => String(texto ?? "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+    const coincide = (normalized, ...campos) => norm(campos.flat().filter(Boolean).join(" ")).includes(normalized);
+    const TIPOS_INV = { institucional: "Inventario institucional", aematec: "Inventario AEMATEC", biblioteca: "Biblioteca", consumible: "Consumibles" };
+
     const renderSearch = queryText => {
-      const normalized = queryText.toLocaleLowerCase("es");
-      const matchedPages = SITE_PAGES.filter(page => `${page.title} ${page.desc} ${page.kw}`.toLocaleLowerCase("es").includes(normalized));
-      const matchedResources = publishedResources.filter(resource => {
-        const text = [resource.title, resource.description, resource.type, resource.course, resource.author, resource.topic]
-          .filter(Boolean).join(" ").toLocaleLowerCase("es");
-        return text.includes(normalized);
-      }).slice(0, 6);
+      const normalized = norm(queryText);
+      const q = encodeURIComponent(queryText);
+      const matchedPages = SITE_PAGES.filter(page => coincide(normalized, page.title, page.desc, page.kw));
+      const recursos = tipo => datos.recursos.filter(r => (r.section === "academico") === (tipo === "academico") &&
+        coincide(normalized, r.title, r.description, r.type, r.course, r.courseCode, CURSOS[r.course], CURSOS[r.courseCode], r.author, r.topic, r.labels));
+      const inventario = datos.inventario.filter(i => coincide(normalized, i.titulo, i.nombre, i.articulo, i.autor, i.codigo, i.categoria, i.categorias));
+      const grupos = [
+        { etiqueta: "Recurso docente", items: recursos("docentes").map(r => ({ titulo: r.title || "Material sin título", desc: r.description || "Sin descripción disponible.", href: `repositorio-docentes.html?q=${q}` })), mas: `repositorio-docentes.html?q=${q}` },
+        { etiqueta: "Recurso académico", items: recursos("academico").map(r => ({ titulo: r.title || "Material sin título", desc: r.description || "Sin descripción disponible.", href: `repositorio-academicos.html?q=${q}` })), mas: `repositorio-academicos.html?q=${q}` },
+        { etiqueta: "Inventario · Biblioteca", items: inventario.map(i => ({
+            titulo: i.titulo || i.nombre || i.articulo || "Sin nombre",
+            desc: [TIPOS_INV[i.tipo], i.autor, i.codigo, Array.isArray(i.categorias) ? i.categorias.join(", ") : i.categoria].filter(Boolean).join(" · "),
+            href: `inventario.html?tipo=${encodeURIComponent(i.tipo)}&q=${q}` })), mas: inventario[0] ? `inventario.html?tipo=${encodeURIComponent(inventario[0].tipo)}&q=${q}` : "" },
+        { etiqueta: "Curso", items: Object.entries(CURSOS).filter(([codigo, nombre]) => coincide(normalized, codigo, nombre))
+            .map(([codigo, nombre]) => ({ titulo: nombre, desc: codigo, href: `repositorio-academicos.html?q=${encodeURIComponent(codigo)}` })) },
+        { etiqueta: "Junta Directiva", items: datos.junta.filter(m => coincide(normalized, m.nombre, m.puesto))
+            .map(m => ({ titulo: m.nombre || "Integrante de Junta Directiva", desc: m.puesto || "", href: "junta-directiva.html" })) },
+        { etiqueta: "Efemérides", items: datos.efemerides.filter(e => coincide(normalized, e.titulo, e.desc))
+            .map(e => ({ titulo: e.titulo, desc: [e.desde, e.desc].filter(Boolean).join(" · "), href: "efemerides.html" })), mas: "efemerides.html" }
+      ];
 
       searchResults.classList.remove("hidden");
       searchTitle.textContent = `Resultados para “${queryText}”`;
-      const total = matchedPages.length + matchedResources.length;
+      const total = matchedPages.length + grupos.reduce((suma, g) => suma + g.items.length, 0);
       searchStatus.textContent = total
-        ? `${total} ${total === 1 ? "resultado" : "resultados"} entre páginas del sitio y recursos del Repositorio.`
-        : "No encontramos páginas ni materiales que coincidan. Prueba con otra palabra.";
+        ? `${total} ${total === 1 ? "resultado" : "resultados"} en todo el sitio.`
+        : "No encontramos nada que coincida. Prueba con otra palabra.";
 
       searchPages.innerHTML = matchedPages.map(page => `
         <a href="${escapeHtml(page.href)}" class="bg-white border border-[#D8E3E9] rounded-[14px] p-5 hover:border-[#00B5C8]">
@@ -283,15 +317,15 @@
           <p class="text-sm text-[#627683] mt-1">${escapeHtml(page.desc)}</p>
         </a>`).join("");
 
-      searchResourcesBox.innerHTML = matchedResources.map(resource => {
-        const isAcademic = resource.section === "academico";
-        const destino = isAcademic ? "repositorio-academicos.html" : "repositorio-docentes.html";
-        return `<a href="${destino}?q=${encodeURIComponent(queryText)}" class="block bg-[#F8FBFC] border border-[#D6E2E7] rounded-[15px] p-5 hover:border-[#00B5C8]">
-          <span class="font-sans text-[10px] font-bold ${isAcademic ? "bg-[#E9EEF9] text-[#3B568D]" : "bg-[#DFF6F8] text-[#00798A]"} px-2.5 py-1 rounded-full">${isAcademic ? "Recurso académico" : "Recurso docente"}</span>
-          <h3 class="font-sans font-bold text-[17px] mt-2">${escapeHtml(resource.title || "Material sin título")}</h3>
-          <p class="text-sm text-[#566B78] mt-1">${escapeHtml(resource.description || "Sin descripción disponible.")}</p>
-        </a>`;
-      }).join("");
+      searchResourcesBox.innerHTML = grupos.filter(g => g.items.length).map(g => `
+        <div class="space-y-3">
+          <p class="font-sans text-xs font-bold uppercase tracking-[0.14em] text-[#00798A] pt-3">${g.etiqueta} (${g.items.length})</p>
+          ${g.items.slice(0, POR_GRUPO).map(item => `<a href="${escapeHtml(item.href)}" class="block bg-[#F8FBFC] border border-[#D6E2E7] rounded-[15px] p-5 hover:border-[#00B5C8]">
+            <h3 class="font-sans font-bold text-[17px]">${escapeHtml(item.titulo)}</h3>
+            ${item.desc ? `<p class="text-sm text-[#566B78] mt-1">${escapeHtml(item.desc)}</p>` : ""}
+          </a>`).join("")}
+          ${g.items.length > POR_GRUPO && g.mas ? `<a href="${escapeHtml(g.mas)}" class="inline-block font-sans text-sm font-bold text-[#00798A]">Ver más (${g.items.length - POR_GRUPO}) <i class="fa-solid fa-arrow-right"></i></a>` : ""}
+        </div>`).join("");
     };
 
     searchForm.addEventListener("submit", event => {
@@ -312,7 +346,7 @@
         cargando ??= cargarRecursos();
         searchResults.classList.remove("hidden");
         searchTitle.textContent = `Resultados para “${queryText}”`;
-        searchStatus.textContent = "Cargando materiales del Repositorio...";
+        searchStatus.textContent = "Buscando en todo el sitio...";
         searchPages.innerHTML = "";
         searchResourcesBox.innerHTML = "";
       }
@@ -326,13 +360,32 @@
       searchInput.focus();
     });
 
-    // Los materiales se descargan solo la primera vez que alguien busca (la mayoría de visitas no usa el buscador).
+    // Efemérides: script clásico que deja `window.aematecEfemerides`; solo se lee, no se modifica.
+    const cargarEfemerides = () => new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+      script.src = "assets/js/efemerides-datos.js";
+      script.onload = () => {
+        const api = window.aematecEfemerides;
+        const anio = new Date().getFullYear();
+        resolve(api ? [...api.delAnio(anio), ...api.delAnio(anio + 1)] : []);
+      };
+      script.onerror = reject;
+      document.head.appendChild(script);
+    });
+
+    // Los datos se descargan solo la primera vez que alguien usa el buscador; si una fuente falla, las demás siguen.
     async function cargarRecursos() {
-      try {
-        publishedResources = await cargarPublicados();
-      } catch (error) {
-        console.error("No se pudieron cargar los materiales del Repositorio para el buscador:", error);
-      }
+      const [recursos, inventario, junta, efemerides] = await Promise.allSettled([
+        cargarPublicados(),
+        getDocs(collection(db, "inventario")).then(s => s.docs.map(d => ({ id: d.id, ...d.data() }))),
+        // Solo nombre y puesto (RI Art. 143): el documento derivado no trae correos.
+        getDoc(doc(db, "config", "junta_publica")).then(s => s.exists() && Array.isArray(s.data().miembros) ? s.data().miembros : []),
+        cargarEfemerides()
+      ]);
+      [["recursos", recursos], ["inventario", inventario], ["junta", junta], ["efemerides", efemerides]].forEach(([clave, r]) => {
+        if (r.status === "fulfilled") datos[clave] = r.value;
+        else console.error(`No se pudo cargar "${clave}" para el buscador:`, r.reason);
+      });
       resourcesLoaded = true;
       if (pendingQuery) {
         const queryText = pendingQuery;

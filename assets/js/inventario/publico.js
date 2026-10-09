@@ -7,6 +7,13 @@ import {
 import { getDocs, collection } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 document.querySelectorAll(".inv-tab-btn").forEach(b => b.classList.toggle("is-active", b.dataset.tipo === inv.activeTab));
+// El buscador de la portada enlaza aquí con ?q=<texto>.
+document.querySelector("#inv-search").value = new URLSearchParams(location.search).get("q") || "";
+// El buscador solo busca en la pestaña activa: el texto de ayuda lo dice.
+const actualizarAyudaBusqueda = () => {
+  document.querySelector("#inv-search").placeholder = `Buscar en ${document.querySelector(`.inv-tab-btn[data-tipo="${inv.activeTab}"]`).textContent.trim()}...`;
+};
+actualizarAyudaBusqueda();
 
 document.querySelectorAll("[data-close-modal]").forEach(button => {
   button.addEventListener("click", () => hideModal(button.closest(".modal-overlay")));
@@ -235,6 +242,7 @@ document.querySelectorAll(".inv-tab-btn").forEach(button => {
     document.querySelectorAll(".inv-tab-btn").forEach(other => other.classList.remove("is-active"));
     button.classList.add("is-active");
     inv.activeTab = button.dataset.tipo;
+    actualizarAyudaBusqueda();
     inv.page = 1;
     resetFilters();
     populateFilterOptions(inv.activeTab);

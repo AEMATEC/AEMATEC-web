@@ -3,8 +3,12 @@
 import { app } from "../firebase.js";
 import { escapeHtml, safeHttpsUrl } from "../util.js";
 import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
 const db = getFirestore(app);
+const storage = getStorage(app);
+// Pestañas con nombre, puesto y foto, y el documento público derivado de cada una (sin correos: RI Art. 143).
+const PUBLICA = { junta: "junta_publica", fiscalia: "fiscalia_publica" };
 const currentTab = { value: "padron" };
 
 document.querySelectorAll(".tab-btn").forEach(btn => btn.addEventListener("click", () => {
@@ -20,6 +24,7 @@ document.querySelectorAll(".tab-btn").forEach(btn => btn.addEventListener("click
   const sectionForm = document.querySelector("#section-form");
   const mediosForm = document.querySelector("#medios-form");
   const sectionList = document.querySelector("#section-list");
+  document.querySelector("#foto-aviso").hidden = !PUBLICA[currentTab.value];
 
   if (currentTab.value === "medios") {
     sectionForm.style.display = "none";
@@ -73,7 +78,7 @@ document.querySelector("#section-form").addEventListener("submit", async event =
   }
 
   document.querySelector("#section-form").reset();
-  if (currentTab.value === "junta") await syncJuntaPublica();
+  if (PUBLICA[currentTab.value]) await syncPublica(currentTab.value);
   await loadSection(currentTab.value);
 
   let message = `✓ ${results.success} agregado(s)`;
@@ -130,19 +135,33 @@ emailInput.addEventListener("blur", () => {
   setTimeout(() => suggestionsList.classList.add("hidden"), 200);
 });
 
-// La página pública de Junta Directiva lee config/junta_publica, que solo contiene nombre y
-// puesto. Los correos de la colección "junta" no se publican (RI Art. 143).
-async function syncJuntaPublica() {
+// Las páginas públicas leen config/junta_publica y config/fiscalia_publica: solo nombre, puesto y foto.
+// Los correos no se publican (RI Art. 143). La Fiscalía es independiente de la Junta (RI Art. 42).
+async function syncPublica(section) {
   try {
-    const snapshot = await getDocs(collection(db, "junta"));
+    const snapshot = await getDocs(collection(db, section));
     const miembros = snapshot.docs.map(item => ({
       nombre: String(item.data().nombre || "").trim(),
-      puesto: String(item.data().puesto || "").trim()
+      puesto: String(item.data().puesto || "").trim() || (section === "fiscalia" ? "Fiscalía" : ""),
+      foto: safeHttpsUrl(item.data().foto) || ""
     }));
-    await setDoc(doc(db, "config", "junta_publica"), { miembros, updatedAt: new Date().toISOString() });
+    await setDoc(doc(db, "config", PUBLICA[section]), { miembros, updatedAt: new Date().toISOString() });
   } catch (error) {
-    console.error("No se pudo publicar la lista pública de la Junta:", error);
+    console.error("No se pudo publicar la lista pública:", error);
   }
+}
+
+const borrarFoto = path => path?.startsWith("perfiles/") ? deleteObject(ref(storage, path)).catch(() => { }) : Promise.resolve();
+
+// Cada lista en su carpeta (perfiles/junta o perfiles/fiscalia): storage.rules no deja que la Fiscalía toque las de la Junta.
+async function subirFoto(file, section) {
+  const extension = file.name.split(".").pop()?.toLowerCase();
+  if (!["jpg", "jpeg", "png", "webp"].includes(extension) || !["image/jpeg", "image/png", "image/webp"].includes(file.type) || file.size > 5 * 1024 * 1024) {
+    throw new Error("La foto debe ser JPG, PNG o WEBP de máximo 5 MB.");
+  }
+  const fotoPath = `perfiles/${section}/${crypto.randomUUID()}.${extension}`;
+  const subida = await uploadBytes(ref(storage, fotoPath), file, { contentType: file.type });
+  return { foto: await getDownloadURL(subida.ref), fotoPath };
 }
 
 async function loadSection(section) {
@@ -154,36 +173,71 @@ async function loadSection(section) {
       return;
     }
 
-    if (section === "junta") {
+    if (PUBLICA[section]) {
       list.innerHTML = snapshot.docs.map(item => {
         const data = item.data();
+        const foto = safeHttpsUrl(data.foto);
+        const puestoPor = section === "fiscalia" ? "Fiscalía" : "Presidencia";
         return `
           <li class="flex flex-wrap items-center justify-between gap-3 py-4" data-row="${escapeHtml(item.id)}">
             <span class="font-sans text-sm font-semibold w-full sm:w-auto sm:min-w-[220px]">${escapeHtml(item.id)}</span>
             <input type="text" data-field="nombre" placeholder="Nombre completo" value="${escapeHtml(data.nombre)}" class="h-9 flex-1 min-w-[160px] rounded-[8px] border border-[#8497A3] px-2 text-sm">
-            <input type="text" data-field="puesto" list="puestos-junta" placeholder="Puesto (ej. Presidencia)" value="${escapeHtml(data.puesto)}" class="h-9 flex-1 min-w-[160px] rounded-[8px] border border-[#8497A3] px-2 text-sm">
+            <input type="text" data-field="puesto" ${section === "junta" ? 'list="puestos-junta"' : ""} placeholder="Puesto (ej. ${puestoPor})" value="${escapeHtml(data.puesto)}" class="h-9 flex-1 min-w-[160px] rounded-[8px] border border-[#8497A3] px-2 text-sm">
+            <div class="flex w-full items-center gap-3">
+              ${foto ? `<img src="${escapeHtml(foto)}" alt="Foto de ${escapeHtml(data.nombre || item.id)}" class="h-12 w-12 rounded-full border border-[#E2E9EC] object-cover">` : ""}
+              <input type="file" data-field="foto" accept="image/jpeg,image/png,image/webp" aria-label="Foto de ${escapeHtml(item.id)}" class="min-w-0 flex-1 text-xs">
+              ${foto ? `<button type="button" data-remove-photo="${escapeHtml(item.id)}" class="font-sans text-xs font-bold text-[#C2413B]">Quitar foto</button>` : ""}
+            </div>
             <button type="button" data-save-item="${escapeHtml(item.id)}" class="font-sans text-xs font-bold text-[#00798A]">Guardar</button>
             <button type="button" data-remove-item="${escapeHtml(item.id)}" class="font-sans text-xs font-bold text-[#C2413B]">Quitar</button>
           </li>
         `;
       }).join("");
 
+      const avisar = (texto, ok) => {
+        const status = document.querySelector("#section-status");
+        status.textContent = texto;
+        status.className = ok ? "text-sm text-[#00798A]" : "text-sm text-[#C2413B]";
+        status.hidden = false;
+        if (ok) setTimeout(() => status.hidden = true, 2500);
+      };
+      const docDe = email => snapshot.docs.find(d => d.id === email).data();
+
       list.querySelectorAll("[data-save-item]").forEach(button => button.addEventListener("click", async () => {
         const email = button.dataset.saveItem;
         const row = list.querySelector(`[data-row="${CSS.escape(email)}"]`);
-        const nombre = row.querySelector('[data-field="nombre"]').value.trim();
-        const puesto = row.querySelector('[data-field="puesto"]').value.trim();
+        const datos = {
+          email,
+          nombre: row.querySelector('[data-field="nombre"]').value.trim(),
+          puesto: row.querySelector('[data-field="puesto"]').value.trim()
+        };
         try {
-          await setDoc(doc(db, "junta", email), { email, nombre, puesto }, { merge: true });
-          await syncJuntaPublica();
-          document.querySelector("#section-status").textContent = `✓ Datos de ${email} guardados.`;
-          document.querySelector("#section-status").className = "text-sm text-[#00798A]";
-          document.querySelector("#section-status").hidden = false;
-          setTimeout(() => document.querySelector("#section-status").hidden = true, 2500);
+          const archivo = row.querySelector('[data-field="foto"]').files[0];
+          if (archivo) {
+            const nueva = await subirFoto(archivo, section);
+            await setDoc(doc(db, section, email), { ...datos, ...nueva }, { merge: true });
+            await borrarFoto(docDe(email).fotoPath);
+          } else {
+            await setDoc(doc(db, section, email), datos, { merge: true });
+          }
+          await syncPublica(section);
+          await loadSection(section);
+          avisar(`✓ Datos de ${email} guardados.`, true);
         } catch (error) {
-          document.querySelector("#section-status").textContent = `Error al guardar: ${error.message}`;
-          document.querySelector("#section-status").className = "text-sm text-[#C2413B]";
-          document.querySelector("#section-status").hidden = false;
+          avisar(`Error al guardar: ${error.message}`, false);
+        }
+      }));
+
+      list.querySelectorAll("[data-remove-photo]").forEach(button => button.addEventListener("click", async () => {
+        const email = button.dataset.removePhoto;
+        try {
+          await setDoc(doc(db, section, email), { foto: "", fotoPath: "" }, { merge: true });
+          await borrarFoto(docDe(email).fotoPath);
+          await syncPublica(section);
+          await loadSection(section);
+          avisar(`✓ Foto de ${email} quitada.`, true);
+        } catch (error) {
+          avisar(`Error al quitar la foto: ${error.message}`, false);
         }
       }));
     } else {
@@ -198,8 +252,10 @@ async function loadSection(section) {
     list.querySelectorAll("[data-remove-item]").forEach(button => button.addEventListener("click", async () => {
       if (!confirm(`¿Quitar ${button.dataset.removeItem} de ${section}?`)) return;
       try {
+        const previa = PUBLICA[section] ? (await getDoc(doc(db, section, button.dataset.removeItem))).data()?.fotoPath : "";
         await deleteDoc(doc(db, section, button.dataset.removeItem));
-        if (section === "junta") await syncJuntaPublica();
+        await borrarFoto(previa);
+        if (PUBLICA[section]) await syncPublica(section);
         await loadSection(section);
       } catch (error) {
         document.querySelector("#section-status").textContent = `Error al quitar: ${error.message}`;
@@ -397,5 +453,6 @@ export async function iniciarAsociacion({ junta }) {
   const permitidas = junta ? ["padron", "junta", "fiscalia", "medios"] : ["fiscalia"];
   document.querySelectorAll(".tab-btn").forEach(button => { button.hidden = !permitidas.includes(button.dataset.tab); });
   document.querySelector(`.tab-btn[data-tab="${permitidas[0]}"]`).click();
-  if (junta) await syncJuntaPublica();
+  if (junta) await syncPublica("junta");
+  await syncPublica("fiscalia");
 }

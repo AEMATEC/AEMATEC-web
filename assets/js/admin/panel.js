@@ -1,5 +1,5 @@
-// Panel de administración (admin.html): un solo acceso para Junta, Fiscalía y moderación.
-// Cada persona ve las secciones de sus roles. Los permisos reales los aplican firestore.rules y storage.rules.
+// Panel de administración (admin.html): acceso para Junta y Fiscalía (y moderación, solo para Efemérides; la
+// moderación del Repositorio está en repositorio-moderacion.html). Cada persona ve las secciones de sus roles. Los permisos reales los aplican firestore.rules y storage.rules.
 import { app } from "../firebase.js";
 import { tieneRol } from "../roles.js";
 import { mensajeErrorAuth } from "../util.js";
@@ -8,7 +8,6 @@ import {
   browserSessionPersistence, getAuth, onAuthStateChanged, setPersistence, signOut,
   createUserWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { iniciarModeracion } from "./moderacion.js";
 import { iniciarAsociacion } from "./asociacion.js";
 import { iniciarTramites } from "./tramites.js";
 import { iniciarTema } from "./tema.js";
@@ -90,8 +89,7 @@ const SECCIONES = [
   { id: "tramites", etiqueta: "Trámites", icono: "fa-file-signature" },
   { id: "asociacion", etiqueta: "Asociación", icono: "fa-users" },
   { id: "tema", etiqueta: "Tema del sitio", icono: "fa-palette" },
-  { id: "efemerides", etiqueta: "Efemérides, MEP y TEC", icono: "fa-calendar-days" },
-  { id: "moderacion", etiqueta: "Moderación del Repositorio", icono: "fa-user-shield" }
+  { id: "efemerides", etiqueta: "Efemérides, MEP y TEC", icono: "fa-calendar-days" }
 ];
 
 onAuthStateChanged(auth, async user => {
@@ -105,12 +103,14 @@ onAuthStateChanged(auth, async user => {
     showLoginMode("login");
     const roles = [junta && "Junta Directiva", fiscalia && "Fiscalía", moderador && "Moderación"].filter(Boolean);
     document.querySelector("#admin-session").textContent = `${user.email} · ${roles.join(" · ")}`;
-    const visibles = { tramites: junta || fiscalia, asociacion: junta || fiscalia, tema: junta, efemerides: junta || moderador, moderacion: moderador };
+    const visibles = { tramites: junta || fiscalia, asociacion: junta || fiscalia, tema: junta, efemerides: junta || moderador };
     for (const seccion of SECCIONES) document.querySelector(`#${seccion.id}`).hidden = !visibles[seccion.id];
-    // Los accesos directos solo tienen sentido si la cuenta ve más de una sección.
-    document.querySelector("#admin-nav").hidden = SECCIONES.filter(seccion => visibles[seccion.id]).length < 2;
-    document.querySelector("#admin-nav").innerHTML = SECCIONES.filter(seccion => visibles[seccion.id]).map(seccion =>
-      `<a href="#${seccion.id}" class="flex items-center gap-2 rounded-full border border-[#8497A3] bg-white px-4 py-2 text-[#0D2B45] hover:border-[#00A6B8] hover:text-[#00798A]"><i class="fa-solid ${seccion.icono}"></i>${seccion.etiqueta}</a>`
+    // Accesos directos; la moderación del Repositorio tiene su propia página.
+    const accesos = SECCIONES.filter(seccion => visibles[seccion.id]).map(seccion => ({ ...seccion, href: `#${seccion.id}` }));
+    if (moderador) accesos.push({ href: "repositorio-moderacion.html", etiqueta: "Moderación del Repositorio", icono: "fa-user-shield" });
+    document.querySelector("#admin-nav").hidden = accesos.length < 2;
+    document.querySelector("#admin-nav").innerHTML = accesos.map(acceso =>
+      `<a href="${acceso.href}" class="flex items-center gap-2 rounded-full border border-[#8497A3] bg-white px-4 py-2 text-[#0D2B45] hover:border-[#00A6B8] hover:text-[#00798A]"><i class="fa-solid ${acceso.icono}"></i>${acceso.etiqueta}</a>`
     ).join("");
     if (junta || fiscalia) {
       await iniciarAsociacion({ junta });
@@ -118,10 +118,6 @@ onAuthStateChanged(auth, async user => {
     }
     if (junta) iniciarTema();
     if (junta || moderador) iniciarEfemerides();
-    if (moderador) {
-      iniciarModeracion();
-      if (new URLSearchParams(window.location.search).has("edit")) document.querySelector("#moderacion").scrollIntoView();
-    }
   } else if (user) {
     document.querySelector("#login-status").textContent = mensajeSinAcceso(user, "Esta cuenta no tiene permisos de administración (Junta, Fiscalía o moderación).");
     document.querySelector("#login-status").hidden = false;

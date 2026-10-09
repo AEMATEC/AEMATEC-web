@@ -120,7 +120,8 @@ Estos puntos condicionan el diseño y no deberían contradecirse:
   aún no es público.
   Se descartaron carpetas por módulo: obligarían a cambiar todas las rutas de `assets/` sin beneficio real.
 - ✅ **3b.** Un solo panel de administración (`admin.html`, código en `assets/js/admin/`): un acceso, y cada cuenta
-  ve las secciones de sus roles (Asociación para Junta y Fiscalía; Moderación del Repositorio para moderación).
+  ve las secciones de sus roles (Asociación para Junta y Fiscalía; Efemérides para Junta y moderación). La moderación
+  del Repositorio pasó a su propia página, `repositorio-moderacion.html` (2026-10), para no mezclarla con la Junta.
   Reemplaza a `aematec_biblioteca-moderacion.html` y `aematec_junta-panel.html`, (ya borradas).
   Se corrigió que un moderador nuevo no podía crear su contraseña (la revisión previa leía `moderators` sin
   sesión, algo que las reglas no permiten).

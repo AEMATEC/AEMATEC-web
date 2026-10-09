@@ -31,17 +31,23 @@
 <body class="min-h-screen bg-[#F4F8FA] text-[#0D2B45] font-serif" style="background-image: radial-gradient(circle at 12% 18%, rgba(0, 175, 193, 0.13) 0, rgba(0, 175, 193, 0.13) 1.2px, transparent 1.8px), radial-gradient(circle at 84% 72%, rgba(13, 43, 69, 0.09) 0, rgba(13, 43, 69, 0.09) 1.2px, transparent 1.8px); background-size: 28px 28px, 36px 36px;">
   <script src="assets/js/layout.js" data-part="header" data-active="tramites"></script>
 
-  <main class="site-container mx-auto py-12">
-    <section class="max-w-[760px]">
+  <main>
+    <div class="bg-[#EAF5F7] border-b border-[#D5E5EA]">
+    <section class="site-container mx-auto py-12">
+      <div class="max-w-[760px]">
       <p class="font-sans text-xs font-bold uppercase tracking-[0.18em] text-[#00798A]">Trámites</p>
       <h1 class="mt-2 font-sans text-[34px] font-bold tracking-[-0.02em]">Trámites de la asociación</h1>
       <p class="mt-4 text-[#5B6E7B] leading-7">Envía solicitudes a la Junta Directiva, postulaciones, solicitudes de AGEC
         extraordinaria y consultas o denuncias a la Fiscalía. Son derechos de las personas Asociadas, por eso verificamos
         tu correo <strong>@estudiantec.cr</strong> con un enlace. No necesitas contraseña.</p>
+      </div>
     </section>
+    </div>
+
+    <div class="site-container mx-auto py-12">
 
     <!-- Paso 1: verificación del correo -->
-    <section id="paso-verificar" class="mt-8 max-w-[760px] rounded-[16px] border border-[#D7E2E7] bg-white p-6 shadow-sm" aria-labelledby="titulo-verificar">
+    <section id="paso-verificar" class="max-w-[760px] rounded-[16px] border border-[#D7E2E7] bg-white p-6 shadow-sm" aria-labelledby="titulo-verificar">
       <h2 id="titulo-verificar" class="font-sans text-lg font-bold"><span class="text-[#00798A]">1.</span> Verifica tu correo institucional</h2>
       <form id="form-correo" class="mt-4 flex flex-wrap gap-3">
         <label for="correo" class="sr-only">Correo institucional</label>
@@ -122,13 +128,17 @@
     </section>
 
     <!-- Mis trámites -->
-    <section id="mis-tramites" class="mt-12" aria-labelledby="titulo-mis" hidden>
+    <section id="mis-tramites" class="mt-12 mb-4" aria-labelledby="titulo-mis" hidden>
       <h2 id="titulo-mis" class="font-sans text-lg font-bold">Mis trámites</h2>
       <ul id="lista-mis" class="mt-4 space-y-3"></ul>
     </section>
 
+    </div>
+
     <!-- Seguimiento anónimo -->
-    <section class="mt-12 max-w-[760px] rounded-[16px] border border-[#D7E2E7] bg-white p-6 shadow-sm" aria-labelledby="titulo-seguimiento">
+    <div class="bg-[#EAF1F4] border-y border-[#D7E3E8] py-12">
+    <div class="site-container mx-auto">
+    <section class="max-w-[760px] rounded-[16px] border border-[#D7E2E7] bg-white p-6 shadow-sm" aria-labelledby="titulo-seguimiento">
       <h2 id="titulo-seguimiento" class="font-sans text-lg font-bold">Seguimiento de un caso anónimo a Fiscalía</h2>
       <form id="form-seguimiento" class="mt-4 flex flex-wrap gap-3">
         <label for="codigo" class="sr-only">Código de seguimiento</label>
@@ -138,6 +148,8 @@
       </form>
       <div id="resultado-seguimiento" class="mt-4 text-sm" role="status" hidden></div>
     </section>
+    </div>
+    </div>
   </main>
   <script src="assets/js/layout.js" data-part="footer"></script>
   <script type="module" src="assets/js/tramites.js"></script>
