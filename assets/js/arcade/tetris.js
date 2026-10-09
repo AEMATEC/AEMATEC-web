@@ -5,12 +5,14 @@
 // Salas en línea: colección `tetris/{sala}` ({host, hostName, state: lobby|playing, round, seed, created, expiraEn,
 // lastSeen}) y `tetris/{sala}/players/{uid}` ({name, round, alive, board, score, lines, sent, lastSeen}). Cada quien
 // escribe SOLO su documento; la "basura" se manda como un total (`sent`) que el rival lee. Reglas: arcade-firebase/firestore.rules.
-import { $, esc, store, SFX, LB, fbReady, db, fs, UID, genCode, presenceLoop, expiraEn, liveRooms, playerName, nameMissing, isStale } from './core.js';
+import { $, esc, store, SFX, LB, setUpdateMenuMusicHook, fbReady, db, fs, UID, genCode, presenceLoop, expiraEn, liveRooms, playerName, nameMissing, isStale } from './core.js';
+import { MUSIC, setMusicToggleHook } from './musica.js';
 import { Partida, COLS, ROWS, TIPOS, celdas, serializar, deserializar } from './tetris-motor.js';
 
 const COLORES = { 0: null, 1: '#73eff7', 2: '#ffcd75', 3: '#b55fd0', 4: '#38b764', 5: '#b13e53', 6: '#3b5dc9', 7: '#ef7d57', 8: '#566c86' };
 const TIPO_COLOR = { I: 1, O: 2, T: 3, S: 4, Z: 5, J: 6, L: 7 };
-const vista = nombre => ['menu', 'sala', 'juego'].forEach(v => { $('#v-' + v).hidden = v !== nombre; });
+const VISTAS = { menu: 'tt-menu', sala: 'tt-lobby', juego: 'tt-game' };
+const vista = nombre => Object.entries(VISTAS).forEach(([v, id]) => { $('#' + id).hidden = v !== nombre; });
 const aleatorio = () => (Math.random() * 2 ** 31) | 0;
 $('#arcade-volver').onclick = () => { if (window.arcadeTransition) window.arcadeTransition('arcade.html'); else location.href = 'arcade.html'; };
 
@@ -46,8 +48,8 @@ function dibujarMini(ctx, tipos, ancho, alto, s = 12) {
     cs.forEach(([cx, cy]) => celda(ctx, ox + (cx - minX) * s, oy + (cy - minY) * s, s, TIPO_COLOR[t]));
   });
 }
-const cvJuego = $('#cv'), ctx = cvJuego.getContext('2d');
-const ctxHold = $('#cv-hold').getContext('2d'), ctxNext = $('#cv-next').getContext('2d'), ctxRival = $('#cv-rival').getContext('2d');
+const cvJuego = $('#tt-cv'), ctx = cvJuego.getContext('2d');
+const ctxHold = $('#tt-hold').getContext('2d'), ctxNext = $('#tt-next').getContext('2d'), ctxRival = $('#tt-cv-rival').getContext('2d');
 [ctx, ctxHold, ctxNext, ctxRival].forEach(c => { c.imageSmoothingEnabled = false; });
 
 /* ---------- sonido y música (sintetizados) ---------- */
@@ -64,25 +66,7 @@ const SON = {
   cuenta: () => snd(() => SFX.tone(440, .12, 'square', .07)),
   ya: () => snd(() => SFX.tone(880, .3, 'square', .08))
 };
-// Música de fondo: melodía folclórica rusa (dominio público), en onda cuadrada suave. Se repite mientras se juega.
-const MELODIA = [[659, 4], [494, 2], [523, 2], [587, 4], [523, 2], [494, 2], [440, 4], [440, 2], [523, 2], [659, 4], [587, 2], [523, 2], [494, 6], [523, 2], [587, 4], [659, 4], [523, 4], [440, 4], [440, 8],
-  [0, 2], [587, 4], [698, 2], [880, 4], [784, 2], [698, 2], [659, 6], [523, 2], [659, 4], [587, 2], [523, 2], [494, 4], [494, 2], [523, 2], [587, 4], [659, 4], [523, 4], [440, 4], [440, 8]];
-let musica = null;
-function musicaOn(on) {
-  clearTimeout(musica); musica = null;
-  if (!on) return;
-  let i = 0;
-  const paso = () => {
-    musica = null;
-    if (!enPartida() || !SFX.on) { if (enPartida()) musica = setTimeout(paso, 600); return; }
-    SFX.init();
-    const [f, n] = MELODIA[i % MELODIA.length], u = Math.max(0.065, 0.12 - (juego ? juego.p.nivel * 0.004 : 0));
-    if (f && SFX.ctx) SFX.tone(f, n * u * 0.9, 'square', .022);
-    i++;
-    musica = setTimeout(paso, n * u * 1000);
-  };
-  paso();
-}
+// La música es la del resto del Arcade (assets/js/arcade/musica/tetris.js, con el botón ♪ del encabezado).
 
 /* ---------- entrada: teclado y botones táctiles ---------- */
 const entrada = { izq: false, der: false, abajo: false };
@@ -103,14 +87,14 @@ function pulsar(k, abajo) {
 }
 const TECLAS = { ArrowLeft: 'izq', KeyA: 'izq', ArrowRight: 'der', KeyD: 'der', ArrowDown: 'abajo', KeyS: 'abajo', ArrowUp: 'giro', KeyX: 'giro', KeyW: 'giro', KeyZ: 'giro2', Space: 'caer', KeyC: 'hold', ShiftLeft: 'hold', ShiftRight: 'hold' };
 window.addEventListener('keydown', e => {
-  if (!$('#v-juego') || $('#v-juego').hidden || e.target.tagName === 'INPUT') return;
+  if ($('#tt-game').hidden || e.target.tagName === 'INPUT') return;
   if (e.code === 'KeyP' || e.code === 'Escape') { if (!e.repeat) alternarPausa(); return; }
   const k = TECLAS[e.code]; if (!k) return;
   e.preventDefault();
   if (!e.repeat) pulsar(k, true);
 });
 window.addEventListener('keyup', e => { const k = TECLAS[e.code]; if (k === 'izq' || k === 'der' || k === 'abajo') pulsar(k, false); });
-document.querySelectorAll('#tactil [data-k]').forEach(b => {
+document.querySelectorAll('.tt-botones [data-k]').forEach(b => {
   const k = b.dataset.k;
   b.addEventListener('pointerdown', e => { e.preventDefault(); pulsar(k, true); });
   ['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => b.addEventListener(ev, () => { if (k === 'izq' || k === 'der' || k === 'abajo') pulsar(k, false); }));
@@ -124,8 +108,9 @@ function empezar({ semilla, online = false, ronda = 0 }) {
   juego = { p: new Partida(semilla), online, ronda, pausa: false, cuenta: online ? 3 : 0, fin: false, ultimaEscritura: 0, sucio: true, tick: performance.now(), rival: null, viRival: false };
   entrada.izq = entrada.der = entrada.abajo = false; das = { dir: 0, espera: 0, rep: 0 };
   vista('juego');
-  $('#rival').hidden = !online;
-  $('#b-pausa').hidden = online;
+  $('#tt-rival').hidden = !online;
+  $('#tt-pause').hidden = online;
+  $('#tt-status').textContent = online ? 'EN LÍNEA 1 vs 1' : 'MODO SOLO';
   cartel(null);
   if (online) {
     juego.cuenta = 3.2; // 3, 2, 1, ¡YA!
@@ -133,23 +118,24 @@ function empezar({ semilla, online = false, ronda = 0 }) {
     escribirYo(true);
   } else { SON.cuenta(); }
   actualizarHud();
-  musicaOn(true);
   requestAnimationFrame(bucle);
 }
-function cartel(html, botones = []) {
-  const c = $('#cartel');
-  c.hidden = !html;
-  c.replaceChildren();
-  if (!html) return;
-  const t = document.createElement('div'); t.innerHTML = html; c.appendChild(t);
-  botones.forEach(([texto, clase, fn]) => { const b = document.createElement('button'); b.className = 'btn ' + clase; b.type = 'button'; b.textContent = texto; b.onclick = fn; c.appendChild(b); });
+function cartel(titulo, texto = '', botones = []) {
+  const o = $('#tt-over');
+  o.hidden = !titulo;
+  if (!titulo) return;
+  $('#tt-over-t').textContent = titulo;
+  $('#tt-over-p').textContent = texto;
+  const fila = $('#tt-over-b');
+  fila.replaceChildren();
+  botones.forEach(([t, clase, fn]) => { const x = document.createElement('button'); x.className = 'btn ' + clase; x.type = 'button'; x.textContent = t; x.onclick = fn; fila.appendChild(x); });
 }
 function actualizarHud() {
   const p = juego.p;
-  $('#s-puntos').textContent = p.puntos; $('#s-nivel').textContent = p.nivel; $('#s-lineas').textContent = p.lineas;
+  $('#tt-puntos').textContent = p.puntos; $('#tt-nivel').textContent = p.nivel; $('#tt-lineas').textContent = p.lineas;
   dibujarMini(ctxHold, [p.guardada], 64, 64, 12);
   dibujarMini(ctxNext, p.cola.slice(0, 3), 64, 176, 12);
-  $('#basura').textContent = juego.online && p.pendiente > 0 ? `BASURA ▲${p.pendiente}` : '';
+  $('#tt-basura').textContent = juego.online && p.pendiente > 0 ? `BASURA ▲${p.pendiente}` : '';
 }
 function despuesDeFijar() {
   const p = juego.p, u = p.ultimo;
@@ -171,7 +157,7 @@ function bucle(ahora) {
     juego.cuenta -= dt;
     const n = Math.ceil(juego.cuenta);
     if (juego.cuenta > 0 && n < antes && n > 0) SON.cuenta();
-    cartel(juego.cuenta > 0.2 ? `<div class="grande">${Math.min(3, n)}</div>` : null);
+    cartel(juego.cuenta > 0.2 ? String(Math.min(3, n)) : null);
     if (juego.cuenta <= 0) { cartel(null); SON.ya(); }
   } else if (!juego.pausa) {
     // repetición automática de ← → (DAS): primero espera, luego avanza cada 40 ms
@@ -187,7 +173,7 @@ function bucle(ahora) {
   }
   dibujarTablero(ctx, p);
   if (juego.online) {
-    $('#rival').hidden = false;
+    $('#tt-rival').hidden = false;
     if (juego.rival && juego.rival.board) { const tr = deserializar(juego.rival.board); rejilla(ctxRival, 12); tr.forEach((f, y) => f.forEach((c, x) => celda(ctxRival, x * 12, y * 12, 12, c))); }
     else rejilla(ctxRival, 12);
     escribirYo(false);
@@ -197,17 +183,16 @@ function bucle(ahora) {
 function alternarPausa() {
   if (!juego || juego.online || juego.fin || juego.cuenta > 0) return;
   juego.pausa = !juego.pausa;
-  $('#b-pausa').textContent = juego.pausa ? 'SEGUIR' : 'PAUSA';
-  cartel(juego.pausa ? '<div class="grande">PAUSA</div><div>P PARA SEGUIR</div>' : null);
+  $('#tt-pause').textContent = juego.pausa ? 'SEGUIR' : 'PAUSA';
+  cartel(juego.pausa ? 'PAUSA' : null, 'P PARA SEGUIR');
   if (!juego.pausa) juego.tick = performance.now();
 }
-$('#b-pausa').onclick = alternarPausa;
+$('#tt-pause').onclick = alternarPausa;
 
 /* ---------- fin de la partida ---------- */
 function terminar(gano, motivo = '') {
   if (!juego || juego.fin) return;
   juego.fin = true;
-  musicaOn(false);
   const p = juego.p, online = juego.online;
   dibujarTablero(ctx, p);
   if (online) {
@@ -215,26 +200,26 @@ function terminar(gano, motivo = '') {
     (gano ? SON.ganar : SON.perder)();
     const botones = [['SALIR A LA SALA', 'gray', () => volverALaSala()]];
     if (esAnfitrion()) botones.unshift(['REVANCHA', 'green', () => anfitrionReinicia()]);
-    cartel(`<div class="grande">${gano ? '¡GANASTE!' : 'PERDISTE'}</div><div>${esc(motivo)}</div><div>${p.puntos} PUNTOS · ${p.lineas} LÍNEAS</div>${esAnfitrion() ? '' : '<div class="muted">ESPERA LA REVANCHA DEL ANFITRIÓN…</div>'}`, botones);
+    cartel(gano ? '¡GANASTE!' : 'PERDISTE', `${motivo} · ${p.puntos} PUNTOS · ${p.lineas} LÍNEAS${esAnfitrion() ? '' : ' · ESPERA LA REVANCHA DEL ANFITRIÓN…'}`, botones);
     if (gano) LB.confirmar('¿SUBES TU VICTORIA EN LÍNEA?', () => LB.increment('tetris_vs', 'ONLINE')).then(() => cargarTablas());
   } else {
     SON.perder();
-    cartel(`<div class="grande">FIN DEL JUEGO</div><div>${p.puntos} PUNTOS · ${p.lineas} LÍNEAS · NIVEL ${p.nivel}</div>`,
+    cartel('FIN DEL JUEGO', `${p.puntos} PUNTOS · ${p.lineas} LÍNEAS · NIVEL ${p.nivel}`,
       [['OTRA VEZ', 'green', () => empezar({ semilla: aleatorio() })], ['MENÚ', 'gray', () => { vista('menu'); cartel(null); }]]);
-    if (p.puntos > 0) LB.confirmar(`¿SUBES TU PUNTAJE DE ${p.puntos}?`, () => LB.submit('tetris', p.puntos, false, `${p.lineas} LÍN · NIV ${p.nivel}`)).then(() => cargarTablas());
+    if (p.puntos > 0) LB.confirmar(`PUNTAJE: ${p.puntos}. ¿LO SUBES A LA TABLA?`, () => LB.submit('tetris', p.puntos, false, `${p.lineas} LÍN · NIV ${p.nivel}`)).then(() => cargarTablas());
   }
 }
-$('#b-abandonar').onclick = () => {
-  if (!juego || juego.fin) { vista('menu'); return; }
+$('#tt-quit').onclick = () => {
+  if (!juego || juego.fin) { if (sala) volverALaSala(); else vista('menu'); return; }
   if (!confirm('¿Abandonar la partida?')) return;
   if (juego.online) { juego.p.vivo = false; terminar(false, 'ABANDONASTE'); volverALaSala(); }
-  else { juego.fin = true; musicaOn(false); vista('menu'); cartel(null); }
+  else { juego.fin = true; vista('menu'); cartel(null); }
 };
 
 /* ---------- tablas ---------- */
 function cargarTablas() {
-  LB.render($('#lb-solo'), 'tetris', false, r => `${r.score}${r.extra ? ' · ' + esc(r.extra) : ''}`);
-  LB.render($('#lb-vs'), 'tetris_vs', false, r => `${r.score} V`);
+  LB.render($('#tt-lb'), 'tetris', false, r => `${r.score} PTS<small>${esc(r.extra || '')}</small>`);
+  LB.render($('#tt-lb-vs'), 'tetris_vs', false, r => `${r.score} V`);
 }
 
 /* ---------- salas en línea ---------- */
@@ -250,37 +235,37 @@ async function requiereNombreYRed(idMsg) {
   return true;
 }
 async function crearSala() {
-  if (!(await requiereNombreYRed('#msg-menu'))) return;
+  if (!(await requiereNombreYRed('#tt-menu-msg'))) return;
   const code = genCode(), nombre = playerName();
   try {
     await fs.setDoc(refSala(code), { host: UID, hostName: nombre, state: 'lobby', round: 0, seed: aleatorio(), created: fs.serverTimestamp(), lastSeen: fs.serverTimestamp(), expiraEn: expiraEn() });
     await fs.setDoc(refYo(code), { name: nombre, round: 0, alive: true, board: '', score: 0, lines: 0, sent: 0, lastSeen: fs.serverTimestamp() });
     entrarEnSala(code);
-  } catch (e) { console.warn(e); mensaje('#msg-menu', 'NO SE PUDO CREAR LA SALA. ¿ESTÁN ACTUALIZADAS LAS REGLAS DE FIREBASE?'); }
+  } catch (e) { console.warn(e); mensaje('#tt-menu-msg', 'NO SE PUDO CREAR LA SALA. ¿ESTÁN ACTUALIZADAS LAS REGLAS DE FIREBASE?'); }
 }
 async function unirse(codigo) {
-  const code = (codigo || $('#codigo').value).trim().toUpperCase();
-  if (!(await requiereNombreYRed('#msg-menu'))) return;
-  if (code.length < 4) { mensaje('#msg-menu', 'ESCRIBE EL CÓDIGO DE LA SALA.'); return; }
+  const code = (codigo || $('#tt-code').value).trim().toUpperCase();
+  if (!(await requiereNombreYRed('#tt-menu-msg'))) return;
+  if (code.length < 4) { mensaje('#tt-menu-msg', 'ESCRIBE EL CÓDIGO DE LA SALA.'); return; }
   try {
     const snap = await fs.getDoc(refSala(code));
-    if (!snap.exists()) { mensaje('#msg-menu', 'ESA SALA NO EXISTE.'); return; }
+    if (!snap.exists()) { mensaje('#tt-menu-msg', 'ESA SALA NO EXISTE.'); return; }
     const datos = snap.data();
-    if (datos.state !== 'lobby' && datos.host !== UID) { mensaje('#msg-menu', 'LA PARTIDA YA EMPEZÓ.'); return; }
+    if (datos.state !== 'lobby' && datos.host !== UID) { mensaje('#tt-menu-msg', 'LA PARTIDA YA EMPEZÓ.'); return; }
     const jugs = await fs.getDocs(fs.collection(db, 'tetris', code, 'players'));
-    if (jugs.docs.length >= 2 && !jugs.docs.some(d => d.id === UID)) { mensaje('#msg-menu', 'LA SALA ESTÁ LLENA.'); return; }
+    if (jugs.docs.length >= 2 && !jugs.docs.some(d => d.id === UID)) { mensaje('#tt-menu-msg', 'LA SALA ESTÁ LLENA.'); return; }
     await fs.setDoc(refYo(code), { name: playerName(), round: datos.round || 0, alive: true, board: '', score: 0, lines: 0, sent: 0, lastSeen: fs.serverTimestamp() });
     entrarEnSala(code);
-  } catch (e) { console.warn(e); mensaje('#msg-menu', 'NO SE PUDO ENTRAR A LA SALA.'); }
+  } catch (e) { console.warn(e); mensaje('#tt-menu-msg', 'NO SE PUDO ENTRAR A LA SALA.'); }
 }
 function entrarEnSala(code) {
   salirListeners();
   sala = { code, datos: null, jugadores: {}, ronda: -1, unsubs: [], parar: null };
-  mensaje('#msg-menu', '');
-  $('#sala-codigo').textContent = code;
+  mensaje('#tt-menu-msg', '');
+  $('#tt-room').textContent = 'SALA ' + code; $('#tt-room2').textContent = 'SALA ' + code; $('#tt-room2').hidden = false;
   vista('sala');
   sala.unsubs.push(fs.onSnapshot(refSala(code), snap => {
-    if (!snap.exists()) { mensaje('#msg-menu', 'LA SALA SE CERRÓ.'); cerrarLocal(); return; }
+    if (!snap.exists()) { mensaje('#tt-menu-msg', 'LA SALA SE CERRÓ.'); cerrarLocal(); return; }
     sala.datos = snap.data();
     pintarSala();
     const d = sala.datos;
@@ -303,7 +288,7 @@ const rivalUid = () => Object.keys(sala ? sala.jugadores : {}).find(u => u !== U
 const rivalDe = () => { const u = rivalUid(); return u ? sala.jugadores[u] : null; };
 function pintarSala() {
   if (!sala) return;
-  const ul = $('#sala-jugadores');
+  const ul = $('#tt-plist');
   ul.replaceChildren();
   const ids = Object.keys(sala.jugadores);
   ids.forEach(u => {
@@ -312,20 +297,20 @@ function pintarSala() {
     li.appendChild(n); ul.appendChild(li);
   });
   if (ids.length < 2) { const li = document.createElement('li'); li.className = 'muted'; li.textContent = 'ESPERANDO A TU RIVAL…'; ul.appendChild(li); }
-  $('#b-iniciar').disabled = !(esAnfitrion() && ids.length >= 2 && sala.datos?.state === 'lobby');
-  $('#b-iniciar').hidden = !esAnfitrion();
-  mensaje('#msg-sala', esAnfitrion() ? (ids.length >= 2 ? 'LISTOS: PULSA INICIAR.' : '') : 'ESPERA A QUE EL ANFITRIÓN INICIE.');
+  $('#tt-go').disabled = !(esAnfitrion() && ids.length >= 2 && sala.datos?.state === 'lobby');
+  $('#tt-go').hidden = !esAnfitrion();
+  mensaje('#tt-lobby-msg', esAnfitrion() ? (ids.length >= 2 ? 'LISTOS: PULSA INICIAR.' : '') : 'ESPERA A QUE EL ANFITRIÓN INICIE.');
 }
-$('#b-iniciar').onclick = async () => {
+$('#tt-go').onclick = async () => {
   if (!esAnfitrion()) return;
   try { await fs.updateDoc(refSala(sala.code), { state: 'playing', round: (sala.datos.round || 0) + 1, seed: aleatorio() }); }
-  catch (e) { console.warn(e); mensaje('#msg-sala', 'NO SE PUDO INICIAR.'); }
+  catch (e) { console.warn(e); mensaje('#tt-lobby-msg', 'NO SE PUDO INICIAR.'); }
 };
 async function anfitrionReinicia() {
   try { await fs.updateDoc(refSala(sala.code), { state: 'lobby' }); } catch (e) { console.warn(e); }
 }
 function volverALaSala(desdeRival = false) {
-  if (juego) { juego.fin = true; musicaOn(false); }
+  if (juego) { juego.fin = true;  }
   cartel(null);
   if (sala) { vista('sala'); pintarSala(); if (!desdeRival && esAnfitrion()) anfitrionReinicia(); }
   else vista('menu');
@@ -336,9 +321,9 @@ function salirListeners() {
   if (sala.parar) sala.parar();
 }
 function cerrarLocal() {
-  salirListeners(); sala = null; if (juego) { juego.fin = true; } musicaOn(false); cartel(null); vista('menu'); cargarSalas();
+  salirListeners(); sala = null; if (juego) { juego.fin = true; }  cartel(null); vista('menu'); cargarSalas();
 }
-$('#b-salir').onclick = async () => {
+$('#tt-leave').onclick = async () => {
   if (!sala) { vista('menu'); return; }
   const code = sala.code, anfitrion = esAnfitrion();
   try { await fs.deleteDoc(refYo(code)); if (anfitrion) await fs.deleteDoc(refSala(code)); } catch (e) { console.warn(e); }
@@ -362,7 +347,7 @@ let rivalVisto = 0;
 function revisarRival(p) {
   const r = rivalDe();
   juego.rival = r && r.round === juego.ronda ? r : null;
-  const info = $('#rival-info'), nombre = $('#rival-nombre');
+  const info = $('#tt-rival-i'), nombre = $('#tt-rival-n');
   if (!juego.rival) { info.textContent = ''; return; }
   nombre.textContent = String(juego.rival.name || 'RIVAL').slice(0, 10);
   info.textContent = `${juego.rival.score || 0} PTS · ${juego.rival.lines || 0} LÍN`;
@@ -374,7 +359,7 @@ function revisarRival(p) {
 
 /* ---------- salas en vivo (lista del menú) ---------- */
 async function cargarSalas() {
-  const ul = $('#salas');
+  const ul = $('#tt-rooms');
   if (!(await fbReady)) { ul.innerHTML = '<li class="muted">SIN CONEXIÓN</li>'; return; }
   const lista = await liveRooms('tetris', 10);
   if (!lista) { ul.innerHTML = '<li class="muted">NO SE PUDO CARGAR</li>'; return; }
@@ -390,13 +375,33 @@ async function cargarSalas() {
 }
 
 /* ---------- menú ---------- */
-$('#b-solo').onclick = () => { SFX.init(); empezar({ semilla: aleatorio() }); };
-$('#b-crear').onclick = crearSala;
-$('#b-unirse').onclick = () => unirse();
-$('#codigo').addEventListener('keydown', e => { if (e.key === 'Enter') unirse(); });
-$('#codigo').addEventListener('input', e => { e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''); });
+$('#tt-solo').onclick = () => { SFX.init(); $('#tt-room2').hidden = true; empezar({ semilla: aleatorio() }); };
+$('#tt-create').onclick = crearSala;
+$('#tt-join').onclick = () => unirse();
+$('#tt-code').addEventListener('keydown', e => { if (e.key === 'Enter') unirse(); });
+$('#tt-code').addEventListener('input', e => { e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''); });
 vista('menu');
 cargarTablas();
 fbReady.then(() => cargarSalas());
-setInterval(() => { if (!$('#v-menu').hidden) cargarSalas(); }, 15000);
+setInterval(() => { if (!$('#tt-menu').hidden) cargarSalas(); }, 15000);
 void store; void TIPOS;
+
+/* ---------- portada (igual que la de los demás juegos) ---------- */
+function dibujarSplash(c) {
+  const x = c.getContext('2d'); x.imageSmoothingEnabled = false;
+  x.fillStyle = '#0b0c18'; x.fillRect(0, 0, 160, 72);
+  const bl = (X, Y, col) => celda(x, X, Y, 8, col);
+  const pz = (X, Y, col, f) => f.forEach(([i, j]) => bl(X + i * 8, Y + j * 8, col));
+  pz(28, 40, 7, [[0, 0], [1, 0], [2, 0], [2, -1]]); pz(52, 48, 1, [[0, 0], [1, 0], [2, 0], [3, 0]]); pz(84, 48, 2, [[0, 0], [1, 0], [0, -1], [1, -1]]);
+  pz(100, 40, 3, [[0, 0], [1, 0], [2, 0], [1, -1]]); pz(124, 48, 4, [[0, 0], [1, 0], [1, -1], [2, -1]]); pz(36, 56, 5, [[0, 0], [1, 0], [1, 1], [2, 1]]); pz(18, 8, 6, [[0, 0], [0, 1], [0, 2], [1, 2]]);
+  pz(120, 4, 3, [[0, 0], [1, 0], [2, 0], [1, 1]]); pz(66, 10, 2, [[0, 0], [1, 0], [0, 1], [1, 1]]);
+}
+const splash = document.querySelector('.splash[data-g="tetris"]');
+dibujarSplash(splash.querySelector('canvas'));
+document.fonts && document.fonts.ready.then(() => dibujarSplash(splash.querySelector('canvas')));
+// Música como en los demás juegos: a volumen normal en la portada y más baja ya dentro (la del Arcade, musica/tetris.js).
+function actualizarMusica() { if (!splash.hidden) MUSIC.stop(); else if (MUSIC.audible()) MUSIC.play('tetris', 'low'); else MUSIC.stop(); }
+setUpdateMenuMusicHook(actualizarMusica); setMusicToggleHook(actualizarMusica);
+document.addEventListener('visibilitychange', actualizarMusica);
+splash.querySelector('.btn').onclick = () => { SFX.init(); SFX.play('start'); splash.hidden = true; splash.nextElementSibling.hidden = false; vista('menu'); actualizarMusica(); };
+window.addEventListener('pagehide', () => MUSIC.stop());
