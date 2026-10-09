@@ -3,6 +3,7 @@
 (function () {
   if (document.getElementById("pz-colgante")) return;
   document.head.appendChild(Object.assign(document.createElement("link"), { rel: "stylesheet", href: "assets/css/pizarra.css" }));
+  document.head.appendChild(Object.assign(document.createElement("link"), { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" })); // letra de tiza
   const raiz = document.createElement("div");
   raiz.id = "pz-colgante";
   raiz.innerHTML = `<button type="button" class="pz-asa" aria-haspopup="dialog" aria-expanded="false"><i class="fa-solid fa-thumbtack" aria-hidden="true"></i><span>PIZARRA</span></button>
