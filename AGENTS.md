@@ -122,7 +122,7 @@ juego sigue siendo instantáneo, sin recargar). El patrón ya está en marcha:
   un símbolo usado fuera del bloque del juego tiene que exportarse, no puede quedar solo dentro del archivo
   nuevo.
 
-**Tetris** es una página aparte (`tetris.html`, con `assets/js/arcade/tetris.js` y las reglas del juego en `tetris-motor.js`, probadas con `tests/tetris.test.js`). Usa `core.js` para Firebase, apodo, sonido y tablas; el menú del Arcade solo trae su tarjeta (`href` en `GAMES`). Sus reglas de Firebase (`tetris`, `tetris_vs`) viven en `arcade-firebase/firestore.rules` y se copian a mano.
+**Tetris** es una página aparte (`tetris.html`, con `assets/js/arcade/tetris.js` y las reglas del juego en `tetris-motor.js`, probadas con `tests/tetris.test.js`). Usa `core.js` y `musica.js` (su canción es `musica/tetris.js`), y tiene el mismo encabezado, pestañas, panel y botones que arcade.html: `assets/css/tetris.css` es una COPIA del `<style>` de arcade.html (si cambias el estilo allá, cámbialo también ahí). Las pestañas de tetris.html abren `arcade.html?juego=<id>`; la pestaña TETRIS de arcade.html y la tarjeta del menú (`href` en `GAMES`) llevan a tetris.html. Sus reglas de Firebase (`tetris`, `tetris_vs`) viven en `arcade-firebase/firestore.rules` y se copian a mano.
 
 Hay un agente por juego (`.claude/agents/juego-*.md`) con los detalles de cada uno (prefijo de su estado,
 si tiene modo en línea, en qué archivo vive). También hay `mejorar-menu-arcade` (menú, miniaturas,

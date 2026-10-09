@@ -450,7 +450,7 @@ export function fitAll() {
     st.style.maxWidth = Math.floor(maxH * asp + 8) + 'px';
   });
   const bo = document.querySelector('.boards');
-  if (bo.offsetParent) {
+  if (bo && bo.offsetParent) {
     const W = bo.clientWidth, H = vh - docTop(bo) - 16;
     let side = Math.min(Math.floor((W - 40) / 2 / 10.3), Math.floor((H - 110) / 10.3));
     let stack = Math.min(Math.floor((W - 12) / 10.3), Math.floor((H - 200) / 2 / 10.3));

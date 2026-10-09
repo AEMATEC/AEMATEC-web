@@ -388,6 +388,7 @@ nav .btn{padding:8px 12px}
     <button class="btn tab" data-t="runner">LA HUIDA DEL ZORRO</button>
     <button class="btn tab" data-t="golf">GOLF</button>
     <button class="btn tab" data-t="cruce">CRUZAR LA CALLE</button>
+    <button class="btn tab" data-t="tetris">TETRIS</button>
     <button class="btn tab" data-t="perfil">PERFIL</button>
   </nav>
 
@@ -1194,7 +1195,7 @@ import { MUSIC, setMusicToggleHook } from "./assets/js/arcade/musica.js";
 
 /* ---------- pestañas ---------- */
 let tab = 'menu';
-document.querySelectorAll('.tab').forEach(b => b.onclick = () => { SFX.play('click'); goTab(b.dataset.t); });
+document.querySelectorAll('.tab').forEach(b => b.onclick = () => { SFX.play('click'); if (b.dataset.t === 'tetris') window.arcadeTransition('tetris.html'); else goTab(b.dataset.t); }); // Tetris es una página aparte
 
 /* =========================================================
    BATALLA NAVAL
@@ -6900,7 +6901,12 @@ const INTRO = (() => {
   // La persona pidió menos movimiento en su sistema: saltamos directo a "INICIAR" sin las letras cayendo.
   if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) skip();
   raf = requestAnimationFrame(frame);
-  return { skip, insert };
+  return { skip, insert, salir() { el.hidden = true; cancelAnimationFrame(raf); } };
+})();
+// Enlace directo a un juego (arcade.html?juego=golf): se salta la intro y abre esa pestaña. Lo usa la barra de tetris.html.
+(() => {
+  const h = new URLSearchParams(location.search).get('juego') || '';
+  if (h && (h === 'perfil' || GAMES.some(g => g.g === h && !g.href))) { INTRO.salir(); goTab(h); }
 })();
 
 /* ---------- bucle principal ---------- */

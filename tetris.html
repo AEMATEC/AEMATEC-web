@@ -10,111 +10,131 @@
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/arcade.css">
 <link rel="stylesheet" href="assets/css/tetris.css">
+<!-- Temas de temporada también aquí (en 8 bits): ver assets/js/temas.js -->
 <script src="assets/js/temas.js" defer></script>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <h1>TETRIS</h1>
+    <h1><img class="logo" alt="" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAwCAYAAAAGlsrkAAABvklEQVR4nNVYsbGDMAyVOWoKaDguK/wid5mAlh0yXHZIywq/yAocRwMFC/CbL84IGWQFAnlVMJaeJD/LJgBKNF0/NF0/aO3VpIG5DYG5qckDDWmW5ONzluSgIfcm3grfQUzLjNCU22hI67acEeN4Gkcin96lRtKirqCoK19zPTGS2r9pBXYj3gLexFmSwzO7jM/P7AKc4NYQelv8k2N5NaQAHqoGcG8nxC6qpqR1W6pE5U3MIY0joyUXEXPZciX16WCHbadV2Gev6/yVzKH4jgbiWluNyBaJ1/atCxKRnU9cGsH42IS2kcSxPHTeBjUS4sulQ/36eogP/evrAb8/dwAA1qbp+iGNI2PsAXsC7VRSFHU1EmMgADAepZOM7QEuCPp+CU3XD9CWY+CUEDFTtbQvu0DnurbjObaTZgtpfZ2vV/uuLcVa/x6JtX1ZCtq/jxXXlqKS+j5OXO82jDW4RPaRjDnyCfHW2XJAdR/fQPbOll3rT/5ZhjyhffvAwT0yp77DNI4MDtIA3g3C9mP7nlx9cJDek+yvfxs0IG6pOF9oN8uGZu8CDWhpPnf9cZaRK5MUNChuueQXOA9IdPEHsDN7ohq8EwcAAAAASUVORK5CYII="><span>ARCADE AEMATEC</span></h1>
     <div class="who">
-      <button class="btn gray" id="arcade-volver" type="button" title="Volver al Arcade">← ARCADE</button>
+      <button id="arcade-volver" type="button" class="btn gray" title="Volver a la página principal de AEMATEC" aria-label="Volver a la página principal de AEMATEC">← AEMATEC</button>
       <label for="name">JUGADOR</label>
       <input id="name" class="px-in" maxlength="10" placeholder="TU APODO" aria-label="Tu apodo (es público, no uses tu nombre real)" title="ES PÚBLICO: NO USES TU NOMBRE REAL">
       <span id="name-warn" class="net" style="color:var(--red)" hidden aria-live="polite"></span>
-      <button class="btn gray snd" id="snd" type="button" aria-pressed="false" title="Sonido y música">SONIDO: <span class="lbl">NO</span></button>
+      <button class="btn snd" id="snd" type="button" title="Sonido: apaga todo (efectos y música)" aria-label="Sonido (efectos y música)"><svg class="ico" viewBox="0 0 12 12" aria-hidden="true"><path d="M1 4h2v4H1zM3 3h1v6H3zM4 2h1v8H4zM5 1h1v10H5z"/><path class="ico-on" d="M7 4h1v4H7zM9 2h1v1H9zM10 3h1v6h-1zM9 9h1v1H9z"/><path class="ico-off" d="M7 4h1v1H7zM8 5h1v1H8zM9 6h1v1H9zM10 7h1v1h-1zM10 4h1v1h-1zM9 5h1v1H9zM8 6h1v1H8zM7 7h1v1H7z"/></svg><span class="lbl">SÍ</span></button>
+      <button class="btn snd" id="mus" type="button" title="Música: apaga solo la música" aria-label="Música"><svg class="ico" viewBox="0 0 12 12" aria-hidden="true"><path d="M5 1h1v8H5zM6 1h1v1H6zM7 2h1v1H7zM8 3h1v2H8zM2 8h3v1H2zM1 9h4v1H1zM2 10h3v1H2z"/><path class="ico-off" d="M1 1h1v1H1zM2 2h1v1H2zM3 3h1v1H3zM9 9h1v1H9zM10 10h1v1h-1zM7 7h1v1H7zM8 8h1v1H8zM4 4h1v1H4zM6 6h1v1H6z"/></svg><span class="lbl">SÍ</span></button>
       <span id="net" class="net">● CONECTANDO…</span>
     </div>
   </header>
 
-  <!-- Menú -->
-  <section id="v-menu">
-    <div class="menu">
-      <div class="panel">
-        <h2>SOLO</h2>
-        <p class="help">SUBE DE NIVEL Y HAZ EL MÁXIMO DE PUNTOS. TU RÉCORD PUEDES PUBLICARLO (SIEMPRE TE PREGUNTAMOS).</p>
-        <button class="btn green" id="b-solo" type="button">▶ JUGAR SOLO</button>
-        <h3 style="margin-top:14px">MEJORES PUNTAJES</h3>
-        <ol class="lb" id="lb-solo"></ol>
-      </div>
-      <div class="panel">
-        <h2>EN LÍNEA 1 vs 1</h2>
-        <p class="help">LAS LÍNEAS QUE LIMPIES LE LLEGAN A TU RIVAL COMO BASURA. GANA QUIEN AGUANTE MÁS. LAS DOS PERSONAS RECIBEN LAS MISMAS PIEZAS.</p>
-        <div class="row">
-          <button class="btn yellow" id="b-crear" type="button">+ CREAR SALA</button>
+  <nav>
+    <a class="btn tab" href="arcade.html">★ MENÚ</a>
+    <a class="btn tab" href="arcade.html?juego=minas">BUSCAMINAS</a>
+    <a class="btn tab" href="arcade.html?juego=batalla">BATALLA NAVAL</a>
+    <a class="btn tab" href="arcade.html?juego=tiro">ANIMAL AL TIRO</a>
+    <a class="btn tab" href="arcade.html?juego=carreras">CARRERAS</a>
+    <a class="btn tab" href="arcade.html?juego=funciones">COMBATE DE FUNCIONES</a>
+    <a class="btn tab" href="arcade.html?juego=21">21</a>
+    <a class="btn tab" href="arcade.html?juego=billar">BILLAR</a>
+    <a class="btn tab" href="arcade.html?juego=duelo">DUELO DEL OESTE</a>
+    <a class="btn tab" href="arcade.html?juego=runner">LA HUIDA DEL ZORRO</a>
+    <a class="btn tab" href="arcade.html?juego=golf">GOLF</a>
+    <a class="btn tab" href="arcade.html?juego=cruce">CRUZAR LA CALLE</a>
+    <button class="btn tab on" type="button" aria-current="page">TETRIS</button>
+    <a class="btn tab" href="arcade.html?juego=perfil">PERFIL</a>
+  </nav>
+
+  <section class="game on" id="g-tetris">
+    <div class="main px">
+      <div class="splash" data-g="tetris"><canvas width="160" height="72" aria-hidden="true"></canvas><h2>TETRIS</h2><p>ENCAJA LAS PIEZAS PARA COMPLETAR LÍNEAS. SI LAS PIEZAS LLEGAN HASTA ARRIBA, SE ACABÓ. JUEGA SOLO PARA BATIR EL RÉCORD O RETA A ALGUIEN EN LÍNEA: LAS LÍNEAS QUE LIMPIES LE LLEGAN A TU RIVAL COMO BASURA.</p><button class="btn red">INICIAR</button></div>
+      <div class="gbody" hidden>
+        <div id="tt-menu">
+          <h4>¿CÓMO QUIERES JUGAR?</h4>
+          <div class="row left"><button class="btn green" id="tt-solo">JUGAR SOLO</button></div>
+          <div class="row left">
+            <button class="btn" id="tt-create">CREAR PARTIDA ONLINE</button>
+            <input id="tt-code" class="px-in" placeholder="CÓDIGO" maxlength="5">
+            <button class="btn orange" id="tt-join">UNIRSE</button>
+          </div>
+          <p class="msg" id="tt-menu-msg" style="text-align:left" aria-live="polite"></p>
+          <h4 style="margin-top:14px">PARTIDAS EN VIVO</h4>
+          <ul class="spec-list" id="tt-rooms"></ul>
         </div>
-        <div class="row" style="margin-top:10px">
-          <input id="codigo" class="px-in" maxlength="5" placeholder="CÓDIGO" aria-label="Código de la sala">
-          <button class="btn" id="b-unirse" type="button">UNIRSE</button>
+        <div id="tt-lobby" hidden>
+          <div class="rc-top"><span class="tag" id="tt-room"></span><button class="btn gray" id="tt-leave">SALIR</button></div>
+          <p class="sub" id="tt-lobby-msg"></p>
+          <ul class="plist" id="tt-plist"></ul>
+          <div class="row left"><button class="btn green" id="tt-go">¡EMPEZAR!</button></div>
         </div>
-        <p class="help" id="msg-menu" role="status" aria-live="polite"></p>
-        <h3 style="margin-top:10px">SALAS EN VIVO</h3>
-        <ul class="salas" id="salas"></ul>
-        <h3 style="margin-top:14px">MÁS VICTORIAS</h3>
-        <ol class="lb" id="lb-vs"></ol>
+        <div id="tt-game" hidden>
+          <div class="rc-top">
+            <span class="tag" id="tt-room2" hidden></span>
+            <button class="btn gray" id="tt-pause">PAUSA</button>
+            <button class="btn gray" id="tt-quit">SALIR</button>
+          </div>
+          <div class="fc-bar"><span id="tt-status"></span><span id="tt-score"></span></div>
+          <div class="tt-fila">
+            <div class="tt-col">
+              <div class="tt-caja">GUARDADA<canvas id="tt-hold" width="64" height="64" style="width:64px;height:64px"></canvas></div>
+              <div class="tt-caja"><b id="tt-puntos">0</b>PUNTOS<b id="tt-nivel" style="margin-top:8px">1</b>NIVEL<b id="tt-lineas" style="margin-top:8px">0</b>LÍNEAS</div>
+            </div>
+            <div class="stage tt-stage">
+              <canvas id="tt-cv" width="240" height="480" role="img" aria-label="Tablero de Tetris"></canvas>
+              <div class="over" id="tt-over" hidden>
+                <h3 class="grande" id="tt-over-t"></h3>
+                <p id="tt-over-p"></p>
+                <div class="row" id="tt-over-b"></div>
+              </div>
+            </div>
+            <div class="tt-col">
+              <div class="tt-caja">SIGUIENTES<canvas id="tt-next" width="64" height="176" style="width:64px;height:176px"></canvas></div>
+              <div class="tt-caja tt-rival" id="tt-rival" hidden><b id="tt-rival-n">RIVAL</b><canvas id="tt-cv-rival" width="120" height="240"></canvas><span id="tt-rival-i"></span></div>
+              <div class="tt-basura" id="tt-basura"></div>
+            </div>
+          </div>
+          <div class="tt-botones">
+            <button class="btn gray" data-k="izq" aria-label="Izquierda">◄</button>
+            <button class="btn gray" data-k="abajo" aria-label="Bajar">▼</button>
+            <button class="btn gray" data-k="der" aria-label="Derecha">►</button>
+            <button class="btn orange" data-k="giro" aria-label="Rotar la pieza">⟳ ROTAR</button>
+            <button class="btn" data-k="hold" aria-label="Guardar la pieza">GUARDAR</button>
+            <button class="btn green" data-k="caer" aria-label="Caer de una">CAER</button>
+          </div>
+          <p class="keys">← → MOVER · ↓ BAJAR · ↑ / X ROTAR · Z ROTAR AL REVÉS · ESPACIO CAER · C GUARDAR · P PAUSA</p>
+        </div>
       </div>
     </div>
-    <div class="panel">
-      <h3>CONTROLES</h3>
-      <p class="help"><b>← →</b> MOVER · <b>↓</b> BAJAR · <b>↑ / X</b> GIRAR · <b>Z</b> GIRAR AL REVÉS · <b>ESPACIO</b> CAER DE UNA · <b>C / SHIFT</b> GUARDAR PIEZA · <b>P</b> PAUSA. EN CELULAR, USA LOS BOTONES.</p>
-    </div>
+    <aside class="side px">
+      <h3>TOP 10</h3>
+      <p class="sub">PUNTOS EN MODO SOLO</p>
+      <ol class="lb" id="tt-lb"></ol>
+      <h4 style="margin-top:16px">MÁS VICTORIAS EN LÍNEA</h4>
+      <ol class="lb" id="tt-lb-vs"></ol>
+      <h4 style="margin-top:16px">CÓMO SE JUEGA</h4>
+      <p class="howto">GIRA Y MUEVE LAS PIEZAS PARA LLENAR FILAS COMPLETAS: DESAPARECEN Y SUMAN PUNTOS (MÁS SI LIMPIAS VARIAS A LA VEZ). CADA 10 LÍNEAS SUBES DE NIVEL Y TODO VA MÁS RÁPIDO. PUEDES GUARDAR UNA PIEZA PARA DESPUÉS. EN LÍNEA, TUS LÍNEAS LE LLEGAN AL RIVAL COMO BASURA Y LAS TUYAS SE CANCELAN CON LAS QUE TE MANDAN.</p>
+    </aside>
   </section>
 
-  <!-- Sala de espera -->
-  <section id="v-sala" hidden>
-    <div class="panel">
-      <h2>SALA <span id="sala-codigo"></span></h2>
-      <p class="help">COMPARTE EL CÓDIGO CON TU RIVAL. CUANDO ESTÉN LAS DOS PERSONAS, QUIEN CREÓ LA SALA INICIA.</p>
-      <ul class="salas" id="sala-jugadores"></ul>
-      <div class="row" style="margin-top:12px">
-        <button class="btn green" id="b-iniciar" type="button" disabled>▶ INICIAR</button>
-        <button class="btn gray" id="b-salir" type="button">SALIR</button>
-      </div>
-      <p class="help" id="msg-sala" role="status" aria-live="polite"></p>
-    </div>
-  </section>
+  <footer class="credits">REALIZADO POR <b>ANTONY ARIAS</b> 2026 · CON AYUDA DE CLAUDE PARA EL DISEÑO ESTÉTICO · LOS APODOS Y PUNTAJES SON PÚBLICOS: NO USES TU NOMBRE REAL · <a href="legal.html#privacidad">PRIVACIDAD</a></footer>
+</div>
 
-  <!-- Partida -->
-  <section id="v-juego" hidden>
-    <div class="juego">
-      <div class="col">
-        <div class="caja"><div class="stat">GUARDADA (C)</div><canvas id="cv-hold" width="64" height="64" style="width:64px;height:64px"></canvas></div>
-        <div class="caja"><div class="stat">PUNTOS<b id="s-puntos">0</b></div><div class="stat">NIVEL<b id="s-nivel">1</b></div><div class="stat">LÍNEAS<b id="s-lineas">0</b></div></div>
-        <button class="btn gray" id="b-pausa" type="button">PAUSA</button>
-        <button class="btn red" id="b-abandonar" type="button">ABANDONAR</button>
-      </div>
-      <div>
-        <div class="tablero" id="tablero">
-          <canvas id="cv" width="240" height="480" aria-label="Tablero de Tetris"></canvas>
-          <div class="cartel" id="cartel" hidden></div>
-        </div>
-      </div>
-      <div class="col">
-        <div class="caja"><div class="stat">SIGUIENTES</div><canvas id="cv-next" width="64" height="176" style="width:64px;height:176px"></canvas></div>
-        <div class="caja rival" id="rival" hidden><div class="stat" id="rival-nombre">RIVAL</div><canvas id="cv-rival" width="120" height="240"></canvas><div class="stat" id="rival-info"></div><div class="stat" id="basura" style="color:var(--red)"></div></div>
-      </div>
-    </div>
-    <div class="tactil" id="tactil">
-      <button class="btn" data-k="izq" type="button" aria-label="Izquierda">←</button>
-      <button class="btn" data-k="giro" type="button" aria-label="Girar">⟳</button>
-      <button class="btn" data-k="der" type="button" aria-label="Derecha">→</button>
-      <button class="btn gray" data-k="hold" type="button" aria-label="Guardar pieza">GUARDAR</button>
-      <button class="btn" data-k="abajo" type="button" aria-label="Bajar">↓</button>
-      <button class="btn yellow" data-k="caer" type="button" aria-label="Caer de una">CAER</button>
-    </div>
-  </section>
-
-  <!-- Confirmación para publicar puntaje (mismos ids que usa core.js: LB.confirmar) -->
-  <div class="panel" id="lb-confirm" hidden role="dialog" aria-label="Publicar puntaje">
+<div id="egg" hidden><img id="egg-img" alt="Easter egg"><p>¡EASTER EGG!</p></div>
+<div id="lb-confirm" hidden>
+  <div class="px lb-confirm-box">
     <p id="lb-confirm-msg"></p>
-    <div class="row" id="lb-confirm-choice"><button class="btn green" id="lb-confirm-yes" type="button">SÍ, PUBLICAR</button><button class="btn gray" id="lb-confirm-no" type="button">NO</button></div>
-    <div class="row" id="lb-confirm-name-step" hidden>
-      <input id="lb-confirm-name" class="px-in" maxlength="10" placeholder="TU APODO" aria-label="Apodo público">
-      <button class="btn green" id="lb-confirm-publish" type="button">PUBLICAR</button>
-      <span class="net" id="lb-confirm-name-msg" style="color:var(--red)"></span>
+    <div class="row" id="lb-confirm-choice">
+      <button class="btn green" id="lb-confirm-yes">SUBIR</button>
+      <button class="btn gray" id="lb-confirm-no">NO SUBIR</button>
+    </div>
+    <div id="lb-confirm-name-step" hidden>
+      <input id="lb-confirm-name" class="px-in" maxlength="10" placeholder="TU APODO">
+      <p class="msg" id="lb-confirm-name-msg" aria-live="polite"></p>
+      <button class="btn orange" id="lb-confirm-publish">PUBLICAR</button>
     </div>
   </div>
-  <div id="egg" hidden><img id="egg-img" alt=""></div>
 </div>
+
 <script src="assets/js/arcade-transition.js"></script>
 <script type="module" src="assets/js/arcade/tetris.js"></script>
 </body>
