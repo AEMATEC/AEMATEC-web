@@ -26,6 +26,22 @@ describe("Temas de temporada: qué tema corresponde a cada fecha", () => {
     assert.equal(id("2026-09-15"), "mes-patrio");
     assert.match(temaDeFecha("2026-09-15").mensaje("2026-09-15"), /Independencia/);
   });
+  test("8 de marzo es festivo y trae su escena de marcha; el mes patrio usa banderas", () => {
+    const m8 = temaDeFecha("2026-03-08");
+    assert.equal(m8.estilo, "festivo");
+    assert.equal(m8.escena, "marcha");
+    assert.match(m8.mensaje("2026-03-08"), /Día Internacional de la Mujer/);
+    assert.equal(TEMAS.find(t => t.id === "mes-patrio").particulas.tipo, "bandera");
+  });
+  test("11 de abril: Día de Juan Santamaría, con la escena de la antorcha y el mesón", () => {
+    assert.equal(id("2026-04-11"), "juan-santamaria");
+    assert.equal(id("2026-04-10"), null);
+    assert.equal(id("2026-04-12"), null);
+    const t = temaDeFecha("2026-04-11");
+    assert.equal(t.estilo, "festivo");
+    assert.equal(t.escena, "juan");
+    assert.match(t.mensaje("2026-04-11"), /Juan Santamaría/);
+  });
   test("Día del Padre (tercer domingo de junio) gana al mes del Orgullo", () => {
     assert.equal(id("2026-06-21"), "dia-padre");
     assert.equal(id("2026-06-20"), "orgullo");
@@ -65,6 +81,8 @@ describe("Temas de temporada: catálogo completo", () => {
       assert.ok(desde <= hasta);
       assert.ok(tema.mensaje(desde).length > 0);
       assert.ok(tema.icono || tema.texto, "necesita icono o texto para el aviso");
+      if (tema.estilo === "festivo") assert.ok(tema.particulas || tema.escena, "un tema festivo necesita partículas o una escena");
+      if (tema.escena) assert.ok(css.includes(`.tema-escena--${tema.escena}`), `falta el estilo de la escena "${tema.escena}"`);
     });
   }
 });
