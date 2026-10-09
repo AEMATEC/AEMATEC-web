@@ -154,6 +154,11 @@ a ser los de su cuenta nueva solos, sin mover nada a mano. Toda la lógica de cu
 tabla de clasificación para el panel "Records", porque es el único archivo que conoce TODOS los juegos a la
 vez). Ver `docs/arcade-firebase-cambios.md`, sección 3.4.
 
+La pantalla del perfil sigue un boceto de la Junta: tarjeta arriba (imagen predeterminada, usuario y descripción) y
+debajo dos paneles, AMIGOS y RECORDS; requiere iniciar sesión. Tocar a una persona de la lista de amigos abre SU
+perfil con el mismo formato (solo lectura, con sus récords comparados con los tuyos y sus amigos). Si cambias su
+forma, conserva ese orden. Ver amigos de un amigo depende de una regla de lectura que se copia a mano (sección 3.4).
+
 ## Estilo del código
 Sitio estático: HTML + Tailwind compilado (`assets/css/tailwind.css`, ver `tailwind.config.js`) + JavaScript modular en línea, con el SDK de Firebase 10.12.2
 desde `gstatic`. Imita el código que rodea al cambio. El único paso de compilación es `npm run css`

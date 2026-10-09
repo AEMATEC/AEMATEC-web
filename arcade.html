@@ -63,6 +63,7 @@ button,input{font-family:inherit;font-size:10px;color:var(--ink)}
   background:var(--dark);border:0;padding:10px;outline:none;width:150px;text-transform:uppercase;margin:6px;
   box-shadow:0 -4px 0 0 var(--gray),0 4px 0 0 var(--gray),-4px 0 0 0 var(--gray),4px 0 0 0 var(--gray);
 }
+textarea.px-in{color:var(--ink);font:inherit;font-size:11px;line-height:1.6;text-transform:none}
 .px-in:focus{box-shadow:0 -4px 0 0 var(--yellow),0 4px 0 0 var(--yellow),-4px 0 0 0 var(--yellow),4px 0 0 0 var(--yellow)}
 
 nav{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:14px}
@@ -163,6 +164,23 @@ nav .btn{padding:8px 12px}
 .plist li{display:flex;gap:10px;align-items:center;padding:6px 0;border-bottom:2px dashed var(--panel2);font-size:10px}
 .plist li canvas{image-rendering:pixelated}
 .plist li small{color:var(--mute);font-size:10px}
+/* Perfil: tarjeta (imagen + usuario + descripción) y debajo dos paneles, AMIGOS y RECORDS */
+.pf-tarjeta{display:flex;gap:22px;align-items:center;padding:16px;margin-top:10px;flex-wrap:wrap}
+.pf-foto{flex:0 0 auto;padding:6px;background:var(--dark);box-shadow:0 0 0 4px var(--yellow),0 0 0 8px var(--dark),4px 4px 0 8px rgba(0,0,0,.35)}
+.pf-foto canvas{display:block;width:96px;height:96px;image-rendering:pixelated;background:var(--panel2)}
+.pf-datos{flex:1 1 220px;min-width:0}
+.pf-nombre{margin:0 0 10px;font-size:20px;color:var(--yellow);word-break:break-all}
+.pf-desc{margin:0 0 8px;font-size:11px;line-height:1.7;color:var(--ink);white-space:pre-wrap;word-break:break-word}
+.pf-meta{margin:0 0 12px;font-size:9px;line-height:1.6;color:var(--mute)}
+.pf-cols{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+.pf-panel{padding:14px;min-width:0}
+.pf-lista{max-height:360px;overflow:auto;margin:8px 0 0}
+.pf-lista li .nm{flex:1 1 auto;min-width:0;word-break:break-word}
+.pf-lista li .sc{color:var(--lime);text-align:right;white-space:nowrap}
+.pf-lista li .sc small{display:block}
+.pf-lista li.ver{cursor:pointer}
+.pf-lista li.ver:hover .nm{color:var(--yellow);text-decoration:underline}
+@media (max-width:700px){.pf-cols{grid-template-columns:1fr}.pf-tarjeta{justify-content:center;text-align:center}.pf-datos{text-align:center}.pf-datos .row{justify-content:center}}
 .dot{width:10px;height:10px;display:inline-block}
 .res{width:100%;max-width:520px;border-collapse:collapse;margin:0 auto 12px;font-size:10px}
 .res td,.res th{padding:6px 4px;text-align:left;border-bottom:2px dashed var(--panel2)}
@@ -1033,8 +1051,8 @@ nav .btn{padding:8px 12px}
   <section class="game" id="g-perfil">
     <div class="main px">
       <h3 class="menu-title">PERFIL</h3>
-      <p class="sub">Esto es opcional: puedes seguir jugando sin cuenta. Si creas una cuenta, los récords que ya
-        tenías en este navegador pasan a ser los de tu cuenta, y puedes agregar amigos para ver los suyos.</p>
+      <p class="sub" id="pf-intro">Esto es opcional: puedes seguir jugando sin cuenta. Para ver tu perfil (imagen, amigos y récords)
+        inicia sesión o regístrate con usuario y contraseña. Los récords que ya tenías en este navegador pasan a ser los de tu cuenta.</p>
 
       <div id="pf-anon">
         <div class="row left" style="align-items:flex-start">
@@ -1058,29 +1076,56 @@ nav .btn{padding:8px 12px}
       </div>
 
       <div id="pf-cuenta" hidden>
-        <div class="rc-top"><span class="tag" id="pf-usuario"></span><button class="btn gray" id="pf-logout">CERRAR SESIÓN</button></div>
-        <p class="keys">ELIGE TU IMAGEN</p>
-        <div class="row left" id="pf-avatares"></div>
-        <textarea id="pf-desc" class="px-in" maxlength="140" placeholder="UNA DESCRIPCIÓN CORTA (OPCIONAL)" rows="2" style="width:100%;resize:vertical;margin-top:10px" aria-label="Descripción de tu perfil"></textarea>
-        <div class="row left"><button class="btn green" id="pf-guardar">GUARDAR</button></div>
-        <p class="msg" id="pf-msg" aria-live="polite"></p>
+        <div class="rc-top">
+          <span class="tag" id="pf-etiqueta">MI PERFIL</span>
+          <span class="row" style="margin:0">
+            <button class="btn" id="pf-volver" hidden>← MI PERFIL</button>
+            <button class="btn gray" id="pf-logout">CERRAR SESIÓN</button>
+          </span>
+        </div>
 
-        <div class="row" style="align-items:flex-start;gap:24px;flex-wrap:wrap;margin-top:16px;justify-content:flex-start">
-          <div style="flex:1;min-width:240px">
-            <h4>AMIGOS</h4>
-            <div class="row left">
-              <input id="pf-buscar" class="px-in" maxlength="16" placeholder="BUSCAR USUARIO" aria-label="Buscar un usuario para agregar">
-              <button class="btn" id="pf-buscar-btn">AGREGAR</button>
+        <!-- Tarjeta: imagen predeterminada, usuario y descripción -->
+        <div class="px pf-tarjeta">
+          <div class="pf-foto"><canvas id="pf-foto" width="96" height="96" role="img" aria-label="Imagen de perfil"></canvas></div>
+          <div class="pf-datos">
+            <h2 class="pf-nombre" id="pf-usuario"></h2>
+            <p class="pf-desc" id="pf-desc-txt"></p>
+            <p class="pf-meta" id="pf-meta"></p>
+            <div class="row left" id="pf-acciones-propias"><button class="btn" id="pf-editar">EDITAR PERFIL</button></div>
+            <div class="row left" id="pf-acciones-otro" hidden>
+              <button class="btn green" id="pf-agregar-otro" hidden>AGREGAR AMIGO</button>
+              <button class="btn gray" id="pf-quitar-otro" hidden>QUITAR AMIGO</button>
             </div>
-            <p class="msg" id="pf-amigos-msg" aria-live="polite"></p>
-            <p class="keys" id="pf-solicitudes-tag" hidden>SOLICITUDES RECIBIDAS</p>
-            <ul class="plist" id="pf-solicitudes" aria-live="polite"></ul>
-            <p class="keys">TUS AMIGOS</p>
-            <ul class="plist" id="pf-amigos" aria-live="polite"></ul>
+            <p class="msg" id="pf-otro-msg" aria-live="polite"></p>
           </div>
-          <div style="flex:1;min-width:240px">
-            <h4>RECORDS</h4>
-            <ul class="plist" id="pf-records" aria-live="polite"></ul>
+        </div>
+
+        <div class="px" id="pf-edicion" hidden style="margin-top:12px;padding:14px">
+          <p class="keys" style="text-align:left;margin:0 0 8px">ELIGE UNA IMAGEN PREDETERMINADA</p>
+          <div class="row left" id="pf-avatares"></div>
+          <textarea id="pf-desc" class="px-in" maxlength="140" placeholder="UNA DESCRIPCIÓN CORTA (OPCIONAL)" rows="2" style="width:100%;resize:vertical;margin-top:10px" aria-label="Descripción de tu perfil"></textarea>
+          <div class="row left"><button class="btn green" id="pf-guardar">GUARDAR</button><button class="btn gray" id="pf-cancelar">CANCELAR</button></div>
+          <p class="msg" id="pf-msg" aria-live="polite"></p>
+        </div>
+
+        <!-- Debajo: AMIGOS (izquierda) y RECORDS (derecha) -->
+        <div class="pf-cols">
+          <div class="px pf-panel">
+            <h4 id="pf-amigos-titulo">AMIGOS</h4>
+            <div id="pf-buscar-bloque">
+              <div class="row left">
+                <input id="pf-buscar" class="px-in" maxlength="16" placeholder="BUSCAR USUARIO" aria-label="Buscar un usuario para agregar">
+                <button class="btn" id="pf-buscar-btn">AGREGAR</button>
+              </div>
+              <p class="msg" id="pf-amigos-msg" aria-live="polite"></p>
+              <p class="keys" id="pf-solicitudes-tag" hidden>SOLICITUDES RECIBIDAS</p>
+              <ul class="plist" id="pf-solicitudes" aria-live="polite"></ul>
+            </div>
+            <ul class="plist pf-lista" id="pf-amigos" aria-live="polite"></ul>
+          </div>
+          <div class="px pf-panel">
+            <h4 id="pf-records-titulo">RECORDS</h4>
+            <ul class="plist pf-lista" id="pf-records" aria-live="polite"></ul>
           </div>
         </div>
       </div>
@@ -1129,7 +1174,7 @@ import {
 import {
   AVATARES, mensajeErrorCuenta, onCuenta, registrarCuenta, iniciarSesion, cerrarSesion,
   cargarPerfil, guardarPerfil, buscarUsuario, solicitudesRecibidas, enviarSolicitud,
-  aceptarSolicitud, rechazarSolicitud, amigos, quitarAmigo, recordDe,
+  aceptarSolicitud, rechazarSolicitud, amigos, amigoDesde, quitarAmigo, recordDe,
 } from "./assets/js/arcade/perfiles.js";
 import { MUSIC, setMusicToggleHook } from "./assets/js/arcade/musica.js";
 
@@ -6346,50 +6391,107 @@ function pfAvatarBtns(sel, onPick) {
     cont.appendChild(b);
   });
 }
+// Pantalla: tarjeta (imagen predeterminada + usuario + descripción) y debajo AMIGOS y RECORDS. Se usa para mi perfil
+// y, al tocar a una persona en la lista de amigos, para ver SU perfil (solo lectura: sus récords —comparados con los
+// míos— y sus amigos, que las reglas dejan ver solo a sus amigos).
+let pfYo = null, pfPerfilYo = null, pfSeq = 0, pfVistaUid = null;
+const pfFecha = ts => { const d = ts && ts.toDate ? ts.toDate() : null; return d ? d.toLocaleDateString('es-CR') : ''; };
+const pfMiniCache = {};
+function pfMini(avatar, size = 32) {
+  const k = avatar + size;
+  return pfMiniCache[k] || (pfMiniCache[k] = pfAvatarCanvas(PF_AVATAR_SPR[avatar] || PF_AVATAR_SPR[AVATARES[0]], size).toDataURL());
+}
+function pfDibujarFoto(avatar) {
+  const c = $('#pf-foto'), x = c.getContext('2d'); x.imageSmoothingEnabled = false; x.clearRect(0, 0, 96, 96);
+  const spr = PF_AVATAR_SPR[avatar] || PF_AVATAR_SPR[AVATARES[0]];
+  const k = Math.max(1, Math.floor(Math.min(88 / spr.width, 88 / spr.height)));
+  const w = spr.width * k, h = spr.height * k;
+  x.drawImage(spr, Math.round((96 - w) / 2), Math.round((96 - h) / 2), w, h);
+}
 async function pfCargarCuenta(user) {
   $('#pf-anon').hidden = !!user;
   $('#pf-cuenta').hidden = !user;
-  if (!user) return;
+  $('#pf-intro').hidden = !!user;
+  if (!user) { pfYo = null; pfPerfilYo = null; return; }
   const perfil = await cargarPerfil(user.uid);
   // Cuenta real pero sin perfil todavía (debería ser rarísimo: registrarCuenta() ya repara este caso solo
   // en el próximo intento) — mejor volver a la pantalla de crear cuenta/iniciar sesión que dejar la tarjeta
   // de perfil en blanco sin ninguna salida.
-  if (!perfil) { $('#pf-anon').hidden = false; $('#pf-cuenta').hidden = true; return; }
-  pfAvatarElegido = perfil.avatar;
-  $('#pf-usuario').textContent = '@' + perfil.usuario;
-  $('#pf-desc').value = perfil.descripcion || '';
-  pfAvatarBtns(pfAvatarElegido, a => pfAvatarElegido = a);
-  pfCargarAmigos();
-  pfCargarRecords(user.uid);
+  if (!perfil) { $('#pf-anon').hidden = false; $('#pf-cuenta').hidden = true; $('#pf-intro').hidden = false; return; }
+  pfYo = user.uid; pfPerfilYo = perfil;
+  pfMostrar(user.uid);
 }
-async function pfCargarRecords(uid) {
+async function pfMostrar(uid) {
+  const seq = ++pfSeq, propio = uid === pfYo;
+  pfVistaUid = uid;
+  const perfil = propio ? pfPerfilYo : await cargarPerfil(uid);
+  if (seq !== pfSeq) return;
+  if (!perfil) { $('#pf-otro-msg').textContent = 'NO SE ENCONTRÓ ESE PERFIL.'; return; }
+  $('#pf-etiqueta').textContent = propio ? 'MI PERFIL' : 'PERFIL';
+  $('#pf-volver').hidden = propio; $('#pf-logout').hidden = !propio;
+  $('#pf-acciones-propias').hidden = !propio; $('#pf-acciones-otro').hidden = propio;
+  $('#pf-agregar-otro').hidden = true; $('#pf-quitar-otro').hidden = true; $('#pf-otro-msg').textContent = '';
+  $('#pf-edicion').hidden = true; $('#pf-buscar-bloque').hidden = !propio;
+  pfDibujarFoto(perfil.avatar);
+  $('#pf-usuario').textContent = '@' + perfil.usuario;
+  $('#pf-desc-txt').textContent = perfil.descripcion || (propio ? 'AÚN NO TIENES DESCRIPCIÓN. TOCA «EDITAR PERFIL».' : 'SIN DESCRIPCIÓN.');
+  const desde = pfFecha(perfil.creado);
+  $('#pf-meta').textContent = desde ? 'EN EL ARCADE DESDE ' + desde : '';
+  const quien = '@' + perfil.usuario.toUpperCase();
+  $('#pf-records-titulo').textContent = propio ? 'RECORDS' : 'RECORDS DE ' + quien;
+  $('#pf-amigos-titulo').textContent = propio ? 'AMIGOS' : 'AMIGOS DE ' + quien;
+  pfCargarRecords(uid, propio, seq);
+  if (propio) pfCargarAmigos(); else { pfCargarAmigosDe(uid, seq); pfEstadoAmistad(uid, perfil, seq); }
+}
+async function pfEstadoAmistad(uid, perfil, seq) {
+  let desde = null;
+  try { desde = await amigoDesde(uid); } catch (e) { console.error(e); }
+  if (seq !== pfSeq) return;
+  $('#pf-quitar-otro').hidden = !desde; $('#pf-agregar-otro').hidden = !!desde;
+  const fecha = desde && desde !== true ? pfFecha(desde) : '';
+  const base = pfFecha(perfil.creado);
+  $('#pf-meta').textContent = [base ? 'EN EL ARCADE DESDE ' + base : '', fecha ? 'AMIGOS DESDE ' + fecha : ''].filter(Boolean).join(' · ');
+}
+async function pfCargarRecords(uid, propio, seq = pfSeq) {
   const ul = $('#pf-records'); ul.innerHTML = '<li class="muted">CARGANDO…</li>';
   const catalogo = pfCatalogoRecords();
+  const leer = u => Promise.all(catalogo.map(it => recordDe(u, it.key).catch(() => null)));
+  const [suyos, mios] = await Promise.all([leer(uid), propio || !pfYo ? [] : leer(pfYo)]);
+  if (seq !== pfSeq) return;
   const filas = [];
-  for (const it of catalogo) {
-    const r = await recordDe(uid, it.key);
-    if (r) filas.push(`<li><span class="nm">${esc(it.n)}</span><span class="sc">${it.fmt(r)}</span></li>`);
-  }
-  ul.innerHTML = filas.length ? filas.join('') : '<li class="muted">TODAVÍA NO TIENES RÉCORDS.</li>';
+  catalogo.forEach((it, i) => {
+    const r = suyos[i]; if (!r) return;
+    const m = mios[i];
+    filas.push(`<li><span class="nm">${esc(it.n)}</span><span class="sc">${it.fmt(r)}${m ? `<small>TÚ: ${it.fmt(m)}</small>` : ''}</span></li>`);
+  });
+  ul.innerHTML = filas.length ? filas.join('') : `<li class="muted">${propio ? 'TODAVÍA NO TIENES RÉCORDS.' : 'TODAVÍA NO TIENE RÉCORDS.'}</li>`;
 }
+const pfFilaPerfil = (p, botones = '') => `<li class="ver" data-ver="${esc(p.uid)}"><img src="${pfMini(p.avatar)}" width="32" height="32" alt="" style="image-rendering:pixelated">
+  <span class="nm">@${esc(p.usuario)}${p.descripcion ? `<small style="display:block">${esc(p.descripcion)}</small>` : ''}</span>${botones}</li>`;
 async function pfCargarAmigos() {
   const msg = $('#pf-amigos-msg');
   try {
     const [solicitudes, lista] = await Promise.all([solicitudesRecibidas(), amigos()]);
     const tag = $('#pf-solicitudes-tag'); tag.hidden = solicitudes.length === 0;
-    $('#pf-solicitudes').innerHTML = solicitudes.length
-      ? solicitudes.map(p => `<li><span class="nm">@${esc(p.usuario)}</span>
-          <button class="btn green" data-aceptar="${p.uid}">ACEPTAR</button>
-          <button class="btn gray" data-rechazar="${p.uid}">RECHAZAR</button></li>`).join('')
-      : '';
+    $('#pf-solicitudes').innerHTML = solicitudes.map(p => pfFilaPerfil(p, `<button class="btn green" data-aceptar="${esc(p.uid)}">ACEPTAR</button>
+          <button class="btn gray" data-rechazar="${esc(p.uid)}">RECHAZAR</button>`)).join('');
     $('#pf-amigos').innerHTML = lista.length
-      ? lista.map(p => `<li><span class="nm">@${esc(p.usuario)}</span><small>${esc(p.descripcion || '')}</small>
-          <button class="btn gray" data-quitar="${p.uid}">QUITAR</button></li>`).join('')
-      : '<li class="muted">AÚN NO TIENES AMIGOS.</li>';
-    $('#pf-solicitudes').querySelectorAll('[data-aceptar]').forEach(b => b.onclick = async () => { await aceptarSolicitud(b.dataset.aceptar); SFX.play('click'); pfCargarAmigos(); });
-    $('#pf-solicitudes').querySelectorAll('[data-rechazar]').forEach(b => b.onclick = async () => { await rechazarSolicitud(b.dataset.rechazar); pfCargarAmigos(); });
-    $('#pf-amigos').querySelectorAll('[data-quitar]').forEach(b => b.onclick = async () => { if (window.confirm('¿QUITAR DE AMIGOS?')) { await quitarAmigo(b.dataset.quitar); pfCargarAmigos(); } });
+      ? lista.map(p => pfFilaPerfil(p, `<button class="btn" data-ver="${esc(p.uid)}">VER</button><button class="btn gray" data-quitar="${esc(p.uid)}">QUITAR</button>`)).join('')
+      : '<li class="muted">AÚN NO TIENES AMIGOS. BÚSCALOS POR SU USUARIO ARRIBA.</li>';
   } catch (e) { console.error(e); msg.textContent = 'NO SE PUDO CARGAR.'; msg.className = 'msg lose'; }
+}
+async function pfCargarAmigosDe(uid, seq) {
+  const ul = $('#pf-amigos'); ul.innerHTML = '<li class="muted">CARGANDO…</li>'; $('#pf-solicitudes').innerHTML = ''; $('#pf-solicitudes-tag').hidden = true;
+  try {
+    const lista = await amigos(uid);
+    if (seq !== pfSeq) return;
+    ul.innerHTML = lista.length
+      ? lista.map(p => pfFilaPerfil(p, p.uid === pfYo ? '<span class="badge">TÚ</span>' : `<button class="btn" data-ver="${esc(p.uid)}">VER</button>`)).join('')
+      : '<li class="muted">TODAVÍA NO TIENE AMIGOS.</li>';
+  } catch (e) {
+    if (seq !== pfSeq) return;
+    ul.innerHTML = '<li class="muted">LA LISTA DE AMIGOS SOLO LA VEN SUS AMIGOS.</li>';
+  }
 }
 onCuenta(user => pfCargarCuenta(user));
 $('#pf-reg-btn').onclick = async () => {
@@ -6421,13 +6523,46 @@ $('#pf-in-btn').onclick = async () => {
   } catch (e) { msg.textContent = e.code ? mensajeErrorCuenta(e) : e.message; msg.className = 'msg lose'; }
 };
 $('#pf-logout').onclick = () => cerrarSesion();
+$('#pf-editar').onclick = () => {
+  if (!pfPerfilYo) return;
+  $('#pf-edicion').hidden = false; $('#pf-msg').textContent = ''; $('#pf-desc').value = pfPerfilYo.descripcion || '';
+  pfAvatarElegido = pfPerfilYo.avatar;
+  pfAvatarBtns(pfAvatarElegido, a => { pfAvatarElegido = a; pfDibujarFoto(a); });
+};
+$('#pf-cancelar').onclick = () => { $('#pf-edicion').hidden = true; if (pfPerfilYo) pfDibujarFoto(pfPerfilYo.avatar); };
 $('#pf-guardar').onclick = async () => {
   const msg = $('#pf-msg');
   const r = filtrarTexto($('#pf-desc').value);
   if (!r.ok) { msg.textContent = r.motivo; msg.className = 'msg lose'; return; }
-  try { await guardarPerfil($('#pf-desc').value, pfAvatarElegido); msg.textContent = 'GUARDADO.'; msg.className = 'msg win'; SFX.play('click'); }
-  catch (e) { console.error(e); msg.textContent = 'NO SE PUDO GUARDAR.'; msg.className = 'msg lose'; }
+  try {
+    const descripcion = $('#pf-desc').value;
+    await guardarPerfil(descripcion, pfAvatarElegido);
+    pfPerfilYo = { ...pfPerfilYo, descripcion: descripcion.slice(0, 140), avatar: pfAvatarElegido };
+    SFX.play('click'); pfMostrar(pfYo);
+  } catch (e) { console.error(e); msg.textContent = 'NO SE PUDO GUARDAR.'; msg.className = 'msg lose'; }
 };
+$('#pf-volver').onclick = () => { SFX.play('click'); pfMostrar(pfYo); };
+$('#pf-agregar-otro').onclick = async () => {
+  const msg = $('#pf-otro-msg');
+  try { await enviarSolicitud(pfVistaUid); msg.textContent = 'SOLICITUD ENVIADA.'; msg.className = 'msg win'; SFX.play('click'); $('#pf-agregar-otro').hidden = true; }
+  catch (e) { console.error(e); msg.textContent = e.code ? 'NO SE PUDO ENVIAR LA SOLICITUD.' : e.message; msg.className = 'msg lose'; }
+};
+$('#pf-quitar-otro').onclick = async () => {
+  if (!window.confirm('¿QUITAR DE AMIGOS?')) return;
+  try { await quitarAmigo(pfVistaUid); SFX.play('click'); pfMostrar(pfYo); }
+  catch (e) { console.error(e); $('#pf-otro-msg').textContent = 'NO SE PUDO QUITAR.'; $('#pf-otro-msg').className = 'msg lose'; }
+};
+// Un solo escuchador por lista: tocar a una persona abre su perfil; los botones de aceptar/rechazar/quitar no lo abren.
+const pfClicLista = async e => {
+  const acep = e.target.closest('[data-aceptar]'), rech = e.target.closest('[data-rechazar]'), quit = e.target.closest('[data-quitar]');
+  if (acep) { await aceptarSolicitud(acep.dataset.aceptar); SFX.play('click'); return pfCargarAmigos(); }
+  if (rech) { await rechazarSolicitud(rech.dataset.rechazar); return pfCargarAmigos(); }
+  if (quit) { if (window.confirm('¿QUITAR DE AMIGOS?')) { await quitarAmigo(quit.dataset.quitar); pfCargarAmigos(); } return; }
+  const ver = e.target.closest('[data-ver]');
+  if (ver) { SFX.play('click'); window.scrollTo(0, 0); pfMostrar(ver.dataset.ver); }
+};
+$('#pf-amigos').addEventListener('click', pfClicLista);
+$('#pf-solicitudes').addEventListener('click', pfClicLista);
 $('#pf-buscar-btn').onclick = async () => {
   const msg = $('#pf-amigos-msg'), usuario = $('#pf-buscar').value.trim();
   if (!usuario) return;
