@@ -3,7 +3,7 @@
 import { after, before, beforeEach, describe, test } from "node:test";
 import { readFileSync } from "node:fs";
 import { assertFails, assertSucceeds, initializeTestEnvironment } from "@firebase/rules-unit-testing";
-import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, query, setDoc, updateDoc, where } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, query, serverTimestamp, setDoc, updateDoc, where } from "firebase/firestore";
 import { ref, uploadBytes } from "firebase/storage";
 
 const JUNTA = "jd@estudiantec.cr";
@@ -81,6 +81,66 @@ describe("Junta Directiva (RI Art. 143)", () => {
     await assertSucceeds(getDoc(doc(anonimo().firestore(), "config", "tema")));
     await assertFails(setDoc(doc(anonimo().firestore(), "config", "tema"), { modo: "auto" }));
     await assertFails(setDoc(doc(usuario(MODERADOR).firestore(), "config", "tema"), { modo: "auto" }));
+  });
+});
+
+describe("Efemérides (calendario público, editable por Junta y moderación)", () => {
+  const efemeride = cambios => ({
+    tipo: "mep", titulo: "Inicio de lecciones", desc: "Comienza el curso lectivo.", desde: "2026-02-23", hasta: "2026-02-23",
+    anual: false, actualizado: serverTimestamp(), ...cambios
+  });
+  const nueva = (contexto, datos) => setDoc(doc(contexto.firestore(), "efemerides", "prueba"), datos);
+
+  test("cualquiera puede leer el calendario", async () => {
+    await env.withSecurityRulesDisabled(async c => setDoc(doc(c.firestore(), "efemerides", "ya"), { tipo: "cr", titulo: "Algo", desde: "2026-01-01", hasta: "2026-01-01" }));
+    await assertSucceeds(getDoc(doc(anonimo().firestore(), "efemerides", "ya")));
+    await assertSucceeds(getDocs(collection(anonimo().firestore(), "efemerides")));
+  });
+  test("la Junta y la moderación agregan fechas; el público y otras cuentas no", async () => {
+    await assertSucceeds(nueva(usuario(JUNTA), efemeride()));
+    await assertSucceeds(nueva(usuario(MODERADOR), efemeride({ tipo: "tec" })));
+    await assertFails(nueva(anonimo(), efemeride()));
+    await assertFails(nueva(usuario("otra@estudiantec.cr"), efemeride()));
+    await assertFails(nueva(usuario(JUNTA, false), efemeride()));
+    await assertFails(nueva(usuario(FISCAL), efemeride()), "la Fiscalía no edita el calendario");
+  });
+  test("se aceptan varios días, la repetición anual de un solo día y la descripción vacía u omitida", async () => {
+    await assertSucceeds(nueva(usuario(JUNTA), efemeride({ desde: "2026-07-06", hasta: "2026-07-17" })));
+    await assertSucceeds(nueva(usuario(JUNTA), efemeride({ tipo: "aematec", anual: true, tema: "navidad" })));
+    const { desc, ...sinDesc } = efemeride();
+    await assertSucceeds(nueva(usuario(JUNTA), sinDesc));
+  });
+  test("el contenido debe ser válido: tipo, título, fechas, repetición y tamaños", async () => {
+    const junta = usuario(JUNTA);
+    await assertFails(nueva(junta, efemeride({ tipo: "otro" })));
+    await assertFails(nueva(junta, efemeride({ titulo: "ab" })));
+    await assertFails(nueva(junta, efemeride({ titulo: "x".repeat(121) })));
+    await assertFails(nueva(junta, efemeride({ desc: "x".repeat(401) })));
+    await assertFails(nueva(junta, efemeride({ desde: "23/02/2026" })));
+    await assertFails(nueva(junta, efemeride({ desde: "2026-02-23", hasta: "2026-02-20" })), "el fin no puede ser antes del inicio");
+    await assertFails(nueva(junta, efemeride({ anual: true, desde: "2026-07-06", hasta: "2026-07-17" })), "solo un día se repite cada año");
+    await assertFails(nueva(junta, efemeride({ anual: "si" })));
+    await assertFails(nueva(junta, efemeride({ tema: "x".repeat(41) })));
+  });
+  test("no se guardan campos extra (por ejemplo, el correo de quien la cambió) ni una hora inventada", async () => {
+    const junta = usuario(JUNTA);
+    await assertFails(nueva(junta, efemeride({ por: JUNTA })));
+    await assertFails(nueva(junta, efemeride({ actualizado: new Date("2020-01-01") })));
+    await assertFails(nueva(junta, { tipo: "mep", titulo: "Sin fechas", actualizado: serverTimestamp() }));
+  });
+  test("una efeméride de fábrica se oculta con { oculta: true } y nada más", async () => {
+    await assertSucceeds(nueva(usuario(MODERADOR), { oculta: true, actualizado: serverTimestamp() }));
+    await assertFails(nueva(usuario(MODERADOR), { oculta: false, actualizado: serverTimestamp() }));
+    await assertFails(nueva(usuario(MODERADOR), { oculta: true, titulo: "otra cosa", actualizado: serverTimestamp() }));
+    await assertFails(nueva(anonimo(), { oculta: true, actualizado: serverTimestamp() }));
+  });
+  test("la Junta y la moderación editan y borran; el público no", async () => {
+    await assertSucceeds(nueva(usuario(JUNTA), efemeride()));
+    await assertSucceeds(updateDoc(doc(usuario(MODERADOR).firestore(), "efemerides", "prueba"), { titulo: "Inicio del curso 2026", actualizado: serverTimestamp() }));
+    await assertFails(deleteDoc(doc(anonimo().firestore(), "efemerides", "prueba")));
+    await assertSucceeds(deleteDoc(doc(usuario(MODERADOR).firestore(), "efemerides", "prueba")));
+    await assertSucceeds(nueva(usuario(JUNTA), efemeride()));
+    await assertSucceeds(deleteDoc(doc(usuario(JUNTA).firestore(), "efemerides", "prueba")));
   });
 });
 

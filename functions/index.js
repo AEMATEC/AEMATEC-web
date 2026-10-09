@@ -110,5 +110,27 @@ exports.notifyProblemReport =onDocumentCreated(
   }
 );
 
+// Cada 1 de diciembre: recuerda a la Junta cargar el calendario del MEP y del TEC del año que viene
+// (no hay forma de leerlos solos: ver README, módulo Efemérides). No avisa de lo que ya esté cargado.
+exports.recordatorioCalendarios = onSchedule(
+  { schedule: "0 8 1 12 *", timeZone: "America/Costa_Rica", secrets: [gmailAppPassword] },
+  async () => {
+    const siguiente = String(new Date().getFullYear() + 1);
+    const snapshot = await admin.firestore().collection("efemerides").get();
+    const cargados = new Set(snapshot.docs.map(d => d.data()).filter(d => String(d.desde || "").startsWith(siguiente) || String(d.hasta || "").startsWith(siguiente)).map(d => d.tipo));
+    const faltan = [["mep", "MEP", `https://calendario.mep.go.cr/${siguiente}`], ["tec", "TEC", "https://www.tec.ac.cr/semestre-verano"]].filter(([tipo]) => !cargados.has(tipo));
+    if (!faltan.length) return;
+    await sendEmail(
+      `Falta cargar el calendario ${siguiente} (${faltan.map(f => f[1]).join(" y ")}) — sitio AEMATEC`,
+      `<p>Ya casi empieza el ${siguiente} y en el sitio todavía no están las fechas de: <strong>${faltan.map(f => f[1]).join(" y ")}</strong>.</p>
+       <ol><li>Abre la página oficial: ${faltan.map(f => `<a href="${f[2]}">${f[1]}</a>`).join(" · ")}.</li>
+       <li>Entra a <a href="https://aematec.github.io/AEMATEC-web/admin.html#efemerides">el panel</a>, sección «Efemérides, MEP y TEC».</li>
+       <li>Pega la lista de fechas y toca «Guardar la lista».</li></ol>`,
+      await correosDe("junta")
+    );
+    logger.info("Recordatorio de calendarios enviado", { siguiente, faltan: faltan.map(f => f[0]) });
+  }
+);
+
 Object.assign(exports, require("./tramites"));
 exports.borrarDatosVencidos = require("./retencion").borrarDatosVencidos;

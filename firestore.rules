@@ -64,6 +64,34 @@ service cloud.firestore {
       allow write: if isJunta();
     }
 
+    // Efemérides: calendario público (efemerides.html). Lectura abierta; la Junta y la moderación las agregan,
+    // editan o ocultan desde admin.html. No lleva correos ni datos personales (por eso tampoco guarda quién la
+    // cambió). Un documento con el mismo id que una efeméride de fábrica (assets/js/efemerides-datos.js) la
+    // reemplaza; uno con { oculta: true } la oculta. `actualizado` debe ser la hora del servidor.
+    function esFechaTexto(texto) {
+      return texto is string && texto.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$');
+    }
+    function esEfemeride(d) {
+      return d.keys().hasOnly(['tipo', 'titulo', 'desc', 'desde', 'hasta', 'anual', 'tema', 'actualizado'])
+        && d.keys().hasAll(['tipo', 'titulo', 'desde', 'hasta', 'actualizado'])
+        && d.tipo in ['cr', 'int', 'mate', 'aematec', 'mep', 'tec']
+        && d.titulo is string && d.titulo.size() >= 3 && d.titulo.size() <= 120
+        && d.get('desc', '') is string && d.get('desc', '').size() <= 400
+        && esFechaTexto(d.desde) && esFechaTexto(d.hasta) && d.hasta >= d.desde
+        && d.get('anual', false) is bool && (d.get('anual', false) == false || d.hasta == d.desde)
+        && d.get('tema', '') is string && d.get('tema', '').size() <= 40
+        && d.actualizado == request.time;
+    }
+    function esEfemerideOculta(d) {
+      return d.keys().hasOnly(['oculta', 'actualizado']) && d.oculta == true && d.actualizado == request.time;
+    }
+    match /efemerides/{id} {
+      allow read: if true;
+      allow create, update: if (isJunta() || isModerator())
+        && (esEfemeride(request.resource.data) || esEfemerideOculta(request.resource.data));
+      allow delete: if isJunta() || isModerator();
+    }
+
     // Inventario de bienes de la asociación. Consulta pública, administración exclusiva de Junta.
     match /inventario/{itemId} {
       allow read: if true;
