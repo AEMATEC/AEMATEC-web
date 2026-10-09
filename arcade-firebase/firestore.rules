@@ -285,8 +285,11 @@ service cloud.firestore {
       // perfiles/B/amigos/A). Aceptar o quitar amistad escribe o borra las DOS copias en una sola acción,
       // por eso cualquiera de los dos lados (el dueño del perfil o la persona nombrada en el id) puede
       // crear o borrar — misma confianza básica que ya se usa en el conteo de votos de Golf.
+      // La lista la puede leer su dueño y también quien ya es su amigo/a (para ver el perfil de un amigo con
+      // sus propios amigos); nadie más.
       match /amigos/{otroUid} {
-        allow read: if signedIn() && request.auth.uid == uid;
+        allow read: if signedIn() && (request.auth.uid == uid
+          || exists(/databases/$(database)/documents/perfiles/$(request.auth.uid)/amigos/$(uid)));
         allow create: if signedIn() && (request.auth.uid == uid || request.auth.uid == otroUid)
           && request.resource.data.keys().hasOnly(['desde']);
         allow delete: if signedIn() && (request.auth.uid == uid || request.auth.uid == otroUid);

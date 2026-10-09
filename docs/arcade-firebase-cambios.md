@@ -341,6 +341,21 @@ de los dos lados puede crear o borrar esa amistad espejada — es la misma confi
 el conteo de votos de Golf (sección 3.3): las reglas no pueden verificar que las DOS copias se escriban
 siempre juntas, así que confían en que quien tiene una cuenta real actúa de buena fe.
 
+**Cómo se ve el perfil (octubre 2026):** la pantalla sigue el boceto de la Junta. Arriba, una tarjeta con la imagen
+predeterminada (una de las 5 de `avatar`), el usuario y la descripción; debajo, dos paneles: **AMIGOS** (buscar y
+agregar, solicitudes recibidas, lista) y **RECORDS** (todas las marcas de la cuenta). Ver el perfil requiere
+iniciar sesión o registrarse con usuario y contraseña. Tocar a una persona de la lista de amigos abre **su perfil**
+en el mismo formato, solo lectura: su imagen, descripción, desde cuándo está en el Arcade y desde cuándo son amigos,
+sus **récords** (con "TÚ: …" al lado cuando tú también tienes marca en ese juego) y **sus amigos**. Desde ahí se
+puede agregar o quitar amistad. No hay colecciones ni campos nuevos.
+
+**Regla que hay que copiar a mano para ver los amigos de un amigo:** `perfiles/{uid}/amigos/{otroUid}` ahora se
+puede **leer** por su dueño y también por quien ya es su amigo/a (`exists(.../perfiles/{miUid}/amigos/{uid})`); nadie
+más. Está ya en `arcade-firebase/firestore.rules` y hay que pegarla en **Firebase Console → Firestore Database →
+Reglas** (no se publica sola). Sin ese cambio todo lo demás funciona (imagen, descripción, récords del amigo, ya que
+`perfiles` y `leaderboards` son públicos de lectura) y solo el panel "AMIGOS DE …" dice "LA LISTA DE AMIGOS SOLO LA VEN
+SUS AMIGOS".
+
 **Ojo con la moderación de Golf:** desde que existen los perfiles, `esModerador()` (sección 3.3) tuvo que
 cambiar para seguir revisando también `arcadeModeradores` — si solo mirara "inició con contraseña", CUALQUIER
 persona con un perfil quedaría tratada como moderadora. Revisa que tu copia de las reglas en consola tenga

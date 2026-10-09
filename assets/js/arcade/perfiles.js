@@ -172,15 +172,19 @@ export async function rechazarSolicitud(deUid) {
   await fs.deleteDoc(fs.doc(db, 'perfiles', uid, 'solicitudesRecibidas', deUid));
 }
 
-export async function amigos() {
-  const uid = auth.currentUser.uid;
+// Amigos de `uid` (por defecto, los míos). Para ver los de OTRA persona las reglas exigen que ya sea mi
+// amiga (ver perfiles/{uid}/amigos en arcade-firebase/firestore.rules); si no lo es, Firestore rechaza la lectura.
+export async function amigos(uid = auth.currentUser.uid) {
   const snap = await fs.getDocs(fs.collection(db, 'perfiles', uid, 'amigos'));
-  const salida = [];
-  for (const d of snap.docs) {
-    const perfil = await cargarPerfil(d.id);
-    if (perfil) salida.push(perfil);
-  }
-  return salida;
+  const perfiles = await Promise.all(snap.docs.map(d => cargarPerfil(d.id)));
+  return perfiles.filter(Boolean);
+}
+
+// Desde cuándo soy amigo/a de `otroUid` (null si no lo soy): sirve tanto para mostrar la fecha como para saber
+// si ya somos amigos antes de ofrecer "QUITAR AMIGO" o "AGREGAR AMIGO".
+export async function amigoDesde(otroUid) {
+  const snap = await fs.getDoc(fs.doc(db, 'perfiles', auth.currentUser.uid, 'amigos', otroUid));
+  return snap.exists() ? (snap.data().desde || true) : null;
 }
 
 export async function quitarAmigo(otroUid) {
