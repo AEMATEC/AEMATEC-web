@@ -82,7 +82,8 @@ revisa la pestaña **Actions** del repositorio en GitHub.
   `?tema=semana-carrera` y `?tema=navidad`, en computadora y celular.
 
 ## Archivos de páginas
-- Las páginas usan nombres cortos (`repositorio*.html`, `inventario.html`, `junta-directiva.html`, `tramites.html`).
+- Las páginas usan nombres cortos (`repositorio*.html`, `inventario.html`, `junta-directiva.html`, `efemerides.html`, `tramites.html`).
+- **Efemérides:** para agregar o corregir una fecha del calendario edita `assets/js/efemerides-datos.js` (`FIJAS` para fechas que no cambian, `movibles` para las que se mueven) y corre `node --test tests/efemerides.test.js`. Solo fechas ciertas y con descripción corta; no afirmes que algo es feriado: la página remite al calendario oficial del MTSS.
 - Si agregas o renombras una página, agrégala también en `assets/js/site-pages.js` (buscador de la portada y
   asistente).
 - Mientras el sitio no sea público, una página se puede renombrar sin dejar redirección: actualiza todos los enlaces
