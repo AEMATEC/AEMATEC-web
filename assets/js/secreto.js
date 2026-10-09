@@ -5,8 +5,8 @@
 (() => {
   const IMAGEN = 'assets/img/secreto/secretos.png';
   const CANCION = 'assets/audio/secretos.mp3';
-  const INICIO_S = 40;    // segundo de la canción donde empieza el pedazo (0:40)
-  const DURACION_S = 20;  // cuánto suena: hasta el 1:00 (la imagen se queda ese mismo tiempo)
+  const INICIO_S = 40;    // 0:00:40 — donde empieza el pedazo de canción
+  const FIN_S = 60;       // 0:01:00 — donde termina; la imagen se cierra en ese momento
 
   let abierto = null;
   function mostrar() {
@@ -41,9 +41,14 @@
     document.body.appendChild(capa);
     abierto = capa;
 
-    audio.currentTime = INICIO_S;
-    audio.play().catch(() => {}); // si el navegador bloquea el sonido (p. ej. entrando con #gorila), igual se ve la imagen
-    fin = setTimeout(cerrar, DURACION_S * 1000);
+    // Saltar al segundo INICIO_S solo funciona cuando el navegador ya conoce la duración del archivo; antes se ignora
+    // y la canción empezaba desde el principio. Por eso se espera a loadedmetadata, y se vuelve a saltar si, al sonar,
+    // el navegador aún estaba en el comienzo.
+    const empezar = () => { audio.currentTime = INICIO_S; audio.play().catch(() => {}); }; // si el navegador bloquea el sonido (p. ej. entrando con #gorila), igual se ve la imagen
+    if (audio.readyState >= 1) empezar(); else audio.addEventListener('loadedmetadata', empezar, { once: true });
+    audio.addEventListener('playing', () => { if (audio.currentTime < INICIO_S - 1) audio.currentTime = INICIO_S; }, { once: true });
+    audio.addEventListener('timeupdate', () => { if (audio.currentTime >= FIN_S) cerrar(); }); // se cierra justo al llegar al 1:00
+    fin = setTimeout(cerrar, (FIN_S - INICIO_S + 15) * 1000); // respaldo: si el audio nunca arranca, la imagen no se queda para siempre
   }
 
   // 1) Código Konami y 2) escribir "gorila" (fuera de los campos de texto)
