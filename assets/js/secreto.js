@@ -5,8 +5,8 @@
 (() => {
   const IMAGEN = 'assets/img/secreto/secretos.png';
   const CANCION = 'assets/audio/secretos.mp3';
-  const INICIO_S = 40;    // segundo de la canción donde empieza el pedazo
-  const DURACION_S = 12;  // cuánto suena (la imagen se queda ese mismo tiempo)
+  const INICIO_S = 40;    // segundo de la canción donde empieza el pedazo (0:40)
+  const DURACION_S = 20;  // cuánto suena: hasta el 1:00 (la imagen se queda ese mismo tiempo)
 
   let abierto = null;
   function mostrar() {
