@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es" data-sitio="arcade">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Tetris del Arcade AEMATEC: modo solo con récords y partidas 1 contra 1 en línea.">
+<title>Tetris — Arcade AEMATEC</title>
+<link rel="icon" type="image/svg+xml" href="assets/logo-aematec-compas.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/arcade.css">
+<link rel="stylesheet" href="assets/css/tetris.css">
+<script src="assets/js/temas.js" defer></script>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>TETRIS</h1>
+    <div class="who">
+      <button class="btn gray" id="arcade-volver" type="button" title="Volver al Arcade">← ARCADE</button>
+      <label for="name">JUGADOR</label>
+      <input id="name" class="px-in" maxlength="10" placeholder="TU APODO" aria-label="Tu apodo (es público, no uses tu nombre real)" title="ES PÚBLICO: NO USES TU NOMBRE REAL">
+      <span id="name-warn" class="net" style="color:var(--red)" hidden aria-live="polite"></span>
+      <button class="btn gray snd" id="snd" type="button" aria-pressed="false" title="Sonido y música">SONIDO: <span class="lbl">NO</span></button>
+      <span id="net" class="net">● CONECTANDO…</span>
+    </div>
+  </header>
+
+  <!-- Menú -->
+  <section id="v-menu">
+    <div class="menu">
+      <div class="panel">
+        <h2>SOLO</h2>
+        <p class="help">SUBE DE NIVEL Y HAZ EL MÁXIMO DE PUNTOS. TU RÉCORD PUEDES PUBLICARLO (SIEMPRE TE PREGUNTAMOS).</p>
+        <button class="btn green" id="b-solo" type="button">▶ JUGAR SOLO</button>
+        <h3 style="margin-top:14px">MEJORES PUNTAJES</h3>
+        <ol class="lb" id="lb-solo"></ol>
+      </div>
+      <div class="panel">
+        <h2>EN LÍNEA 1 vs 1</h2>
+        <p class="help">LAS LÍNEAS QUE LIMPIES LE LLEGAN A TU RIVAL COMO BASURA. GANA QUIEN AGUANTE MÁS. LAS DOS PERSONAS RECIBEN LAS MISMAS PIEZAS.</p>
+        <div class="row">
+          <button class="btn yellow" id="b-crear" type="button">+ CREAR SALA</button>
+        </div>
+        <div class="row" style="margin-top:10px">
+          <input id="codigo" class="px-in" maxlength="5" placeholder="CÓDIGO" aria-label="Código de la sala">
+          <button class="btn" id="b-unirse" type="button">UNIRSE</button>
+        </div>
+        <p class="help" id="msg-menu" role="status" aria-live="polite"></p>
+        <h3 style="margin-top:10px">SALAS EN VIVO</h3>
+        <ul class="salas" id="salas"></ul>
+        <h3 style="margin-top:14px">MÁS VICTORIAS</h3>
+        <ol class="lb" id="lb-vs"></ol>
+      </div>
+    </div>
+    <div class="panel">
+      <h3>CONTROLES</h3>
+      <p class="help"><b>← →</b> MOVER · <b>↓</b> BAJAR · <b>↑ / X</b> GIRAR · <b>Z</b> GIRAR AL REVÉS · <b>ESPACIO</b> CAER DE UNA · <b>C / SHIFT</b> GUARDAR PIEZA · <b>P</b> PAUSA. EN CELULAR, USA LOS BOTONES.</p>
+    </div>
+  </section>
+
+  <!-- Sala de espera -->
+  <section id="v-sala" hidden>
+    <div class="panel">
+      <h2>SALA <span id="sala-codigo"></span></h2>
+      <p class="help">COMPARTE EL CÓDIGO CON TU RIVAL. CUANDO ESTÉN LAS DOS PERSONAS, QUIEN CREÓ LA SALA INICIA.</p>
+      <ul class="salas" id="sala-jugadores"></ul>
+      <div class="row" style="margin-top:12px">
+        <button class="btn green" id="b-iniciar" type="button" disabled>▶ INICIAR</button>
+        <button class="btn gray" id="b-salir" type="button">SALIR</button>
+      </div>
+      <p class="help" id="msg-sala" role="status" aria-live="polite"></p>
+    </div>
+  </section>
+
+  <!-- Partida -->
+  <section id="v-juego" hidden>
+    <div class="juego">
+      <div class="col">
+        <div class="caja"><div class="stat">GUARDADA (C)</div><canvas id="cv-hold" width="64" height="64" style="width:64px;height:64px"></canvas></div>
+        <div class="caja"><div class="stat">PUNTOS<b id="s-puntos">0</b></div><div class="stat">NIVEL<b id="s-nivel">1</b></div><div class="stat">LÍNEAS<b id="s-lineas">0</b></div></div>
+        <button class="btn gray" id="b-pausa" type="button">PAUSA</button>
+        <button class="btn red" id="b-abandonar" type="button">ABANDONAR</button>
+      </div>
+      <div>
+        <div class="tablero" id="tablero">
+          <canvas id="cv" width="240" height="480" aria-label="Tablero de Tetris"></canvas>
+          <div class="cartel" id="cartel" hidden></div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="caja"><div class="stat">SIGUIENTES</div><canvas id="cv-next" width="64" height="176" style="width:64px;height:176px"></canvas></div>
+        <div class="caja rival" id="rival" hidden><div class="stat" id="rival-nombre">RIVAL</div><canvas id="cv-rival" width="120" height="240"></canvas><div class="stat" id="rival-info"></div><div class="stat" id="basura" style="color:var(--red)"></div></div>
+      </div>
+    </div>
+    <div class="tactil" id="tactil">
+      <button class="btn" data-k="izq" type="button" aria-label="Izquierda">←</button>
+      <button class="btn" data-k="giro" type="button" aria-label="Girar">⟳</button>
+      <button class="btn" data-k="der" type="button" aria-label="Derecha">→</button>
+      <button class="btn gray" data-k="hold" type="button" aria-label="Guardar pieza">GUARDAR</button>
+      <button class="btn" data-k="abajo" type="button" aria-label="Bajar">↓</button>
+      <button class="btn yellow" data-k="caer" type="button" aria-label="Caer de una">CAER</button>
+    </div>
+  </section>
+
+  <!-- Confirmación para publicar puntaje (mismos ids que usa core.js: LB.confirmar) -->
+  <div class="panel" id="lb-confirm" hidden role="dialog" aria-label="Publicar puntaje">
+    <p id="lb-confirm-msg"></p>
+    <div class="row" id="lb-confirm-choice"><button class="btn green" id="lb-confirm-yes" type="button">SÍ, PUBLICAR</button><button class="btn gray" id="lb-confirm-no" type="button">NO</button></div>
+    <div class="row" id="lb-confirm-name-step" hidden>
+      <input id="lb-confirm-name" class="px-in" maxlength="10" placeholder="TU APODO" aria-label="Apodo público">
+      <button class="btn green" id="lb-confirm-publish" type="button">PUBLICAR</button>
+      <span class="net" id="lb-confirm-name-msg" style="color:var(--red)"></span>
+    </div>
+  </div>
+  <div id="egg" hidden><img id="egg-img" alt=""></div>
+</div>
+<script src="assets/js/arcade-transition.js"></script>
+<script type="module" src="assets/js/arcade/tetris.js"></script>
+</body>
+</html>

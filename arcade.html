@@ -6374,6 +6374,8 @@ function pfCatalogoRecords() {
     { key: 'runner', n: 'LA HUIDA DEL ZORRO', fmt: r => `${r.score} M` },
     { key: 'golf', n: 'GOLF', fmt: r => `${r.score} GOLPES` },
     { key: 'cruce', n: 'CRUZAR LA CALLE', fmt: r => `${r.score} PTS` },
+    { key: 'tetris', n: 'TETRIS', fmt: r => `${r.score} PTS` },
+    { key: 'tetris_vs', n: 'TETRIS EN LÍNEA (VICTORIAS)', fmt: r => `${r.score} V` },
   ];
   Object.values(MODES).forEach(m => lista.push({ key: m.key, n: `ANIMAL AL TIRO (${m.n})`, fmt: r => `${r.score} PTS` }));
   TRACKS.forEach((t, i) => {
@@ -6599,7 +6601,15 @@ $('#pf-buscar-btn').onclick = async () => {
 function drawSplash(g, c) {
   const x = c.getContext('2d'); x.imageSmoothingEnabled = false;
   const put = (img, px, py, s) => x.drawImage(img, Math.round(px), Math.round(py), img.width * s, img.height * s);
-  if (g === 'minas') {
+  if (g === 'tetris') {
+    c.width = 160; c.height = 72;
+    x.fillStyle = '#0b0c18'; x.fillRect(0, 0, 160, 72);
+    const bl = (X, Y, col) => { x.fillStyle = col; x.fillRect(X, Y, 8, 8); x.fillStyle = 'rgba(255,255,255,.4)'; x.fillRect(X, Y, 8, 1); x.fillRect(X, Y, 1, 8); x.fillStyle = 'rgba(0,0,0,.4)'; x.fillRect(X, Y + 7, 8, 1); x.fillRect(X + 7, Y, 1, 8); };
+    const pz = (X, Y, col, f) => f.forEach(([i, j]) => bl(X + i * 8, Y + j * 8, col));
+    pz(28, 40, '#ef7d57', [[0,0],[1,0],[2,0],[2,-1]]); pz(52, 48, '#73eff7', [[0,0],[1,0],[2,0],[3,0]]); pz(84, 48, '#ffcd75', [[0,0],[1,0],[0,-1],[1,-1]]);
+    pz(100, 40, '#b55fd0', [[0,0],[1,0],[2,0],[1,-1]]); pz(124, 48, '#38b764', [[0,0],[1,0],[1,-1],[2,-1]]); pz(36, 56, '#b13e53', [[0,0],[1,0],[1,1],[2,1]]); pz(18, 8, '#3b5dc9', [[0,0],[0,1],[0,2],[1,2]]);
+    pz(120, 4, '#b55fd0', [[0,0],[1,0],[2,0],[1,1]]); pz(66, 10, '#ffcd75', [[0,0],[1,0],[0,1],[1,1]]);
+  } else if (g === 'minas') {
     c.width = 160; c.height = 72;
     for (let j = 0; j < 4; j++) for (let i = 0; i < 9; i++) {
       const X = 8 + i * 16, Y = 6 + j * 16, open = (i + j * 3) % 4 === 1;
@@ -6771,6 +6781,7 @@ const GAMES = [
   { g: 'billar', n: 'BILLAR' }, { g: 'duelo', n: 'DUELO DEL OESTE' }, { g: 'runner', n: 'LA HUIDA DEL ZORRO' },
   { g: 'golf', n: 'GOLF' },
   { g: 'cruce', n: 'CRUZAR LA CALLE' },
+  { g: 'tetris', n: 'TETRIS', href: 'tetris.html' }, // página aparte (tetris.html)
 ];
 (() => {
   const grid = $('#menu-grid');
@@ -6781,7 +6792,7 @@ const GAMES = [
     b.appendChild(c);
     const s = document.createElement('span'); s.textContent = it.n; b.appendChild(s);
     b.style.animationDelay = (i * 80) + 'ms';
-    b.onclick = () => { SFX.play('start'); goTab(it.g); };
+    b.onclick = () => { SFX.play('start'); if (it.href) window.arcadeTransition(it.href); else goTab(it.g); };
     grid.appendChild(b);
   });
 })();

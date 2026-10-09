@@ -363,6 +363,20 @@ ese cambio junto con las colecciones de esta sección.
 
 ---
 
+## 3.5 Tetris (página aparte `tetris.html`): colección nueva y dos tablas
+
+**Hay que copiar `arcade-firebase/firestore.rules` a la consola de Firebase de `arcade-matec`** (como siempre, no se publica solo).
+Sin eso, el Tetris SOLO funciona, pero no se pueden crear salas en línea ni publicar puntajes.
+
+- **Colección `tetris/{sala}`** (igual que `cruces`): `{ host, hostName, state: 'lobby'|'playing', round, seed, created, lastSeen, expiraEn }`
+  y subcolección `players/{uid}` con `{ name, round, alive, board (texto de 200 caracteres), score, lines, sent, lastSeen }`.
+  Cada jugador escribe solo su documento. Las dos personas reciben las mismas piezas porque la semilla (`seed`) va en la sala.
+- **Tablas:** `tetris` (puntos, entero 1 a 9 999 999, mayor es mejor, `extra` ≈ `12 LÍN · NIV 2`) y `tetris_vs` (victorias en línea,
+  suma de 1 en 1 como `duelo`). Ya están en `validScore` e `isIncGame`.
+- Las reglas se probaron con el emulador y dos navegadores (crear sala, unirse, jugar, ganar, revancha).
+
+---
+
 ## 4. Cómo comprobarlo después de publicar las reglas
 
 1. Abre <https://aematec.github.io/AEMATEC-web/arcade.html>, escribe un nombre y espera a que diga **● ONLINE**.
