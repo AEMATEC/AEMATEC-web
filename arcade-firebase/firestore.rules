@@ -51,7 +51,7 @@ service cloud.firestore {
     }
 
     function isIncGame(game) {
-      return game in ['funciones', 'veintiuno', 'billar_eight', 'billar_nine', 'duelo'];
+      return game in ['funciones', 'veintiuno', 'billar_eight', 'billar_nine', 'duelo', 'tetris_vs'];
     }
 
     function validScore(game, s) {
@@ -65,7 +65,8 @@ service cloud.firestore {
         (game == 'duelo_reaccion' && s >= 80 && s <= 5000) ||
         (game == 'runner' && s >= 1 && s <= 20000) ||
         (game == 'golf' && s >= 1 && s <= 200) ||
-        (game == 'cruce' && s >= 0 && s <= 5000)
+        (game == 'cruce' && s >= 0 && s <= 5000) ||
+        (game == 'tetris' && s >= 1 && s <= 9999999)
       );
     }
 
@@ -229,6 +230,22 @@ service cloud.firestore {
       allow create: if signedIn() && request.resource.data.host == request.auth.uid;
       allow update: if signedIn()
         && exists(/databases/$(database)/documents/cruces/$(code)/players/$(request.auth.uid));
+      allow delete: if signedIn() && (request.auth.uid == resource.data.host || salaCaducada(resource.data));
+
+      match /players/{uid} {
+        allow read: if signedIn();
+        allow create, update: if signedIn() && request.auth.uid == uid;
+        allow delete: if signedIn() && (request.auth.uid == uid || salaCaducada(resource.data));
+      }
+    }
+
+    // Tetris en línea 1 contra 1 (tetris.html): la sala trae la semilla de las piezas y cada jugador escribe SOLO su
+    // documento en players (su tablero, puntos y las líneas de basura que ha enviado en total).
+    match /tetris/{code} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.host == request.auth.uid;
+      allow update: if signedIn()
+        && exists(/databases/$(database)/documents/tetris/$(code)/players/$(request.auth.uid));
       allow delete: if signedIn() && (request.auth.uid == resource.data.host || salaCaducada(resource.data));
 
       match /players/{uid} {
