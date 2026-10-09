@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-sitio="arcade">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -8,6 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/arcade.css">
+<!-- Temas de temporada también en el Arcade (en 8 bits): ver assets/js/temas.js y temas-pixel.js -->
+<script src="assets/js/temas.js" defer></script>
 <style>
 :root{
   --bg:#1a1c2c; --panel:#333c57; --panel2:#29366f; --ink:#f4f4f4; --mute:#94b0c2; --dark:#0f1020;
@@ -178,6 +180,18 @@ nav .btn{padding:8px 12px}
 .pf-lista li .nm{flex:1 1 auto;min-width:0;word-break:break-word}
 .pf-lista li .sc{color:var(--lime);text-align:right;white-space:nowrap}
 .pf-lista li .sc small{display:block}
+/* La imagen elegida se marca con un marco amarillo sobre fondo oscuro (con el botón amarillo de .btn.on el zorro,
+   que también es amarillo-naranja, desaparecía). */
+.btn.pf-av.on{background:var(--panel2);color:var(--yellow);box-shadow:0 -4px 0 0 var(--yellow),0 4px 0 0 var(--yellow),-4px 0 0 0 var(--yellow),4px 0 0 0 var(--yellow),inset -4px -4px 0 0 rgba(0,0,0,.3),inset 4px 4px 0 0 rgba(255,255,255,.12)}
+.btn.pf-av canvas{background:var(--dark)}
+/* Barra de desplazamiento de píxeles (en vez de la gris del navegador): riel punteado y asa amarilla con relieve. */
+.pf-lista::-webkit-scrollbar,textarea.px-in::-webkit-scrollbar{width:14px;height:14px}
+.pf-lista::-webkit-scrollbar-track,textarea.px-in::-webkit-scrollbar-track{background:repeating-linear-gradient(0deg,var(--dark) 0 4px,#171929 4px 8px);box-shadow:inset 0 0 0 2px var(--panel2)}
+.pf-lista::-webkit-scrollbar-thumb,textarea.px-in::-webkit-scrollbar-thumb{background:var(--yellow);border:2px solid var(--dark);box-shadow:inset -4px -4px 0 0 rgba(0,0,0,.3),inset 4px 4px 0 0 rgba(255,255,255,.45)}
+.pf-lista::-webkit-scrollbar-thumb:hover,textarea.px-in::-webkit-scrollbar-thumb:hover{background:var(--orange)}
+.pf-lista::-webkit-scrollbar-button,textarea.px-in::-webkit-scrollbar-button{display:none}
+.pf-lista::-webkit-scrollbar-corner,textarea.px-in::-webkit-scrollbar-corner{background:var(--dark)}
+@supports not selector(::-webkit-scrollbar){.pf-lista,textarea.px-in{scrollbar-width:thin;scrollbar-color:var(--yellow) var(--dark)}}
 .pf-lista li.ver{cursor:pointer}
 .pf-lista li.ver:hover .nm{color:var(--yellow);text-decoration:underline}
 @media (max-width:700px){.pf-cols{grid-template-columns:1fr}.pf-tarjeta{justify-content:center;text-align:center}.pf-datos{text-align:center}.pf-datos .row{justify-content:center}}
