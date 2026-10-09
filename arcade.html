@@ -1195,7 +1195,7 @@ import { MUSIC, setMusicToggleHook } from "./assets/js/arcade/musica.js";
 
 /* ---------- pestañas ---------- */
 let tab = 'menu';
-document.querySelectorAll('.tab').forEach(b => b.onclick = () => { SFX.play('click'); if (b.dataset.t === 'tetris') window.arcadeTransition('tetris.html'); else goTab(b.dataset.t); }); // Tetris es una página aparte
+document.querySelectorAll('.tab').forEach(b => b.onclick = () => { SFX.play('click'); if (b.dataset.t === 'tetris') location.href = 'tetris.html'; else goTab(b.dataset.t); }); // Tetris es una página aparte
 
 /* =========================================================
    BATALLA NAVAL
@@ -6793,7 +6793,7 @@ const GAMES = [
     b.appendChild(c);
     const s = document.createElement('span'); s.textContent = it.n; b.appendChild(s);
     b.style.animationDelay = (i * 80) + 'ms';
-    b.onclick = () => { SFX.play('start'); if (it.href) window.arcadeTransition(it.href); else goTab(it.g); };
+    b.onclick = () => { SFX.play('start'); if (it.href) location.href = it.href; else goTab(it.g); };
     grid.appendChild(b);
   });
 })();
