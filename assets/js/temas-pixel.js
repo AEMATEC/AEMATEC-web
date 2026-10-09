@@ -91,7 +91,18 @@
       for (let y = 0; y < 8; y++) for (let x = 0; x < 14; x++) { const d = Math.hypot(x - 6.5, y - 7.5), b = Math.floor((d - 2.2) / 0.9); if (b >= 0 && b < 6) R(c, bandas[b], x, y, 1, 1); }
     }),
     manzana: () => hoja("manzana", 8, 9, 1, c => ascii(c, ["....GG..", "...G....", ".RRRRRR.", "RRRRRRRR", "RRRRRRRR", "RRRRRRRR", "RRRRRRRR", ".RRRRRR.", "..RR.RR."], { R: "#C0392B", G: "#2E9E6B" })),
-    arbol: () => hoja("arbol", 9, 11, 1, c => ascii(c, ["....Y....", "...GGG...", "...GRG...", "..GGGGG..", "..GGGRG..", ".GGGGGGG.", ".GRGGGGG.", "GGGGGGRGG", "....B....", "....B....", "........."], { G: "#1E7B4B", R: "#B3202A", Y: "#E0B83A", B: "#6B4A2B" }))
+    arbol: () => hoja("arbol", 9, 11, 1, c => ascii(c, ["....Y....", "...GGG...", "...GRG...", "..GGGGG..", "..GGGRG..", ".GGGGGGG.", ".GRGGGGG.", "GGGGGGRGG", "....B....", "....B....", "........."], { G: "#1E7B4B", R: "#B3202A", Y: "#E0B83A", B: "#6B4A2B" })),
+    calabaza: () => hoja("calabaza", 10, 9, 1, c => ascii(c, ["....G.....", "...GG.....", ".OOOGOOO..", "OOOOOOOOOO", "OKKOOOOKKO", "OOOOOOOOOO", "OKOKOKOKOO", ".OOOOOOOO.", "..OOOOOO.."], { O: "#F28C28", G: "#2E9E6B", K: "#2B1B12" })),
+    regalo: v => hoja(`regalo${v}`, 9, 9, 1, c => ascii(c, ["..YY.YY..", "...YYY...", "RRRRYRRRR", "RRRRYRRRR", "YYYYYYYYY", "RRRRYRRRR", "RRRRYRRRR", "RRRRYRRRR", "RRRRYRRRR"], { R: ["#B3202A", "#1E7B4B", "#2F5FD0"][v % 3], Y: "#F4D06F" })),
+    libros: () => hoja("libros", 12, 9, 1, c => ascii(c, ["BBBBBBBBBB..", "BWWWWWWWWB..", "BBBBBBBBBB..", "..GGGGGGGGGG", "..GWWWWWWWWG", "..GGGGGGGGGG", "RRRRRRRRRR..", "RWWWWWWWWR..", "RRRRRRRRRR.."], { B: "#2F5FD0", G: "#1E7B4B", R: "#C0392B", W: "#F4EDDA" })),
+    // Pizarra de clase con «A B C» escritas con tiza.
+    pizarra: () => hoja("pizarra", 20, 14, 1, c => {
+      R(c, "#8B5A2B", 0, 0, 20, 12); R(c, "#1F4D3A", 1, 1, 18, 10); R(c, "#8B5A2B", 0, 12, 20, 2); R(c, "#F4EDDA", 3, 12, 6, 1);
+      const letra = (filas, x) => { c.save(); c.translate(x, 3); ascii(c, filas, { "#": "#F4F7F2" }); c.restore(); };
+      letra([".#.", "#.#", "###", "#.#", "#.#"], 3); letra(["##.", "#.#", "##.", "#.#", "##."], 8); letra([".##", "#..", "#..", "#..", ".##"], 13);
+    }),
+    lapiz: () => hoja("lapiz", 3, 12, 1, c => { R(c, "#F29BBE", 0, 0, 3, 2); R(c, "#BBBBBB", 0, 2, 3, 1); R(c, "#F4D06F", 0, 3, 3, 7); R(c, "#D9A066", 0, 10, 3, 1); R(c, "#2B1B12", 1, 11, 1, 1); }),
+    murcielago: () => hoja("murcielago", 9, 5, 1, c => ascii(c, ["K...K...K", "KK.KKK.KK", "KKKKKKKKK", "KK.KKK.KK", "K.......K"], { K: "#2F2F3A" }))
   };
 
   function cuerpoJuan(c, f) {
@@ -109,6 +120,55 @@
     ["......R.....", "......RR....", ".....RRR....", "..R..RRRR...", "..RR.ROORR..", "..RRRROORR..", "..RROYYOORR.", ".RROOYYYORR.", ".RROYYYYOOR.", ".RROYYYYYOR.", ".RRROYYYOOR.", ".RRROYYYOOR.", "..RROOYYOR..", "..RRROOORR..", "...RRRRRR...", "....RRRR...."],
     ["....R.......", "....RR......", "...RRR......", "...RRRR.R...", "..RROORRR...", "..RROOORRR..", ".RROYYOOORR.", ".RROYYYYORR.", ".RROYYYYOOR.", ".RROYYYYYOR.", ".RROYYYYYOR.", ".RRROYYYOOR.", "..RROOYYOR..", "..RRROOORR..", "...RRRRRR...", "....RRRR...."]
   ];
+
+  // ---------- Guirnaldas que cuelgan bajo el encabezado ----------
+  // Cada guirnalda es una "baldosa" que se repite a lo ancho: un alambre que se curva y cosas que cuelgan de él.
+  const alambreY = (w, x) => Math.round(Math.sin(Math.PI * (x + 0.5) / w) * 3);
+  const colgar = (c, w, x, largo, dibuja) => { const y = alambreY(w, x) + 1; R(c, "#5B4630", x, y, 1, largo); dibuja(c, x, y + largo); };
+  const banderin = (color) => (c, x, y) => {
+    for (let r = 0; r < 11; r++) { const m = 5 - Math.floor(r * 5 / 11); R(c, "rgba(13,43,69,0.4)", x - m - 1, y + r, 2 * m + 3, 1); }
+    R(c, "rgba(13,43,69,0.4)", x - 1, y + 11, 3, 1);
+    for (let r = 0; r < 11; r++) { const m = 4 - Math.floor(r * 4 / 11); R(c, color, x - m, y + r, 2 * m + 1, 1); }
+  };
+  const bombillo = (color) => (c, x, y) => { R(c, "#555555", x - 1, y, 3, 2); R(c, color, x - 2, y + 2, 5, 5); R(c, color, x - 1, y + 7, 3, 1); R(c, "rgba(255,255,255,0.7)", x - 1, y + 3, 1, 2); };
+  const dibujaAscii = (filas, pal) => (c, x, y) => { c.save(); c.translate(x - Math.floor(filas[0].length / 2), y); ascii(c, filas, pal); c.restore(); };
+  const ROWS = {
+    corazon: [".##...##.", "####.####", "#########", "#########", ".#######.", "..#####..", "...###...", "....#...."],
+    estrella: ["....#....", "....#....", "...###...", "#########", ".#######.", "..#####..", "..##.##..", ".##...##.", ".#.....#."],
+    pi: ["#########", "#########", "..#...#..", "..#...#..", "..#...#..", "..#...#..", "..#...##.", "..#....#.", "..#....#."],
+    farol: ["...BB...", "..BBBB..", ".BRRRRB.", ".RRYYRR.", "RRYYYYRR", "RRYYYYRR", "RRYYYYRR", ".RRYYRR.", ".BRRRRB.", "..BBBB..", "...BB..."],
+    manzana: ["....GG..", "...G....", ".RRRRRR.", "RRRRRRRR", "RRRRRRRR", "RRRRRRRR", "RRRRRRRR", ".RRRRRR.", "..RR.RR."],
+    calabaza: ["....G.....", "...GG.....", ".OOOGOOO..", "OOOOOOOOOO", "OKKOOOOKKO", "OOOOOOOOOO", "OKOKOKOKOO", ".OOOOOOOO.", "..OOOOOO.."],
+    murcielago: ["K...K...K", "KK.KKK.KK", "KKKKKKKKK", "KK.KKK.KK", "K.......K"]
+  };
+  const lapizColgante = (c, x, y) => { R(c, "#F29BBE", x - 1, y, 3, 2); R(c, "#BBBBBB", x - 1, y + 2, 3, 1); R(c, "#F4D06F", x - 1, y + 3, 3, 7); R(c, "#D9A066", x - 1, y + 10, 3, 1); R(c, "#2B1B12", x, y + 11, 1, 1); };
+  const banderines = cols => ({ w: 12 * cols.length, h: 24, cuelga: cols.map((col, i) => [6 + i * 12, 2, banderin(col)]) });
+  const GUIRNALDAS = {
+    luces: { w: 48, h: 16, cuelga: [[6, 2, bombillo("#D93A3A")], [18, 2, bombillo("#F4D06F")], [30, 2, bombillo("#2E9E6B")], [42, 2, bombillo("#2F5FD0")]] },
+    patrio: banderines(["#002B7F", "#FFFFFF", "#CE1126", "#FFFFFF"]),
+    orgullo: banderines(["#E40303", "#FF8C00", "#FFED00", "#008026", "#004DFF", "#750787"]),
+    morado: banderines(["#7B2D8E", "#2E9E6B", "#7B2D8E", "#C2185B"]),
+    fuego: banderines(["#7A1E0E", "#D8481B", "#F6A623", "#FFD866"]),
+    faroles: { w: 40, h: 22, cuelga: [[20, 1, dibujaAscii(ROWS.farol, { R: "#D93A3A", Y: "#FFF3C4", B: "#5B4630" })]] },
+    halloween: { w: 64, h: 22, cuelga: [[16, 2, dibujaAscii(ROWS.calabaza, { O: "#F28C28", G: "#2E9E6B", K: "#2B1B12" })], [48, 6, dibujaAscii(ROWS.murcielago, { K: "#2F2F3A" })]] },
+    docente: { w: 56, h: 24, cuelga: [[14, 2, dibujaAscii(ROWS.manzana, { R: "#C0392B", G: "#2E9E6B" })], [42, 2, lapizColgante]] },
+    pi: { w: 40, h: 20, cuelga: [[20, 2, dibujaAscii(ROWS.pi, { "#": "#B8901F" })]] },
+    padre: { w: 48, h: 16, cuelga: [[12, 2, dibujaAscii(ROWS.corazon, { "#": "#0B6E99" })], [36, 2, dibujaAscii(ROWS.corazon, { "#": "#0D2B45" })]] },
+    madre: { w: 48, h: 16, cuelga: [[12, 2, dibujaAscii(ROWS.corazon, { "#": "#B0336B" })], [36, 2, dibujaAscii(ROWS.corazon, { "#": "#F29BBE" })]] },
+    nuevo: { w: 48, h: 18, cuelga: [[12, 2, dibujaAscii(ROWS.estrella, { "#": "#E0B83A" })], [36, 5, dibujaAscii(ROWS.estrella, { "#": "#F4D06F" })]] }
+  };
+  function guirnalda(nombre, escala = 3) {
+    const g = GUIRNALDAS[nombre];
+    if (!g) return null;
+    const h = hoja(`guirnalda-${nombre}`, g.w, g.h + 8, 1, c => {
+      for (let x = 0; x < g.w; x++) R(c, "#3B3B45", x, alambreY(g.w, x), 1, 1);
+      g.cuelga.forEach(([x, largo, dibuja]) => colgar(c, g.w, x, largo, dibuja));
+    });
+    const e = document.createElement("div");
+    e.className = "tema-guirnalda";
+    Object.assign(e.style, { height: h.h * escala + "px", backgroundImage: `url(${h.url})`, backgroundSize: `${h.w * escala}px ${h.h * escala}px`, imageRendering: "pixelated" });
+    return e;
+  }
 
   // Sprite del tema: nombre + variante (color) → hoja { url, w, h, n }.
   const sprite = (nombre, variante = 0) => FABRICA[nombre](variante);
@@ -137,5 +197,5 @@
   };
   const iconoDeTema = (id, escala = 3) => { const [n, v] = ICONO_DE_TEMA[id] || ["estrella"]; return elemento(n, { escala, variante: v || 0 }); };
 
-  window.aematecPixel = { sprite, elemento, iconoDeTema, COLORES };
+  window.aematecPixel = { sprite, elemento, iconoDeTema, guirnalda, COLORES };
 })();
