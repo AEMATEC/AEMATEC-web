@@ -20,19 +20,26 @@
   const parametros = new URLSearchParams(location.search);
   let seleccion = esFecha(parametros.get("fecha") || "") ? parametros.get("fecha") : hoy;
   let anio = Number(seleccion.slice(0, 4)), mes = Number(seleccion.slice(5, 7)) - 1;
-  const activos = new Set(Object.keys(D.TIPOS));
+  // Pestañas: "general" (efemérides), "mep" y "tec". Cada una muestra solo los tipos de su grupo.
+  let vista = D.GRUPOS[parametros.get("vista")] ? parametros.get("vista") : "general";
+  let activos = new Set(D.GRUPOS[vista]);
+  let docs = []; // fechas que la Junta agregó o cambió desde el panel (colección "efemerides" de Firestore)
 
   const cache = {};
-  const delAnio = a => cache[a] || (cache[a] = D.delAnio(a));
+  const delAnio = a => cache[a] || (cache[a] = D.delAnio(a, docs));
   const visibles = lista => lista.filter(e => activos.has(e.tipo));
-  const eventosDe = fecha => visibles(delAnio(Number(fecha.slice(0, 4))).filter(e => e.desde <= fecha && fecha <= e.hasta));
+  const eventosDe = fecha => visibles(D.delDia(fecha, docs));
   const claveDia = (a, m, d) => `${a}-${dos(m + 1)}-${dos(d)}`;
+
+  // Los periodos largos solo se marcan al empezar y al terminar.
+  const textoFase = e => e.fase === "inicio" ? `Inicia: ${e.titulo}` : e.fase === "fin" ? `Termina: ${e.titulo}` : e.titulo;
 
   // ---------- Filtros ----------
   function dibujarFiltros() {
     const caja = $("ef-filtros");
     caja.replaceChildren();
-    Object.entries(D.TIPOS).forEach(([tipo, { nombre }]) => {
+    caja.hidden = D.GRUPOS[vista].length < 2;
+    D.GRUPOS[vista].map(tipo => [tipo, D.TIPOS[tipo]]).forEach(([tipo, { nombre }]) => {
       const b = el("button", `ef-filtro ef-t-${tipo}`, nombre);
       b.type = "button";
       b.setAttribute("aria-pressed", String(activos.has(tipo)));
@@ -60,11 +67,11 @@
       celda.dataset.fecha = fecha;
       celda.setAttribute("role", "gridcell");
       celda.setAttribute("aria-pressed", String(fecha === seleccion));
-      celda.setAttribute("aria-label", `${fechaLarga(fecha)}${fecha === hoy ? " (hoy)" : ""}: ${eventos.length ? eventos.map(e => e.titulo).join("; ") : "sin efemérides"}`);
+      celda.setAttribute("aria-label", `${fechaLarga(fecha)}${fecha === hoy ? " (hoy)" : ""}: ${eventos.length ? eventos.map(textoFase).join("; ") : "sin efemérides"}`);
       celda.appendChild(el("span", "ef-num", String(d)));
       if (eventos.length) {
         const marcas = el("span", "ef-marcas");
-        eventos.slice(0, 2).forEach(e => marcas.appendChild(el("span", `ef-marca ef-t-${e.tipo}`, e.titulo)));
+        eventos.slice(0, 2).forEach(e => marcas.appendChild(el("span", `ef-marca ef-t-${e.tipo}`, textoFase(e))));
         if (eventos.length > 2) marcas.appendChild(el("span", "ef-mas", `+${eventos.length - 2} más`));
         celda.appendChild(marcas);
       }
@@ -92,7 +99,7 @@
   function tarjetaEvento(e) {
     const caja = el("article", `ef-evento ef-t-${e.tipo}`);
     caja.appendChild(el("span", "ef-insignia", D.TIPOS[e.tipo].nombre));
-    caja.appendChild(el("h4", "", e.titulo));
+    caja.appendChild(el("h4", "", textoFase(e)));
     if (e.desde !== e.hasta) caja.appendChild(el("p", "ef-rango", `Del ${fechaLarga(e.desde).replace(/ de \d{4}$/, "")} al ${fechaLarga(e.hasta)}`));
     caja.appendChild(el("p", "", e.desc));
     if (e.tema) {
@@ -112,25 +119,25 @@
     const lista = $("ef-dia-lista");
     lista.replaceChildren();
     const eventos = eventosDe(seleccion);
-    if (!eventos.length) lista.appendChild(el("p", "ef-sin", "No hay efemérides registradas este día con los filtros elegidos."));
+    if (!eventos.length) lista.appendChild(el("p", "ef-sin", "No hay nada registrado este día."));
     eventos.forEach(e => lista.appendChild(tarjetaEvento(e)));
   }
   function filaLista(e, mostrarTipo = true) {
     const li = el("li", `ef-t-${e.tipo}`);
     const b = el("button", "ef-item");
     b.type = "button";
-    b.appendChild(el("span", "ef-item__fecha", fechaCorta(e.desde)));
-    b.appendChild(el("span", "ef-item__titulo", e.titulo));
+    b.appendChild(el("span", "ef-item__fecha", fechaCorta(e.cuando || e.desde)));
+    b.appendChild(el("span", "ef-item__titulo", e.fase ? textoFase(e) : e.titulo));
     if (mostrarTipo) b.appendChild(el("span", "ef-item__tipo", D.TIPOS[e.tipo].nombre));
     // Una efeméride de varios días que ya está en curso se abre en el día de hoy; las demás, en su primer día.
-    b.addEventListener("click", () => elegir(e.desde <= hoy && hoy <= e.hasta ? hoy : e.desde, false, true));
+    b.addEventListener("click", () => elegir(e.cuando || (e.desde <= hoy && hoy <= e.hasta ? hoy : e.desde), false, true));
     li.appendChild(b);
     return li;
   }
   function dibujarProximas() {
     const ul = $("ef-proximas");
     ul.replaceChildren();
-    const lista = D.proximas(hoy, 6, [...activos]);
+    const lista = D.proximas(hoy, 6, [...activos], docs);
     if (!lista.length) ul.appendChild(el("li", "ef-sin", "No hay efemérides próximas con los filtros elegidos."));
     lista.forEach(e => ul.appendChild(filaLista(e, false)));
   }
@@ -144,13 +151,13 @@
     lista.forEach(e => ul.appendChild(filaLista(e)));
   }
 
-  function dibujarTodo() { dibujarCalendario(); dibujarDetalle(); dibujarProximas(); dibujarMes(); }
+  let dibujarTodo = function () { dibujarCalendario(); dibujarDetalle(); dibujarProximas(); dibujarMes(); };
 
   // Elige una fecha; si es de otro mes, el calendario se mueve a ese mes. `enfocar` devuelve el foco a la celda.
   function elegir(fecha, enfocar = false, subir = false) {
     seleccion = fecha;
     anio = Number(fecha.slice(0, 4)); mes = Number(fecha.slice(5, 7)) - 1;
-    history.replaceState(null, "", `?fecha=${fecha}`);
+    history.replaceState(null, "", `?${vista === "general" ? "" : `vista=${vista}&`}fecha=${fecha}`);
     dibujarTodo();
     if (enfocar) document.querySelector(`.ef-dia[data-fecha="${fecha}"]`)?.focus();
     if (subir) $("ef-titulo").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
@@ -167,6 +174,75 @@
   $("ef-ant").addEventListener("click", () => irAMes(-1));
   $("ef-sig").addEventListener("click", () => irAMes(1));
   $("ef-hoy").addEventListener("click", () => elegir(hoy));
+  // ---------- Pestañas y aviso de cada calendario ----------
+  const TEXTOS = {
+    general: ["Fechas para recordar", "Efemérides", "Un calendario con fechas internacionales, de Costa Rica, de la matemática y de la asociación. Toca un día para ver qué se recuerda, o filtra por tipo."],
+    mep: ["Educación pública", "Calendario MEP", "El calendario escolar del Ministerio de Educación Pública: inicio y fin de periodos, recesos y fechas importantes."],
+    tec: ["Instituto Tecnológico de Costa Rica", "Calendario TEC", "Semestres, matrícula, retiros, exámenes y vacaciones del TEC."]
+  };
+  function dibujarPestanas() {
+    document.querySelectorAll("#ef-pestanas [role=tab]").forEach(b => {
+      const activa = b.dataset.vista === vista;
+      b.setAttribute("aria-selected", String(activa));
+      b.tabIndex = activa ? 0 : -1;
+    });
+    const [sobre, titulo, texto] = TEXTOS[vista];
+    $("ef-sobre").textContent = sobre; $("ef-h1").textContent = titulo; $("ef-intro").textContent = texto;
+    document.title = `${titulo} — AEMATEC`;
+    const fuente = D.FUENTES[vista];
+    $("ef-fuente").hidden = !fuente;
+    if (fuente) {
+      $("ef-fuente-enlace").href = fuente.url(mes < 0 ? anio : anio);
+      $("ef-fuente-enlace").textContent = fuente.nombre;
+    }
+    const sinDatos = fuente && !delAnio(anio).some(e => activos.has(e.tipo));
+    $("ef-vacio-aviso").hidden = !sinDatos;
+  }
+  function cambiarVista(nueva) {
+    vista = nueva;
+    activos = new Set(D.GRUPOS[vista]);
+    history.replaceState(null, "", `?${vista === "general" ? "" : `vista=${vista}&`}fecha=${seleccion}`);
+    dibujarFiltros();
+    dibujarTodo();
+  }
+  document.querySelectorAll("#ef-pestanas [role=tab]").forEach(b => {
+    b.addEventListener("click", () => cambiarVista(b.dataset.vista));
+    b.addEventListener("keydown", e => {
+      const todas = [...document.querySelectorAll("#ef-pestanas [role=tab]")], i = todas.indexOf(b);
+      const j = { ArrowLeft: i - 1, ArrowRight: i + 1, Home: 0, End: todas.length - 1 }[e.key];
+      if (j == null) return;
+      e.preventDefault();
+      const destino = todas[(j + todas.length) % todas.length];
+      destino.focus();
+      cambiarVista(destino.dataset.vista);
+    });
+  });
+
+  const dibujarTodoBase = dibujarTodo;
+  dibujarTodo = function () { dibujarTodoBase(); dibujarPestanas(); };
+
+  // Fechas editadas por la Junta: se leen del documento público (sin iniciar sesión). Si falla, se usan solo las de fábrica.
+  async function cargarDocumentos() {
+    const proyecto = window.AEMATEC_FIREBASE_CONFIG && window.AEMATEC_FIREBASE_CONFIG.projectId;
+    if (!proyecto) return;
+    const lista = [];
+    let pagina = "";
+    do {
+      const r = await fetch(`https://firestore.googleapis.com/v1/projects/${proyecto}/databases/(default)/documents/efemerides?pageSize=300${pagina}`);
+      if (!r.ok) return;
+      const j = await r.json();
+      (j.documents || []).forEach(d => {
+        const c = d.fields || {}, v = k => c[k] && (c[k].stringValue ?? c[k].booleanValue);
+        lista.push({ id: d.name.split("/").pop(), tipo: v("tipo"), titulo: v("titulo"), desc: v("desc") || "", desde: v("desde"), hasta: v("hasta"), anual: v("anual") === true, tema: v("tema") || undefined, oculta: v("oculta") === true });
+      });
+      pagina = j.nextPageToken ? `&pageToken=${encodeURIComponent(j.nextPageToken)}` : "";
+    } while (pagina);
+    docs = lista;
+    Object.keys(cache).forEach(k => delete cache[k]);
+    dibujarTodo();
+  }
+
   dibujarFiltros();
   dibujarTodo();
+  cargarDocumentos().catch(() => {});
 })();

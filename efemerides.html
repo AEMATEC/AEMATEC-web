@@ -25,9 +25,21 @@
   <main>
     <section class="site-container mx-auto py-[64px]">
       <div class="mb-8">
-        <p class="font-sans text-xs font-bold uppercase tracking-[0.18em] text-[#00798A]">Fechas para recordar</p>
-        <h1 class="font-sans text-[40px] font-bold tracking-[-0.02em] mt-2">Efemérides</h1>
-        <p class="mt-4 text-[#5B6E7B] max-w-[680px] leading-7">Un calendario con fechas internacionales, de Costa Rica, de la matemática y de la asociación. Toca un día para ver qué se recuerda, o filtra por tipo.</p>
+        <p id="ef-sobre" class="font-sans text-xs font-bold uppercase tracking-[0.18em] text-[#00798A]">Fechas para recordar</p>
+        <h1 id="ef-h1" class="font-sans text-[40px] font-bold tracking-[-0.02em] mt-2">Efemérides</h1>
+        <p id="ef-intro" class="mt-4 text-[#5B6E7B] max-w-[680px] leading-7">Un calendario con fechas internacionales, de Costa Rica, de la matemática y de la asociación. Toca un día para ver qué se recuerda, o filtra por tipo.</p>
+      </div>
+
+      <div id="ef-pestanas" class="ef-pestanas" role="tablist" aria-label="Calendarios">
+        <button type="button" role="tab" data-vista="general" aria-selected="true">Efemérides</button>
+        <button type="button" role="tab" data-vista="mep" aria-selected="false">Calendario MEP</button>
+        <button type="button" role="tab" data-vista="tec" aria-selected="false">Calendario TEC</button>
+      </div>
+
+      <div id="ef-fuente" class="ef-fuente" hidden>
+        <p>Fuente oficial: <a id="ef-fuente-enlace" href="#" target="_blank" rel="noopener"></a>. Las fechas las revisa y actualiza la Junta Directiva; confirma siempre en la página oficial.
+          <a href="admin.html#efemerides">¿Eres de la Junta o moderación? Edita las fechas aquí.</a></p>
+        <p id="ef-vacio-aviso" class="ef-aviso" hidden>Este año todavía no está cargado. Mientras tanto, consulta la página oficial.</p>
       </div>
 
       <div class="ef-controles">
