@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Calendario de efemérides internacionales, de Costa Rica, de matemática y de AEMATEC.">
+  <link rel="icon" type="image/svg+xml" href="assets/logo-aematec-compas.svg">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="assets/css/site.css">
+  <link rel="stylesheet" href="assets/css/tailwind.css">
+  <link rel="stylesheet" href="assets/css/efemerides.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&display=swap"
+    rel="stylesheet">
+  <script src="assets/firebase-config.js"></script>
+  <title>Efemérides — AEMATEC</title>
+</head>
+
+<body class="min-h-screen bg-[#F4F8FA] text-[#0D2B45] font-serif" style="background-image: radial-gradient(circle at 12% 18%, rgba(0, 175, 193, 0.13) 0, rgba(0, 175, 193, 0.13) 1.2px, transparent 1.8px), radial-gradient(circle at 84% 72%, rgba(13, 43, 69, 0.09) 0, rgba(13, 43, 69, 0.09) 1.2px, transparent 1.8px); background-size: 28px 28px, 36px 36px;">
+  <script src="assets/js/layout.js" data-part="header" data-active="efemerides"></script>
+
+  <main>
+    <section class="site-container mx-auto py-[64px]">
+      <div class="mb-8">
+        <p class="font-sans text-xs font-bold uppercase tracking-[0.18em] text-[#00798A]">Fechas para recordar</p>
+        <h1 class="font-sans text-[40px] font-bold tracking-[-0.02em] mt-2">Efemérides</h1>
+        <p class="mt-4 text-[#5B6E7B] max-w-[680px] leading-7">Un calendario con fechas internacionales, de Costa Rica, de la matemática y de la asociación. Toca un día para ver qué se recuerda, o filtra por tipo.</p>
+      </div>
+
+      <div class="ef-controles">
+        <div class="ef-nav">
+          <button type="button" id="ef-ant" class="ef-boton" aria-label="Mes anterior"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>
+          <h2 id="ef-titulo" class="ef-titulo" aria-live="polite"></h2>
+          <button type="button" id="ef-sig" class="ef-boton" aria-label="Mes siguiente"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>
+          <button type="button" id="ef-hoy" class="ef-boton ef-boton--texto">Hoy</button>
+        </div>
+        <div id="ef-filtros" class="ef-filtros" role="group" aria-label="Tipos de efemérides"></div>
+      </div>
+
+      <div class="ef-cuerpo">
+        <div class="ef-calendario" role="grid" aria-labelledby="ef-titulo">
+          <div class="ef-semana" role="row" id="ef-semana"></div>
+          <div class="ef-dias" id="ef-dias"></div>
+        </div>
+
+        <aside class="ef-lateral" aria-label="Detalle de la fecha">
+          <section class="ef-tarjeta" aria-live="polite">
+            <p class="ef-etiqueta">Fecha seleccionada</p>
+            <h3 id="ef-dia-titulo" class="ef-subtitulo"></h3>
+            <div id="ef-dia-lista"></div>
+          </section>
+          <section class="ef-tarjeta">
+            <p class="ef-etiqueta">Próximas efemérides</p>
+            <ul id="ef-proximas" class="ef-lista"></ul>
+          </section>
+        </aside>
+      </div>
+
+      <section class="ef-mes" aria-labelledby="ef-mes-titulo">
+        <h2 id="ef-mes-titulo" class="font-sans text-xl font-bold mb-4"></h2>
+        <ul id="ef-mes-lista" class="ef-lista ef-lista--mes"></ul>
+      </section>
+
+      <p class="ef-nota">Esta lista es informativa. Algunas fechas cambian de día cada año (Semana Santa, Día del Padre) y se calculan solas. Para saber qué días son feriados o libres oficialmente, consulta al <a href="https://www.mtss.go.cr" target="_blank" rel="noopener">Ministerio de Trabajo y Seguridad Social</a>. ¿Falta una fecha? Escríbenos a <a href="mailto:aematec@estudiantec.cr">aematec@estudiantec.cr</a>.</p>
+    </section>
+  </main>
+
+  <script src="assets/js/layout.js" data-part="footer"></script>
+  <script src="assets/js/efemerides-datos.js"></script>
+  <script src="assets/js/efemerides.js"></script>
+</body>
+
+</html>

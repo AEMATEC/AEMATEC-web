@@ -1,0 +1,107 @@
+/* Calendario de efemérides (efemerides.html). CSS plano: no depende de Tailwind.
+   Cada tipo tiene su color y, además, su nombre escrito (no se depende solo del color):
+   Costa Rica = rojo · internacional = verde azulado · matemática = morado · AEMATEC = azul oscuro. */
+.ef-t-cr { --c: #CE1126; }
+.ef-t-int { --c: #00798A; }
+.ef-t-mate { --c: #7B2D8E; }
+.ef-t-aematec { --c: #0D2B45; }
+
+.ef-controles { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px 24px; margin-bottom: 18px; }
+.ef-nav { display: flex; align-items: center; gap: 8px; }
+.ef-titulo { margin: 0 6px; min-width: 190px; text-align: center; font: 700 22px/1.2 Montserrat, sans-serif; text-transform: capitalize; }
+.ef-boton {
+  display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border: 1px solid #C9D6DD; border-radius: 10px;
+  background: #fff; color: #0D2B45; cursor: pointer; font: 700 13px Montserrat, sans-serif;
+}
+.ef-boton--texto { width: auto; padding: 0 16px; margin-left: 8px; }
+.ef-boton:hover { background: #E8F4F6; border-color: #00798A; }
+.ef-boton:focus-visible, .ef-dia:focus-visible, .ef-filtro:focus-visible, .ef-item:focus-visible { outline: 3px solid #00AFC1; outline-offset: 2px; }
+
+.ef-filtros { display: flex; flex-wrap: wrap; gap: 8px; }
+.ef-filtro {
+  display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border: 1px solid #C9D6DD; border-radius: 999px; background: #fff;
+  color: #0D2B45; font: 600 13px Montserrat, sans-serif; cursor: pointer;
+}
+.ef-filtro::before { content: ""; width: 12px; height: 12px; border-radius: 50%; background: var(--c); }
+.ef-filtro[aria-pressed="false"] { opacity: 0.55; background: #F1F5F7; }
+.ef-filtro[aria-pressed="false"]::before { background: transparent; box-shadow: inset 0 0 0 2px var(--c); }
+.ef-filtro[aria-pressed="true"] { border-color: var(--c); box-shadow: 0 0 0 1px var(--c); }
+
+.ef-cuerpo { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 24px; align-items: start; }
+.ef-calendario { background: #fff; border: 1px solid #D8E3E9; border-radius: 16px; padding: 14px; box-shadow: 0 1px 2px rgba(13, 43, 69, 0.06); }
+.ef-semana, .ef-dias { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+.ef-semana { margin-bottom: 6px; }
+.ef-semana > div { padding: 6px 0; text-align: center; font: 700 11px Montserrat, sans-serif; letter-spacing: 0.08em; text-transform: uppercase; color: #5B6E7B; }
+
+.ef-vacio { min-height: 112px; }
+.ef-dia {
+  position: relative; display: flex; flex-direction: column; align-items: stretch; gap: 3px; min-height: 112px; padding: 6px; border: 1px solid #E3EBEF; border-radius: 10px;
+  background: #fff; color: #0D2B45; text-align: left; cursor: pointer; font-family: Montserrat, sans-serif;
+}
+.ef-dia:hover { border-color: #00798A; background: #F4FAFB; }
+.ef-dia[aria-pressed="true"] { border-color: #0D2B45; box-shadow: 0 0 0 2px #0D2B45; background: #EEF6F8; }
+.ef-dia--hoy .ef-num { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: #00798A; color: #fff; }
+.ef-dia--finde { background: #FAFCFD; }
+.ef-num { font-size: 13px; font-weight: 700; }
+.ef-marcas { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.ef-marca {
+  display: block; padding: 2px 5px; border-left: 3px solid var(--c); border-radius: 3px; background: color-mix(in srgb, var(--c) 10%, #fff);
+  font-size: 10.5px; font-weight: 600; line-height: 1.25; overflow: hidden;
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; /* hasta dos renglones; el resto se ve al tocar el día */
+}
+.ef-mas { font-size: 10.5px; font-weight: 700; color: #5B6E7B; }
+
+.ef-lateral { display: grid; gap: 16px; position: sticky; top: 88px; }
+.ef-tarjeta { background: #fff; border: 1px solid #D8E3E9; border-radius: 16px; padding: 18px; box-shadow: 0 1px 2px rgba(13, 43, 69, 0.06); }
+.ef-etiqueta { margin: 0 0 6px; font: 700 11px Montserrat, sans-serif; letter-spacing: 0.14em; text-transform: uppercase; color: #00798A; }
+.ef-subtitulo { margin: 0 0 12px; font: 700 18px/1.3 Montserrat, sans-serif; }
+.ef-evento { padding: 12px 0; border-top: 1px solid #E3EBEF; }
+.ef-evento:first-child { border-top: 0; padding-top: 0; }
+.ef-insignia {
+  display: inline-block; margin-bottom: 6px; padding: 3px 9px; border-radius: 999px; background: var(--c); color: #fff;
+  font: 700 10.5px Montserrat, sans-serif; letter-spacing: 0.06em; text-transform: uppercase;
+}
+.ef-evento h4 { margin: 0 0 4px; font: 700 15px/1.35 Montserrat, sans-serif; }
+.ef-evento p { margin: 0; font-size: 14px; line-height: 1.6; color: #405769; }
+.ef-evento .ef-rango { margin-bottom: 4px; font: 600 12px Montserrat, sans-serif; color: #5B6E7B; }
+.ef-enlaces { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 8px; font: 600 12.5px Montserrat, sans-serif; }
+.ef-enlaces a, .ef-nota a { color: #00798A; text-decoration: underline; }
+.ef-sin { margin: 0; font-size: 14px; color: #5B6E7B; }
+
+.ef-lista { list-style: none; margin: 0; padding: 0; }
+.ef-item {
+  display: flex; align-items: baseline; gap: 10px; width: 100%; padding: 9px 0; border: 0; border-top: 1px solid #E3EBEF; background: none; text-align: left; cursor: pointer;
+  font-family: Montserrat, sans-serif; color: #0D2B45;
+}
+.ef-lista li:first-child .ef-item { border-top: 0; }
+.ef-item:hover .ef-item__titulo { text-decoration: underline; }
+.ef-item__fecha { flex: 0 0 56px; font-size: 12px; font-weight: 700; color: var(--c); text-transform: lowercase; }
+.ef-item__titulo { font-size: 13.5px; font-weight: 600; line-height: 1.35; }
+.ef-item__tipo { margin-left: auto; padding-left: 8px; font-size: 10.5px; font-weight: 600; color: #5B6E7B; white-space: nowrap; }
+
+.ef-mes { margin-top: 36px; }
+.ef-lista--mes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 28px; background: #fff; border: 1px solid #D8E3E9; border-radius: 16px; padding: 6px 18px; }
+.ef-lista--mes li:nth-child(2) .ef-item { border-top: 0; }
+
+.ef-nota { margin: 28px 0 0; max-width: 760px; font-size: 13.5px; line-height: 1.7; color: #5B6E7B; }
+
+@media (max-width: 980px) {
+  .ef-cuerpo { grid-template-columns: 1fr; }
+  .ef-lateral { position: static; }
+}
+@media (max-width: 640px) {
+  .ef-titulo { min-width: 0; flex: 1; font-size: 18px; }
+  .ef-nav { width: 100%; }
+  .ef-calendario { padding: 8px; }
+  .ef-semana, .ef-dias { gap: 3px; }
+  .ef-dia, .ef-vacio { min-height: 52px; padding: 4px; }
+  .ef-marcas { flex-direction: row; flex-wrap: wrap; gap: 2px; }
+  .ef-marca { width: 8px; height: 8px; padding: 0; border: 0; border-radius: 50%; background: var(--c); font-size: 0; }
+  .ef-mas { display: none; }
+  .ef-lista--mes { grid-template-columns: 1fr; }
+  .ef-lista--mes li:nth-child(2) .ef-item { border-top: 1px solid #E3EBEF; }
+  .ef-item__tipo { display: none; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .ef-dia, .ef-boton, .ef-filtro { transition: background-color 0.15s, border-color 0.15s, box-shadow 0.15s; }
+}

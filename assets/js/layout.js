@@ -5,7 +5,7 @@
 //   ...contenido...
 //   <script src="assets/js/layout.js" data-part="footer"></script>
 //
-// data-active: inicio | repositorio | inventario | junta | tramites
+// data-active: inicio | repositorio | inventario | junta | efemerides | tramites
 // data-sub (solo Repositorio): inicio | docentes | academicos | subir
 // Para agregar o renombrar una página del menú, edita solo las listas de abajo.
 (() => {
@@ -17,6 +17,7 @@
     { id: "repositorio", label: "Repositorio", href: "repositorio.html" },
     { id: "inventario", label: "Inventario", href: "inventario.html" },
     { id: "junta", label: "Junta Directiva", href: "junta-directiva.html" },
+    { id: "efemerides", label: "Efemérides", href: "efemerides.html" },
     { id: "tramites", label: "Trámites", href: "tramites.html", icon: "fa-file-signature", cta: true }
   ];
 
