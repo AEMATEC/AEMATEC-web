@@ -98,6 +98,44 @@ service cloud.firestore {
       allow delete: if isJunta() || isModerator();
     }
 
+    // Pizarra de anuncios (pizarra.html y la portada). Cualquier persona puede proponer un anuncio, pero queda
+    // con aprobado:false y solo se ve cuando la Junta o la moderación lo aprueban. Sin correos ni datos personales:
+    // el nombre es opcional y se escribe a mano.
+    function esAnuncioNuevo(d) {
+      return d.keys().hasOnly(['tipo', 'titulo', 'texto', 'autor', 'vence', 'aprobado', 'creado'])
+        && d.keys().hasAll(['tipo', 'titulo', 'texto', 'aprobado', 'creado'])
+        && d.tipo in ['noticia', 'recordatorio', 'aviso']
+        && d.titulo is string && d.titulo.size() >= 3 && d.titulo.size() <= 80
+        && d.texto is string && d.texto.size() >= 3 && d.texto.size() <= 500
+        && d.get('autor', '') is string && d.get('autor', '').size() <= 40
+        && d.get('vence', '') is string && d.get('vence', '').size() <= 10
+        && d.aprobado == false && d.creado == request.time;
+    }
+    match /anuncios/{id} {
+      allow read: if resource.data.aprobado == true || isJunta() || isModerator();
+      allow create: if esAnuncioNuevo(request.resource.data)
+        || ((isJunta() || isModerator()) && request.resource.data.aprobado is bool
+          && request.resource.data.keys().hasOnly(['tipo', 'titulo', 'texto', 'autor', 'vence', 'aprobado', 'creado']));
+      allow update, delete: if isJunta() || isModerator();
+    }
+
+    // Pregunta quincenal: la Junta publica config/pregunta ({id, texto, inicio, fin}). Cualquiera responde una vez
+    // (el id del documento lleva el de la pregunta) mientras no haya pasado `fin`; las respuestas solo se pueden leer
+    // después de `fin` (o la Junta, siempre). Al publicar una pregunta nueva, el panel borra las respuestas anteriores.
+    match /preguntaRespuestas/{respuestaId} {
+      allow read: if isJunta()
+        || request.time >= get(/databases/$(database)/documents/config/pregunta).data.fin;
+      allow create: if request.resource.data.keys().hasOnly(['preguntaId', 'texto', 'autor', 'creado'])
+        && request.resource.data.keys().hasAll(['preguntaId', 'texto', 'creado'])
+        && request.resource.data.texto is string && request.resource.data.texto.size() >= 1 && request.resource.data.texto.size() <= 500
+        && request.resource.data.get('autor', '') is string && request.resource.data.get('autor', '').size() <= 40
+        && request.resource.data.creado == request.time
+        && request.resource.data.preguntaId == get(/databases/$(database)/documents/config/pregunta).data.id
+        && request.time < get(/databases/$(database)/documents/config/pregunta).data.fin
+        && respuestaId.size() >= 20 && respuestaId.split('_')[0] == request.resource.data.preguntaId;
+      allow delete: if isJunta();
+    }
+
     // Inventario de bienes de la asociación. Consulta pública, administración exclusiva de Junta.
     match /inventario/{itemId} {
       allow read: if true;

@@ -100,8 +100,9 @@
       particulas: { tipo: "icono", valores: ["fa-ghost", "fa-spider", "fa-hat-wizard"], movimiento: "caer" }
     },
     {
-      id: "dia-docente", nombre: "Día del Docente Costarricense", estilo: "sutil", fechas: cadaAnio("11-22"),
+      id: "dia-docente", nombre: "Día del Docente Costarricense", estilo: "festivo", fechas: cadaAnio("11-22"),
       icono: "fa-chalkboard-user",
+      particulas: { tipo: "icono", valores: ["fa-apple-whole", "fa-pencil", "fa-book-open", "fa-star"], movimiento: "subir" },
       mensaje: () => "22 de noviembre, Día del Docente Costarricense. ¡Gracias a quienes enseñan!"
     },
     {

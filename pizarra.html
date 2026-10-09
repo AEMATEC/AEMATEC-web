@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Pizarra de anuncios de AEMATEC y pregunta quincenal.">
+  <link rel="icon" type="image/svg+xml" href="assets/logo-aematec-compas.svg">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="assets/css/site.css">
+  <link rel="stylesheet" href="assets/css/tailwind.css">
+  <link rel="stylesheet" href="assets/css/pizarra.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&display=swap"
+    rel="stylesheet">
+  <script src="assets/firebase-config.js"></script>
+  <title>Pizarra — AEMATEC</title>
+</head>
+
+<body class="min-h-screen bg-[#F4F8FA] text-[#0D2B45] font-serif" style="background-image: radial-gradient(circle at 12% 18%, rgba(0, 175, 193, 0.13) 0, rgba(0, 175, 193, 0.13) 1.2px, transparent 1.8px), radial-gradient(circle at 84% 72%, rgba(13, 43, 69, 0.09) 0, rgba(13, 43, 69, 0.09) 1.2px, transparent 1.8px); background-size: 28px 28px, 36px 36px;">
+  <script src="assets/js/layout.js" data-part="header" data-active=""></script>
+
+  <main>
+    <section class="site-container mx-auto py-[64px]">
+      <div class="pz"><div class="pz-pizarra">
+        <h1 class="pz-titulo">Pizarra de AEMATEC<small>Noticias, recordatorios y la pregunta de la quincena.</small></h1>
+        <div id="pz-contenido"></div>
+      </div></div>
+    </section>
+  </main>
+
+  <script src="assets/js/layout.js" data-part="footer"></script>
+  <script type="module">
+    import { montarPizarra } from "./assets/js/pizarra.js";
+    montarPizarra(document.getElementById("pz-contenido"));
+  </script>
+</body>
+
+</html>

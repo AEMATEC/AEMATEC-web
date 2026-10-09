@@ -12,6 +12,7 @@ import { iniciarAsociacion } from "./asociacion.js";
 import { iniciarTramites } from "./tramites.js";
 import { iniciarTema } from "./tema.js";
 import { iniciarEfemerides } from "./efemerides.js";
+import { iniciarPizarra } from "./pizarra.js";
 
 const auth = getAuth(app);
 // Sesión solo mientras la pestaña esté abierta: el panel muestra datos personales (padrón).
@@ -89,7 +90,8 @@ const SECCIONES = [
   { id: "tramites", etiqueta: "Trámites", icono: "fa-file-signature" },
   { id: "asociacion", etiqueta: "Asociación", icono: "fa-users" },
   { id: "tema", etiqueta: "Tema del sitio", icono: "fa-palette" },
-  { id: "efemerides", etiqueta: "Efemérides, MEP y TEC", icono: "fa-calendar-days" }
+  { id: "efemerides", etiqueta: "Efemérides, MEP y TEC", icono: "fa-calendar-days" },
+  { id: "pizarra", etiqueta: "Pizarra y pregunta", icono: "fa-thumbtack" }
 ];
 
 onAuthStateChanged(auth, async user => {
@@ -103,7 +105,7 @@ onAuthStateChanged(auth, async user => {
     showLoginMode("login");
     const roles = [junta && "Junta Directiva", fiscalia && "Fiscalía", moderador && "Moderación"].filter(Boolean);
     document.querySelector("#admin-session").textContent = `${user.email} · ${roles.join(" · ")}`;
-    const visibles = { tramites: junta || fiscalia, asociacion: junta || fiscalia, tema: junta, efemerides: junta || moderador };
+    const visibles = { tramites: junta || fiscalia, asociacion: junta || fiscalia, tema: junta, efemerides: junta || moderador, pizarra: junta || moderador };
     for (const seccion of SECCIONES) document.querySelector(`#${seccion.id}`).hidden = !visibles[seccion.id];
     // Accesos directos; la moderación del Repositorio tiene su propia página.
     const accesos = SECCIONES.filter(seccion => visibles[seccion.id]).map(seccion => ({ ...seccion, href: `#${seccion.id}` }));
@@ -117,7 +119,7 @@ onAuthStateChanged(auth, async user => {
       iniciarTramites({ junta, fiscalia });
     }
     if (junta) iniciarTema();
-    if (junta || moderador) iniciarEfemerides();
+    if (junta || moderador) { iniciarEfemerides(); iniciarPizarra({ junta }); }
   } else if (user) {
     document.querySelector("#login-status").textContent = mensajeSinAcceso(user, "Esta cuenta no tiene permisos de administración (Junta, Fiscalía o moderación).");
     document.querySelector("#login-status").hidden = false;

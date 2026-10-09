@@ -3,7 +3,7 @@
 import { after, before, beforeEach, describe, test } from "node:test";
 import { readFileSync } from "node:fs";
 import { assertFails, assertSucceeds, initializeTestEnvironment } from "@firebase/rules-unit-testing";
-import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, query, serverTimestamp, setDoc, updateDoc, where } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, query, serverTimestamp, setDoc, Timestamp, updateDoc, where } from "firebase/firestore";
 import { ref, uploadBytes } from "firebase/storage";
 
 const JUNTA = "jd@estudiantec.cr";
@@ -90,6 +90,89 @@ describe("Junta Directiva (RI Art. 143)", () => {
     await assertSucceeds(getDoc(doc(anonimo().firestore(), "config", "tema")));
     await assertFails(setDoc(doc(anonimo().firestore(), "config", "tema"), { modo: "auto" }));
     await assertFails(setDoc(doc(usuario(MODERADOR).firestore(), "config", "tema"), { modo: "auto" }));
+  });
+});
+
+describe("Pizarra de anuncios", () => {
+  const anuncio = cambios => ({ tipo: "noticia", titulo: "Nueva sala de estudio", texto: "Ya abrió la sala.", aprobado: false, creado: serverTimestamp(), ...cambios });
+  const crear = (c, datos, id = "a1") => setDoc(doc(c.firestore(), "anuncios", id), datos);
+  const sembrar = (id, datos) => env.withSecurityRulesDisabled(async c => setDoc(doc(c.firestore(), "anuncios", id), datos));
+
+  test("cualquiera propone un anuncio, pero queda sin aprobar", async () => {
+    await assertSucceeds(crear(anonimo(), anuncio({ autor: "Ana", vence: "2026-12-01" })));
+    await assertFails(crear(anonimo(), anuncio({ aprobado: true })), "no se aprueba solo");
+  });
+  test("el contenido debe ser válido", async () => {
+    await assertFails(crear(anonimo(), anuncio({ tipo: "otro" })));
+    await assertFails(crear(anonimo(), anuncio({ titulo: "ab" })));
+    await assertFails(crear(anonimo(), anuncio({ texto: "x".repeat(501) })));
+    await assertFails(crear(anonimo(), anuncio({ correo: "a@b.cr" })), "sin campos extra");
+    await assertFails(crear(anonimo(), anuncio({ creado: Timestamp.fromDate(new Date("2020-01-01")) })));
+  });
+  test("el público solo ve los aprobados; la Junta y la moderación ven todos", async () => {
+    await sembrar("ok", { ...anuncio(), aprobado: true, creado: Timestamp.now() });
+    await sembrar("pend", { ...anuncio(), creado: Timestamp.now() });
+    const publico = anonimo().firestore();
+    await assertSucceeds(getDocs(query(collection(publico, "anuncios"), where("aprobado", "==", true))));
+    await assertFails(getDocs(collection(publico, "anuncios")));
+    await assertFails(getDoc(doc(publico, "anuncios", "pend")));
+    await assertSucceeds(getDoc(doc(usuario(JUNTA).firestore(), "anuncios", "pend")));
+    await assertSucceeds(getDocs(collection(usuario(MODERADOR).firestore(), "anuncios")));
+  });
+  test("aprobar, editar y borrar: solo Junta y moderación; ellas también publican directo", async () => {
+    await sembrar("pend", { ...anuncio(), creado: Timestamp.now() });
+    await assertFails(updateDoc(doc(anonimo().firestore(), "anuncios", "pend"), { aprobado: true }));
+    await assertSucceeds(updateDoc(doc(usuario(MODERADOR).firestore(), "anuncios", "pend"), { aprobado: true }));
+    await assertSucceeds(crear(usuario(JUNTA), anuncio({ aprobado: true }), "directo"));
+    await assertFails(deleteDoc(doc(anonimo().firestore(), "anuncios", "pend")));
+    await assertSucceeds(deleteDoc(doc(usuario(JUNTA).firestore(), "anuncios", "pend")));
+  });
+});
+
+describe("Pregunta quincenal", () => {
+  const dia = 86400000;
+  const pregunta = (cambios = {}) => ({ id: "p1", texto: "¿Cuál es tu número favorito?", inicio: Timestamp.now(), fin: Timestamp.fromMillis(Date.now() + 15 * dia), ...cambios });
+  const respuesta = cambios => ({ preguntaId: "p1", texto: "El 7", creado: serverTimestamp(), ...cambios });
+  const ID = "p1_abcdefghijklmnopqrst";
+  const poner = pregunta_ => env.withSecurityRulesDisabled(async c => setDoc(doc(c.firestore(), "config", "pregunta"), pregunta_));
+  const responder = (c, datos, id = ID) => setDoc(doc(c.firestore(), "preguntaRespuestas", id), datos);
+
+  test("solo la Junta publica la pregunta; cualquiera la lee", async () => {
+    await assertSucceeds(setDoc(doc(usuario(JUNTA).firestore(), "config", "pregunta"), pregunta()));
+    await assertFails(setDoc(doc(usuario(MODERADOR).firestore(), "config", "pregunta"), pregunta()));
+    await assertSucceeds(getDoc(doc(anonimo().firestore(), "config", "pregunta")));
+  });
+  test("cualquiera responde mientras la pregunta está abierta, y solo a la pregunta vigente", async () => {
+    await poner(pregunta());
+    await assertSucceeds(responder(anonimo(), respuesta({ autor: "Ana" })));
+    await assertFails(responder(anonimo(), respuesta({ preguntaId: "vieja" }), "vieja_abcdefghijklmnopqrst"), "otra pregunta");
+    await assertFails(responder(anonimo(), respuesta(), "p1_corto"), "id demasiado corto");
+    await assertFails(responder(anonimo(), respuesta({ texto: "" })));
+    await assertFails(responder(anonimo(), respuesta({ texto: "x".repeat(501) })));
+    await assertFails(responder(anonimo(), respuesta({ correo: "a@b.cr" })));
+  });
+  test("no se puede responder después del cierre, ni cambiar una respuesta", async () => {
+    await poner(pregunta({ fin: Timestamp.fromMillis(Date.now() - dia) }));
+    await assertFails(responder(anonimo(), respuesta()));
+    await poner(pregunta());
+    await assertSucceeds(responder(anonimo(), respuesta()));
+    await assertFails(updateDoc(doc(anonimo().firestore(), "preguntaRespuestas", ID), { texto: "otra" }));
+  });
+  test("las respuestas no se ven hasta que pasen los 15 días (la Junta sí las ve)", async () => {
+    await poner(pregunta());
+    await env.withSecurityRulesDisabled(async c => setDoc(doc(c.firestore(), "preguntaRespuestas", ID), { preguntaId: "p1", texto: "El 7", creado: Timestamp.now() }));
+    await assertFails(getDocs(collection(anonimo().firestore(), "preguntaRespuestas")));
+    await assertFails(getDocs(collection(usuario(MODERADOR).firestore(), "preguntaRespuestas")));
+    await assertSucceeds(getDocs(collection(usuario(JUNTA).firestore(), "preguntaRespuestas")));
+    await poner(pregunta({ fin: Timestamp.fromMillis(Date.now() - 1000) }));
+    await assertSucceeds(getDocs(collection(anonimo().firestore(), "preguntaRespuestas")));
+  });
+  test("solo la Junta borra respuestas", async () => {
+    await poner(pregunta());
+    await env.withSecurityRulesDisabled(async c => setDoc(doc(c.firestore(), "preguntaRespuestas", ID), { preguntaId: "p1", texto: "El 7", creado: Timestamp.now() }));
+    await assertFails(deleteDoc(doc(anonimo().firestore(), "preguntaRespuestas", ID)));
+    await assertFails(deleteDoc(doc(usuario(MODERADOR).firestore(), "preguntaRespuestas", ID)));
+    await assertSucceeds(deleteDoc(doc(usuario(JUNTA).firestore(), "preguntaRespuestas", ID)));
   });
 });
 

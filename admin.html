@@ -306,6 +306,46 @@
         </div>
       </section>
 
+      <section id="pizarra" class="mb-12" hidden>
+        <p class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-[#00798A]">Sitio</p>
+        <h2 class="mt-2 font-sans text-2xl font-bold">Pizarra de anuncios y pregunta quincenal</h2>
+        <p class="mt-2 text-sm text-[#607480]">Cualquier persona puede proponer un anuncio; aquí se revisa antes de que se vea
+          (<a href="pizarra.html" target="_blank" rel="noopener" class="underline">ver la pizarra</a>).</p>
+        <div class="mt-5 rounded-[16px] border border-[#D7E2E7] bg-white p-6 shadow-sm">
+          <h3 class="font-sans text-sm font-bold">Esperando revisión</h3>
+          <ul id="pz-pendientes" class="mt-2 divide-y divide-[#E2E9EC]"></ul>
+          <h3 class="mt-6 font-sans text-sm font-bold">Publicados</h3>
+          <ul id="pz-publicados" class="mt-2 divide-y divide-[#E2E9EC]"></ul>
+          <p id="pz-estado-admin" role="status" class="mt-3 text-sm" hidden></p>
+          <form id="pz-form-anuncio" class="mt-8 border-t border-[#E2E9EC] pt-6">
+            <h3 class="font-sans text-sm font-bold">Publicar un anuncio directamente</h3>
+            <div class="mt-3 grid gap-3 sm:grid-cols-2">
+              <label class="font-sans text-xs font-bold">Tipo
+                <select name="tipo" class="mt-2 block h-11 w-full rounded-[9px] border border-[#8497A3] bg-white px-3 text-sm"><option value="noticia">Noticia</option><option value="recordatorio">Recordatorio</option><option value="aviso">Aviso</option></select></label>
+              <label class="font-sans text-xs font-bold">Título
+                <input name="titulo" required minlength="3" maxlength="80" class="mt-2 block h-11 w-full rounded-[9px] border border-[#8497A3] bg-white px-3 text-sm"></label>
+            </div>
+            <label class="mt-3 block font-sans text-xs font-bold">Mensaje
+              <textarea name="texto" required minlength="3" maxlength="500" rows="3" class="mt-2 block w-full rounded-[9px] border border-[#8497A3] px-3 py-2 text-sm"></textarea></label>
+            <label class="mt-3 block font-sans text-xs font-bold">Mostrar hasta (opcional)
+              <input name="vence" type="date" class="mt-2 block h-11 rounded-[9px] border border-[#8497A3] px-3 text-sm"></label>
+            <button class="mt-4 h-11 rounded-[9px] bg-[#0D2B45] px-5 font-sans text-xs font-bold text-white">Publicar</button>
+          </form>
+          <div id="pz-bloque-pregunta" class="mt-8 border-t border-[#E2E9EC] pt-6" hidden>
+            <h3 class="font-sans text-sm font-bold">Pregunta quincenal (solo Junta Directiva)</h3>
+            <p id="pz-pregunta-actual" class="mt-2 text-sm text-[#405769]"></p>
+            <div id="pz-respuestas"></div>
+            <form id="pz-form-pregunta" class="mt-4">
+              <label class="block font-sans text-xs font-bold">Nueva pregunta (borra las respuestas de la anterior)
+                <input name="texto" required minlength="5" maxlength="200" class="mt-2 block h-11 w-full rounded-[9px] border border-[#8497A3] bg-white px-3 text-sm"></label>
+              <label class="mt-3 block font-sans text-xs font-bold">Días abierta
+                <input name="dias" type="number" min="1" max="60" value="15" class="mt-2 block h-11 w-28 rounded-[9px] border border-[#8497A3] px-3 text-sm"></label>
+              <button class="mt-4 h-11 rounded-[9px] bg-[#0D2B45] px-5 font-sans text-xs font-bold text-white">Publicar pregunta</button>
+            </form>
+          </div>
+        </div>
+      </section>
+
     </section>
     <dialog id="upload-modal"
       class="rounded-[16px] border border-[#D7E2E7] bg-white shadow-lg backdrop:bg-black backdrop:bg-opacity-50 p-0">
