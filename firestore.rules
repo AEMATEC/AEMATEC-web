@@ -59,6 +59,12 @@ service cloud.firestore {
       allow create, update, delete: if isJunta() || isFiscalia();
     }
 
+    // Lista pública de la Fiscalía (nombre, puesto y foto; nunca correos: RI Art. 143). RI Art. 42: la persona
+    // Fiscal la edita sin depender de la Junta (las reglas se suman, así que la Junta también puede).
+    match /config/fiscalia_publica {
+      allow write: if isJunta() || isFiscalia();
+    }
+
     match /config/{document=**} {
       allow read: if true;
       allow write: if isJunta();

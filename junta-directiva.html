@@ -14,11 +14,6 @@
     href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&display=swap"
     rel="stylesheet">
   <script src="assets/firebase-config.js"></script>
-  <style>
-    @media (max-width: 767px) {
-      main { padding-top: 2rem; }
-    }
-  </style>
   <title>Junta Directiva — AEMATEC</title>
 </head>
 
@@ -26,61 +21,77 @@
   <script src="assets/js/layout.js" data-part="header" data-active="junta"></script>
 
   <main>
-    <section class="site-container mx-auto py-[64px]">
-      <div class="mb-10">
+    <section class="border-b border-[#D5E5EA] bg-[#EAF5F7]">
+      <div class="site-container mx-auto py-[56px]">
         <p class="font-sans text-xs font-bold uppercase tracking-[0.18em] text-[#00798A]">Equipo de liderazgo</p>
         <h1 class="font-sans text-[40px] font-bold tracking-[-0.02em] mt-2">Junta Directiva</h1>
         <p class="mt-4 text-[#5B6E7B] max-w-[640px] leading-7">Los integrantes de la Junta Directiva son el corazón de la asociación. Aquí podrás conocerlos y encontrar los medios para comunicarte.</p>
       </div>
+    </section>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-        <div class="rounded-[16px] border border-[#D8E3E9] bg-white p-6 shadow-sm">
-          <h2 class="font-sans font-bold text-lg mb-4">Acceso para Junta</h2>
-          <p class="text-sm text-[#5B6E7B] mb-5">Si eres miembro de la Junta, accede al panel para administrar asociados, inventario y comunicaciones.</p>
-          <a href="admin.html" class="inline-flex items-center gap-2 h-11 px-5 rounded-[9px] bg-[#0D2B45] text-white font-sans text-sm font-bold hover:bg-[#164563]">
-            <i class="fa-solid fa-key"></i> Ir al panel
-          </a>
-        </div>
-
-        <div class="rounded-[16px] border border-[#D8E3E9] bg-white p-6 shadow-sm">
-          <h2 class="font-sans font-bold text-lg mb-4">Medios de contacto</h2>
-          <div id="medios-contacto" class="space-y-3">
-            <div class="flex items-center gap-3">
-              <i class="fa-solid fa-envelope text-[#00798A] w-6"></i>
-              <a id="contacto-email" href="mailto:aematec@estudiantec.cr" class="text-sm text-[#0D2B45] hover:text-[#00798A] font-semibold">aematec@estudiantec.cr</a>
-            </div>
-            <div class="flex items-center gap-3">
-              <i class="fa-solid fa-phone text-[#00798A] w-6"></i>
-              <span id="contacto-phone" class="text-sm text-[#0D2B45]">2550-2463</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="rounded-[16px] border border-[#D8E3E9] bg-white p-6 shadow-sm">
-          <h2 class="font-sans font-bold text-lg mb-4">Síguenos</h2>
-          <div id="medios-difusion" class="grid grid-cols-3 gap-4">
-            <a id="link-whatsapp" href="https://chat.whatsapp.com/HyBk6tUHyf44MlURrVgiTi" target="_blank" rel="noopener" class="flex flex-col items-center gap-2 p-3 rounded-[12px] hover:bg-[#F0F4F7] transition">
-              <i class="fa-brands fa-whatsapp text-2xl text-[#3B8F5B]"></i>
-              <span class="text-xs font-sans font-bold">WhatsApp</span>
-            </a>
-            <a id="link-instagram" href="https://www.instagram.com/aematec?stkn=enY1bDVmY3p1a3J4" target="_blank" rel="noopener" class="flex flex-col items-center gap-2 p-3 rounded-[12px] hover:bg-[#F0F4F7] transition">
-              <i class="fa-brands fa-instagram text-2xl text-[#E1306C]"></i>
-              <span class="text-xs font-sans font-bold">Instagram</span>
-            </a>
-            <a id="link-telegram" href="https://t.me/comunidadmatec" target="_blank" rel="noopener" class="flex flex-col items-center gap-2 p-3 rounded-[12px] hover:bg-[#F0F4F7] transition">
-              <i class="fa-brands fa-telegram text-2xl text-[#0088cc]"></i>
-              <span class="text-xs font-sans font-bold">Telegram</span>
-            </a>
+    <section class="site-container mx-auto py-[56px] space-y-6">
+      <div class="rounded-[16px] border border-[#D8E3E9] bg-white p-6 shadow-sm">
+        <h2 class="font-sans font-bold text-lg mb-4">Integrantes Junta Directiva</h2>
+        <div id="miembros-junta" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="text-center py-8 text-[#607480] col-span-full">
+            <i class="fa-solid fa-hourglass-end text-3xl mb-3"></i>
+            <p class="text-sm">Cargando información...</p>
           </div>
         </div>
       </div>
 
       <div class="rounded-[16px] border border-[#D8E3E9] bg-white p-6 shadow-sm">
-        <h2 class="font-sans font-bold text-lg mb-4">Integrantes actuales</h2>
-        <div id="miembros-junta" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <h2 class="font-sans font-bold text-lg mb-4">Fiscalía</h2>
+        <div id="miembros-fiscalia" class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="text-center py-8 text-[#607480] col-span-full">
             <i class="fa-solid fa-hourglass-end text-3xl mb-3"></i>
             <p class="text-sm">Cargando información...</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="border-y border-[#D7E3E8] bg-[#EAF1F4]">
+      <div class="site-container mx-auto py-[56px]">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+  <div class="rounded-[16px] border border-[#D8E3E9] bg-white p-6 shadow-sm">
+            <h2 class="font-sans font-bold text-lg mb-4">Acceso para Junta</h2>
+            <p class="text-sm text-[#5B6E7B] mb-5">Si eres miembro de la Junta, accede al panel para administrar asociados, inventario y comunicaciones.</p>
+            <a href="admin.html" class="inline-flex items-center gap-2 h-11 px-5 rounded-[9px] bg-[#0D2B45] text-white font-sans text-sm font-bold hover:bg-[#164563]">
+              <i class="fa-solid fa-key"></i> Ir al panel
+            </a>
+          </div>
+
+          <div class="rounded-[16px] border border-[#D8E3E9] bg-white p-6 shadow-sm">
+            <h2 class="font-sans font-bold text-lg mb-4">Medios de contacto</h2>
+            <div id="medios-contacto" class="space-y-3">
+              <div class="flex items-center gap-3">
+                <i class="fa-solid fa-envelope text-[#00798A] w-6"></i>
+                <a id="contacto-email" href="mailto:aematec@estudiantec.cr" class="text-sm text-[#0D2B45] hover:text-[#00798A] font-semibold">aematec@estudiantec.cr</a>
+              </div>
+              <div class="flex items-center gap-3">
+                <i class="fa-solid fa-phone text-[#00798A] w-6"></i>
+                <span id="contacto-phone" class="text-sm text-[#0D2B45]">2550-2463</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="rounded-[16px] border border-[#D8E3E9] bg-white p-6 shadow-sm">
+            <h2 class="font-sans font-bold text-lg mb-4">Síguenos</h2>
+            <div id="medios-difusion" class="grid grid-cols-3 gap-4">
+              <a id="link-whatsapp" href="https://chat.whatsapp.com/HyBk6tUHyf44MlURrVgiTi" target="_blank" rel="noopener" class="flex flex-col items-center gap-2 p-3 rounded-[12px] hover:bg-[#F0F4F7] transition">
+                <i class="fa-brands fa-whatsapp text-2xl text-[#3B8F5B]"></i>
+                <span class="text-xs font-sans font-bold">WhatsApp</span>
+              </a>
+              <a id="link-instagram" href="https://www.instagram.com/aematec?stkn=enY1bDVmY3p1a3J4" target="_blank" rel="noopener" class="flex flex-col items-center gap-2 p-3 rounded-[12px] hover:bg-[#F0F4F7] transition">
+                <i class="fa-brands fa-instagram text-2xl text-[#E1306C]"></i>
+                <span class="text-xs font-sans font-bold">Instagram</span>
+              </a>
+              <a id="link-telegram" href="https://t.me/comunidadmatec" target="_blank" rel="noopener" class="flex flex-col items-center gap-2 p-3 rounded-[12px] hover:bg-[#F0F4F7] transition">
+                <i class="fa-brands fa-telegram text-2xl text-[#0088cc]"></i>
+                <span class="text-xs font-sans font-bold">Telegram</span>
+              </a>
+            </div>
           </div>
         </div>
       </div>
@@ -130,23 +141,27 @@
       const index = ORDEN_PUESTOS.findIndex(nombre => nombre.toLowerCase() === String(puesto || "").trim().toLowerCase());
       return index === -1 ? ORDEN_PUESTOS.length : index;
     };
-    async function loadMiembros() {
-      const container = document.querySelector("#miembros-junta");
+    // Pinta una lista pública (solo nombre, puesto y foto: los correos no se publican, RI Art. 143).
+    async function loadMiembros(docId, selector, puestoPorDefecto, ordenar) {
+      const container = document.querySelector(selector);
       try {
-        // Solo nombre y puesto: los correos de la Junta no se publican (RI Art. 143).
-        const snapshot = await getDoc(doc(db, "config", "junta_publica"));
+        const snapshot = await getDoc(doc(db, "config", docId));
         const miembros = snapshot.exists() && Array.isArray(snapshot.data().miembros) ? snapshot.data().miembros : [];
         if (!miembros.length) {
           container.innerHTML = `<p class="col-span-full text-center text-sm text-[#607480] py-6">Aún no se han registrado integrantes.</p>`;
           return;
         }
-        miembros.sort((a, b) => rangoPuesto(a.puesto) - rangoPuesto(b.puesto));
+        if (ordenar) miembros.sort((a, b) => rangoPuesto(a.puesto) - rangoPuesto(b.puesto));
         container.innerHTML = miembros.map(data => {
-          const nombre = data.nombre || "Integrante de Junta Directiva";
-          const puesto = data.puesto || "Miembro de Junta Directiva";
+          const nombre = data.nombre || "Integrante";
+          const puesto = data.puesto || puestoPorDefecto;
+          const foto = safeHttpsUrl(data.foto);
+          const avatar = foto
+            ? `<img src="${escapeHtml(foto)}" alt="${escapeHtml(nombre)}" loading="lazy" class="h-12 w-12 shrink-0 rounded-full object-cover">`
+            : `<div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#E6F8FA] text-[#009CAD]"><i class="fa-solid fa-user"></i></div>`;
           return `
             <div class="flex items-center gap-4 rounded-[12px] border border-[#E2E9EC] p-4">
-              <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#E6F8FA] text-[#009CAD]"><i class="fa-solid fa-user"></i></div>
+              ${avatar}
               <div>
                 <p class="font-sans font-bold text-sm">${escapeHtml(nombre)}</p>
                 <p class="text-xs text-[#607480]">${escapeHtml(puesto)}</p>
@@ -155,11 +170,12 @@
           `;
         }).join("");
       } catch (error) {
-        container.innerHTML = `<p class="col-span-full text-center text-sm text-[#C2413B] py-6">No se pudo cargar la información de la Junta.</p>`;
+        container.innerHTML = `<p class="col-span-full text-center text-sm text-[#C2413B] py-6">No se pudo cargar la información.</p>`;
       }
     }
     loadMedios();
-    loadMiembros();
+    loadMiembros("junta_publica", "#miembros-junta", "Miembro de Junta Directiva", true);
+    loadMiembros("fiscalia_publica", "#miembros-fiscalia", "Fiscalía", false);
   </script>
 </body>
 

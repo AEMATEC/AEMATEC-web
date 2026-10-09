@@ -76,6 +76,15 @@ describe("Junta Directiva (RI Art. 143)", () => {
     await assertSucceeds(getDoc(doc(anonimo().firestore(), "config", "junta_publica")));
     await assertFails(setDoc(doc(anonimo().firestore(), "config", "junta_publica"), { miembros: [] }));
   });
+  test("la lista pública de Fiscalía (config/fiscalia_publica) la escriben la Junta y la persona Fiscal, no el público", async () => {
+    const datos = { miembros: [{ nombre: "Luis", puesto: "Fiscalía", foto: "" }] };
+    await assertSucceeds(setDoc(doc(usuario(JUNTA).firestore(), "config", "fiscalia_publica"), datos));
+    await assertSucceeds(setDoc(doc(usuario(FISCAL).firestore(), "config", "fiscalia_publica"), datos));
+    await assertSucceeds(getDoc(doc(anonimo().firestore(), "config", "fiscalia_publica")));
+    await assertFails(setDoc(doc(anonimo().firestore(), "config", "fiscalia_publica"), datos));
+    await assertFails(setDoc(doc(usuario(MODERADOR).firestore(), "config", "fiscalia_publica"), datos));
+    await assertFails(setDoc(doc(usuario(FISCAL).firestore(), "config", "junta_publica"), datos));
+  });
   test("el tema del sitio (config/tema) lo leen todas las páginas y solo lo cambia la Junta", async () => {
     await assertSucceeds(setDoc(doc(usuario(JUNTA).firestore(), "config", "tema"), { modo: "apagado", hasta: "" }));
     await assertSucceeds(getDoc(doc(anonimo().firestore(), "config", "tema")));
@@ -336,5 +345,20 @@ describe("Storage", () => {
     const foto = ["inventario/biblioteca/0f3a.png", new Uint8Array([137, 80, 78, 71]), { contentType: "image/png" }];
     await assertFails(uploadBytes(ref(anonimo().storage("biblioteca-aematec.firebasestorage.app"), foto[0]), foto[1], foto[2]));
     await assertSucceeds(uploadBytes(ref(usuario(JUNTA).storage("biblioteca-aematec.firebasestorage.app"), foto[0]), foto[1], foto[2]));
+  });
+  test("solo la Junta o la Fiscalía suben fotos de perfil, y solo imágenes", async () => {
+    const png = new Uint8Array([137, 80, 78, 71]);
+    const sube = (contexto, ruta, tipo) => uploadBytes(ref(contexto.storage("biblioteca-aematec.firebasestorage.app"), ruta), png, { contentType: tipo });
+    await assertFails(sube(anonimo(), "perfiles/junta/0f3a.png", "image/png"));
+    await assertFails(sube(usuario("otra@estudiantec.cr"), "perfiles/junta/0f3a.png", "image/png"));
+    await assertSucceeds(sube(usuario(JUNTA), "perfiles/junta/0f3a.png", "image/png"));
+    await assertSucceeds(sube(usuario(FISCAL), "perfiles/fiscalia/0f3b.webp", "image/webp"));
+    await assertFails(sube(usuario(JUNTA), "perfiles/junta/0f3a.html", "text/html"));
+    await assertFails(sube(usuario(JUNTA), "perfiles/junta/0f3a.png", "text/html"));
+    await assertFails(sube(usuario(JUNTA), "perfiles/junta/Foto.png", "image/png"));
+    // RI Art. 42: la persona Fiscal no toca las fotos de la Junta; la Junta sí las de Fiscalía (excepción acordada).
+    await assertFails(sube(usuario(FISCAL), "perfiles/junta/0f3c.png", "image/png"));
+    await assertSucceeds(sube(usuario(JUNTA), "perfiles/fiscalia/0f3d.png", "image/png"));
+    await assertFails(sube(usuario(JUNTA), "perfiles/otra/0f3e.png", "image/png"));
   });
 });

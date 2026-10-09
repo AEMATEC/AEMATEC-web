@@ -6,7 +6,7 @@
 //   <script src="assets/js/layout.js" data-part="footer"></script>
 //
 // data-active: inicio | repositorio | inventario | junta | efemerides | tramites
-// data-sub (solo Repositorio): inicio | docentes | academicos | subir
+// data-sub (solo Repositorio): inicio | docentes | academicos | subir | moderacion
 // Para agregar o renombrar una página del menú, edita solo las listas de abajo.
 (() => {
   const script = document.currentScript;
@@ -18,7 +18,7 @@
     { id: "inventario", label: "Inventario", href: "inventario.html" },
     { id: "junta", label: "Junta Directiva", href: "junta-directiva.html" },
     { id: "efemerides", label: "Efemérides", href: "efemerides.html" },
-    { id: "tramites", label: "Trámites", href: "tramites.html", icon: "fa-file-signature", cta: true }
+    { id: "tramites", label: "Trámites", href: "tramites.html" }
   ];
 
   const SUBMENUS = {
@@ -30,7 +30,7 @@
         { id: "academicos", label: "Recursos académicos", href: "repositorio-academicos.html" },
         { spacer: true },
         { id: "subir", label: "Subir material", href: "repositorio-subir.html", icon: "fa-arrow-up-from-bracket", cta: true },
-        { id: "moderacion", label: "Moderación", href: "admin.html#moderacion", icon: "fa-user-shield" }
+        { id: "moderacion", label: "Moderación", href: "repositorio-moderacion.html", icon: "fa-user-shield" }
       ]
     }
   };

@@ -21,9 +21,16 @@
         margin-left: 1rem;
         margin-right: 1rem;
       }
-      #docentes-resource-grid {
-        grid-template-columns: 1fr;
-        min-width: 0;
+      #docentes-resource-grid article {
+        align-items: flex-start;
+        flex-wrap: wrap;
+      }
+      #docentes-resource-grid article>div:nth-child(2) {
+        min-width: calc(100% - 5rem);
+      }
+      #docentes-resource-grid article>div:last-child {
+        width: 100%;
+        justify-content: flex-end;
       }
       #docentes-pagination {
         flex-wrap: wrap;
@@ -63,6 +70,7 @@
             <i class="fa-solid fa-chalkboard-user"></i>
           </div>
         </div>
+        <div id="moderacion-barra" hidden class="mt-5 font-sans text-xs text-[#B8E2E5] flex flex-wrap items-center gap-2"></div>
         <div class="recursos-buscador-fila mt-9">
           <form id="docentes-search-form"
             class="h-[58px] bg-white rounded-[12px] flex items-center p-1.5 shadow-lg">
@@ -142,95 +150,8 @@
               <option value="title">A–Z</option>
             </select></label>
         </div>
-        <div id="docentes-resource-grid" class="grid grid-cols-1 gap-5">
-          <article
-            class="bg-white border border-[#D6E2E7] rounded-[16px] p-6 hover:border-[#8ED5DD]">
-            <div class="flex justify-between"><span
-                class="font-sans text-[11px] font-bold bg-[#DFF6F8] text-[#00798A] px-3 py-1.5 rounded-full">ACTIVIDAD</span><span
-                class="text-xs text-[#566B78]"><i class="fa-regular fa-file-pdf mr-1"></i> PDF</span></div>
-            <h3 class="font-sans font-bold text-[19px] mt-5">Explorando funciones con Desmos</h3>
-            <p class="text-sm text-[#607480] mt-3 leading-6">Secuencia guiada para identificar transformaciones y
-              analizar parámetros en funciones.</p>
-            <div class="mt-5 grid grid-cols-2 gap-3 text-xs text-[#627783]"><span><i
-                  class="fa-solid fa-graduation-cap w-5 text-[#00798A]"></i>Décimo año</span><span><i
-                  class="fa-solid fa-shapes w-5 text-[#00798A]"></i>Funciones</span></div>
-            <p class="mt-5 pt-4 border-t border-[#E4EAED] text-xs text-[#566B78]">Por <strong
-                class="text-[#405968]">María Fernanda Rojas</strong></p>
-            <div class="mt-5 flex gap-3"><button type="button"
-                class="flex-1 h-10 border border-[#9DB6C1] rounded-[8px] font-sans font-bold text-xs"><i
-                  class="fa-regular fa-eye mr-2"></i>Ver</button><button
-                type="button" class="flex-1 h-10 bg-[#087F8C] text-white rounded-[8px] font-sans font-bold text-xs"><i
-                  class="fa-solid fa-download mr-2"></i>Descargar</button></div>
-          </article>
-          <article
-            class="bg-white border border-[#D6E2E7] rounded-[16px] p-6 hover:border-[#8ED5DD]">
-            <div class="flex justify-between"><span
-                class="font-sans text-[11px] font-bold bg-[#FFF1D9] text-[#946316] px-3 py-1.5 rounded-full">JUEGO</span><span
-                class="text-xs text-[#566B78]"><i class="fa-regular fa-file-powerpoint mr-1"></i> PPTX</span></div>
-            <h3 class="font-sans font-bold text-[19px] mt-5">Bingo de expresiones algebraicas</h3>
-            <p class="text-sm text-[#607480] mt-3 leading-6">Tarjetas imprimibles y guía para practicar productos
-              notables de forma colaborativa.</p>
-            <div class="mt-5 grid grid-cols-2 gap-3 text-xs text-[#627783]"><span><i
-                  class="fa-solid fa-graduation-cap w-5 text-[#00798A]"></i>Noveno año</span><span><i
-                  class="fa-solid fa-shapes w-5 text-[#00798A]"></i>Álgebra</span></div>
-            <p class="mt-5 pt-4 border-t border-[#E4EAED] text-xs text-[#566B78]">Por <strong
-                class="text-[#405968]">Comisión Académica AEMATEC</strong></p>
-            <div class="mt-5 flex gap-3"><button type="button"
-                class="flex-1 h-10 border border-[#9DB6C1] rounded-[8px] font-sans font-bold text-xs"><i
-                  class="fa-regular fa-eye mr-2"></i>Ver</button><button
-                type="button" class="flex-1 h-10 bg-[#087F8C] text-white rounded-[8px] font-sans font-bold text-xs"><i
-                  class="fa-solid fa-download mr-2"></i>Descargar</button></div>
-          </article>
-          <article
-            class="bg-white border border-[#D6E2E7] rounded-[16px] p-6 hover:border-[#8ED5DD]">
-            <div class="flex justify-between"><span
-                class="font-sans text-[11px] font-bold bg-[#EAE7F8] text-[#5A4C91] px-3 py-1.5 rounded-full">PLANEAMIENTO</span><span
-                class="text-xs text-[#566B78]"><i class="fa-regular fa-file-word mr-1"></i> DOCX</span></div>
-            <h3 class="font-sans font-bold text-[19px] mt-5">Estadística con datos del entorno</h3>
-            <p class="text-sm text-[#607480] mt-3 leading-6">Planeamiento de cuatro lecciones basado en recolección y
-              visualización de datos locales.</p>
-            <div class="mt-5 grid grid-cols-2 gap-3 text-xs text-[#627783]"><span><i
-                  class="fa-solid fa-graduation-cap w-5 text-[#00798A]"></i>Octavo año</span><span><i
-                  class="fa-solid fa-shapes w-5 text-[#00798A]"></i>Estadística</span></div>
-            <p class="mt-5 pt-4 border-t border-[#E4EAED] text-xs text-[#566B78]">Fuente: <strong
-                class="text-[#405968]">Proyecto MATEC en aula</strong></p>
-            <div class="mt-5 flex gap-3"><button type="button"
-                class="flex-1 h-10 border border-[#9DB6C1] rounded-[8px] font-sans font-bold text-xs"><i
-                  class="fa-regular fa-eye mr-2"></i>Ver</button><button
-                type="button" class="flex-1 h-10 bg-[#087F8C] text-white rounded-[8px] font-sans font-bold text-xs"><i
-                  class="fa-solid fa-download mr-2"></i>Descargar</button></div>
-          </article>
-          <article
-            class="bg-white border border-[#D6E2E7] rounded-[16px] p-6 hover:border-[#8ED5DD]">
-            <div class="flex justify-between"><span
-                class="font-sans text-[11px] font-bold bg-[#E5F1E8] text-[#3A7650] px-3 py-1.5 rounded-full">GUÍA
-                DIDÁCTICA</span><span class="text-xs text-[#566B78]"><i class="fa-regular fa-file-pdf mr-1"></i>
-                PDF</span></div>
-            <h3 class="font-sans font-bold text-[19px] mt-5">Geometría dinámica con GeoGebra</h3>
-            <p class="text-sm text-[#607480] mt-3 leading-6">Construcciones paso a paso para investigar propiedades de
-              triángulos y circunferencias.</p>
-            <div class="mt-5 grid grid-cols-2 gap-3 text-xs text-[#627783]"><span><i
-                  class="fa-solid fa-graduation-cap w-5 text-[#00798A]"></i>III Ciclo</span><span><i
-                  class="fa-solid fa-shapes w-5 text-[#00798A]"></i>Geometría</span></div>
-            <p class="mt-5 pt-4 border-t border-[#E4EAED] text-xs text-[#566B78]">Por <strong
-                class="text-[#405968]">Daniela Mora Quesada</strong></p>
-            <div class="mt-5 flex gap-3"><button type="button"
-                class="flex-1 h-10 border border-[#9DB6C1] rounded-[8px] font-sans font-bold text-xs"><i
-                  class="fa-regular fa-eye mr-2"></i>Ver</button><button
-                type="button" class="flex-1 h-10 bg-[#087F8C] text-white rounded-[8px] font-sans font-bold text-xs"><i
-                  class="fa-solid fa-download mr-2"></i>Descargar</button></div>
-          </article>
-        </div>
-        <div id="docentes-pagination" class="mt-8 flex items-center justify-center gap-2 font-sans text-sm"><a href="#"
-            class="w-10 h-10 border border-[#CBD9DF] rounded-[8px] bg-white flex items-center justify-center"><i
-              class="fa-solid fa-chevron-left text-xs"></i></a><a href="#"
-            class="w-10 h-10 rounded-[8px] bg-[#0D2B45] text-white flex items-center justify-center">1</a><a href="#"
-            class="w-10 h-10 rounded-[8px] bg-white border border-[#CBD9DF] flex items-center justify-center">2</a><a
-            href="#"
-            class="w-10 h-10 rounded-[8px] bg-white border border-[#CBD9DF] flex items-center justify-center">3</a><a
-            href="#"
-            class="w-10 h-10 border border-[#CBD9DF] rounded-[8px] bg-white flex items-center justify-center"><i
-              class="fa-solid fa-chevron-right text-xs"></i></a></div>
+        <div id="docentes-resource-grid" class="space-y-4"></div>
+        <div id="docentes-pagination" class="mt-8 flex items-center justify-center gap-2 font-sans text-sm"></div>
       </div>
     </section>
   </main>
@@ -295,7 +216,7 @@
   </div>
   <script type="module">
     import { escapeHtml } from "./assets/js/util.js";
-    import { cargarPublicados, alCambiarModeracion, claseIcono, formatDate, formatSize, enlaceArchivo, botonesPaginacion, htmlExplicacion } from "./assets/js/recursos.js";
+    import { cargarPublicados, alCambiarModeracion, botonesModeracion, eliminarRecurso, claseIcono, formatDate, formatSize, enlaceArchivo, botonesPaginacion, htmlExplicacion } from "./assets/js/recursos.js";
     const filterPanel = document.querySelector("#docentes-filter-panel");
     const filterBackdrop = document.querySelector("#docentes-filter-backdrop");
     const openFilters = () => {
@@ -352,7 +273,7 @@
       const editLink = document.querySelector("#modal-edit");
       editLink.classList.toggle("hidden", !isModerator);
       editLink.classList.toggle("flex", isModerator);
-      editLink.href = `admin.html?edit=${resource.id}`;
+      editLink.href = `repositorio-moderacion.html?edit=${encodeURIComponent(resource.id)}`;
       modal.classList.remove("hidden");
       modal.classList.add("flex");
       document.body.classList.add("overflow-hidden");
@@ -364,7 +285,7 @@
       const types = [...document.querySelectorAll("[data-type-filter]:checked")].map(input => input.dataset.typeFilter);
       const selectedTopic = topic.value.toLowerCase();
       return resources.filter(resource => {
-        const text = `${resource.title} ${resource.description} ${resource.author} ${resource.course}`.toLowerCase();
+        const text = [resource.title, resource.description, resource.author, resource.course, resource.grade, resource.topic, resource.type, resource.extension, resource.materials, ...(resource.labels || [])].filter(Boolean).join(" ").toLowerCase();
         return (!query || text.includes(query))
           && (!types.length || types.includes(resource.type))
           && (!selectedTopic || text.includes(selectedTopic));
@@ -383,15 +304,13 @@
       count.textContent = `${filtered.length} ${filtered.length === 1 ? "material" : "materiales"}`;
       summary.textContent = search.value.trim() ? `para “${search.value.trim()}”` : "disponibles";
       if (!visible.length) {
-        grid.innerHTML = '<p class="col-span-1 bg-white border border-[#D6E2E7] rounded-[16px] p-8 text-center text-[#607480]">No encontramos materiales con esos filtros.</p>';
+        grid.innerHTML = '<p class="bg-white border border-[#D6E2E7] rounded-[15px] p-8 text-center text-[#607480]">No encontramos materiales con esos filtros.</p>';
       } else {
-        grid.innerHTML = visible.map(resource => `<article class="bg-white border border-[#D6E2E7] rounded-[16px] p-6 hover:border-[#8ED5DD]">
-          <div class="flex justify-between"><span class="font-sans text-[11px] font-bold bg-[#DFF6F8] text-[#00798A] px-3 py-1.5 rounded-full">${escapeHtml((resource.type || "RECURSO").toUpperCase())}</span><span class="text-xs text-[#566B78]"><i class="${claseIcono(resource.extension)} mr-1"></i>${escapeHtml((resource.extension || "").toUpperCase())}</span></div>
-          <h3 class="font-sans font-bold text-[19px] mt-5">${escapeHtml(resource.title)}</h3><p class="text-sm text-[#607480] mt-3 leading-6">${escapeHtml(resource.description)}</p>
-          <div class="mt-5 grid grid-cols-2 gap-3 text-xs text-[#627783]"><span><i class="fa-solid fa-graduation-cap w-5 text-[#00798A]"></i>${escapeHtml(resource.course || "Nivel no indicado")}</span><span><i class="fa-solid fa-shapes w-5 text-[#00798A]"></i>${escapeHtml(resource.topic || "Matemática")}</span></div>
-          <p class="mt-5 pt-4 border-t border-[#E4EAED] text-xs text-[#566B78]">Por <strong class="text-[#405968]">${escapeHtml(resource.author)}</strong></p>
-          <div class="mt-5 flex gap-3">${isModerator ? `<a href="admin.html?edit=${escapeHtml(resource.id)}" class="flex h-10 w-10 items-center justify-center rounded-[8px] border border-[#9DB6C1] font-sans font-bold text-xs" title="Editar (moderador)"><i class="fa-solid fa-pen"></i></a>` : ""}<button type="button" data-view-resource="${escapeHtml(resource.id)}" class="flex-1 h-10 border border-[#9DB6C1] rounded-[8px] font-sans font-bold text-xs"><i class="fa-regular fa-eye mr-2"></i>Ver</button><a href="${escapeHtml(enlaceArchivo(resource))}" download class="flex-1 h-10 bg-[#087F8C] text-white rounded-[8px] flex items-center justify-center font-sans font-bold text-xs"><i class="fa-solid fa-download mr-2"></i>Descargar</a></div>
-        </article>`).join("");
+        grid.innerHTML = visible.map(resource => `<article class="bg-white border border-[#D6E2E7] rounded-[15px] p-5 flex items-center gap-5">
+          <div class="w-[62px] h-[72px] shrink-0 rounded-[11px] bg-[#E6F8FA] text-[#009CAD] flex items-center justify-center text-2xl"><i class="${claseIcono(resource.extension)}"></i></div>
+          <div class="flex-1"><div class="flex items-center gap-3"><span class="font-sans text-[10px] font-bold bg-[#DFF6F8] text-[#00798A] px-2.5 py-1 rounded-full">${escapeHtml((resource.type || "RECURSO").toUpperCase())}</span><span class="font-sans text-[11px] font-bold text-[#00798A]">${escapeHtml(resource.grade || resource.course || "Nivel no indicado")}</span></div>
+          <h3 class="font-sans font-bold text-[18px] mt-2">${escapeHtml(resource.title)}</h3><p class="text-sm text-[#566B78] mt-1">${escapeHtml(resource.description)}</p><p class="text-xs text-[#566B78] mt-2">Por <strong class="text-[#4A606D]">${escapeHtml(resource.author)}</strong> · ${escapeHtml(resource.topic || "Matemática")}</p></div>
+          <div class="flex gap-2">${isModerator ? botonesModeracion(resource, "flex h-11 w-11 items-center justify-center rounded-[8px] border border-[#9DB6C1]") : ""}<button type="button" data-view-resource="${escapeHtml(resource.id)}" class="flex h-11 w-11 items-center justify-center rounded-[8px] border border-[#A9BEC7] text-[#38566A]" aria-label="Ver detalles"><i class="fa-regular fa-eye"></i></button><a href="${escapeHtml(enlaceArchivo(resource))}" download class="h-11 rounded-[8px] bg-[#087F8C] px-5 font-sans text-xs font-bold text-white flex items-center"><i class="fa-solid fa-download mr-2"></i>Descargar</a></div></article>`).join("");
       }
       pagination.innerHTML = botonesPaginacion(page, totalPages);
       pagination.querySelectorAll("[data-page]").forEach(button => button.addEventListener("click", () => { page = Number(button.dataset.page); render(); }));
@@ -414,10 +333,24 @@
     document.addEventListener("keydown", event => { if (event.key === "Escape" && !modal.classList.contains("hidden")) closeModal(); });
     document.addEventListener("keydown", event => { if (event.key === "Escape" && filterPanel.classList.contains("is-open")) closeFilters(); });
 
+    // Moderación: eliminar un material desde la lista (editar abre repositorio-moderacion.html).
+    grid.addEventListener("click", async event => {
+      const boton = event.target.closest("[data-delete-resource]");
+      if (!boton || !isModerator) return;
+      const resource = resources.find(item => item.id === boton.dataset.deleteResource);
+      if (!resource || !confirm(`¿Eliminar «${resource.title || "este material"}» y su archivo definitivamente?`)) return;
+      try {
+        await eliminarRecurso(resource.id, resource);
+        resources = resources.filter(item => item.id !== resource.id);
+        render();
+      } catch (error) {
+        alert(`No se pudo eliminar: ${error.message}`);
+      }
+    });
     try {
       resources = await cargarPublicados({ section: "docentes" });
       render();
-      alCambiarModeracion(moderador => { isModerator = moderador; render(); });
+      alCambiarModeracion(moderador => { isModerator = moderador; render(); }, document.querySelector("#moderacion-barra"));
     } catch (error) {
       count.textContent = "No se pudieron cargar los materiales";
       grid.innerHTML = `<p class="col-span-1 bg-white border border-[#D6E2E7] rounded-[16px] p-8 text-center text-[#C2413B]">Error al cargar el repositorio: ${escapeHtml(error.message)}</p>`;

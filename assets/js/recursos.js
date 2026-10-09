@@ -1,7 +1,7 @@
 // Lógica que comparten las páginas del Repositorio (portada, recursos docentes y recursos académicos)
 // y los buscadores de la portada del sitio. El HTML de las tarjetas NO está aquí: cada página
 // conserva su propio diseño.
-import { collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { collection, deleteDoc, doc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { app, db } from "./firebase.js";
 import { escapeHtml, safeHttpsUrl } from "./util.js";
 import { tieneRol } from "./roles.js";
@@ -16,11 +16,58 @@ export async function cargarPublicados({ section } = {}) {
   return snapshot.docs.map(item => ({ id: item.id, ...item.data() }));
 }
 
-// Avisa cada vez que cambia la sesión si la persona es moderadora (para mostrar el lápiz de editar).
-// Solo decide qué se muestra: los permisos reales los aplican las reglas.
-export async function alCambiarModeracion(callback) {
-  const { getAuth, onAuthStateChanged } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
-  onAuthStateChanged(getAuth(app), async user => callback(await tieneRol(user, "moderators")));
+// Avisa cada vez que cambia la sesión si la persona es moderadora (para mostrar editar y eliminar), y
+// dibuja la barra "Sesión de moderación" en `barra` (si se pasa). La sesión se inicia en
+// repositorio-moderacion.html. Solo decide qué se muestra: los permisos reales los aplican las reglas.
+export async function alCambiarModeracion(callback, barra) {
+  const { getAuth, onAuthStateChanged, signOut } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
+  const auth = getAuth(app);
+  onAuthStateChanged(auth, async user => {
+    const moderador = await tieneRol(user, "moderators");
+    if (barra) {
+      barra.hidden = !moderador;
+      barra.innerHTML = moderador ? `<i class="fa-solid fa-circle-check text-[#63E0E1]"></i><span>Sesión de moderación · ${escapeHtml(user.email)}</span>
+        <a href="repositorio-moderacion.html" class="font-bold text-white underline">Pendientes</a>
+        <button type="button" data-salir-moderacion class="font-bold text-white underline">Salir</button>` : "";
+      barra.querySelector("[data-salir-moderacion]")?.addEventListener("click", () => signOut(auth));
+    }
+    callback(moderador, user);
+  });
+}
+
+// Botones de moderador para la tarjeta de un recurso (editar abre repositorio-moderacion.html?edit=<id>).
+export const botonesModeracion = (resource, clase) => `<a href="repositorio-moderacion.html?edit=${encodeURIComponent(resource.id)}" class="${clase}" title="Editar (moderación)" aria-label="Editar (moderación)"><i class="fa-solid fa-pen"></i></a><button type="button" data-delete-resource="${escapeHtml(resource.id)}" class="${clase} text-[#C2413B]" title="Eliminar (moderación)" aria-label="Eliminar (moderación)"><i class="fa-solid fa-trash"></i></button>`;
+
+// Las rutas de los archivos las escribe quien propone el material, así que no se confía en ellas: solo se borra
+// un archivo de la carpeta de recursos y si ningún otro material lo usa (evita que una propuesta falsa que
+// apunte al archivo de un material bueno lo haga borrar).
+async function borrarArchivosDe(resource) {
+  const { getStorage, ref, deleteObject } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js");
+  const storage = getStorage(app);
+  const rutas = [resource.storagePath, resource.explanation?.storagePath]
+    .filter(ruta => typeof ruta === "string" && /^recursos\/(docentes|academico)\/[a-f0-9-]+(-explicacion)?\.[a-z]+$/.test(ruta));
+  const noBorrados = [];
+  for (const ruta of rutas) {
+    try {
+      const [comoArchivo, comoExplicacion] = await Promise.all([
+        getDocs(query(collection(db, "resources"), where("storagePath", "==", ruta))),
+        getDocs(query(collection(db, "resources"), where("explanation.storagePath", "==", ruta)))
+      ]);
+      if (comoArchivo.empty && comoExplicacion.empty) await deleteObject(ref(storage, ruta));
+      else noBorrados.push(ruta);
+    } catch (error) {
+      if (error.code !== "storage/object-not-found") noBorrados.push(ruta);
+    }
+  }
+  if (noBorrados.length) console.warn("Archivos que no se borraron (en uso o con error):", noBorrados);
+}
+
+// Elimina un material y su archivo (solo moderación; lo exigen firestore.rules y storage.rules).
+// Primero el documento: si algo falla después, queda a lo sumo un archivo sin usar, nunca un material
+// publicado cuyo archivo ya no existe.
+export async function eliminarRecurso(id, resource) {
+  await deleteDoc(doc(db, "resources", id));
+  await borrarArchivosDe(resource);
 }
 
 // Ícono de Font Awesome según la extensión del archivo (sin la clase de estilo).

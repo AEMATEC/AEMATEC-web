@@ -5,6 +5,7 @@ export const SITE_PAGES = [
   { title: "Repositorio", desc: "Materiales docentes y académicos compartidos por la comunidad, de acceso público.", href: "repositorio.html", kw: "materiales recursos compartir" },
   { title: "Recursos docentes", desc: "Actividades, juegos y planeamientos listos para llevar al aula.", href: "repositorio-docentes.html", kw: "actividades juegos planeamientos docentes" },
   { title: "Recursos académicos", desc: "Exámenes anteriores, apuntes y soluciones para acompañarte en la carrera.", href: "repositorio-academicos.html", kw: "examenes apuntes soluciones cursos academicos" },
+  { title: "Moderación del Repositorio", desc: "Acceso del equipo de moderación para aprobar, editar o eliminar materiales.", href: "repositorio-moderacion.html", kw: "moderacion moderador aprobar rechazar pendientes" },
   { title: "Subir material", desc: "Comparte un recurso con la comunidad de MATEC.", href: "repositorio-subir.html", kw: "subir compartir aportar material" },
   { title: "Inventario", desc: "Consulta los bienes de la asociación y solicita préstamos como Asociado.", href: "inventario.html", kw: "bienes prestamos equipo inventario" },
   { title: "Inventario institucional", desc: "Bienes institucionales a cargo de la asociación.", href: "inventario.html?tipo=institucional", kw: "institucional inventario" },
