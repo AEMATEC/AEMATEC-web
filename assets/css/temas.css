@@ -6,18 +6,21 @@
 html[data-tema] { --tema-alto: 6px; --aematec-teal-line: var(--tema-acento); }
 html[data-tema-estilo="festivo"] { --tema-alto: 16px; }
 
-/* ---------- Franja bajo el encabezado (no mueve el contenido: se dibuja sobre el borde) ---------- */
-html[data-tema] .site-header { position: relative; }
-html[data-tema] .site-header::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: var(--tema-alto);
-  background: var(--tema-cinta);
-  pointer-events: none;
-}
+/* ---------- Decoración propia de cada tema (temas.js, decorar) ---------- */
+/* La guirnalda cuelga bajo el encabezado y la escena se apoya en el borde de arriba del pie: ninguna mueve el contenido. */
+html[data-tema] .site-header, html[data-tema] .site-footer { position: relative; }
+.tema-guirnalda { position: absolute; left: 0; right: 0; top: 100%; z-index: 2; pointer-events: none; background-repeat: repeat-x; background-position: left top; }
+html[data-sitio="arcade"] .tema-guirnalda { position: fixed; top: 0; z-index: 40; }
+.tema-pie { position: absolute; left: 0; right: 0; bottom: 100%; height: 0; z-index: 2; pointer-events: none; }
+.tema-pie > * { position: absolute; bottom: 0; transform: translateX(-50%); }
+.tema-pie__flota { animation: tema-flota 1.6s steps(2) infinite alternate; }
+@keyframes tema-flota { from { margin-bottom: 0; } to { margin-bottom: 8px; } }
+@media (prefers-reduced-motion: reduce) { .tema-pie__flota { animation: none; } }
+
+/* ---------- Colores de la página ---------- */
+/* Cada tema trae --tema-fondo (fondo de la página) y --tema-cabecera (encabezado). No aplica al Arcade, que tiene su propio estilo. */
+html[data-tema]:not([data-sitio="arcade"]) body { background-color: var(--tema-fondo) !important; }
+html[data-tema]:not([data-sitio="arcade"]) .site-header { background: var(--tema-cabecera) !important; }
 
 /* ---------- Aviso breve (abajo a la izquierda, se cierra solo) ---------- */
 .tema-aviso {
@@ -112,20 +115,28 @@ html[data-tema] .site-header::after {
 
 /* ---------- Cada tema ---------- */
 html[data-tema="anio-nuevo"] {
+  --tema-fondo: #FBF6E6;
+  --tema-cabecera: #FFF9E0;
   --tema-acento: #B8901F;
   --tema-cinta: linear-gradient(90deg, #0D2B45, #C9A227, #F4D06F, #C9A227, #0D2B45);
 }
 html[data-tema="8m"] {
+  --tema-fondo: #F6EDF9;
+  --tema-cabecera: #EFDDF5;
   --tema-acento: #7B2D8E;
   --tema-cinta: linear-gradient(90deg, #5B1F6E, #9B59B6, #5B1F6E);
 }
 html[data-tema="juan-santamaria"] {
+  --tema-fondo: #FFF1E6;
+  --tema-cabecera: #FFDFC8;
   /* Franja de brasas: rojo oscuro, naranja y amarillo, como la llama de la antorcha. */
   --tema-acento: #C2410C;
   --tema-alto: 16px;
   --tema-cinta: linear-gradient(90deg, #7A1E0E, #D8481B, #F6A623, #FFD866, #F6A623, #D8481B, #7A1E0E);
 }
 html[data-tema="semana-carrera"] {
+  --tema-fondo: #EEF2F8;
+  --tema-cabecera: #DFE7F3;
   /* Estilo griego antiguo: greca (meandro) dorada sobre azul, por «La constante de Arquímedes». */
   --tema-acento: #B8901F;
   --tema-alto: 18px;
@@ -134,35 +145,49 @@ html[data-tema="semana-carrera"] {
 html[data-tema="semana-carrera"] .tema-aviso { border-top: 4px solid #0D2B45; }
 
 html[data-tema="orgullo"] {
+  --tema-fondo: #F7F2FB;
+  --tema-cabecera: #EFE6F7;
   --tema-acento: #7B2D8E;
   --tema-cinta: linear-gradient(90deg, #E40303 0 16.66%, #FF8C00 0 33.33%, #FFED00 0 50%, #008026 0 66.66%, #004DFF 0 83.33%, #750787 0);
 }
 html[data-tema="dia-padre"] {
+  --tema-fondo: #E8F3F9;
+  --tema-cabecera: #D6EAF5;
   --tema-acento: #0B6E99;
   --tema-cinta: linear-gradient(90deg, #0D2B45, #0B6E99, #00A6B8, #0B6E99, #0D2B45);
 }
 html[data-tema="dia-madre"] {
+  --tema-fondo: #FCEEF4;
+  --tema-cabecera: #F8DCE9;
   --tema-acento: #B0336B;
   --tema-cinta: linear-gradient(90deg, #B0336B, #F29BBE, #B0336B);
 }
 html[data-tema="mes-patrio"], html[data-tema="faroles"] {
+  --tema-fondo: #F2F5FC;
+  --tema-cabecera: #E6ECF8;
   /* Bandera de Costa Rica: azul, blanco, rojo (doble), blanco, azul. */
   --tema-acento: #002B7F;
   --tema-alto: 18px;
   --tema-cinta: linear-gradient(180deg, #002B7F 0 16.66%, #FFFFFF 0 33.33%, #CE1126 0 66.66%, #FFFFFF 0 83.33%, #002B7F 0);
 }
-html[data-tema="faroles"] { --tema-acento: #C77700; }
+html[data-tema="faroles"] { --tema-acento: #C77700; --tema-fondo: #FFF6E5; --tema-cabecera: #FFE9BF; }
 
 html[data-tema="halloween"] {
+  --tema-fondo: #FFF3E6;
+  --tema-cabecera: #FFE0C2;
   --tema-acento: #D8661B;
   --tema-cinta: repeating-linear-gradient(135deg, #1F1A24 0 10px, #F28C28 10px 20px);
 }
 
 html[data-tema="dia-docente"] {
+  --tema-fondo: #E6F2EA;
+  --tema-cabecera: #CFE8D8;
   --tema-acento: #087F8C;
   --tema-cinta: linear-gradient(90deg, #0D2B45, #00A6B8, #39C7D5, #00A6B8, #0D2B45);
 }
 html[data-tema="navidad"] {
+  --tema-fondo: #F1F8F3;
+  --tema-cabecera: #E0F0E5;
   --tema-acento: #B3202A;
   --tema-cinta: repeating-linear-gradient(90deg, #B3202A 0 18px, #F4F4F4 18px 22px, #1E7B4B 22px 40px, #F4F4F4 40px 44px);
 }
@@ -225,17 +250,6 @@ html[data-tema="navidad"] {
 
 /* ---------- En el Arcade (arcade.html trae data-sitio="arcade") ---------- */
 /* No tiene encabezado del sitio: la franja del tema va fija arriba, y el aviso se ve como un cuadro de juego. */
-html[data-sitio="arcade"][data-tema]::before {
-  content: "";
-  position: fixed;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: var(--tema-alto);
-  background: var(--tema-cinta);
-  z-index: 40;
-  pointer-events: none;
-}
 html[data-sitio="arcade"] .tema-aviso {
   border: 4px solid #F4F4F4;
   border-radius: 0;

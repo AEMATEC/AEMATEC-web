@@ -13,6 +13,7 @@ export const SITE_PAGES = [
   { title: "Biblioteca", desc: "Colección física de libros del Inventario.", href: "inventario.html?tipo=biblioteca", kw: "libros biblioteca inventario" },
   { title: "Consumibles", desc: "Materiales consumibles disponibles para préstamo o uso.", href: "inventario.html?tipo=consumible", kw: "consumibles materiales inventario" },
   { title: "Junta Directiva", desc: "Quiénes integran la Junta y cómo contactarlos.", href: "junta-directiva.html", kw: "junta directiva contacto correo integrantes" },
+  { title: "Pizarra de anuncios", desc: "Noticias, recordatorios y avisos de la comunidad, y la pregunta quincenal de la Junta.", href: "pizarra.html", kw: "pizarra anuncios noticias recordatorios avisos pregunta quincenal respuestas comunidad" },
   { title: "Efemérides", desc: "Calendario de fechas internacionales, de Costa Rica, de matemática y de AEMATEC.", href: "efemerides.html", kw: "efemerides calendario fechas dias feriados celebraciones aniversarios pi independencia" },
   { title: "Trámites", desc: "Solicitudes a la Junta, postulaciones, AGEC y consultas o denuncias a Fiscalía.", href: "tramites.html", kw: "tramite solicitud postulacion agec denuncia fiscalia" },
   { title: "Privacidad, términos y cookies", desc: "Cómo tratamos tus datos, condiciones de uso del sitio y cookies.", href: "legal.html", kw: "privacidad datos personales terminos condiciones cookies derechos autor borrar" },

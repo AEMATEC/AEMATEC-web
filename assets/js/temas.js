@@ -37,13 +37,13 @@
   // indicadas; "confeti" y "farol" son figuras dibujadas en temas.css.
   const TEMAS = [
     {
-      id: "anio-nuevo", nombre: "Año nuevo", estilo: "sutil", fechas: cadaAnio("01-01", "01-07"),
+      id: "anio-nuevo", guirnalda: "nuevo", pie: [["estrella",0,6,7],["estrella",1,5,15],["estrella",2,7,86],["estrella",0,5,94]], nombre: "Año nuevo", estilo: "sutil", fechas: cadaAnio("01-01", "01-07"),
       icono: "fa-champagne-glasses",
       mensaje: () => "¡Feliz año nuevo! Inicia el periodo de la nueva Junta Directiva."
     },
     {
       // Festivo desde octubre 2026 (pedido de la Junta): una marcha de mujeres cruza la pantalla con pancartas.
-      id: "8m", nombre: "8 de marzo", estilo: "festivo", fechas: cadaAnio("03-08"),
+      id: "8m", guirnalda: "morado", pie: [["venus",0,6,6],["mujer",{"pelo":"#2B1B12","piel":"#C68642","ropa":"#7B2D8E","estilo":0},4,13],["mujer",{"pelo":"#6B3A1E","piel":"#F1C27D","ropa":"#2E9E6B","estilo":2},4,86],["venus",0,6,94]], nombre: "8 de marzo", estilo: "festivo", fechas: cadaAnio("03-08"),
       icono: "fa-venus",
       mensaje: () => "8 de marzo, Día Internacional de la Mujer. ¡Mujeres en marcha por la igualdad!",
       escena: "marcha"
@@ -51,13 +51,13 @@
     {
       // 11 de abril: Juan Santamaría, héroe nacional (Batalla de Rivas, 1856). La escena lo muestra corriendo con
       // una antorcha hacia el mesón que se incendia.
-      id: "juan-santamaria", nombre: "Día de Juan Santamaría (11 de abril)", estilo: "festivo", fechas: cadaAnio("04-11"),
+      id: "juan-santamaria", guirnalda: "fuego", pie: [["juan",0,3,8],["llama",0,5,84],["llama",0,4,90],["llama",0,5,95]], nombre: "Día de Juan Santamaría (11 de abril)", estilo: "festivo", fechas: cadaAnio("04-11"),
       icono: "fa-fire",
       mensaje: () => "11 de abril, Día de Juan Santamaría: héroe nacional de la Batalla de Rivas (1856).",
       escena: "juan"
     },
     {
-      id: "semana-carrera", nombre: "Semana de la Carrera (Día de π)", estilo: "festivo", fechas: semanaDePi,
+      id: "semana-carrera", guirnalda: "pi", pie: [["pi",0,7,6],["pi",1,5,14],["pi",2,6,86],["pi",0,5,94]], nombre: "Semana de la Carrera (Día de π)", estilo: "festivo", fechas: semanaDePi,
       texto: "π",
       mensaje: fecha => fecha.endsWith("-03-14")
         ? "¡Feliz Día de π! Semana de la Carrera: «La constante de Arquímedes»."
@@ -65,22 +65,22 @@
       particulas: { tipo: "texto", valores: ["π", "π", "π", "3,1416", "22/7", "π"], movimiento: "subir" }
     },
     {
-      id: "orgullo", nombre: "Mes del Orgullo", estilo: "sutil", fechas: cadaAnio("06-01", "06-30"),
+      id: "orgullo", guirnalda: "orgullo", pie: [["arcoiris",0,8,6],["corazon",0,5,18],["corazon",1,5,80],["arcoiris",0,8,90]], nombre: "Mes del Orgullo", estilo: "sutil", fechas: cadaAnio("06-01", "06-30"),
       icono: "fa-rainbow",
       mensaje: () => "Junio, mes del Orgullo LGBTIQ+. En AEMATEC cabemos todas las personas."
     },
     {
-      id: "dia-padre", nombre: "Día del Padre", estilo: "sutil", fechas: diaDelPadre,
+      id: "dia-padre", guirnalda: "padre", pie: [["corazon",0,7,7],["corazon",0,4,15],["corazon",0,5,86],["corazon",0,7,94]], nombre: "Día del Padre", estilo: "sutil", fechas: diaDelPadre,
       icono: "fa-heart",
       mensaje: () => "¡Feliz Día del Padre!"
     },
     {
-      id: "dia-madre", nombre: "Día de la Madre", estilo: "sutil", fechas: cadaAnio("08-15"),
+      id: "dia-madre", guirnalda: "madre", pie: [["corazon",1,7,7],["corazon",1,4,15],["corazon",1,5,86],["corazon",1,7,94]], nombre: "Día de la Madre", estilo: "sutil", fechas: cadaAnio("08-15"),
       icono: "fa-heart",
       mensaje: () => "¡Feliz Día de la Madre!"
     },
     {
-      id: "mes-patrio", nombre: "Mes patrio", estilo: "festivo", fechas: cadaAnio("09-01", "09-30"),
+      id: "mes-patrio", guirnalda: "patrio", pie: [["bandera",0,4,6],["bandera",0,3,16],["bandera",0,3,84],["bandera",0,4,92]], nombre: "Mes patrio", estilo: "festivo", fechas: cadaAnio("09-01", "09-30"),
       icono: "fa-flag",
       mensaje: fecha => fecha.endsWith("-09-15")
         ? "¡Feliz Día de la Independencia de Costa Rica!"
@@ -88,24 +88,25 @@
       particulas: { tipo: "bandera", movimiento: "caer" } // banderas de Costa Rica que ondean mientras caen
     },
     {
-      id: "faroles", nombre: "Noche de faroles (14 de setiembre)", estilo: "festivo", fechas: cadaAnio("09-14"),
+      id: "faroles", guirnalda: "faroles", pie: [["farol",0,6,7],["farol",1,5,17],["farol",2,6,83],["farol",0,5,93]], nombre: "Noche de faroles (14 de setiembre)", estilo: "festivo", fechas: cadaAnio("09-14"),
       icono: "fa-lightbulb",
       mensaje: () => "14 de setiembre: ¡noche de faroles!",
       particulas: { tipo: "farol", movimiento: "subir" }
     },
     {
-      id: "halloween", nombre: "Halloween", estilo: "festivo", fechas: cadaAnio("10-24", "10-31"),
+      id: "halloween", guirnalda: "halloween", pie: [["calabaza",0,6,6],["fantasma",0,5,16],["arana",0,4,50],["calabaza",0,5,84],["fantasma",1,6,93]], nombre: "Halloween", estilo: "festivo", fechas: cadaAnio("10-24", "10-31"),
       icono: "fa-ghost",
       mensaje: fecha => fecha.endsWith("-10-31") ? "¡Feliz Halloween!" : "Se acerca Halloween.",
       particulas: { tipo: "icono", valores: ["fa-ghost", "fa-spider", "fa-hat-wizard"], movimiento: "caer" }
     },
     {
-      id: "dia-docente", nombre: "Día del Docente Costarricense", estilo: "sutil", fechas: cadaAnio("11-22"),
+      id: "dia-docente", guirnalda: "docente", pie: [["pizarra",0,7,6],["libros",0,5,22],["manzana",0,4,28],["libros",0,5,80],["manzana",0,5,90]], nombre: "Día del Docente Costarricense", estilo: "festivo", fechas: cadaAnio("11-22"),
       icono: "fa-chalkboard-user",
+      particulas: { tipo: "icono", valores: ["fa-apple-whole", "fa-pencil", "fa-book-open", "fa-star"], movimiento: "subir" },
       mensaje: () => "22 de noviembre, Día del Docente Costarricense. ¡Gracias a quienes enseñan!"
     },
     {
-      id: "navidad", nombre: "Navidad", estilo: "festivo", fechas: cadaAnio("12-01", "12-31"),
+      id: "navidad", guirnalda: "luces", pie: [["arbol",0,9,5],["regalo",0,5,12],["regalo",1,4,16],["regalo",2,5,80],["arbol",0,7,88]], nombre: "Navidad", estilo: "festivo", fechas: cadaAnio("12-01", "12-31"),
       icono: "fa-tree",
       mensaje: fecha => fecha >= fecha.slice(0, 5) + "12-24" && fecha <= fecha.slice(0, 5) + "12-25"
         ? "¡Feliz Navidad!"
@@ -176,6 +177,7 @@
     document.documentElement.removeAttribute("data-tema");
     document.documentElement.removeAttribute("data-tema-estilo");
     document.querySelectorAll(".tema-aviso, .tema-particulas").forEach(el => el.remove());
+    document.querySelectorAll(".tema-guirnalda, .tema-pie").forEach(el => el.remove());
     aplicado = null;
   }
 
@@ -211,6 +213,29 @@
     return pixelListo;
   }
 
+  // Decoración propia de cada tema: una guirnalda que cuelga bajo el encabezado y una escena de 8 bits en el borde de
+  // arriba del pie de página (no mueve el contenido ni recibe clics). En el Arcade (sin encabezado) la guirnalda va fija arriba.
+  function decorar(tema) {
+    const px = window.aematecPixel;
+    if (!px) return;
+    const movil = window.innerWidth < 640;
+    const g = tema.guirnalda && px.guirnalda(tema.guirnalda, movil ? 2 : 3);
+    if (g) (document.querySelector(".site-header") || document.body).appendChild(g);
+    const pie = document.querySelector(".site-footer");
+    if (pie && tema.pie) {
+      const caja = document.createElement("div");
+      caja.className = "tema-pie";
+      caja.setAttribute("aria-hidden", "true");
+      tema.pie.forEach(([nombre, variante, escala, izquierda]) => {
+        const e = px.elemento(nombre, typeof variante === "object" ? { escala: movil ? Math.max(2, escala - 2) : escala, extra: variante } : { escala: movil ? Math.max(2, escala - 2) : escala, variante, t: 0.2 });
+        e.style.left = izquierda + "%";
+        if (nombre === "fantasma" || nombre === "estrella") e.classList.add("tema-pie__flota");
+        caja.appendChild(e);
+      });
+      pie.appendChild(caja);
+    }
+  }
+
   function aplicarTema(tema, fecha, { vistaPrevia = false } = {}) {
     if (aplicado === tema) return;
     quitarTema();
@@ -227,6 +252,7 @@
 
     cargarPixel().catch(() => null).then(() => {
       if (aplicado !== tema) return; // mientras tanto se cambió o quitó el tema
+      decorar(tema);
       if (vistaPrevia || !memoria("sessionStorage", `aematec-tema-aviso-${clave}`)) {
         memoria("sessionStorage", `aematec-tema-aviso-${clave}`, "1");
         mostrarAviso(tema, fecha, { animar, clave, vistaPrevia });
