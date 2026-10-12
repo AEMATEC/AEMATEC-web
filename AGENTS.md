@@ -78,7 +78,7 @@ revisa la pestaña **Actions** del repositorio en GitHub.
   `<link rel="stylesheet" href="assets/css/site.css">` seguido de `<link rel="stylesheet" href="assets/css/tailwind.css">`
   (no uses el CDN de Tailwind).
 - Si cambias el encabezado (su forma, posición o la clase `.site-header`), los colores base o las tipografías del sitio,
-  revisa también `assets/css/temas.css` (franja bajo el encabezado y aviso de los temas de temporada) y compruébalo con
+  revisa también `assets/css/temas.css` (colores del encabezado, guirnalda bajo él y aviso de los temas de temporada) y compruébalo con
   `?tema=semana-carrera` y `?tema=navidad`, en computadora y celular.
 
 ## Archivos de páginas

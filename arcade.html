@@ -3785,17 +3785,6 @@ function blStep(balls, dt) {
   return ev;
 }
 function blAllStopped(balls) { return balls.every(b => b.potted || (Math.abs(b.vx) < 3 && Math.abs(b.vy) < 3)); }
-function blSimulate(balls, maxS = 8) {
-  const sub = 1 / 240, all = { potted: [], firstHit: null };
-  for (let t = 0; t < maxS; t += sub) {
-    const ev = blStep(balls, sub);
-    if (ev.potted.length) all.potted.push(...ev.potted);
-    if (ev.firstHit != null && all.firstHit == null) all.firstHit = ev.firstHit;
-    if (blAllStopped(balls)) break;
-  }
-  return all;
-}
-const blClone = balls => balls.map(b => ({ ...b }));
 
 /* ---- reglas ---- */
 function blEvalEight(st, ev) {

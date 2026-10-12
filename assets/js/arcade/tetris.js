@@ -5,9 +5,9 @@
 // Salas en línea: colección `tetris/{sala}` ({host, hostName, state: lobby|playing, round, seed, created, expiraEn,
 // lastSeen}) y `tetris/{sala}/players/{uid}` ({name, round, alive, board, score, lines, sent, lastSeen}). Cada quien
 // escribe SOLO su documento; la "basura" se manda como un total (`sent`) que el rival lee. Reglas: arcade-firebase/firestore.rules.
-import { $, esc, store, SFX, LB, setUpdateMenuMusicHook, fbReady, db, fs, UID, genCode, presenceLoop, expiraEn, liveRooms, playerName, nameMissing, isStale } from './core.js';
+import { $, esc, SFX, LB, setUpdateMenuMusicHook, fbReady, db, fs, UID, genCode, presenceLoop, expiraEn, liveRooms, playerName, nameMissing, isStale } from './core.js';
 import { MUSIC, setMusicToggleHook } from './musica.js';
-import { Partida, COLS, ROWS, TIPOS, celdas, serializar, deserializar } from './tetris-motor.js';
+import { Partida, COLS, ROWS, celdas, serializar, deserializar } from './tetris-motor.js';
 
 const COLORES = { 0: null, 1: '#73eff7', 2: '#ffcd75', 3: '#b55fd0', 4: '#38b764', 5: '#b13e53', 6: '#3b5dc9', 7: '#ef7d57', 8: '#566c86' };
 const TIPO_COLOR = { I: 1, O: 2, T: 3, S: 4, Z: 5, J: 6, L: 7 };
@@ -102,7 +102,6 @@ document.querySelectorAll('.tt-botones [data-k]').forEach(b => {
 
 /* ---------- partida ---------- */
 let juego = null; // { p, online, ronda, pausa, cuenta, fin, t0, ultimoEnvio, ... }
-const enPartida = () => Boolean(juego && !juego.fin);
 
 function empezar({ semilla, online = false, ronda = 0 }) {
   juego = { p: new Partida(semilla), online, ronda, pausa: false, cuenta: online ? 3 : 0, fin: false, ultimaEscritura: 0, sucio: true, tick: performance.now(), rival: null, viRival: false };
@@ -343,7 +342,6 @@ function escribirYo(forzar, vivo) {
     score: p.puntos, lines: p.lineas, sent: p.enviadas, lastSeen: fs.serverTimestamp()
   }, { merge: true }).catch(() => {});
 }
-let rivalVisto = 0;
 function revisarRival(p) {
   const r = rivalDe();
   juego.rival = r && r.round === juego.ronda ? r : null;
@@ -352,7 +350,6 @@ function revisarRival(p) {
   nombre.textContent = String(juego.rival.name || 'RIVAL').slice(0, 10);
   info.textContent = `${juego.rival.score || 0} PTS · ${juego.rival.lines || 0} LÍN`;
   p.rivalEnvio = Math.max(p.rivalEnvio, Number(juego.rival.sent) || 0);
-  rivalVisto = performance.now();
   if (juego.rival.alive === false && juego.cuenta <= 0) terminar(true, 'TU RIVAL SE QUEDÓ SIN ESPACIO');
   else if (isStale(juego.rival.lastSeen, Date.now()) && juego.cuenta <= 0) terminar(true, 'TU RIVAL SE DESCONECTÓ');
 }
@@ -384,7 +381,6 @@ vista('menu');
 cargarTablas();
 fbReady.then(() => cargarSalas());
 setInterval(() => { if (!$('#tt-menu').hidden) cargarSalas(); }, 15000);
-void store; void TIPOS;
 
 /* ---------- portada (igual que la de los demás juegos) ---------- */
 function dibujarSplash(c) {

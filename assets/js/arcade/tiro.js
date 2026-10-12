@@ -1,5 +1,5 @@
 // ANIMAL AL TIRO
-import { $, esc, store, SFX, LB, EGG, sprite, scaled, pxCircle, SPR, fitSoon } from './core.js';
+import { $, esc, store, SFX, LB, EGG, scaled, pxCircle, SPR, fitSoon } from './core.js';
 
 const ANIMALS = {
   llama: { n: 'LLAMA', spr: SPR.llama, mouth: { x: 30, y: 9 } },
