@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es" data-sitio="arcade">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Golf del Arcade AEMATEC: minigolf de seis hoyos con creador de hoyos.">
+<title>GOLF — Arcade AEMATEC</title>
+<link rel="icon" type="image/svg+xml" href="assets/logo-aematec-compas.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/arcade.css">
+<link rel="stylesheet" href="assets/css/arcade-juegos.css">
+<!-- Temas de temporada también en el Arcade (en 8 bits): ver assets/js/temas.js y temas-pixel.js -->
+<script src="assets/js/temas.js" defer></script>
+</head>
+<body data-juego="golf">
+<div class="wrap">
+  <section class="game on" id="g-golf">
+    <div class="main px">
+      <div class="splash" data-g="golf"><canvas width="160" height="72" aria-hidden="true"></canvas><h2>GOLF AEMATEC</h2><p>MINIGOLF DE 6 HOYOS TEMÁTICOS. TOCA HACIA DONDE QUIERES TIRAR, ELIGE LA FUERZA Y GOLPEA. CUIDADO CON LA ARENA, EL AGUA, EL HIELO Y EL VIENTO, Y APROVECHA LAS RAMPAS PARA SALTAR OBSTÁCULOS.</p><button class="btn red">INICIAR</button></div>
+      <div class="gbody" hidden>
+        <div id="gf-menu">
+          <h4>¿CÓMO QUIERES JUGAR?</h4>
+          <div class="row left"><button class="btn green" id="gf-local">JUGAR SOLO</button></div>
+          <div class="row left">
+            <button class="btn" id="gf-create">CREAR PARTIDA ONLINE</button>
+            <input id="gf-code" class="px-in" placeholder="CÓDIGO" maxlength="5">
+            <button class="btn orange" id="gf-join">UNIRSE</button>
+          </div>
+          <p class="msg" id="gf-menu-msg" style="text-align:left" aria-live="polite"></p>
+          <div class="row left spec-toggle">
+            <button class="btn gray" id="gf-spec-btn">👁 PARTIDAS EN VIVO</button>
+          </div>
+          <ul class="spec-list" id="gf-spec-list" hidden></ul>
+          <div class="row left" style="margin-top:10px">
+            <button class="btn" id="gf-builder-open">✏ CREAR UN HOYO</button>
+            <button class="btn gray" id="gf-proposals-open">📋 PROPUESTAS DE LA COMUNIDAD</button>
+          </div>
+        </div>
+        <div id="gf-builder" hidden>
+          <div class="rc-top"><span class="tag">CREAR UN HOYO</span><button class="btn gray" id="gfb-back">VOLVER</button></div>
+          <p class="sub">ELIGE UN TEMA Y UNA HERRAMIENTA, LUEGO TOCA O ARRASTRA SOBRE LA CANCHA PARA COLOCARLA.</p>
+          <div class="rc-sec"><h4>TEMA</h4><div class="pick" id="gfb-theme"></div></div>
+          <div class="rc-sec"><h4>PAR</h4><div class="pick" id="gfb-par"></div></div>
+          <div class="rc-sec"><h4>HERRAMIENTA</h4><div class="pick" id="gfb-tools"></div><button class="btn gray" id="gfb-rampdir">DIRECCIÓN RAMPA: ►</button></div>
+          <div class="stage">
+            <canvas id="gfb-cv" width="480" height="300" role="img" aria-label="Creador de hoyos de Golf"></canvas>
+          </div>
+          <div class="row left"><button class="btn gray" id="gfb-undo">QUITAR LO ÚLTIMO</button><button class="btn gray" id="gfb-clear">EMPEZAR DE NUEVO</button></div>
+          <div class="row left">
+            <input id="gfb-autor" class="px-in" placeholder="TU APODO" maxlength="12" aria-label="Tu apodo (es público, no uses tu nombre real)">
+            <input id="gfb-nombre" class="px-in" placeholder="NOMBRE DEL HOYO" maxlength="30">
+          </div>
+          <p class="msg" id="gfb-msg" style="text-align:left" aria-live="polite"></p>
+          <div class="row left"><button class="btn green" id="gfb-test">▶ PROBARLO</button><button class="btn orange" id="gfb-send">ENVIAR PROPUESTA</button></div>
+          <p class="keys">LA PROPUESTA se guarda pendiente hasta que un moderador la apruebe. Un hoyo necesita INICIO, BANDERA y como máximo 6 paredes, 3 zonas de arena/agua/hielo y 2 rampas.</p>
+        </div>
+        <div id="gf-proposals" hidden>
+          <div class="rc-top"><span class="tag">PROPUESTAS DE LA COMUNIDAD</span><button class="btn gray" id="gfp-back">VOLVER</button></div>
+          <p class="sub">Estos son los hoyos que otras personas diseñaron. Cualquiera puede darle "▶ PROBARLO" y jugarlos ya
+            mismo. Un hoyo se aprueba cuando el 75% de los moderadores del Arcade lo prueba y vota a favor — ahí se
+            agrega a "JUGAR SOLO", después de los 6 hoyos normales. Si el 75% vota en contra, queda rechazado.</p>
+          <p class="keys">¿Eres moderador del Arcade? Inicia sesión abajo para aprobar, rechazar o borrar una propuesta.</p>
+          <div class="row left" id="gfp-login-row">
+            <input id="gfp-email" class="px-in" type="email" placeholder="CORREO DE MODERADOR" autocomplete="username">
+            <input id="gfp-pass" class="px-in" type="password" placeholder="CONTRASEÑA" autocomplete="current-password" maxlength="100">
+            <button class="btn" id="gfp-login">ENTRAR</button>
+          </div>
+          <div class="row left" id="gfp-session-row" hidden>
+            <span class="badge" id="gfp-session-email"></span>
+            <button class="btn gray" id="gfp-logout">CERRAR SESIÓN</button>
+          </div>
+          <p class="msg" id="gfp-msg" style="text-align:left" aria-live="polite"></p>
+          <ul class="plist" id="gfp-list"></ul>
+        </div>
+        <div id="gf-lobby" hidden>
+          <div class="rc-top"><span class="tag" id="gf-room"></span><button class="btn gray" id="gf-leave">SALIR</button></div>
+          <p class="sub" id="gf-lobby-msg"></p>
+          <ul class="plist" id="gf-plist"></ul>
+          <div class="row left"><button class="btn green" id="gf-go">¡EMPEZAR!</button></div>
+        </div>
+        <div id="gf-game" hidden>
+          <div class="rc-top">
+            <span class="tag" id="gf-room2"></span>
+            <span id="gf-spec-badge" class="badge" hidden>👁 ESPECTADOR</span>
+            <button class="btn gray" id="gf-quit">SALIR</button>
+          </div>
+          <div class="fc-bar">
+            <span id="gf-status"></span>
+            <span id="gf-score"></span>
+          </div>
+          <ul class="plist" id="gf-players" hidden></ul>
+          <div class="stage">
+            <canvas id="gf-cv" width="480" height="300" role="img" aria-label="Hoyo de Golf"></canvas>
+            <div class="over" id="gf-over" hidden>
+              <h3 style="font-size:16px">¡VUELTA TERMINADA!</h3>
+              <p id="gf-over-p"></p>
+              <div class="row"><button class="btn green" id="gf-again">OTRA VUELTA</button><button class="btn gray" id="gf-exit">MENÚ</button></div>
+            </div>
+          </div>
+          <div class="shot-bar">
+            <label for="gf-power">FUERZA</label>
+            <input type="range" id="gf-power" class="power-slider" min="10" max="100" value="70">
+            <button class="btn red" id="gf-shoot" disabled>¡GOLPEAR!</button>
+          </div>
+          <p class="keys">TOCA LA PANTALLA HACIA DONDE QUIERES TIRAR, AJUSTA LA FUERZA Y PRESIONA ¡GOLPEAR!</p>
+        </div>
+      </div>
+    </div>
+    <aside class="side px">
+      <h3>TOP 10</h3>
+      <p class="sub">MENOS GOLPES EN LOS 6 HOYOS</p>
+      <ol class="lb" id="gf-lb"></ol>
+      <h4 style="margin-top:16px">CÓMO SE JUEGA</h4>
+      <p class="howto">SOLO O CON HASTA 4 PERSONAS, TURNÁNDOSE EN EL MISMO RECORRIDO. TOCA HACIA DONDE QUIERES TIRAR, AJUSTA LA FUERZA Y PRESIONA ¡GOLPEAR!. LA ARENA FRENA LA BOLA, EL HIELO CASI NO LA FRENA Y EL AGUA TE REGRESA AL ÚLTIMO LUGAR SEGURO CON UN GOLPE DE PENALIDAD. EL VIENTO EMPUJA LA BOLA MIENTRAS RUEDA. LAS RAMPAS TE HACEN SALTAR POR ENCIMA DE LO QUE HAYA ADELANTE SI LLEGAS CON SUFICIENTE FUERZA. SI VAS MUY RÁPIDO, LA BOLA NO ENTRA AL HOYO Y SIGUE DE LARGO: BAJA LA FUERZA CERCA DE LA META.<br><br><b>CREAR UN HOYO:</b> diseña tu propio hoyo y envíalo. Si un moderador lo aprueba, se agrega a "JUGAR SOLO" para que cualquiera lo juegue.</p>
+    </aside>
+  </section>
+</div>
+<script src="assets/js/arcade-transition.js"></script>
+<script type="module" src="assets/js/arcade/golf.js"></script>
+</body>
+</html>

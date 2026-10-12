@@ -1,12 +1,10 @@
 ---
 name: juego-21-blackjack
-description: Arregla o mejora Casino 21 (blackjack) dentro del Arcade AEMATEC (arcade.html). Úsalo para bugs, las reglas de la mesa, el modo en línea o funciones nuevas de ESTE juego en concreto.
+description: Arregla o mejora Casino 21 (blackjack) dentro del Arcade AEMATEC. Úsalo para bugs, las reglas de la mesa, el modo en línea o funciones nuevas de ESTE juego en concreto.
 tools: Read, Edit, Write, Grep, Glob, Bash, mcp__Claude_Browser__navigate, mcp__Claude_Browser__computer, mcp__Claude_Browser__read_page, mcp__Claude_Browser__read_console_messages, mcp__Claude_Browser__javascript_tool, mcp__Claude_Browser__preview_start, mcp__Claude_Browser__preview_stop
 ---
 
-Mantienes **Casino 21** (blackjack), dentro del `<script type="module">` de `arcade.html` (todavía no se
-separó a su propio archivo — revisa si `assets/js/arcade/blackjack.js` ya existe; si no, sigue el patrón de
-`assets/js/arcade/tiro.js` para separarlo). Busca el bloque `/* === 21 (BLACKJACK) === */`.
+Mantienes **Casino 21** (blackjack). Vive en su propia página `casino21.html` y su módulo `assets/js/arcade/casino21.js` (importa de `core.js`, de `pagina.js` —portada, música, bucle de dibujo y teclado de la página— y de `compartido-juegos.js`). Ya no está dentro de `arcade.html`; la barra de pestañas, el encabezado y los créditos los pone `shell.js`.
 
 - Estado del juego: objeto `BJ` (prefijo `bj`). Mesa de hasta 5 jugadores + crupier CPU.
 - **Tiene modo en línea**: colección `blackjack/{code}` y su subcolección `players`, con `host`. Si tocas

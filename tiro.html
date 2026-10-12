@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es" data-sitio="arcade">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Animal al Tiro del Arcade AEMATEC: escupe a los blancos y sube en la tabla.">
+<title>ANIMAL AL TIRO — Arcade AEMATEC</title>
+<link rel="icon" type="image/svg+xml" href="assets/logo-aematec-compas.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/arcade.css">
+<link rel="stylesheet" href="assets/css/arcade-juegos.css">
+<!-- Temas de temporada también en el Arcade (en 8 bits): ver assets/js/temas.js y temas-pixel.js -->
+<script src="assets/js/temas.js" defer></script>
+</head>
+<body data-juego="tiro">
+<div class="wrap">
+  <section class="game on" id="g-tiro">
+    <div class="main px">
+      <div class="splash" data-g="tiro"><canvas width="160" height="72" aria-hidden="true"></canvas><h2>ANIMAL AL TIRO</h2><p>LA LLAMA ESCUPE, EL ERIZO LANZA PÚAS. ¡DALE AL BLANCO!</p><button class="btn red">INICIAR</button></div>
+      <div class="gbody" hidden>
+      <div class="ll-hud" id="ll-hud">
+        <span>PUNTOS <b id="ll-score">0</b></span>
+        <span>TIEMPO <b id="ll-time">45</b></span>
+        <span>PRECISIÓN <b id="ll-acc">-</b></span>
+      </div>
+      <div class="stage">
+        <canvas id="ll-cv" width="320" height="200" role="img" aria-label="Zona de tiro de Animal al Tiro"></canvas>
+        <div class="over" id="ll-over">
+          <h3 style="font-size:16px;margin-bottom:12px">ANIMAL AL TIRO</h3>
+          <p id="ll-over-txt">ESCOGE TU ANIMAL</p>
+          <div class="pick" id="ll-pick"></div>
+          <div class="pick" id="ll-mode"></div>
+          <p style="font-size:10px;color:var(--mute)" id="ll-help" aria-live="polite"></p>
+          <button class="btn red" id="ll-start">¡AL TIRO!</button>
+        </div>
+      </div>
+    </div>
+    </div>
+    <aside class="side px">
+      <h3>TOP 10</h3>
+      <p class="sub">PUNTOS EN 45 SEGUNDOS</p>
+      <div class="mini-tabs" id="ll-lb-tabs"></div>
+      <ol class="lb" id="ll-lb"></ol>
+    </aside>
+  </section>
+</div>
+<script src="assets/js/arcade-transition.js"></script>
+<script type="module" src="assets/js/arcade/tiro.js"></script>
+</body>
+</html>

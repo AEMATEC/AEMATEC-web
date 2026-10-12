@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es" data-sitio="arcade">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Combate de Funciones del Arcade AEMATEC: dispara escribiendo funciones matemáticas.">
+<title>COMBATE DE FUNCIONES — Arcade AEMATEC</title>
+<link rel="icon" type="image/svg+xml" href="assets/logo-aematec-compas.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/arcade.css">
+<link rel="stylesheet" href="assets/css/arcade-juegos.css">
+<!-- Temas de temporada también en el Arcade (en 8 bits): ver assets/js/temas.js y temas-pixel.js -->
+<script src="assets/js/temas.js" defer></script>
+</head>
+<body data-juego="funciones">
+<div class="wrap">
+  <section class="game on" id="g-funciones">
+    <div class="main px">
+      <div class="splash" data-g="funciones"><canvas width="160" height="72" aria-hidden="true"></canvas><h2>COMBATE DE FUNCIONES</h2><p>ESCRIBE UNA FUNCIÓN Y DISPARA SU GRÁFICA CONTRA TUS RIVALES. ¡OJO CON EL FUEGO AMIGO!</p><button class="btn red">INICIAR</button></div>
+      <div class="gbody" hidden>
+        <div id="fc-setup">
+          <div class="rc-sec"><h4>FORMATO</h4><div class="pick" id="fc-fmt"></div></div>
+          <div class="rc-sec"><h4>PISTA</h4><div class="pick" id="fc-track"></div></div>
+          <div class="rc-sec" id="fc-seats-sec"><h4>JUGADORES (SOLO PARTIDA LOCAL)</h4><div id="fc-seats"></div><p class="sub" id="fc-seats-lbl"></p></div>
+          <div class="rc-sec" id="fc-bot-sec"><h4>DIFICULTAD DE LOS BOTS</h4><div class="pick" id="fc-bot"></div></div>
+          <div class="rc-sec fc-opts">
+            <div><h4>TIEMPO POR TURNO</h4><div class="fc-step"><button class="btn" id="fc-ts-m" aria-label="Menos tiempo">−</button><span id="fc-ts-v" class="tag">20 s</span><button class="btn" id="fc-ts-p" aria-label="Más tiempo">+</button></div></div>
+            <div><h4>VISTA PREVIA DEL DISPARO</h4><button class="btn gray" id="fc-prev-t">NO</button></div>
+          </div>
+        </div>
+        <div id="fc-menu">
+          <h4>¿CÓMO QUIERES JUGAR?</h4>
+          <div class="row left"><button class="btn green" id="fc-local">JUGAR LOCAL (MISMA PANTALLA)</button></div>
+          <div class="row left">
+            <button class="btn" id="fc-create">CREAR SALA ONLINE</button>
+            <input id="fc-code" class="px-in" placeholder="CÓDIGO" maxlength="5">
+            <button class="btn orange" id="fc-join">UNIRSE</button>
+          </div>
+          <p class="msg" id="fc-menu-msg" style="text-align:left" aria-live="polite"></p>
+          <div class="row left spec-toggle">
+            <button class="btn gray" id="fc-spec-btn">👁 SALAS EN VIVO</button>
+          </div>
+          <ul class="spec-list" id="fc-spec-list" hidden></ul>
+        </div>
+        <div id="fc-lobby" hidden>
+          <div class="rc-top"><span class="tag" id="fc-room"></span><button class="btn gray" id="fc-leave">SALIR</button></div>
+          <p class="sub" id="fc-lobby-msg"></p>
+          <ul class="plist" id="fc-plist"></ul>
+          <div class="row left"><button class="btn green" id="fc-go">¡EMPEZAR!</button></div>
+        </div>
+        <div id="fc-game" hidden>
+          <div class="fc-bar"><span id="fc-turn"></span><span id="fc-time"><span id="fc-clock"></span> <span id="fc-mov"></span></span></div>
+          <div class="stage">
+            <canvas id="fc-cv" width="400" height="240" role="img" aria-label="Campo de batalla de Combate de Funciones"></canvas>
+            <div class="over" id="fc-over" hidden>
+              <h3 id="fc-over-t" style="font-size:16px"></h3>
+              <p id="fc-over-p"></p>
+              <div class="row"><button class="btn green" id="fc-again">OTRA PARTIDA</button><button class="btn gray" id="fc-exit">MENÚ</button></div>
+            </div>
+          </div>
+          <div id="fc-place" class="fc-row"><button class="btn orange" id="fc-rand">COLOCAR AL AZAR</button><button class="btn green" id="fc-ready">¡LISTO!</button></div>
+          <div id="fc-ctrl" hidden>
+            <div class="fc-row">
+              <label for="fc-fx">y =</label>
+              <input id="fc-fx" class="px-in fx" placeholder="0.5x + sin(x)" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="text">
+              <button class="btn" id="fc-dir">DER ▶</button>
+              <button class="btn red" id="fc-fire">¡DISPARAR!</button>
+            </div>
+            <div class="fc-row">
+              <span class="mv"><button class="btn" data-m="l" aria-label="Izquierda">◀</button><button class="btn" data-m="u" aria-label="Arriba">▲</button><button class="btn" data-m="d" aria-label="Abajo">▼</button><button class="btn" data-m="r" aria-label="Derecha">▶</button></span>
+              <span class="ex" id="fc-help">FUNCIONES BÁSICAS:
+                <button data-ex="x">x</button><button data-ex="x^2">x^2</button><button data-ex="ln(x)">ln(x)</button><button data-ex="e^x">e^x</button><button data-ex="sin(x)">sin(x)</button><button data-ex="cos(x)">cos(x)</button><button data-ex="abs(x)">abs(x)</button>
+              </span>
+            </div>
+          </div>
+          <div class="fc-row"><span id="fc-msg" class="sub"></span><button class="btn gray" id="fc-pi">CAMBIAR A π</button><button class="btn gray" id="fc-quit">ABANDONAR</button></div>
+        </div>
+      </div>
+    </div>
+    <aside class="side px">
+      <h3>TOP 10</h3>
+      <p class="sub">VICTORIAS</p>
+      <ol class="lb" id="fc-lb"></ol>
+      <h4 style="margin-top:16px">CÓMO SE JUEGA</h4>
+      <p class="howto">1. CADA EQUIPO COLOCA 4 PERSONAJES EN SU ZONA (SI SON 2 JUGADORES, 2 CADA UNO).<br>2. EN TU TURNO (20 s O LO QUE ELIJAN) PUEDES MOVERTE UN POCO Y DISPARAR.<br>3. ESCRIBE y = f(x). LA GRÁFICA SE SUBE O BAJA PARA PASAR POR TU PERSONAJE Y AVANZA HACIA DONDE APUNTAS. x ES LA POSICIÓN REAL EN EL MAPA: x^2 TIENE SU VÉRTICE EN x = 0, NO EN TI. PARA MOVERLO USA (x−a)^2.<br>4. SI SE ACABA EL TIEMPO, SE DISPARA LO QUE ESCRIBISTE. SI ESTÁ VACÍO O TIENE ERRORES, PIERDES EL TURNO.<br>5. SI TOCA A ALGUIEN, QUEDA ELIMINADO (¡TAMBIÉN TUS AMIGOS!).<br>6. LOS OBSTÁCULOS FRENAN LA CURVA Y SE ROMPEN.<br>7. «CAMBIAR A π» SOLO CAMBIA LOS RÓTULOS DEL EJE X (π ≈ 3.14). LA ESCALA ES LA MISMA: sin(x) CORTA EL EJE EN CADA π.<br>8. GANA EL ÚLTIMO EQUIPO EN PIE. CONTRA BOTS SOLO SUMAN AL TOP 10 LAS VICTORIAS EN DIFÍCIL.</p>
+    </aside>
+  </section>
+</div>
+<script src="assets/js/arcade-transition.js"></script>
+<script type="module" src="assets/js/arcade/funciones.js"></script>
+</body>
+</html>

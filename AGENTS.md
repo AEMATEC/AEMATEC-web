@@ -64,6 +64,7 @@ revisa la pestaña **Actions** del repositorio en GitHub.
   (necesita `npm install` también en `functions/`) y ejecuta
   `cd tests && npm install && npm test` (necesita Java). Todas las pruebas deben pasar.
 - Si cambiaste Functions: `cd functions && npm install && node -e "require('./index.js')"`.
+- Si cambiaste el Arcade: `node tests/revisar-arcade.mjs` (estructura de las páginas de los juegos) y prueba el juego en el navegador; si tiene partidas en línea, con dos sesiones.
 - Si cambiaste páginas: `node tests/revisar-paginas.mjs` y `node tests/revisar-enlaces.mjs` (también corren solos en
   cada PR). Si agregaste o cambiaste clases de Tailwind (en HTML o en `assets/js`), ejecuta `npm install && npm run css`
   y sube `assets/css/tailwind.css`; nunca lo edites a mano. Prueba la
@@ -93,36 +94,36 @@ revisa la pestaña **Actions** del repositorio en GitHub.
   en el nombre anterior para no romper enlaces guardados.
 
 ## Arcade
-`arcade.html` es aparte: tiene su propio estilo y su propio proyecto de Firebase (`arcade-matec`), no usa
-`layout.js` ni cuentas del sitio. Sus reglas no están en este repositorio: si un cambio del Arcade escribe datos
-nuevos, documéntalo para quien administra `arcade-matec` (ver `docs/arcade-firebase-cambios.md`).
+El Arcade (`arcade.html` y la página de cada juego) es aparte del resto del sitio: tiene su propio estilo
+(`assets/css/arcade-juegos.css`) y su propio proyecto de Firebase (`arcade-matec`), no usa `layout.js` ni cuentas del
+sitio. Sus reglas no están en este repositorio como algo que se publique solo: viven en `arcade-firebase/firestore.rules`
+(copia de referencia) y se copian a mano a la consola; si un cambio del Arcade escribe datos nuevos, documéntalo para quien
+administra `arcade-matec` (ver `docs/arcade-firebase-cambios.md`).
 
-El Arcade se está separando en archivos por juego, sin perder la experiencia de una sola página (cambiar de
-juego sigue siendo instantáneo, sin recargar). El patrón ya está en marcha:
-- `assets/js/arcade/core.js`: todo lo compartido (Firebase, `$`/`esc`/`store`, `SFX`, `LB`, sprites base
-  `sprite`/`scaled`/`pxCircle`/`SPR`, `EGG`, y el ajuste de tamaño `fitAll`/`fitOver`/`fitSoon`). Es un módulo
-  (`export`); cualquier juego, esté o no ya separado, importa de aquí lo que necesite.
-- Ya separados, como ejemplo del patrón a seguir: `assets/js/arcade/minas.js` (Buscaminas),
-  `assets/js/arcade/tiro.js` (Animal al Tiro), `assets/js/arcade/runner.js` (La Huida del Zorro) — los tres
-  sin partidas en línea, por eso se hicieron primero (menos riesgo).
-- Los juegos con partidas en línea (Batalla Naval, Carreras, Combate de Funciones, 21, Billar, Duelo del
-  Oeste, Golf, Cruzar la Calle) siguen dentro del `<script type="module">` de `arcade.html`, que importa de
-  `core.js` lo mismo que los ya separados. Sepáralos con más cuidado que los anteriores: prueba el modo en
-  línea de verdad (dos sesiones a la vez) después de separar cada uno, no solo el modo local/CPU.
-- Lo que NO se movió a `core.js` a propósito (`tab`, `goTab`, `GAMES`, el bucle `loop()` que llama al
-  tick/draw de cada juego activo, `drawSplash` con las miniaturas del menú, la navegación entre pestañas)
-  sigue en `arcade.html` porque conecta a TODOS los juegos a la vez. Un juego ya separado que necesite algo
-  de ahí (como `goTab`, que La Huida del Zorro usa para su botón "MENÚ") deja esa línea conectada desde
-  `arcade.html` en vez de importarla — no hay nada que importar todavía, `goTab` no vive en un archivo aparte.
-- Si un juego necesita algo propio en el ajuste de tamaño (como Buscaminas con el tamaño de sus celdas,
-  que `core.js` no puede conocer), que se registre en `FIT_EXTRAS` (exportado por `core.js`) desde su propio
-  archivo, en vez de que `core.js` tenga que conocer ese juego.
-- Antes de separar un juego, revisa con cuidado qué usan de él OTROS juegos o `drawSplash` (por ejemplo,
-  `RN_FOX_SPR` lo usa la miniatura del menú, y `pxCircle`/`sprite`/`scaled` los usa casi todo el Arcade) —
-  un símbolo usado fuera del bloque del juego tiene que exportarse, no puede quedar solo dentro del archivo
-  nuevo.
-
-**Tetris** es una página aparte (`tetris.html`, con `assets/js/arcade/tetris.js` y las reglas del juego en `tetris-motor.js`, probadas con `tests/tetris.test.js`). Usa `core.js` y `musica.js` (su canción es `musica/tetris.js`), y tiene el mismo encabezado, pestañas, panel y botones que arcade.html: `assets/css/tetris.css` es una COPIA del `<style>` de arcade.html (si cambias el estilo allá, cámbialo también ahí). Las pestañas de tetris.html abren `arcade.html?juego=<id>`; la pestaña TETRIS de arcade.html y la tarjeta del menú (`href` en `GAMES`) llevan a tetris.html. Sus reglas de Firebase (`tetris`, `tetris_vs`) viven en `arcade-firebase/firestore.rules` y se copian a mano.
+**Cada juego es una página aparte**, igual que el menú:
+- `arcade.html`: solo el menú «ESCOGE UN JUEGO» (tarjetas con `drawSplash`), el perfil y la intro.
+- Una página por juego, con su módulo en `assets/js/arcade/`: `minas.html`, `batalla.html`, `tiro.html`, `carreras.html`,
+  `funciones.html`, `casino21.html`, `billar.html`, `duelo.html`, `runner.html`, `golf.html`, `cruce.html` y `tetris.html`
+  (módulos `minas.js`, `batalla.js`, `tiro.js`, `carreras.js`, `funciones.js`, `casino21.js`, `billar.js`, `duelo.js`, `runner.js`,
+  `golf.js`, `cruce.js` y `tetris.js`; el Tetris tiene además sus reglas en `tetris-motor.js`, probadas con `tests/tetris.test.js`).
+- Una página de juego solo trae `<body data-juego="<id>">` y la `<section class="game on" id="g-<id>">` del juego. Lo demás lo
+  ponen los módulos compartidos:
+  - `shell.js`: encabezado, barra de pestañas (con `JUEGOS` de `juegos.js`), créditos y las ventanas de «subir puntaje» y del
+    huevo de pascua. **Debe ser lo primero que importa el módulo del juego** (`import './shell.js';`), antes que `core.js`.
+  - `pagina.js`: portada con el botón INICIAR, música del juego, `bucle(dt, now)` de dibujo, `goTab('menu')`, `pickRow`,
+    `pedirAbandonar`.
+  - `core.js`: Firebase, `$`/`esc`/`store`, `SFX`, `LB`, sprites base, ajuste de tamaño (`fitAll`…). Si un juego necesita algo propio
+    en el ajuste de tamaño, se registra en `FIT_EXTRAS` desde su archivo.
+  - `compartido-juegos.js`: sprites y datos que usan a la vez un juego y las miniaturas del menú o el perfil (`vspr`, `soldier`,
+    `blBallImg`, `crDrawFrog`, `RN_FOX_SPR`, `tgt`, `MODES`, `TRACKS`, `rcLbKey`…). Un símbolo que usa otra página va aquí, no dentro
+    del archivo del juego.
+  - `portadas.js`: `drawSplash` (miniatura del menú y portada de cada juego).
+- Para agregar un juego: página + módulo (copia `tetris.html`/`tetris.js` o `minas.html`/`minas.js`), agrégalo a `JUEGOS`
+  (`juegos.js`), dibuja su miniatura en `portadas.js`, su canción en `musica/<id>.js` y, si tiene récords, su clave en el catálogo del
+  perfil (`pfCatalogoRecords` en `arcade.html`).
+- Los juegos con partidas en línea (Batalla Naval, Carreras, Combate de Funciones, 21, Billar, Duelo del Oeste, Golf, Cruzar la Calle,
+  Tetris) se prueban de verdad con dos sesiones a la vez (emulador de Firestore con `arcade-firebase/firestore.rules`).
+- Los enlaces viejos `arcade.html?juego=<id>` redirigen a la página del juego (y `?juego=perfil` abre el perfil sin intro).
 
 Hay un agente por juego (`.claude/agents/juego-*.md`) con los detalles de cada uno (prefijo de su estado,
 si tiene modo en línea, en qué archivo vive). También hay `mejorar-menu-arcade` (menú, miniaturas,

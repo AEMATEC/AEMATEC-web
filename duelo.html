@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es" data-sitio="arcade">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Duelo del Oeste del Arcade AEMATEC: un duelo de reflejos.">
+<title>DUELO DEL OESTE — Arcade AEMATEC</title>
+<link rel="icon" type="image/svg+xml" href="assets/logo-aematec-compas.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/arcade.css">
+<link rel="stylesheet" href="assets/css/arcade-juegos.css">
+<!-- Temas de temporada también en el Arcade (en 8 bits): ver assets/js/temas.js y temas-pixel.js -->
+<script src="assets/js/temas.js" defer></script>
+</head>
+<body data-juego="duelo">
+<div class="wrap">
+  <section class="game on" id="g-duelo">
+    <div class="main px">
+      <div class="splash" data-g="duelo"><canvas width="160" height="72" aria-hidden="true"></canvas><h2>DUELO DEL OESTE</h2><p>UN DUELO DE REFLEJOS: CUENTA REGRESIVA, ESPERA EL "¡YA!" Y DISPARA ANTES QUE EL RIVAL. AL MEJOR DE 3.</p><button class="btn red">INICIAR</button></div>
+      <div class="gbody" hidden>
+        <div id="dl-menu">
+          <h4>¿CÓMO QUIERES JUGAR?</h4>
+          <div class="pick" id="dl-bot"></div>
+          <div class="row left"><button class="btn green" id="dl-cpu">VS CPU (VAQUERO ROBOT)</button></div>
+          <div class="row left"><button class="btn" id="dl-local">2 JUGADORES (MISMO EQUIPO)</button></div>
+          <div class="row left">
+            <button class="btn" id="dl-create">CREAR SALA ONLINE</button>
+            <input id="dl-code" class="px-in" placeholder="CÓDIGO" maxlength="5">
+            <button class="btn orange" id="dl-join">UNIRSE</button>
+          </div>
+          <p class="msg" id="dl-menu-msg" style="text-align:left" aria-live="polite"></p>
+        </div>
+        <div id="dl-local-setup" hidden>
+          <h4>ELIJAN SOMBRERO Y PONCHO</h4>
+          <div class="dl-pickers"><div class="dl-pick" id="dl-pick-a"></div><div class="dl-pick" id="dl-pick-b"></div></div>
+          <div class="row"><button class="btn green" id="dl-local-go">¡A DUELO!</button><button class="btn gray" id="dl-local-back">MENÚ</button></div>
+        </div>
+        <div id="dl-lobby" hidden>
+          <div class="rc-top"><span class="tag" id="dl-room"></span><button class="btn gray" id="dl-leave">SALIR</button></div>
+          <p class="sub" id="dl-lobby-msg"></p>
+          <ul class="plist" id="dl-plist"></ul>
+          <div class="dl-pickers"><div class="dl-pick" id="dl-pick-me"></div><div class="dl-pick" id="dl-pick-opp"></div></div>
+          <div class="row left"><button class="btn green" id="dl-go">¡EMPEZAR!</button></div>
+        </div>
+        <div id="dl-game" hidden>
+          <div class="fc-bar">
+            <span id="dl-turn"></span>
+            <span id="dl-score"></span>
+          </div>
+          <div class="stage">
+            <canvas id="dl-cv" width="480" height="220" role="img" aria-label="Escena del Duelo del Oeste"></canvas>
+            <div class="over" id="dl-over" hidden>
+              <h3 id="dl-over-t" style="font-size:16px"></h3>
+              <p id="dl-over-p"></p>
+              <div class="row"><button class="btn green" id="dl-again">OTRA PARTIDA</button><button class="btn gray" id="dl-exit">MENÚ</button></div>
+            </div>
+          </div>
+          <p class="msg" id="dl-msg" aria-live="polite"></p>
+          <div class="row"><button class="btn red" id="dl-fire" hidden>¡DISPARAR!</button></div>
+          <div class="row" id="dl-fire2" hidden><button class="btn red" id="dl-fire-a">J1: ¡DISPARAR! (A)</button><button class="btn red" id="dl-fire-b">J2: ¡DISPARAR! (L)</button></div>
+          <p class="sub dl-best" id="dl-best"></p>
+          <div class="row"><button class="btn gray" id="dl-quit">ABANDONAR</button></div>
+        </div>
+      </div>
+    </div>
+    <aside class="side px">
+      <h3>TOP 10</h3>
+      <div class="mini-tabs" id="dl-lb-tabs"><button class="btn" data-k="duelo">GANADOS</button><button class="btn" data-k="duelo_reaccion">REACCIÓN</button></div>
+      <p class="sub" id="dl-lb-sub">DUELOS GANADOS VS CPU</p>
+      <ol class="lb" id="dl-lb"></ol>
+      <h4 style="margin-top:16px">CONTROLES</h4>
+      <p class="howto">ESPACIO O EL BOTÓN ¡DISPARAR!: DISPARA EN CUANTO APAREZCA "¡YA!" EN PANTALLA.<br><br><b>2 JUGADORES:</b> J1 DISPARA CON LA TECLA A Y J2 CON LA TECLA L (O CADA QUIEN TOCA SU BOTÓN).</p>
+      <h4 style="margin-top:16px">CÓMO SE JUEGA</h4>
+      <p class="howto">CUENTA REGRESIVA 3, 2, 1… Y UNA ESPERA SORPRESA ANTES DEL "¡YA!". SI DISPARAS ANTES DE TIEMPO, PIERDES LA RONDA. GANA LA RONDA QUIEN DISPARE PRIMERO DESPUÉS DEL "¡YA!". GANA EL DUELO QUIEN GANE 2 DE 3 RONDAS.<br><br><b>REACCIÓN:</b> SE GUARDA TU MEJOR TIEMPO (EN MS) AL DISPARAR BIEN DESPUÉS DEL "¡YA!", VS CPU O EN LÍNEA. EN 2 JUGADORES NO CUENTA.</p>
+    </aside>
+  </section>
+</div>
+<script src="assets/js/arcade-transition.js"></script>
+<script type="module" src="assets/js/arcade/duelo.js"></script>
+</body>
+</html>

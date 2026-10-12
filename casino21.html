@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es" data-sitio="arcade">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Casino 21 (blackjack) del Arcade AEMATEC: contra el crupier o en una mesa en línea.">
+<title>CASINO 21 — Arcade AEMATEC</title>
+<link rel="icon" type="image/svg+xml" href="assets/logo-aematec-compas.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/arcade.css">
+<link rel="stylesheet" href="assets/css/arcade-juegos.css">
+<!-- Temas de temporada también en el Arcade (en 8 bits): ver assets/js/temas.js y temas-pixel.js -->
+<script src="assets/js/temas.js" defer></script>
+</head>
+<body data-juego="21">
+<div class="wrap">
+  <section class="game on" id="g-21">
+    <div class="main px">
+      <div class="splash" data-g="21"><canvas width="160" height="72" aria-hidden="true"></canvas><h2>CASINO 21</h2><p>SIÉNTATE A LA MESA CONTRA EL CRUPIER (CPU). LLEGA A 21 SIN PASARTE.</p><button class="btn red">INICIAR</button></div>
+      <div class="gbody" hidden>
+        <div id="bj-menu">
+          <h4>¿CÓMO QUIERES JUGAR?</h4>
+          <div class="row left"><button class="btn green" id="bj-local">JUGAR SOLO VS CRUPIER</button></div>
+          <div class="row left">
+            <button class="btn" id="bj-create">CREAR MESA ONLINE</button>
+            <input id="bj-code" class="px-in" placeholder="CÓDIGO" maxlength="5">
+            <button class="btn orange" id="bj-join">UNIRSE</button>
+          </div>
+          <p class="msg" id="bj-menu-msg" style="text-align:left" aria-live="polite"></p>
+          <div class="row left spec-toggle">
+            <button class="btn gray" id="bj-spec-btn">👁 MESAS EN VIVO</button>
+          </div>
+          <ul class="spec-list" id="bj-spec-list" hidden></ul>
+        </div>
+        <div id="bj-lobby" hidden>
+          <div class="rc-top"><span class="tag" id="bj-room"></span><button class="btn gray" id="bj-leave">SALIR</button></div>
+          <p class="sub" id="bj-lobby-msg"></p>
+          <ul class="plist" id="bj-plist"></ul>
+          <div class="row left"><button class="btn green" id="bj-go">¡REPARTIR!</button></div>
+        </div>
+        <div id="bj-game" hidden>
+          <div class="rc-top">
+            <span class="tag" id="bj-room2"></span>
+            <span id="bj-spec-badge" class="badge" hidden>👁 ESPECTADOR</span>
+            <button class="btn gray" id="bj-toggle-val">OCULTAR VALOR</button>
+            <button class="btn gray" id="bj-quit">SALIR</button>
+          </div>
+          <div class="bj-table">
+            <div class="bj-dealer">
+              <div class="bj-name">CRUPIER (CPU)</div>
+              <div class="bj-cards" id="bj-dealer-cards"></div>
+              <div class="bj-val" id="bj-dealer-val"></div>
+            </div>
+            <div class="bj-seats" id="bj-seats"></div>
+          </div>
+          <p class="msg" id="bj-msg" aria-live="polite"></p>
+          <div class="bj-ctrl" id="bj-ctrl">
+            <button class="btn green" id="bj-hit">PEDIR</button>
+            <button class="btn orange" id="bj-stand">PLANTARSE</button>
+          </div>
+          <div class="row" id="bj-again-row" hidden><button class="btn green" id="bj-again">OTRA MANO</button></div>
+        </div>
+      </div>
+    </div>
+    <aside class="side px">
+      <h3>TOP 10</h3>
+      <p class="sub">MANOS GANADAS</p>
+      <ol class="lb" id="bj-lb"></ol>
+      <h4 style="margin-top:16px">CÓMO SE JUEGA</h4>
+      <p class="howto">1. ENTRA SOLO O CREA/ÚNETE A UNA MESA (MÁX. 5).<br>2. CADA JUGADOR RECIBE 2 CARTAS; EL CRUPIER TAMBIÉN (UNA OCULTA).<br>3. EN TU TURNO: PEDIR CARTA O PLANTARTE.<br>4. TE PASAS DE 21 Y PIERDES AUTOMÁTICAMENTE.<br>5. EL CRUPIER PIDE HASTA LLEGAR A 17.<br>6. GANA QUIEN SE ACERQUE MÁS A 21 SIN PASARSE.</p>
+    </aside>
+  </section>
+</div>
+<script src="assets/js/arcade-transition.js"></script>
+<script type="module" src="assets/js/arcade/casino21.js"></script>
+</body>
+</html>

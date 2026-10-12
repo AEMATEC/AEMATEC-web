@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es" data-sitio="arcade">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Cruzar la Calle del Arcade AEMATEC: solo o hasta cuatro en línea.">
+<title>CRUZAR LA CALLE — Arcade AEMATEC</title>
+<link rel="icon" type="image/svg+xml" href="assets/logo-aematec-compas.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/arcade.css">
+<link rel="stylesheet" href="assets/css/arcade-juegos.css">
+<!-- Temas de temporada también en el Arcade (en 8 bits): ver assets/js/temas.js y temas-pixel.js -->
+<script src="assets/js/temas.js" defer></script>
+</head>
+<body data-juego="cruce">
+<div class="wrap">
+  <section class="game on" id="g-cruce">
+    <div class="main px">
+      <div class="splash" data-g="cruce"><canvas width="160" height="72" aria-hidden="true"></canvas><h2>CRUZAR LA CALLE</h2><p>ESQUIVA LOS CARROS Y LOS CAMIONES Y CRUZA EL RÍO SUBIDO EN TRONCOS Y TORTUGAS. LLEGA A LA META SIN CAER AL AGUA NI QUE TE ATROPELLEN. TIENES 3 VIDAS.</p><button class="btn red">INICIAR</button></div>
+      <div class="gbody" hidden>
+        <div id="cr-menu">
+          <h4>¿CÓMO QUIERES JUGAR?</h4>
+          <div class="row left"><button class="btn green" id="cr-local">JUGAR SOLO</button></div>
+          <div class="row left">
+            <button class="btn" id="cr-create">CREAR PARTIDA ONLINE</button>
+            <input id="cr-code" class="px-in" placeholder="CÓDIGO" maxlength="5">
+            <button class="btn orange" id="cr-join">UNIRSE</button>
+          </div>
+          <p class="msg" id="cr-menu-msg" style="text-align:left" aria-live="polite"></p>
+          <div class="row left spec-toggle">
+            <button class="btn gray" id="cr-spec-btn">👁 PARTIDAS EN VIVO</button>
+          </div>
+          <ul class="spec-list" id="cr-spec-list" hidden></ul>
+        </div>
+        <div id="cr-lobby" hidden>
+          <div class="rc-top"><span class="tag" id="cr-room"></span><button class="btn gray" id="cr-leave">SALIR</button></div>
+          <p class="sub" id="cr-lobby-msg"></p>
+          <ul class="plist" id="cr-plist"></ul>
+          <div class="row left"><button class="btn green" id="cr-go">¡EMPEZAR!</button></div>
+        </div>
+        <div id="cr-game" hidden>
+          <div class="rc-top">
+            <span class="tag" id="cr-room2" hidden></span>
+            <span id="cr-spec-badge" class="badge" hidden>👁 ESPECTADOR</span>
+            <button class="btn gray" id="cr-quit">SALIR</button>
+          </div>
+          <div class="fc-bar">
+            <span id="cr-status"></span>
+            <span id="cr-score"></span>
+          </div>
+          <ul class="plist" id="cr-players" hidden></ul>
+          <div class="stage">
+            <canvas id="cr-cv" width="416" height="416" role="img" aria-label="Tablero de Cruzar la Calle"></canvas>
+            <div class="over" id="cr-over" hidden>
+              <h3 style="font-size:16px">¡SE ACABARON TUS VIDAS!</h3>
+              <p id="cr-over-p"></p>
+              <div class="row"><button class="btn green" id="cr-again">OTRA VEZ</button><button class="btn gray" id="cr-exit">MENÚ</button></div>
+            </div>
+          </div>
+          <div class="touch">
+            <div><button class="btn gray" id="cr-left" aria-label="Izquierda">◄</button></div>
+            <div><button class="btn green" id="cr-up" aria-label="Arriba">▲</button></div>
+            <div><button class="btn gray" id="cr-down" aria-label="Abajo">▼</button></div>
+            <div><button class="btn gray" id="cr-right" aria-label="Derecha">►</button></div>
+          </div>
+          <p class="keys">FLECHAS O WASD PARA MOVERTE · TAMBIÉN PUEDES USAR LOS BOTONES</p>
+        </div>
+      </div>
+    </div>
+    <aside class="side px">
+      <h3>TOP 10</h3>
+      <p class="sub">MEJOR PUNTAJE</p>
+      <ol class="lb" id="cr-lb"></ol>
+      <h4 style="margin-top:16px">CÓMO SE JUEGA</h4>
+      <p class="howto">MUEVE CASILLA POR CASILLA CON LAS FLECHAS. LOS CARROS Y LOS CAMIONES BLANCOS (LARGOS PERO MÁS LENTOS) TE QUITAN UNA VIDA. CADA CARRIL TIENE SU PROPIA VELOCIDAD Y CANTIDAD DE CARROS, Y CON CADA NIVEL HAY MÁS Y VAN MÁS RÁPIDO. EN EL RÍO SOLO SOBREVIVES SUBIDO EN UN TRONCO O TORTUGA: SI CAES AL AGUA, PIERDES UNA VIDA. LLEGAR A UNA META SUMA PUNTOS, SUBE DE NIVEL (DÍA, NOCHE, DESIERTO O CIUDAD, CADA VEZ UN POCO MÁS RÁPIDO) Y TE MANDA OTRA VEZ AL INICIO. SE ACABA CON 3 VIDAS PERDIDAS. EN LÍNEA, HASTA 4 PERSONAS JUEGAN A LA VEZ: EN EL MISMO NIVEL TODAS VEN LOS MISMOS CARRILES (LAS RANAS QUE VAN EN OTRO NIVEL SE VEN TRANSPARENTES).</p>
+    </aside>
+  </section>
+</div>
+<script src="assets/js/arcade-transition.js"></script>
+<script type="module" src="assets/js/arcade/cruce.js"></script>
+</body>
+</html>

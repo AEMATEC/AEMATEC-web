@@ -25,7 +25,7 @@ dependen de él citan el artículo correspondiente en el código y en [`docs/PLA
 | Asistente | todas las que usan el encabezado común (`assets/js/chatbot.js`) | Botón flotante para buscar páginas (lista en `assets/js/site-pages.js`) y reportar un problema. Los reportes van a `chatbotReportes` y llegan por correo a moderación. No pide cuenta; el contacto es opcional. |
 | Trámites | `tramites.html` | Solicitudes a la Junta, postulaciones, AGEC extraordinaria (con adhesiones) y consultas o denuncias a Fiscalía (anónimas o no). Se verifica el correo `@estudiantec.cr` con un enlace, sin contraseña. Incluye "Mis trámites" y seguimiento de casos anónimos por código. |
 | Privacidad y términos | `legal.html` | Política de privacidad (Ley 8968), términos de uso y política de cookies. Enlazada desde el pie de página y desde cada formulario. Si cambias qué datos pide un formulario, actualiza su tabla. Ver [`docs/auditoria-legal.md`](docs/auditoria-legal.md). |
-| Arcade | `arcade.html` (botón flotante en todas las páginas, `assets/js/arcade-launcher.js`) | Minijuegos pixelados (buscaminas, batalla naval, carreras, etc.) hechos por un estudiante. Es una página aparte, con su propio estilo y su propio proyecto de Firebase (`arcade-matec`, distinto del sitio); no usa cuentas ni datos del padrón. Público, sin inicio de sesión. Sus reglas de Firebase no están en este repositorio: si un cambio escribe datos nuevos, documéntalo para quien administra `arcade-matec` (ver `docs/arcade-firebase-cambios.md`). |
+| Arcade | `arcade.html` (menú, perfil e intro; botón flotante en todas las páginas, `assets/js/arcade-launcher.js`) y **una página por juego**: `minas.html`, `batalla.html`, `tiro.html`, `carreras.html`, `funciones.html`, `casino21.html`, `billar.html`, `duelo.html`, `runner.html`, `golf.html`, `cruce.html`, `tetris.html` | Minijuegos pixelados (buscaminas, batalla naval, carreras, etc.) hechos por un estudiante. Es una página aparte, con su propio estilo y su propio proyecto de Firebase (`arcade-matec`, distinto del sitio); no usa cuentas ni datos del padrón. Público, sin inicio de sesión. Sus reglas de Firebase no están en este repositorio: si un cambio escribe datos nuevos, documéntalo para quien administra `arcade-matec` (ver `docs/arcade-firebase-cambios.md`). |
 
 > **Nota de nombres:** el repositorio digital de materiales se llama **Repositorio** (antes "Biblioteca").
 > **Biblioteca** es solo la colección física de libros para préstamo del RI (Art. 128-129), que está en **Inventario → Biblioteca**.
@@ -52,7 +52,7 @@ quitarlas; si eres de la Junta y quieres fotos nuevas, pásaselas a quien manten
   asociación o con permiso de quien las tomó. No subas fotos donde se vea la cara de menores de edad (por ejemplo,
   colegiales en talleres o ferias) sin permiso escrito de su encargado o del colegio. Si alguien pide quitar una foto
   donde aparece, se quita (lo promete `legal.html`).
-- Antes de abrir el PR corre `node tests/revisar-paginas.mjs` y `node tests/revisar-enlaces.mjs`.
+- Antes de abrir el PR corre `node tests/revisar-paginas.mjs` y `node tests/revisar-enlaces.mjs` (y, si tocaste el Arcade, `node tests/revisar-arcade.mjs`: revisa que cada juego tenga su página, módulo, canción y miniatura).
 
 ## Roles y permisos
 

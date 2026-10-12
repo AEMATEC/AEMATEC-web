@@ -1,3 +1,7 @@
+import './shell.js';
+import { $, SFX, LB, sprite, pxCircle } from './core.js';
+import { goTab, bucle } from './pagina.js';
+import { RN_FOX_SPR } from './compartido-juegos.js';
 /* ============================================================
    LA HUIDA DEL ZORRO — corredor sin fin. Salta (Espacio/↑/tocar) los
    obstáculos del suelo; los que cuelgan desde arriba no se pueden
@@ -5,7 +9,6 @@
    son los metros recorridos: la velocidad sube con la distancia y
    cada 500 m cambia el escenario con una transición pixelada.
    ============================================================ */
-import { $, SFX, LB, pxCircle, sprite } from './core.js';
 
 const RN_CVW = 480, RN_CVH = 200, RN_GROUND = 160, RN_CHAR_X = 70;
 const RN_GRAVITY = 2200, RN_JUMP_V = 520;
@@ -39,95 +42,7 @@ const RN_THEMES = [
 /* Margen (px por lado) que se descuenta a la zona mortal de los huecos:
    rozar el borde con la pata ya no hace caer al zorro. Se dibujan igual. */
 const RN_PIT_MARGIN = 7;
-/* ---- Zorro: sprites 8-bit (escala 2). El juego solo avanza hacia la
-   derecha, así que el zorro siempre mira a la derecha. ---- */
-const RN_FOX_PAL = { K: '#2a1608', d: '#4a2a14', o: '#e8823c', O: '#b5541f', h: '#f7a65a', w: '#fff3d6', W: '#e0c9a0', k: '#11121c', e: '#ffffff' };
-const RN_FOX_TOP = [
-  "...................K..K.....",
-  "..................KdKKdK....",
-  "..................KdoKdoK...",
-  "..KKK............KhhhhhhhK..",
-  ".KwwwK..........KhoooookoKK.",
-  "KwwwhoK........KOoooooooooek",
-  "KwwhhooK.......KOowwwwwwwKK.",
-  ".KwhhoooKKKKKKKKOowwwwwK....",
-  "..KhooooohhhhhhhhowwwwwK....",
-  "...KoooooooooooooowwwwK.....",
-  "...KOooooooooooooowwwwK.....",
-  "....KOOoooooooooooOwwK......",
-  ".....KKOOWWWWWWOOOOOK.......",
-  "......KKKKKKKKKKKKKK........"
-];
-const RN_FOX_LEGS = {
-  a: [
-    "....KoOK........KooK........",
-    "...KoOK..........KooK.......",
-    "..KddK............KddK......",
-    ".KddK..............KddK.....",
-    ".KKK................KKK....."],
-  b: [
-    ".....KoOK......KooK.........",
-    ".....KoOK......KooK.........",
-    ".....KddK......KddK.........",
-    ".....KddK......KddK.........",
-    ".....KKKKK.....KKKKK........"],
-  c: [
-    ".......KoOK..KooK...........",
-    "........KoOKKooK............",
-    "........KddKKddK............",
-    "........KddKKddK............",
-    "........KKKKKKKKK..........."],
-  up: [
-    "...KoOK..........KooK.......",
-    "..KddK.............KddK.....",
-    ".KddK..............KKKK.....",
-    ".KKK........................",
-    "............................"],
-  down: [
-    ".....KoOK........KooK.......",
-    ".....KddK.........KddK......",
-    ".....KKKK.........KddK......",
-    "..................KKKK......",
-    "............................"]
-};
-const RN_FOX_DUCK_TOP = [
-  "...................KK.KK......",
-  "..KKK.............KdKKdKK.....",
-  ".KwwwK..KKKKKKKKKKhhhhhhhK....",
-  "KwwwhhKKhhhhhhhhhhoooookoKKK..",
-  "KwwhhoooooooooooooooooooooeK..",
-  ".KKhooooooooooooooOowwwwwwwkK.",
-  "...KKOOOOOOOOOOOOOOowwwwwKKK..",
-  "....KKOOWWWWWWWWOOOwwwwK......"
-];
-// Cada cuadro de RN_FOX_LEGS solo trae un par de patas (delantera y trasera): para que se vean
-// las 4, se dibuja debajo un segundo par —oscurecido, como si estuviera un paso atrás— tomado de
-// otro cuadro del mismo ciclo de carrera (misma paleta, sin inventar arte nuevo).
-const RN_FOX_FAR_LEG = { a: 'c', b: 'a', c: 'b', up: 'down', down: 'up' };
-function rnFoxOscurecer(hex) {
-  const n = parseInt(hex.slice(1), 16);
-  const r = Math.max(0, (n >> 16) - 45), g = Math.max(0, ((n >> 8) & 255) - 45), b = Math.max(0, (n & 255) - 45);
-  return `rgb(${r},${g},${b})`;
-}
-export const RN_FOX_SPR = (() => {
-  const s = {};
-  const scale = 2, topRows = RN_FOX_TOP.length;
-  Object.keys(RN_FOX_LEGS).forEach(k => {
-    const rows = [...RN_FOX_TOP, ...RN_FOX_LEGS[k]];
-    const c = document.createElement('canvas'); c.width = rows[0].length * scale; c.height = rows.length * scale;
-    const ctx = c.getContext('2d');
-    RN_FOX_LEGS[RN_FOX_FAR_LEG[k]].forEach((r, y) => [...r].forEach((ch, X) => {
-      if (RN_FOX_PAL[ch]) { ctx.fillStyle = rnFoxOscurecer(RN_FOX_PAL[ch]); ctx.fillRect(X * scale, (topRows + y) * scale, scale, scale); }
-    }));
-    rows.forEach((r, y) => [...r].forEach((ch, X) => { if (RN_FOX_PAL[ch]) { ctx.fillStyle = RN_FOX_PAL[ch]; ctx.fillRect(X * scale, y * scale, scale, scale); } }));
-    s[k] = c;
-  });
-  s.duck = [
-    sprite([...RN_FOX_DUCK_TOP, "......KddK.......KddKKK.......", "......KKKK.......KKKK........."], RN_FOX_PAL, 2),
-    sprite([...RN_FOX_DUCK_TOP, "........KddK.......KddK.......", "........KKKK.......KKKK......."], RN_FOX_PAL, 2)
-  ];
-  return s;
-})();
+
 const RN_RUN_CYCLE = ['a', 'b', 'c', 'b'];
 /* ---- Fondo con parallax: cada capa se pre-dibuja una sola vez por
    escenario en un canvas fuera de pantalla (mosaico de 480 px que se
@@ -232,7 +147,7 @@ const RN_PIX_ORDER = (() => {
   for (let i = arr.length - 1; i > 0; i--) { const j = (Math.random() * (i + 1)) | 0;[arr[i], arr[j]] = [arr[j], arr[i]]; }
   return arr;
 })();
-export const RN = {
+const RN = {
   state: 'idle', y: 0, vy: 0, onGround: true, duck: false, duckHeld: false,
   speed: RN_BASE_SPEED, dist: 0, obstacles: [], spawnCd: 60, themeIdx: 0, themeStage: 0, pendingTheme: 0,
   transitionT: 0, t: 0, nextPlatformAt: 220
@@ -245,7 +160,7 @@ function rnReset() {
   RN.nextPlatformAt = 220 + Math.random() * 120;
 }
 function rnStart() { rnReset(); RN.state = 'playing'; $('#rn-over').hidden = true; SFX.play('start'); }
-export function rnJumpPress() {
+function rnJumpPress() {
   if (RN.state !== 'playing') { if (RN.state !== 'transition') rnStart(); return; }
   if (RN.onGround) { RN.vy = -RN_JUMP_V; RN.onGround = false; SFX.play('bump'); }
 }
@@ -304,7 +219,7 @@ function rnCheckHit() {
   }
   return false;
 }
-export function rnStep(dt) {
+function rnStep(dt) {
   RN.t += dt;
   if (RN.state === 'transition') {
     RN.transitionT += dt * 1000;
@@ -458,7 +373,7 @@ function rnDrawChar(ctx) {
   // El hitbox (x ± 8) queda sobre el pecho y las patas delanteras; la cola va detrás.
   ctx.drawImage(spr, x - (RN.duck ? 40 : 38), gy - spr.height + bob);
 }
-export function rnDraw() {
+function rnDraw() {
   const cv = $('#rn-cv'); if (!cv || !cv.offsetParent) return;
   const ctx = cv.getContext('2d'); ctx.imageSmoothingEnabled = false;
   ctx.textAlign = 'center';
@@ -497,4 +412,13 @@ rnDuckBtn.addEventListener('pointerdown', e => { e.preventDefault(); RN.duckHeld
 ['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => rnDuckBtn.addEventListener(ev, () => { RN.duckHeld = false; }));
 $('#rn-again').onclick = () => { SFX.play('start'); rnStart(); };
 rnLB();
-// $('#rn-exit') se conecta desde arcade.html (necesita goTab, que no vive en un archivo aparte todavía).
+
+// --- conexión con la página (antes en arcade.html) ---
+$('#rn-exit').onclick = () => goTab('menu');
+bucle(dt => { if (RN.state === 'playing' || RN.state === 'transition') rnStep(dt); rnDraw(); });
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT') return;
+  if ((e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') && !e.repeat) { e.preventDefault(); rnJumpPress(); }
+  else if (e.code === 'ArrowDown' || e.code === 'KeyS') { e.preventDefault(); RN.duckHeld = true; }
+});
+document.addEventListener('keyup', e => { if (e.code === 'ArrowDown' || e.code === 'KeyS') RN.duckHeld = false; });

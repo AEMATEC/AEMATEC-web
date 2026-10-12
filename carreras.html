@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es" data-sitio="arcade">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Carreras del Arcade AEMATEC: cuatro pistas, uno o dos jugadores y en línea.">
+<title>CARRERAS — Arcade AEMATEC</title>
+<link rel="icon" type="image/svg+xml" href="assets/logo-aematec-compas.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/arcade.css">
+<link rel="stylesheet" href="assets/css/arcade-juegos.css">
+<!-- Temas de temporada también en el Arcade (en 8 bits): ver assets/js/temas.js y temas-pixel.js -->
+<script src="assets/js/temas.js" defer></script>
+</head>
+<body data-juego="carreras">
+<div class="wrap">
+  <section class="game on" id="g-carreras">
+    <div class="main px">
+      <div class="splash" data-g="carreras"><canvas width="160" height="72" aria-hidden="true"></canvas><h2>CARRERAS</h2><p>BICICLETA, PATINETA O PATINES · 4 CIRCUITOS · LOCAL U ONLINE</p><button class="btn red">INICIAR</button></div>
+      <div class="gbody" hidden>
+      <div id="rc-setup">
+        <div class="rc-sec">
+          <h4 id="rc-p1-title">PERSONAJE</h4>
+          <div class="pick" id="rc-char"></div>
+        </div>
+        <div class="rc-sec">
+          <h4>VEHÍCULO</h4>
+          <div class="pick" id="rc-veh"></div>
+        </div>
+        <div class="rc-sec" id="rc-p2" hidden>
+          <h4>JUGADOR 2 (FLECHAS)</h4>
+          <div class="pick" id="rc-char2"></div>
+          <div class="pick" id="rc-veh2"></div>
+        </div>
+        <div class="rc-sec" id="rc-track-sec">
+          <h4>CIRCUITO</h4>
+          <div class="pick" id="rc-track"></div>
+        </div>
+        <div class="rc-sec" id="rc-col-sec">
+          <h4>COLISIONES ENTRE JUGADORES</h4>
+          <div class="pick rc-col" id="rc-col"></div>
+        </div>
+      </div>
+
+      <div id="rc-menu">
+        <h4>¿CÓMO QUIERES CORRER?</h4>
+        <div class="row left">
+          <button class="btn green" id="rc-local1">1 JUGADOR VS CPU</button>
+          <button class="btn green" id="rc-local2">2 JUGADORES LOCAL</button>
+        </div>
+        <div class="row left">
+          <button class="btn" id="rc-create">CREAR SALA ONLINE</button>
+          <input id="rc-code" class="px-in" placeholder="CÓDIGO" maxlength="5">
+          <button class="btn orange" id="rc-join">UNIRSE</button>
+        </div>
+        <p class="msg" id="rc-menu-msg" style="text-align:left" aria-live="polite"></p>
+        <div class="row left spec-toggle">
+          <button class="btn gray" id="rc-spec-btn">👁 SALAS EN VIVO</button>
+        </div>
+        <ul class="spec-list" id="rc-spec-list" hidden></ul>
+      </div>
+
+      <div id="rc-spectate" hidden>
+        <div class="rc-top">
+          <span class="tag" id="rc-spec-room"></span>
+          <button class="btn gray" id="rc-spec-leave">SALIR</button>
+        </div>
+        <p class="sub" id="rc-spec-msg"></p>
+        <ol class="lb" id="rc-spec-standings"></ol>
+      </div>
+
+      <div id="rc-lobby" hidden>
+        <div class="rc-top">
+          <span class="tag" id="rc-room"></span>
+          <button class="btn gray" id="rc-leave">SALIR</button>
+        </div>
+        <p class="sub" id="rc-lobby-msg"></p>
+        <ul class="plist" id="rc-plist"></ul>
+        <div class="row left"><button class="btn green" id="rc-go">¡INICIAR CARRERA!</button></div>
+      </div>
+
+      <div id="rc-race" hidden>
+        <div class="stage">
+          <canvas id="rc-cv" width="384" height="240" role="img" aria-label="Pista de Carreras"></canvas>
+          <div class="over" id="rc-res" hidden>
+            <h3 id="rc-res-title">RESULTADOS</h3>
+            <table class="res"><thead><tr><th>#</th><th>CORREDOR</th><th>TIEMPO</th><th>MEJOR VUELTA</th></tr></thead><tbody id="rc-res-body"></tbody></table>
+            <p class="sub" id="rc-res-msg"></p>
+            <div class="row">
+              <button class="btn green" id="rc-again">OTRA CARRERA</button>
+              <button class="btn gray" id="rc-exit">MENÚ</button>
+            </div>
+          </div>
+        </div>
+        <div class="touch">
+          <div><button class="btn" data-k="left" aria-label="Izquierda">◀</button><button class="btn" data-k="right" aria-label="Derecha">▶</button></div>
+          <div><button class="btn gray" data-k="down">FRENO</button><button class="btn green" data-k="up">GAS</button></div>
+        </div>
+        <p class="keys" id="rc-keys"></p>
+        <div class="row"><button class="btn gray" id="rc-quit">ABANDONAR</button></div>
+      </div>
+    </div>
+    </div>
+    <aside class="side px">
+      <h3>TOP 10</h3>
+      <p class="sub" id="rc-lb-sub">MEJOR VUELTA POR CIRCUITO</p>
+      <div class="mini-tabs rc-lb-modes" id="rc-lb-modes"></div>
+      <div class="mini-tabs" id="rc-lb-tabs"></div>
+      <ol class="lb" id="rc-lb"></ol>
+    </aside>
+  </section>
+</div>
+<script src="assets/js/arcade-transition.js"></script>
+<script type="module" src="assets/js/arcade/carreras.js"></script>
+</body>
+</html>

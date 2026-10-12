@@ -182,7 +182,7 @@ Ver la sección 3.3 para cómo se crean esas cuentas de moderador.
 
 El apodo de jugador (`name` en `leaderboards`) y el autor/nombre de una propuesta de Golf (`autor`,
 `nombre` en `golfHoyosPropuestos`) ahora tienen una regla de caracteres más estricta, además del filtro de
-contenido (groserías, teléfonos, correos) que ya hace `arcade.html` del lado del navegador antes de guardar
+contenido (groserías, teléfonos, correos) que ya hace el Arcade del lado del navegador antes de guardar
 nada:
 
 ```
@@ -225,7 +225,7 @@ Function. El segundo requisito (`arcadeModeradores`) hace falta porque solo la c
 cualquiera puede crearse una cuenta de correo/contraseña con la API pública de Firebase Auth, y desde los
 perfiles opcionales (sección 3.4) cualquier persona SÍ tiene de verdad una cuenta así. Hace falta que el
 **75% de los moderadores actuales (redondeado hacia arriba)** vote lo mismo para que una propuesta quede
-aprobada o rechazada; `gfpVotar()` en `arcade.html` guarda el correo de quien vota en `votosAprobar` o
+aprobada o rechazada; `gfpVotar()` en `assets/js/arcade/golf.js` guarda el correo de quien vota en `votosAprobar` o
 `votosRechazar` dentro del propio documento de la propuesta, cuenta cuántos moderadores hay (ver abajo) y
 decide si ya se alcanzó el 75%.
 
@@ -301,7 +301,7 @@ hay que diseñarlo juego por juego y probarlo en línea antes de publicar.
 
 Pantalla nueva "PERFIL" en el Arcade (pestaña del menú). Es **opcional**: se puede seguir jugando sin
 cuenta exactamente igual que antes. Toda la lógica vive en `assets/js/arcade/perfiles.js`; la pantalla, en
-el bloque "PERFIL" de `arcade.html`.
+la pantalla del perfil en `arcade.html`.
 
 **Cómo funciona sin correo real:** Firebase Auth no tiene un login "solo usuario", así que se arma un
 correo falso interno (`usuario + "@arcade.aematec.local"`) y se usa con las funciones normales de

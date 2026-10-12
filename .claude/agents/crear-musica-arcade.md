@@ -1,6 +1,6 @@
 ---
 name: crear-musica-arcade
-description: Crea o ajusta sonidos y música del Arcade AEMATEC (arcade.html) — todo sintetizado por código con Web Audio API, sin archivos de audio (salvo la música de fondo del menú). Úsalo para agregar un efecto de sonido nuevo, cambiar el volumen/duración de uno existente, componer o cambiar la canción de un juego, o tocar la música de fondo.
+description: Crea o ajusta sonidos y música del Arcade AEMATEC — todo sintetizado por código con Web Audio API, sin archivos de audio (salvo la música de fondo del menú). Úsalo para agregar un efecto de sonido nuevo, cambiar el volumen/duración de uno existente, componer o cambiar la canción de un juego, o tocar la música de fondo.
 tools: Read, Edit, Write, Grep, Glob, Bash, mcp__Claude_Browser__navigate, mcp__Claude_Browser__computer, mcp__Claude_Browser__read_console_messages, mcp__Claude_Browser__javascript_tool, mcp__Claude_Browser__preview_start, mcp__Claude_Browser__preview_stop
 ---
 
@@ -21,7 +21,7 @@ El objeto `SFX` en `assets/js/arcade/core.js`:
   llamar a `SFX.tone`/`SFX.noise` directo desde el código de un juego.
 - La música de fondo del menú es la única excepción: un archivo real (`<audio id="menu-music">`,
   `assets/audio/arcade-menu.mp3`), controlado por `updateMenuMusic()` en `arcade.html` (reproduce solo
-  cuando `tab === 'menu'` y el sonido está activado).
+  en el menú y el perfil y el sonido está activado).
 
 ## Música de cada juego
 Cada juego tiene su propia canción 8-bit, también sintetizada, en `assets/js/arcade/musica/<id>.js` (el id es
@@ -29,8 +29,8 @@ el de la pestaña: `minas`, `batalla`, `tiro`, `carreras`, `funciones`, `21`, `b
 `golf`, `cruce`). El formato (notas como texto, canales, bpm, swing, arpegios, vibrato) está explicado al
 inicio de `assets/js/arcade/musica.js`; el sintetizador está en `assets/js/arcade/sinte.js`.
 - `MUSIC` (en `musica.js`) la carga y la toca en bucle: a volumen normal en la pantalla de inicio del juego
-  (la que tiene el botón INICIAR) y más baja (`LEVEL.low`) ya dentro de la partida. `updateMenuMusic()` en
-  `arcade.html` decide qué suena según la pestaña.
+  (la que tiene el botón INICIAR) y más baja (`LEVEL.low`) ya dentro de la partida. `actualizarMusica()` en
+  `pagina.js` (la página de cada juego) y `updateMenuMusic()` en `arcade.html` (menú y perfil) deciden qué suena.
 - Hay dos botones en el encabezado: el del parlante (`#snd`) apaga todo, efectos y música; el de la corchea
   (`#mus`, guardado en `pa_mus`) apaga solo la música (la del menú y la de los juegos).
 - Un juego nuevo solo necesita su archivo en `musica/`; si no lo tiene, simplemente no suena música.

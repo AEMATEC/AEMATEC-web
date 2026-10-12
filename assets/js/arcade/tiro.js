@@ -1,19 +1,14 @@
+import './shell.js';
+import { $, esc, store, SFX, LB, scaled, pxCircle, SPR, EGG, fitSoon } from './core.js';
+import { splashOn, bucle } from './pagina.js';
+import { MODES, tgt } from './compartido-juegos.js';
 // ANIMAL AL TIRO
-import { $, esc, store, SFX, LB, EGG, scaled, pxCircle, SPR, fitSoon } from './core.js';
 
 const ANIMALS = {
   llama: { n: 'LLAMA', spr: SPR.llama, mouth: { x: 30, y: 9 } },
   erizo: { n: 'ERIZO', spr: SPR.erizo, mouth: { x: 31, y: 14 } },
 };
-/* Modo interno 'cont' = "DIANA CONTINUA". Su puntaje es ACIERTOS × PRECISIÓN%, con la precisión redondeada a
-   entero (la misma que se ve en el HUD): p. ej. 30 aciertos en 40 disparos → 75% → 30 × 75 = 2250 puntos.
-   Como cambió la escala, usa la clave de tabla 'tiro_diana' (la vieja 'tiro' ya no se muestra). */
-// Exportado para que el panel "Records" de perfiles (arcade.html) sepa qué claves de tabla existen,
-// sin tener que repetir esta lista a mano en otro archivo.
-export const MODES = {
-  cont: { n: 'DIANA CONTINUA', key: 'tiro_diana', help: 'EL BLANCO SE MUEVE SIN PARAR Y CADA VEZ MÁS RÁPIDO.<br>PUNTOS = ACIERTOS × PRECISIÓN % (SE REDONDEA A ENTERO)' },
-  uno:  { n: 'UNO A UNO', key: 'tiro_uno', help: 'APARECEN BLANCOS AL AZAR QUE SE MUEVEN CADA VEZ MÁS RÁPIDO: DESAPARECEN SI LOS ACIERTAS O SI SE ACABA SU TIEMPO.<br>AMARILLO 10 · ROJO 5 · BLANCO 3 · BORDE 1' },
-};
+
 const cv = $('#ll-cv'), cx = cv.getContext('2d');
 cx.imageSmoothingEnabled = false;
 const DUR = 45, GRAV = 150, SPEED = 235, SUN = { x: 272, y: 32 };
@@ -23,7 +18,7 @@ const DUR = 45, GRAV = 150, SPEED = 235, SUN = { x: 272, y: 32 };
 const VEL_CONT = .9, VEL_UNO = 22;
 const velMult = () => 1 + (T.running ? (1 - T.time / DUR) * 2 : 0);
 const llAcc = () => T.shots ? Math.round(T.hits / T.shots * 100) : 0;
-export const T = {
+const T = {
   W: 320, H: 200, ground: 176, running: false, score: 0, time: DUR, shots: 0, hits: 0,
   animal: store.get('pa_animal', 'llama'), mode: store.get('pa_mode', 'cont'), lbMode: null,
   spits: [], pops: [], splats: [], aim: { x: 230, y: 70 }, cd: 0, phase: 0, t: 0, tx: 240, ty: 90, recoil: 0,
@@ -52,7 +47,7 @@ const bg = document.createElement('canvas'); bg.width = T.W; bg.height = T.H;
   b.fillStyle = '#a7f070'; b.fillRect(0, T.ground, T.W, 2);
   b.fillStyle = '#257179'; for (let x = 3; x < T.W; x += 7) b.fillRect(x, T.ground + 6 + (x % 3) * 4, 2, 2);
 })();
-export const tgt = document.createElement('canvas'); tgt.width = 29; tgt.height = 29;
+  tgt.height = 29;
 (() => {
   const t = tgt.getContext('2d');
   pxCircle(t, 14, 14, 14, '#1a1c2c');
@@ -91,7 +86,7 @@ function llSpawn() {
   T.made++;
   SFX.play('pop');
 }
-export function llStart() {
+function llStart() {
   Object.assign(T, { running: true, score: 0, time: DUR, shots: 0, hits: 0, spits: [], pops: [], splats: [], phase: 0, cd: 0, tg: null, wait: .4, made: 0, sunHits: 0 });
   $('#ll-over').hidden = true;
   SFX.play('start');
@@ -131,7 +126,7 @@ function llVel() {
   const a = Math.atan2(dy, dx);
   return { vx: Math.cos(a) * SPEED, vy: Math.sin(a) * SPEED };
 }
-export function llSpit() {
+function llSpit() {
   if (!T.running || T.cd > 0) return;
   const m = mouth(), v = llVel();
   T.spits.push({ x: m.x, y: m.y, vx: v.vx, vy: v.vy, kind: T.animal });
@@ -251,5 +246,12 @@ llLB();
 
 // El bucle de animación compartido (loop(), en arcade.html) llama a estas dos por su nombre cuando la
 // pestaña activa es "tiro".
-export function tiroTick(dt) { llUpdate(dt); }
-export function tiroDraw() { llDraw(); }
+function tiroTick(dt) { llUpdate(dt); }
+function tiroDraw() { llDraw(); }
+
+// --- conexión con la página (antes en arcade.html) ---
+bucle(dt => { tiroTick(dt); tiroDraw(); });
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT') return;
+  if (e.code === 'Space' && !splashOn()) { e.preventDefault(); if (T.running) llSpit(); else llStart(); }
+});

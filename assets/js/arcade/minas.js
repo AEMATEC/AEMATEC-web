@@ -1,5 +1,7 @@
-// BUSCAMINAS
+import './shell.js';
+import './pagina.js';
 import { $, SFX, LB, fitSoon, FIT_EXTRAS, docTop } from './core.js';
+// BUSCAMINAS
 
 const MS_LV = {
   facil:   { w: 9,  h: 9,  m: 10, n: 'FÁCIL' },

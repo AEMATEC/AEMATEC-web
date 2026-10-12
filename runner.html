@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es" data-sitio="arcade">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="La Huida del Zorro del Arcade AEMATEC: un corredor sin fin.">
+<title>LA HUIDA DEL ZORRO — Arcade AEMATEC</title>
+<link rel="icon" type="image/svg+xml" href="assets/logo-aematec-compas.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/arcade.css">
+<link rel="stylesheet" href="assets/css/arcade-juegos.css">
+<!-- Temas de temporada también en el Arcade (en 8 bits): ver assets/js/temas.js y temas-pixel.js -->
+<script src="assets/js/temas.js" defer></script>
+</head>
+<body data-juego="runner">
+<div class="wrap">
+  <section class="game on" id="g-runner">
+    <div class="main px">
+      <div class="splash" data-g="runner"><canvas width="160" height="72" aria-hidden="true"></canvas><h2>LA HUIDA DEL ZORRO</h2><p>EL ZORRO SE ROBÓ UNOS HUEVOS DEL GALLINERO Y AHORA TIENE QUE HUIR SIN PARAR DE QUIEN LO PERSIGUE. SALTA LOS OBSTÁCULOS Y LOS HUECOS, AGÁCHATE BAJO LO QUE CUELGA. ¿CUÁNTOS METROS PUEDES ESCAPAR?</p><button class="btn red">INICIAR</button></div>
+      <div class="gbody" hidden>
+        <div class="fc-bar">
+          <span id="rn-status"></span>
+          <span id="rn-score"></span>
+        </div>
+        <div class="stage">
+          <canvas id="rn-cv" width="480" height="200" role="img" aria-label="Escena de La Huida del Zorro"></canvas>
+          <div class="over" id="rn-over" hidden>
+            <h3 style="font-size:16px">¡TE ATRAPARON!</h3>
+            <p id="rn-over-p"></p>
+            <div class="row"><button class="btn green" id="rn-again">OTRA VEZ</button><button class="btn gray" id="rn-exit">MENÚ</button></div>
+          </div>
+        </div>
+        <div class="touch">
+          <div><button class="btn green" id="rn-jump-btn">SALTAR</button></div>
+          <div><button class="btn gray" id="rn-duck-btn">AGACHARSE</button></div>
+        </div>
+        <p class="keys">ESPACIO O ↑: SALTAR · ↓: AGACHARSE · TAMBIÉN PUEDES TOCAR LA PANTALLA PARA SALTAR</p>
+      </div>
+    </div>
+    <aside class="side px">
+      <h3>TOP 10</h3>
+      <p class="sub">METROS RECORRIDOS</p>
+      <ol class="lb" id="rn-lb"></ol>
+      <h4 style="margin-top:16px">CÓMO SE JUEGA</h4>
+      <p class="howto">SALTA LOS OBSTÁCULOS Y LOS HUECOS EN EL SUELO. LOS QUE CUELGAN DESDE ARRIBA NO SE PUEDEN SALTAR: AGÁCHATE PARA PASAR POR DEBAJO. LA VELOCIDAD SUBE CON LA DISTANCIA Y CADA 500 M CAMBIA EL ESCENARIO. SI TE ATRAPAN SE ACABÓ LA HUIDA: LA PUNTUACIÓN SON LOS METROS QUE LOGRASTE ESCAPAR.</p>
+    </aside>
+  </section>
+</div>
+<script src="assets/js/arcade-transition.js"></script>
+<script type="module" src="assets/js/arcade/runner.js"></script>
+</body>
+</html>

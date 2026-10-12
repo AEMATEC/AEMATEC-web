@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es" data-sitio="arcade">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Batalla Naval del Arcade AEMATEC: contra la computadora o en línea.">
+<title>BATALLA NAVAL — Arcade AEMATEC</title>
+<link rel="icon" type="image/svg+xml" href="assets/logo-aematec-compas.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/arcade.css">
+<link rel="stylesheet" href="assets/css/arcade-juegos.css">
+<!-- Temas de temporada también en el Arcade (en 8 bits): ver assets/js/temas.js y temas-pixel.js -->
+<script src="assets/js/temas.js" defer></script>
+</head>
+<body data-juego="batalla">
+<div class="wrap">
+  <section class="game on" id="g-batalla">
+    <div class="main px">
+      <div class="splash" data-g="batalla"><canvas width="160" height="72" aria-hidden="true"></canvas><h2>BATALLA NAVAL</h2><p>HUNDE LA FLOTA ENEMIGA CONTRA LA CPU O EN LÍNEA CON UN AMIGO</p><button class="btn red">INICIAR</button></div>
+      <div class="gbody" hidden>
+      <div id="bs-menu">
+        <h3>¿CÓMO QUIERES JUGAR?</h3>
+        <div class="row left">
+          <button class="btn green" id="bs-cpu">VS CPU</button>
+          <button class="btn" id="bs-create">CREAR SALA ONLINE</button>
+        </div>
+        <div class="rc-sec" id="bs-lvl-sec"><h4>DIFICULTAD VS CPU</h4><div class="pick" id="bs-lvl"></div></div>
+        <div class="row left" style="margin-top:6px">
+          <input id="bs-code" class="px-in" placeholder="CÓDIGO" maxlength="5">
+          <button class="btn orange" id="bs-join">UNIRSE A SALA</button>
+        </div>
+        <p class="msg" id="bs-menu-msg" style="text-align:left" aria-live="polite"></p>
+        <div class="row left spec-toggle">
+          <button class="btn gray" id="bs-spec-btn">👁 SALAS EN VIVO</button>
+        </div>
+        <ul class="spec-list" id="bs-spec-list" hidden></ul>
+      </div>
+      <div id="bs-game" hidden>
+        <div class="bs-top">
+          <span id="bs-room" class="tag"></span>
+          <button class="btn gray" id="bs-leave">SALIR</button>
+        </div>
+        <p class="msg big" id="bs-status" aria-live="polite"></p>
+        <div id="bs-place" class="row">
+          <button class="btn" id="bs-rot">GIRAR (R)</button>
+          <button class="btn orange" id="bs-rand">ALEATORIO</button>
+          <button class="btn gray" id="bs-clear">BORRAR</button>
+          <button class="btn green" id="bs-ready">¡LISTO!</button>
+        </div>
+        <div class="row"><button class="btn green" id="bs-again" hidden>JUGAR DE NUEVO</button></div>
+        <div class="boards">
+          <div>
+            <h4 id="bs-mine-title">TU FLOTA</h4>
+            <div id="bs-mine" class="bgrid"></div>
+          </div>
+          <div>
+            <h4 id="bs-en-title">ENEMIGO</h4>
+            <div id="bs-enemy" class="bgrid"></div>
+            <h4 id="bs-fleet-title" style="margin:8px 0 0"></h4>
+            <ul id="bs-fleet" class="fleet"></ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+    <aside class="side px">
+      <h3>TOP 10</h3>
+      <p class="sub">MENOS DISPAROS PARA GANAR</p>
+      <ol class="lb" id="bs-lb"></ol>
+    </aside>
+  </section>
+</div>
+<script src="assets/js/arcade-transition.js"></script>
+<script type="module" src="assets/js/arcade/batalla.js"></script>
+</body>
+</html>

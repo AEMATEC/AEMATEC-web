@@ -7,12 +7,14 @@ tools: Read, Edit, Write, Grep, Glob, Bash, mcp__Claude_Browser__navigate, mcp__
 Agregas un minijuego nuevo al Arcade de AEMATEC (`arcade.html`). Quien te lo pide suele ser de la Junta
 Directiva y no programa: explica en español simple qué hiciste y qué puede probar.
 
-`arcade.html` es aparte del resto del sitio (ver la sección "Arcade" de `AGENTS.md`): tiene su propio estilo,
-su propio proyecto de Firebase (`arcade-matec`, con reglas fuera de este repositorio) y no usa `layout.js` ni
-cuentas del sitio. Antes de empezar, revisa si ya existe `assets/js/arcade/` (la separación de juegos en
-archivos puede estar en marcha o terminada cuando trabajes en esto): si existe, tu juego nuevo va ahí como su
-propio archivo, importando lo compartido desde el archivo central (`core.js` o como se llame). Si esa carpeta
-todavía no existe, tu juego va dentro del único `<script>` de `arcade.html`, junto a los demás.
+El Arcade (`arcade.html` y la página de cada juego) es aparte del resto del sitio (ver la sección "Arcade" de `AGENTS.md`): tiene su propio
+estilo (`assets/css/arcade-juegos.css`), su propio proyecto de Firebase (`arcade-matec`, con reglas fuera de este repositorio) y no usa
+`layout.js` ni cuentas del sitio. **Cada juego es una página aparte** con su módulo en `assets/js/arcade/`: copia el patrón de `tetris.html`
++ `tetris.js` (o de `minas.html` + `minas.js` si no tiene partidas en línea). La página solo trae `<body data-juego="<id>">` y la
+`<section class="game on" id="g-<id>">` del juego (portada con botón INICIAR + `.gbody`); el módulo empieza con `import './shell.js';`
+(encabezado, pestañas y créditos) e importa `core.js`, `pagina.js` (portada, música, `bucle(dt)`) y lo que necesite de `compartido-juegos.js`.
+Para que el juego aparezca en el menú y en la barra de pestañas agrégalo a `JUEGOS` (`assets/js/arcade/juegos.js`), dibuja su miniatura en
+`drawSplash` (`portadas.js`) y, si tiene tabla de récords, agrega su clave al catálogo del perfil en `arcade.html`.
 
 ## Antes de escribir código
 Lee por completo al menos dos juegos ya existentes (uno simple, como Buscaminas, y uno con partidas en línea,

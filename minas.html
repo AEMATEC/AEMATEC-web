@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es" data-sitio="arcade">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Buscaminas del Arcade AEMATEC con tres dificultades y tabla de récords.">
+<title>BUSCAMINAS — Arcade AEMATEC</title>
+<link rel="icon" type="image/svg+xml" href="assets/logo-aematec-compas.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/arcade.css">
+<link rel="stylesheet" href="assets/css/arcade-juegos.css">
+<!-- Temas de temporada también en el Arcade (en 8 bits): ver assets/js/temas.js y temas-pixel.js -->
+<script src="assets/js/temas.js" defer></script>
+</head>
+<body data-juego="minas">
+<div class="wrap">
+  <section class="game on" id="g-minas">
+    <div class="main px">
+      <div class="splash" data-g="minas"><canvas width="160" height="72" aria-hidden="true"></canvas><h2>BUSCAMINAS</h2><p>1 CLIC = BANDERA · 2 CLICS = DESCUBRIR<br>2 CLICS EN UN NÚMERO ABRE ALREDEDOR</p><button class="btn red">INICIAR</button></div>
+      <div class="gbody" hidden>
+      <div class="row">
+        <button class="btn ms-lv on" data-lv="facil">FÁCIL</button>
+        <button class="btn ms-lv" data-lv="medio">MEDIO</button>
+        <button class="btn ms-lv" data-lv="dificil">DIFÍCIL</button>
+      </div>
+      <div class="ms-hud">
+        <span class="lcd" id="ms-mines">010</span>
+        <button class="btn orange" id="ms-face" title="Nueva partida" aria-label="Nueva partida">:)</button>
+        <span class="lcd" id="ms-time">000</span>
+      </div>
+      <div class="scroll"><div id="ms-board" class="ms-board"></div></div>
+      <p class="msg" id="ms-msg" aria-live="polite"></p>
+    </div>
+    </div>
+    <aside class="side px">
+      <h3>TOP 10</h3>
+      <p class="sub" id="ms-lb-title">MEJOR TIEMPO</p>
+      <ol class="lb" id="ms-lb"></ol>
+    </aside>
+  </section>
+</div>
+<script src="assets/js/arcade-transition.js"></script>
+<script type="module" src="assets/js/arcade/minas.js"></script>
+</body>
+</html>
