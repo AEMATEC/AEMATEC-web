@@ -97,32 +97,28 @@ revisa la pestaña **Actions** del repositorio en GitHub.
 `layout.js` ni cuentas del sitio. Sus reglas no están en este repositorio: si un cambio del Arcade escribe datos
 nuevos, documéntalo para quien administra `arcade-matec` (ver `docs/arcade-firebase-cambios.md`).
 
-El Arcade se está separando en archivos por juego, sin perder la experiencia de una sola página (cambiar de
-juego sigue siendo instantáneo, sin recargar). El patrón ya está en marcha:
-- `assets/js/arcade/core.js`: todo lo compartido (Firebase, `$`/`esc`/`store`, `SFX`, `LB`, sprites base
-  `sprite`/`scaled`/`pxCircle`/`SPR`, `EGG`, y el ajuste de tamaño `fitAll`/`fitOver`/`fitSoon`). Es un módulo
-  (`export`); cualquier juego, esté o no ya separado, importa de aquí lo que necesite.
-- Ya separados, como ejemplo del patrón a seguir: `assets/js/arcade/minas.js` (Buscaminas),
-  `assets/js/arcade/tiro.js` (Animal al Tiro), `assets/js/arcade/runner.js` (La Huida del Zorro) — los tres
-  sin partidas en línea, por eso se hicieron primero (menos riesgo).
-- Los juegos con partidas en línea (Batalla Naval, Carreras, Combate de Funciones, 21, Billar, Duelo del
-  Oeste, Golf, Cruzar la Calle) siguen dentro del `<script type="module">` de `arcade.html`, que importa de
-  `core.js` lo mismo que los ya separados. Sepáralos con más cuidado que los anteriores: prueba el modo en
-  línea de verdad (dos sesiones a la vez) después de separar cada uno, no solo el modo local/CPU.
-- Lo que NO se movió a `core.js` a propósito (`tab`, `goTab`, `GAMES`, el bucle `loop()` que llama al
-  tick/draw de cada juego activo, `drawSplash` con las miniaturas del menú, la navegación entre pestañas)
-  sigue en `arcade.html` porque conecta a TODOS los juegos a la vez. Un juego ya separado que necesite algo
-  de ahí (como `goTab`, que La Huida del Zorro usa para su botón "MENÚ") deja esa línea conectada desde
-  `arcade.html` en vez de importarla — no hay nada que importar todavía, `goTab` no vive en un archivo aparte.
-- Si un juego necesita algo propio en el ajuste de tamaño (como Buscaminas con el tamaño de sus celdas,
-  que `core.js` no puede conocer), que se registre en `FIT_EXTRAS` (exportado por `core.js`) desde su propio
-  archivo, en vez de que `core.js` tenga que conocer ese juego.
-- Antes de separar un juego, revisa con cuidado qué usan de él OTROS juegos o `drawSplash` (por ejemplo,
-  `RN_FOX_SPR` lo usa la miniatura del menú, y `pxCircle`/`sprite`/`scaled` los usa casi todo el Arcade) —
-  un símbolo usado fuera del bloque del juego tiene que exportarse, no puede quedar solo dentro del archivo
-  nuevo.
+El Arcade es **una sola página con pestañas** (`arcade.html`), pero el código de cada juego vive en su propio archivo
+(cambiar de juego sigue siendo instantáneo, sin recargar). Cómo está armado:
+- `assets/js/arcade/<juego>.js`: un módulo por juego — `minas.js`, `batalla.js`, `tiro.js`, `carreras.js`, `funciones.js`,
+  `casino21.js`, `billar.js`, `duelo.js`, `runner.js`, `golf.js` y `cruce.js`. Cada uno trabaja sobre su sección HTML
+  (`#g-<id>`) de `arcade.html`, que importa el módulo y este se conecta solo (su bucle de dibujo y su teclado van al final del archivo).
+- `core.js`: todo lo compartido (Firebase, `$`/`esc`/`store`, `SFX`, `LB`, sprites base, ajuste de tamaño `fitAll`/`fitOver`/`fitSoon`).
+  Si un juego necesita algo propio en el ajuste de tamaño, se registra en `FIT_EXTRAS` desde su archivo.
+- `estado.js`: lo que une a todos los juegos: `arcade.tab` (pestaña abierta), `arcade.goTab('menu')`, `registrarBucle(fn)` (cada juego
+  registra su parte del bucle; `arcade.html` solo lo corre) y `splashOn(id)`.
+- `compartido-juegos.js`: ayudantes y sprites que usan varios juegos o las miniaturas/el perfil (`pickRow`, `pedirAbandonar`, `vspr`,
+  `soldier`, `blBallImg`, `crDrawFrog`, `RN_FOX_SPR`, `tgt`, `MODES`, `TRACKS`, `rcLbKey`…). Un símbolo que usa otro juego o
+  `arcade.html` va aquí, no dentro del archivo del juego (el menú no debe cargar el código de todos los juegos).
+- `portadas.js`: `drawSplash` (miniaturas del menú y portada de cada juego).
+- Lo que sigue en `arcade.html` a propósito: las secciones HTML de todos los juegos, `goTab` y la navegación, el menú, la intro, la
+  música del menú y el perfil, porque conectan a TODOS los juegos.
+- Para agregar un juego: sección HTML en `arcade.html`, módulo nuevo (copia `minas.js`, o `cruce.js` si tiene partidas en línea),
+  `import` en `arcade.html`, entrada en `GAMES`, miniatura en `portadas.js`, canción en `musica/<id>.js` y, si tiene récords, su clave en
+  `pfCatalogoRecords`. `node tests/revisar-arcade.mjs` avisa si falta algo.
+- Los juegos con partidas en línea se prueban de verdad con dos sesiones a la vez (emulador de Firestore con
+  `arcade-firebase/firestore.rules`), no solo el modo local/CPU.
 
-**Tetris** es una página aparte (`tetris.html`, con `assets/js/arcade/tetris.js` y las reglas del juego en `tetris-motor.js`, probadas con `tests/tetris.test.js`). Usa `core.js` y `musica.js` (su canción es `musica/tetris.js`), y tiene el mismo encabezado, pestañas, panel y botones que arcade.html: `assets/css/tetris.css` es una COPIA del `<style>` de arcade.html (si cambias el estilo allá, cámbialo también ahí). Las pestañas de tetris.html abren `arcade.html?juego=<id>`; la pestaña TETRIS de arcade.html y la tarjeta del menú (`href` en `GAMES`) llevan a tetris.html. Sus reglas de Firebase (`tetris`, `tetris_vs`) viven en `arcade-firebase/firestore.rules` y se copian a mano.
+**Tetris** es una página aparte (`tetris.html`, con `assets/js/arcade/tetris.js` y las reglas del juego en `tetris-motor.js`, probadas con `tests/tetris.test.js`). Usa `core.js` y `musica.js` (su canción es `musica/tetris.js`) y el mismo estilo del Arcade (`assets/css/arcade-juegos.css` + `tetris.css` con lo suyo). Las pestañas de tetris.html abren `arcade.html?juego=<id>`; la pestaña TETRIS de arcade.html y la tarjeta del menú (`href` en `GAMES`) llevan a tetris.html. Sus reglas de Firebase (`tetris`, `tetris_vs`) viven en `arcade-firebase/firestore.rules` y se copian a mano.
 
 Hay un agente por juego (`.claude/agents/juego-*.md`) con los detalles de cada uno (prefijo de su estado,
 si tiene modo en línea, en qué archivo vive). También hay `mejorar-menu-arcade` (menú, miniaturas,

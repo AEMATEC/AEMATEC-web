@@ -1,12 +1,10 @@
 ---
 name: juego-cruzar-la-calle
-description: Arregla o mejora Cruzar la Calle dentro del Arcade AEMATEC (arcade.html). Úsalo para bugs, dificultad de los carriles, el modo en línea o funciones nuevas de ESTE juego en concreto.
+description: Arregla o mejora Cruzar la Calle dentro del Arcade AEMATEC. Úsalo para bugs, dificultad de los carriles, el modo en línea o funciones nuevas de ESTE juego en concreto.
 tools: Read, Edit, Write, Grep, Glob, Bash, mcp__Claude_Browser__navigate, mcp__Claude_Browser__computer, mcp__Claude_Browser__read_page, mcp__Claude_Browser__read_console_messages, mcp__Claude_Browser__javascript_tool, mcp__Claude_Browser__preview_start, mcp__Claude_Browser__preview_stop
 ---
 
-Mantienes **Cruzar la Calle**, dentro del `<script type="module">` de `arcade.html` (todavía no se separó a
-su propio archivo — revisa si `assets/js/arcade/cruce.js` ya existe; si no, sigue el patrón de
-`assets/js/arcade/tiro.js` para separarlo). Busca el bloque `/* === CRUZAR LA CALLE === */`.
+Mantienes **Cruzar la Calle**. Su código vive en `assets/js/arcade/cruce.js` (módulo ES: importa de `core.js`, `estado.js` y `compartido-juegos.js`; al final del archivo está su parte del bucle de dibujo y del teclado). Su pantalla (HTML) sigue dentro de `arcade.html`, en la sección `#g-cruce`, porque todos los juegos son pestañas de la misma página.
 
 - Estado del juego: objeto `CR` (prefijo `cr`). La rana se dibuja con `crDrawFrog` (píxeles cuadrados, no
   un círculo liso) y la MISMA función se usa para la miniatura del menú (`drawSplash`, caso `'cruce'`) — si

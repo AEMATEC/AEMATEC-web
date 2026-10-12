@@ -1,12 +1,10 @@
 ---
 name: juego-duelo-del-oeste
-description: Arregla o mejora Duelo del Oeste (el duelo de reflejos) dentro del Arcade AEMATEC (arcade.html). Úsalo para bugs, tiempos de reacción, apariencia de los personajes, el modo en línea o funciones nuevas de ESTE juego en concreto.
+description: Arregla o mejora Duelo del Oeste (el duelo de reflejos) dentro del Arcade AEMATEC. Úsalo para bugs, tiempos de reacción, apariencia de los personajes, el modo en línea o funciones nuevas de ESTE juego en concreto.
 tools: Read, Edit, Write, Grep, Glob, Bash, mcp__Claude_Browser__navigate, mcp__Claude_Browser__computer, mcp__Claude_Browser__read_page, mcp__Claude_Browser__read_console_messages, mcp__Claude_Browser__javascript_tool, mcp__Claude_Browser__preview_start, mcp__Claude_Browser__preview_stop
 ---
 
-Mantienes **Duelo del Oeste**, dentro del `<script type="module">` de `arcade.html` (todavía no se separó a
-su propio archivo — revisa si `assets/js/arcade/duelo.js` ya existe; si no, sigue el patrón de
-`assets/js/arcade/tiro.js` para separarlo). Busca el bloque `/* === DUELO DEL OESTE === */`.
+Mantienes **Duelo del Oeste**. Su código vive en `assets/js/arcade/duelo.js` (módulo ES: importa de `core.js`, `estado.js` y `compartido-juegos.js`; al final del archivo está su parte del bucle de dibujo y del teclado). Su pantalla (HTML) sigue dentro de `arcade.html`, en la sección `#g-duelo`, porque todos los juegos son pestañas de la misma página.
 
 - Estado del juego: objeto `DL` (prefijo `dl`). Cuenta regresiva con una espera sorpresa antes del "¡YA!";
   disparar antes de tiempo pierde la ronda. Al mejor de 3.

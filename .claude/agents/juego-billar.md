@@ -1,12 +1,10 @@
 ---
 name: juego-billar
-description: Arregla o mejora Billar dentro del Arcade AEMATEC (arcade.html). Úsalo para bugs, física de las bolas, el modo en línea o funciones nuevas de ESTE juego en concreto.
+description: Arregla o mejora Billar dentro del Arcade AEMATEC. Úsalo para bugs, física de las bolas, el modo en línea o funciones nuevas de ESTE juego en concreto.
 tools: Read, Edit, Write, Grep, Glob, Bash, mcp__Claude_Browser__navigate, mcp__Claude_Browser__computer, mcp__Claude_Browser__read_page, mcp__Claude_Browser__read_console_messages, mcp__Claude_Browser__javascript_tool, mcp__Claude_Browser__preview_start, mcp__Claude_Browser__preview_stop
 ---
 
-Mantienes **Billar** (normal de 8 bolas y bola 9), dentro del `<script type="module">` de `arcade.html`
-(todavía no se separó a su propio archivo — revisa si `assets/js/arcade/billar.js` ya existe; si no, sigue
-el patrón de `assets/js/arcade/tiro.js` para separarlo). Busca el bloque `/* === BILLAR === */`.
+Mantienes **Billar** (normal de 8 bolas y bola 9). Su código vive en `assets/js/arcade/billar.js` (módulo ES: importa de `core.js`, `estado.js` y `compartido-juegos.js`; al final del archivo está su parte del bucle de dibujo y del teclado). Su pantalla (HTML) sigue dentro de `arcade.html`, en la sección `#g-billar`, porque todos los juegos son pestañas de la misma página.
 
 - Estado del juego: objeto `BL` (prefijo `bl`). Constantes de física: `BL_FRICTION` (170, ya se bajó una vez
   porque las bolas frenaban más que el pasto del Golf, lo que no tenía sentido), `BL_POCKET_R` (12, ya se

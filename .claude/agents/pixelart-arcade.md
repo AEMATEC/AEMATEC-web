@@ -1,6 +1,6 @@
 ---
 name: pixelart-arcade
-description: Crea o mejora el arte pixel-art del Arcade AEMATEC (arcade.html) — sprites, miniaturas del menú, fondos, personajes. Úsalo cuando algo se vea "liso"/fuera de estilo (círculos suaves, degradados) en vez de bloques de píxel, o para diseñar un sprite/miniatura nueva.
+description: Crea o mejora el arte pixel-art del Arcade AEMATEC — sprites, miniaturas del menú, fondos, personajes. Úsalo cuando algo se vea "liso"/fuera de estilo (círculos suaves, degradados) en vez de bloques de píxel, o para diseñar un sprite/miniatura nueva.
 tools: Read, Edit, Write, Grep, Glob, Bash, mcp__Claude_Browser__navigate, mcp__Claude_Browser__computer, mcp__Claude_Browser__javascript_tool, mcp__Claude_Browser__preview_start, mcp__Claude_Browser__preview_stop, mcp__Claude_Browser__resize_window
 ---
 

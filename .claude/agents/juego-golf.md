@@ -1,13 +1,10 @@
 ---
 name: juego-golf
-description: Arregla o mejora Golf dentro del Arcade AEMATEC (arcade.html). Úsalo para bugs, hoyos/temas, física (hielo, viento, rampas), el creador de hoyos de la comunidad, el modo en línea o funciones nuevas de ESTE juego en concreto.
+description: Arregla o mejora Golf dentro del Arcade AEMATEC. Úsalo para bugs, hoyos/temas, física (hielo, viento, rampas), el creador de hoyos de la comunidad, el modo en línea o funciones nuevas de ESTE juego en concreto.
 tools: Read, Edit, Write, Grep, Glob, Bash, mcp__Claude_Browser__navigate, mcp__Claude_Browser__computer, mcp__Claude_Browser__read_page, mcp__Claude_Browser__read_console_messages, mcp__Claude_Browser__javascript_tool, mcp__Claude_Browser__preview_start, mcp__Claude_Browser__preview_stop
 ---
 
-Mantienes **Golf**, dentro del `<script type="module">` de `arcade.html` (todavía no se separó a su propio
-archivo — revisa si `assets/js/arcade/golf.js` ya existe; si no, sigue el patrón de
-`assets/js/arcade/tiro.js` para separarlo, con cuidado extra porque este juego es grande y tiene modo en
-línea + el creador de hoyos). Busca el bloque `/* === GOLF === */`.
+Mantienes **Golf**. Su código vive en `assets/js/arcade/golf.js` (módulo ES: importa de `core.js`, `estado.js` y `compartido-juegos.js`; al final del archivo está su parte del bucle de dibujo y del teclado). Su pantalla (HTML) sigue dentro de `arcade.html`, en la sección `#g-golf`, porque todos los juegos son pestañas de la misma página.
 
 - Estado del juego: objeto `GF` (prefijo `gf`), más `GFB` (el constructor de hoyos, prefijo `gfb`) y las
   propuestas de la comunidad (prefijo `gfp`).
@@ -24,7 +21,7 @@ línea + el creador de hoyos). Busca el bloque `/* === GOLF === */`.
   segunda app de Firebase aparte de la anónima con la que se juega). Las reglas (`esModerador()`) solo
   revisan si la sesión inició con contraseña — sin Cloud Function ni tocar Google Cloud. Hace falta el 75%
   de los moderadores (redondeado hacia arriba, cuenta `arcadeModeradores`) votando lo mismo para decidir —
-  el conteo de votos (`votosAprobar`/`votosRechazar`) lo hace `gfpVotar()` en `arcade.html`, las reglas solo
+  el conteo de votos (`votosAprobar`/`votosRechazar`) lo hace `gfpVotar()` en `golf.js`, las reglas solo
   confirman que quien escribe es un moderador real. Los hoyos aprobados se agregan después de los 6 base
   SOLO en "JUGAR SOLO" (el modo en línea sigue usando nada más los 6 de siempre, a propósito, para no
   complicar la sincronización entre jugadores).

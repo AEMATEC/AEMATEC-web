@@ -225,7 +225,7 @@ Function. El segundo requisito (`arcadeModeradores`) hace falta porque solo la c
 cualquiera puede crearse una cuenta de correo/contraseña con la API pública de Firebase Auth, y desde los
 perfiles opcionales (sección 3.4) cualquier persona SÍ tiene de verdad una cuenta así. Hace falta que el
 **75% de los moderadores actuales (redondeado hacia arriba)** vote lo mismo para que una propuesta quede
-aprobada o rechazada; `gfpVotar()` en `arcade.html` guarda el correo de quien vota en `votosAprobar` o
+aprobada o rechazada; `gfpVotar()` en `assets/js/arcade/golf.js` guarda el correo de quien vota en `votosAprobar` o
 `votosRechazar` dentro del propio documento de la propuesta, cuenta cuántos moderadores hay (ver abajo) y
 decide si ya se alcanzó el 75%.
 
