@@ -129,7 +129,7 @@ function sortItems(list) {
 
 function searchableText(item) {
   return [
-    item.codigo, item.nombre, item.titulo, item.autor, ...autoresDe(item), ...categoriasDe(item), item.articulo,
+    item.codigo, ...(item.ejemplares || []).map(exemplar => exemplar.codigo), item.nombre, item.titulo, item.autor, ...autoresDe(item), ...categoriasDe(item), item.articulo,
     item.ubicacion, item.descripcion, item.marca
   ].filter(Boolean).join(" ").toLowerCase();
 }
