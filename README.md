@@ -101,7 +101,7 @@ que la necesita y en ese momento (por ejemplo, al enviar un trámite, con el enl
   renombras una página, actualízala aquí.
 - `tramites.js` (página de Trámites) y `admin/` (secciones del panel: `panel.js`, `asociacion.js`, `tramites.js`,
   `moderacion.js`, `tema.js`).
-- `inventario-categorias.js` e `inventario-codigos.js`: categorías de los libros y códigos del Inventario.
+- `inventario-categorias.js`, `inventario-autores.js` e `inventario-codigos.js`: categorías y autores de los libros (con su conteo para el filtro) y códigos del Inventario.
 - `inventario/` (módulos de `inventario.html`): `main.js` (arranque y acceso de la Junta), `estado.js` (estado y utilidades
   compartidas), `publico.js` (consulta), `prestamos.js` (solicitudes de préstamo) y `admin.js` (administración).
 - `acceso.js`: inicio de sesión y comprobación de rol compartidos por el panel (`admin/panel.js`) y el Inventario.
@@ -254,7 +254,7 @@ falla por un permiso, el registro dice qué rol falta; agrégalo en <https://con
 - `tests/reglas.test.js` prueba los permisos de Firestore y Storage en el emulador, y `tests/funciones.test.js`
   las funciones de Trámites. Corren solas en cada PR que toca reglas, Functions o pruebas; para correrlas a mano:
   `cd functions && npm install`, luego `cd tests && npm install && npm test` (requiere Java).
-- `tests/temas.test.js`, `tests/inventario-codigos.test.js` y `tests/inventario-categorias.test.js` no necesitan
+- `tests/temas.test.js`, `tests/inventario-codigos.test.js`, `tests/inventario-categorias.test.js` y `tests/inventario-autores.test.js` no necesitan
   emulador (`node --test tests/<archivo>`); el flujo **Páginas** las corre en cada PR.
 
 ## Agente de mantenimiento
@@ -275,6 +275,7 @@ Cada libro guarda sus categorías en `categorias` (lista, máximo 3). Cómo se e
 filtro de la Biblioteca permite elegir un grupo entero) está en
 [`assets/js/inventario-categorias.js`](assets/js/inventario-categorias.js): para una categoría nueva, agrégala a un
 grupo ahí.
+Los **autores** de los libros se fusionan al mostrarlos (no se cambia lo guardado): para unir dos formas de escribir un autor, agrégalas en `FUSIONES` de [`assets/js/inventario-autores.js`](assets/js/inventario-autores.js); si un texto no debe partirse por comas o «y», va en `ESPECIALES`. El filtro «Autor» muestra cuántos libros tiene cada uno.
 
 ## Plan de trabajo
 

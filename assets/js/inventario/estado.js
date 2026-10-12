@@ -15,10 +15,10 @@ export const formatDate = timestamp => timestamp?.seconds ? new Date(timestamp.s
 export const TIPO_LABELS = { institucional: "Activo institucional", aematec: "Activo AEMATEC", biblioteca: "Libro", consumible: "Consumible" };
 export const TIPO_ICON = { institucional: "fa-building", aematec: "fa-toolbox", consumible: "fa-box-open" };
 export const FILTER_CONFIG = {
-  institucional: { categoria: false, estado: true, ubicacion: true, disponible: false, bajoStock: false },
-  aematec: { categoria: true, estado: true, ubicacion: true, disponible: false, bajoStock: false },
-  biblioteca: { categoria: true, estado: false, ubicacion: false, disponible: true, bajoStock: false },
-  consumible: { categoria: true, estado: false, ubicacion: true, disponible: false, bajoStock: true }
+  institucional: { categoria: false, autor: false, estado: true, ubicacion: true, disponible: false, bajoStock: false },
+  aematec: { categoria: true, autor: false, estado: true, ubicacion: true, disponible: false, bajoStock: false },
+  biblioteca: { categoria: true, autor: true, estado: false, ubicacion: false, disponible: true, bajoStock: false },
+  consumible: { categoria: true, autor: false, estado: false, ubicacion: true, disponible: false, bajoStock: true }
 };
 export const PAGE_SIZE = { institucional: 8, aematec: 8, biblioteca: 16, consumible: 8 };
 
@@ -36,6 +36,7 @@ export const SUGERENCIAS = {
 export const ESTADO_POR_REVISAR = "Falta comprobar";
 export const Codigos = window.InventarioCodigos;
 export const Categorias = window.InventarioCategorias;
+export const Autores = window.InventarioAutores;
 export const MAX_CATEGORIAS_LIBRO = Categorias.MAX_CATEGORIAS;
 // Permite enlazar directo a una división desde afuera, p. ej. inventario.html?tipo=biblioteca
 export const TIPOS_VALIDOS = ["institucional", "aematec", "biblioteca", "consumible"];
@@ -47,6 +48,7 @@ export const inv = {
   page: 1,
   isJunta: false,
   currentItem: null,
+  autores: Autores.crearIndice([]), // se rehace al cargar los libros (publico.js, loadInventory)
   solicitudes: [],
   loanAdminFilter: "pendiente"
 };
@@ -76,6 +78,9 @@ export function categoriasDe(item) {
   if (item.tipo === "biblioteca") return Categorias.categoriasDeLibro(item);
   return String(item.categoria || "").split("/").map(value => value.trim()).filter(Boolean);
 }
+
+// Autores de un libro con las escrituras ya fusionadas (assets/js/inventario-autores.js). Los demás bienes no tienen autor.
+export const autoresDe = item => (item.tipo === "biblioteca" ? inv.autores.autoresDe(item) : []);
 
 export function uniqueValues(list, field) {
   const values = field === "categoria"

@@ -1,7 +1,7 @@
 // Parte pública del Inventario: pestañas, filtros, grilla, paginación y ficha de cada bien.
 import { escapeHtml } from "../util.js";
 import {
-  db, inv, formatDate, showModal, hideModal, categoriasDe, uniqueValues, Categorias,
+  db, inv, formatDate, showModal, hideModal, categoriasDe, autoresDe, uniqueValues, Categorias, Autores,
   TIPO_LABELS, TIPO_ICON, FILTER_CONFIG, PAGE_SIZE
 } from "./estado.js";
 import { getDocs, collection } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -32,6 +32,7 @@ export async function loadInventory() {
   Object.values(inv.itemsByTipo).forEach(list => list.sort((a, b) =>
     (a.titulo || a.nombre || a.articulo || "").localeCompare(b.titulo || b.nombre || b.articulo || "", "es")
   ));
+  inv.autores = Autores.crearIndice(inv.itemsByTipo.biblioteca);
   populateFilterOptions(inv.activeTab);
   populateSortOptions(inv.activeTab);
   renderGrid();
@@ -56,6 +57,20 @@ function fillGroupedCategorySelect(select, values) {
 }
 
 
+// Filtro por autor (solo libros): primero los que tienen más libros y luego todos en orden alfabético, cada uno con
+// su conteo. Los autores con la escritura fusionada cuentan juntos (assets/js/inventario-autores.js).
+function fillAuthorSelect(select) {
+  const current = select.value;
+  const { autores, masLibros } = inv.autores;
+  const opcion = autor => `<option value="${escapeHtml(autor.nombre)}">${escapeHtml(autor.nombre)} (${autor.libros})</option>`;
+  const frecuentes = masLibros.filter(autor => autor.libros >= 3).slice(0, 10);
+  select.innerHTML = `<option value="">Todos los autores</option>`
+    + (frecuentes.length ? `<optgroup label="Con más libros">${frecuentes.map(opcion).join("")}</optgroup>` : "")
+    + `<optgroup label="Todos (A–Z)">${autores.map(opcion).join("")}</optgroup>`;
+  select.value = autores.some(autor => autor.nombre === current) ? current : "";
+  document.querySelector("#filter-autor-total").textContent = `(${autores.length})`;
+}
+
 function fillSelect(select, values, placeholder) {
   const current = select.value;
   select.innerHTML = `<option value="">${placeholder}</option>` + values.map(value => `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`).join("");
@@ -66,18 +81,21 @@ function populateFilterOptions(tipo) {
   const config = FILTER_CONFIG[tipo];
   const list = inv.itemsByTipo[tipo] || [];
   document.querySelector("#filter-categoria-wrap").hidden = !config.categoria;
+  document.querySelector("#filter-autor-wrap").hidden = !config.autor;
   document.querySelector("#filter-estado-wrap").hidden = !config.estado;
   document.querySelector("#filter-ubicacion-wrap").hidden = !config.ubicacion;
   document.querySelector("#filter-disponible-wrap").hidden = !config.disponible;
   document.querySelector("#filter-bajostock-wrap").hidden = !config.bajoStock;
   if (config.categoria && tipo === "biblioteca") fillGroupedCategorySelect(document.querySelector("#filter-categoria"), uniqueValues(list, "categoria"));
   else if (config.categoria) fillSelect(document.querySelector("#filter-categoria"), uniqueValues(list, "categoria"), "Todas las categorías");
+  if (config.autor) fillAuthorSelect(document.querySelector("#filter-autor"));
   if (config.estado) fillSelect(document.querySelector("#filter-estado"), uniqueValues(list, "estado"), "Todos los estados");
   if (config.ubicacion) fillSelect(document.querySelector("#filter-ubicacion"), uniqueValues(list, "ubicacion"), "Todas las ubicaciones");
 }
 
 function resetFilters() {
   document.querySelector("#filter-categoria").value = "";
+  document.querySelector("#filter-autor").value = "";
   document.querySelector("#filter-estado").value = "";
   document.querySelector("#filter-ubicacion").value = "";
   document.querySelector("#filter-disponible").checked = false;
@@ -111,7 +129,7 @@ function sortItems(list) {
 
 function searchableText(item) {
   return [
-    item.codigo, item.nombre, item.titulo, item.autor, ...categoriasDe(item), item.articulo,
+    item.codigo, item.nombre, item.titulo, item.autor, ...autoresDe(item), ...categoriasDe(item), item.articulo,
     item.ubicacion, item.descripcion, item.marca
   ].filter(Boolean).join(" ").toLowerCase();
 }
@@ -122,6 +140,7 @@ export function renderGrid() {
   if (searchValue) list = list.filter(item => searchableText(item).includes(searchValue));
 
   const categoriaFilter = document.querySelector("#filter-categoria").value;
+  const autorFilter = document.querySelector("#filter-autor").value;
   const estadoFilter = document.querySelector("#filter-estado").value;
   const ubicacionFilter = document.querySelector("#filter-ubicacion").value;
   const disponibleFilter = document.querySelector("#filter-disponible").checked;
@@ -132,6 +151,7 @@ export function renderGrid() {
   } else if (categoriaFilter) {
     list = list.filter(item => categoriasDe(item).includes(categoriaFilter));
   }
+  if (autorFilter) list = list.filter(item => autoresDe(item).includes(autorFilter));
   if (estadoFilter) list = list.filter(item => (item.estado || "") === estadoFilter);
   if (ubicacionFilter) list = list.filter(item => (item.ubicacion || "") === ubicacionFilter);
   if (disponibleFilter) list = list.filter(item => (item.ejemplares || []).some(exemplar => exemplar.disponible));
@@ -161,6 +181,8 @@ export function renderGrid() {
   attachCardEvents();
 }
 
+const autorTexto = item => autoresDe(item).join(", ") || item.autor || "";
+
 function bookCardHtml(item) {
   const disponibles = (item.ejemplares || []).filter(exemplar => exemplar.disponible).length;
   const copias = (item.ejemplares || []).length;
@@ -173,7 +195,7 @@ function bookCardHtml(item) {
       </div>
       <div class="p-4 flex flex-col flex-1">
         <h3 class="font-sans font-bold text-[15px] leading-tight line-clamp-2">${escapeHtml(item.titulo)}</h3>
-        <p class="text-xs text-[#607480] mt-1 line-clamp-2">${escapeHtml(item.autor)}</p>
+        <p class="text-xs text-[#607480] mt-1 line-clamp-2">${escapeHtml(autorTexto(item))}</p>
         <span class="mt-3 inline-block w-fit font-sans text-[11px] font-bold ${disponibles > 0 ?"bg-[#DFF6F8] text-[#00798A]" : "bg-[#F5E4E4] text-[#A0403A]"} px-2.5 py-1 rounded-full">${disponibles}/${copias} copia${copias === 1 ? "" : "s"} disponible${disponibles === 1 ? "" : "s"}</span>
         <button type="button" data-view="${item.id}" class="mt-4 h-9 border border-[#9DB6C1] rounded-[8px] font-sans font-bold text-xs">Ver detalle</button>
       </div>
@@ -328,7 +350,7 @@ function fieldsHtmlFor(item) {
         <span class="${exemplar.disponible ?"text-[#00798A]" : "text-[#A0403A]"} font-semibold">${escapeHtml(exemplar.estado)} · ${exemplar.disponible ? "Disponible" : "No disponible"}</span>
       </li>`).join("") || "<li>Sin ejemplares registrados.</li>";
     return [
-      fieldRow("Autor", escapeHtml(item.autor)),
+      fieldRow("Autor", escapeHtml(autorTexto(item))),
       fieldRow("Edición", escapeHtml(item.edicion)),
       fieldRow("Año", escapeHtml(item.anio)),
       fieldRow("Categorías", escapeHtml(categoriasDe(item).join(", ")) || null),
@@ -360,7 +382,7 @@ export function openItemModal(item) {
   if (item.tipo === "biblioteca") cover.src = item.portadaUrl || "";
   document.querySelector("#item-modal-kicker").textContent = TIPO_LABELS[item.tipo];
   document.querySelector("#item-modal-title").textContent = item.tipo === "biblioteca" ? item.titulo : (item.nombre || item.articulo);
-  document.querySelector("#item-modal-subtitle").textContent = item.tipo === "biblioteca" ? (item.autor || "") : (item.codigo || "");
+  document.querySelector("#item-modal-subtitle").textContent = item.tipo === "biblioteca" ? autorTexto(item) : (item.codigo || "");
   document.querySelector("#item-modal-fields").innerHTML = fieldsHtmlFor(item);
   document.querySelector("#item-modal-loan").hidden = !isPrestable(item);
   document.querySelector("#item-modal-edit").hidden = !inv.isJunta;
