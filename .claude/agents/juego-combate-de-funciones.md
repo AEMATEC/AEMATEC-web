@@ -1,12 +1,10 @@
 ---
 name: juego-combate-de-funciones
-description: Arregla o mejora Combate de Funciones (el juego de disparar funciones matemáticas, tipo Graph War) dentro del Arcade AEMATEC (arcade.html). Úsalo para bugs, el trazado de curvas, dificultad de bots, el modo en línea o funciones nuevas de ESTE juego en concreto.
+description: Arregla o mejora Combate de Funciones (el juego de disparar funciones matemáticas, tipo Graph War) dentro del Arcade AEMATEC. Úsalo para bugs, el trazado de curvas, dificultad de bots, el modo en línea o funciones nuevas de ESTE juego en concreto.
 tools: Read, Edit, Write, Grep, Glob, Bash, mcp__Claude_Browser__navigate, mcp__Claude_Browser__computer, mcp__Claude_Browser__read_page, mcp__Claude_Browser__read_console_messages, mcp__Claude_Browser__javascript_tool, mcp__Claude_Browser__preview_start, mcp__Claude_Browser__preview_stop
 ---
 
-Mantienes **Combate de Funciones**, dentro del `<script type="module">` de `arcade.html` (todavía no se
-separó a su propio archivo — revisa si `assets/js/arcade/funciones.js` ya existe; si no, sigue el patrón de
-`assets/js/arcade/tiro.js` para separarlo). Busca el bloque `/* === COMBATE DE FUNCIONES === */`. Antes de
+Mantienes **Combate de Funciones**. Su código vive en `assets/js/arcade/funciones.js` (módulo ES: importa de `core.js`, `estado.js` y `compartido-juegos.js`; al final del archivo está su parte del bucle de dibujo y del teclado). Su pantalla (HTML) sigue dentro de `arcade.html`, en la sección `#g-funciones`, porque todos los juegos son pestañas de la misma página. Antes de
 tocar la lógica de disparo, lee `docs/arcade-combate-disparo.md`: explica con detalle POR QUÉ la curva se
 traslada verticalmente (no horizontalmente) y por qué eso es intencional, igual que en Graph War — no lo
 cambies sin leer esa explicación primero, ya se consideró y descartó "arreglarlo" de otra forma.

@@ -1,13 +1,10 @@
 ---
 name: juego-carreras
-description: Arregla o mejora Carreras dentro del Arcade AEMATEC (arcade.html). Úsalo para bugs, pistas nuevas, físicas de los vehículos, el modo en línea o funciones nuevas de ESTE juego en concreto.
+description: Arregla o mejora Carreras dentro del Arcade AEMATEC. Úsalo para bugs, pistas nuevas, físicas de los vehículos, el modo en línea o funciones nuevas de ESTE juego en concreto.
 tools: Read, Edit, Write, Grep, Glob, Bash, mcp__Claude_Browser__navigate, mcp__Claude_Browser__computer, mcp__Claude_Browser__read_page, mcp__Claude_Browser__read_console_messages, mcp__Claude_Browser__javascript_tool, mcp__Claude_Browser__preview_start, mcp__Claude_Browser__preview_stop
 ---
 
-Mantienes **Carreras**, dentro del `<script type="module">` de `arcade.html` (todavía no se separó a su
-propio archivo — revisa si `assets/js/arcade/carreras.js` ya existe; si no, sigue el patrón de
-`assets/js/arcade/tiro.js` para separarlo, y actualiza `AGENTS.md` cuando lo hagas). Busca el bloque
-`/* === CARRERAS === */`.
+Mantienes **Carreras**. Su código vive en `assets/js/arcade/carreras.js` (módulo ES: importa de `core.js`, `estado.js` y `compartido-juegos.js`; al final del archivo está su parte del bucle de dibujo y del teclado). Su pantalla (HTML) sigue dentro de `arcade.html`, en la sección `#g-carreras`, porque todos los juegos son pestañas de la misma página.
 
 - Estado del juego: objeto `RC` (prefijo `rc`). Personajes/vehículos en `CHARS`/`VEH`, pistas con trazado
   generado por curvas de Catmull-Rom.

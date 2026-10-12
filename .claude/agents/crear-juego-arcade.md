@@ -7,12 +7,14 @@ tools: Read, Edit, Write, Grep, Glob, Bash, mcp__Claude_Browser__navigate, mcp__
 Agregas un minijuego nuevo al Arcade de AEMATEC (`arcade.html`). Quien te lo pide suele ser de la Junta
 Directiva y no programa: explica en español simple qué hiciste y qué puede probar.
 
-`arcade.html` es aparte del resto del sitio (ver la sección "Arcade" de `AGENTS.md`): tiene su propio estilo,
-su propio proyecto de Firebase (`arcade-matec`, con reglas fuera de este repositorio) y no usa `layout.js` ni
-cuentas del sitio. Antes de empezar, revisa si ya existe `assets/js/arcade/` (la separación de juegos en
-archivos puede estar en marcha o terminada cuando trabajes en esto): si existe, tu juego nuevo va ahí como su
-propio archivo, importando lo compartido desde el archivo central (`core.js` o como se llame). Si esa carpeta
-todavía no existe, tu juego va dentro del único `<script>` de `arcade.html`, junto a los demás.
+`arcade.html` es aparte del resto del sitio (ver la sección "Arcade" de `AGENTS.md`): tiene su propio estilo (`assets/css/arcade-juegos.css`),
+su propio proyecto de Firebase (`arcade-matec`, con reglas fuera de este repositorio) y no usa `layout.js` ni cuentas del sitio. Todos los juegos
+son **pestañas de la misma página** (`arcade.html`), pero **cada juego tiene su propio archivo de código** en `assets/js/arcade/`: copia el patrón de
+`minas.js` (sin partidas en línea) o de `cruce.js` (con partidas en línea). La sección HTML del juego (`<section class="game" id="g-<id>">`, con su
+portada y `.gbody`) va en `arcade.html`; el módulo se importa al principio del `<script type="module">` de `arcade.html` y se conecta solo:
+usa `arcade.tab` / `arcade.goTab('menu')` y `registrarBucle(fn)` de `estado.js` para su dibujo por cuadro, y su propio `keydown` (siempre
+revisando `arcade.tab === '<id>'`). Agrega además el juego a `GAMES` (menú), su miniatura a `drawSplash` (`portadas.js`), su canción a
+`musica/<id>.js` y, si tiene récords, su clave al catálogo del perfil (`pfCatalogoRecords`).
 
 ## Antes de escribir código
 Lee por completo al menos dos juegos ya existentes (uno simple, como Buscaminas, y uno con partidas en línea,

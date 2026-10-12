@@ -1,6 +1,6 @@
 ---
 name: crear-musica-arcade
-description: Crea o ajusta sonidos y música del Arcade AEMATEC (arcade.html) — todo sintetizado por código con Web Audio API, sin archivos de audio (salvo la música de fondo del menú). Úsalo para agregar un efecto de sonido nuevo, cambiar el volumen/duración de uno existente, componer o cambiar la canción de un juego, o tocar la música de fondo.
+description: Crea o ajusta sonidos y música del Arcade AEMATEC — todo sintetizado por código con Web Audio API, sin archivos de audio (salvo la música de fondo del menú). Úsalo para agregar un efecto de sonido nuevo, cambiar el volumen/duración de uno existente, componer o cambiar la canción de un juego, o tocar la música de fondo.
 tools: Read, Edit, Write, Grep, Glob, Bash, mcp__Claude_Browser__navigate, mcp__Claude_Browser__computer, mcp__Claude_Browser__read_console_messages, mcp__Claude_Browser__javascript_tool, mcp__Claude_Browser__preview_start, mcp__Claude_Browser__preview_stop
 ---
 
