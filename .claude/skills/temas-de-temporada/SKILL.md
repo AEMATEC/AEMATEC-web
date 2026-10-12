@@ -11,14 +11,14 @@ description: Cómo agregar, cambiar o quitar temas de temporada del sitio AEMATE
 - `assets/css/temas.css` tiene los colores de cada tema (`html[data-tema="<id>"]`) y las animaciones.
 - `assets/js/temas-pixel.js` dibuja los sprites de **8 bits** (banderas, mujeres, Juan Santamaría, mesón, fuego, copos,
   fantasmas, faroles…) en un `<canvas>` y los muestra ampliados sin suavizar. Todo tema se ve en 8 bits porque también
-  sale en el **Arcade** (`arcade.html` carga `temas.js` y trae `data-sitio="arcade"`: franja fija arriba y aviso estilo juego).
+  sale en el **Arcade** (`arcade.html` carga `temas.js` y trae `data-sitio="arcade"`: guirnalda fija arriba y aviso estilo juego).
 - El tema se elige solo por la fecha de Costa Rica. Si coinciden dos, gana el de rango más corto.
 - La Junta decide desde `admin.html` → **Tema del sitio** (documento `config/tema`): automático, apagado o un
   tema fijo, con fecha de fin opcional. No hace falta un PR para eso.
 - Vista previa en cualquier página: `?tema=<id>` (por ejemplo `index.html?tema=navidad`) o `?tema=ninguno`.
 
 ## Estilos (decisión de la Junta, 2026-09)
-- **sutil**: franja de color bajo el encabezado y un aviso breve. Para celebraciones de un día (8M, Día de la
+- **sutil**: colores propios de la página y del encabezado, guirnalda y escena en el pie, y un aviso breve. Para celebraciones de un día (8M, Día de la
   Madre, Día del Padre, Día del Docente) y para Año nuevo y el mes del Orgullo.
 - **festivo**: además, una animación corta (unos 20 segundos) que se detiene sola. Para las épocas: Navidad,
   Halloween, mes patrio (banderas de Costa Rica que ondean), noche de faroles y Semana de la Carrera; y, desde octubre
@@ -33,8 +33,9 @@ description: Cómo agregar, cambiar o quitar temas de temporada del sitio AEMATE
    gratuito, `fa-…`; el aviso usa el sprite de 8 bits de `ICONO_DE_TEMA` en `temas-pixel.js`) y `mensaje`. Si es festivo,
    define `particulas` (`icono`, `texto`, `bandera` o `farol`) o una `escena` (`marcha`, `juan`: se arman en `temas.js` con
    los sprites de `temas-pixel.js`). Un sprite nuevo se dibuja ahí, con texto (una letra por color) o con rectángulos.
-2. En `assets/css/temas.css` agrega el bloque `html[data-tema="<id>"]` con `--tema-acento` y `--tema-cinta`, y
-   los colores de las partículas si es festivo.
+2. En `assets/css/temas.css` agrega el bloque `html[data-tema="<id>"]` con `--tema-acento`, `--tema-fondo` y
+   `--tema-cabecera`, y los colores de las partículas si es festivo. En `TEMAS` agrega también `guirnalda` (una de
+   `GUIRNALDAS` en `temas-pixel.js`) y `pie` (lista `[sprite, variante, escala, % desde la izquierda]`).
 3. En `tests/temas.test.js` agrega una prueba con sus fechas (la prueba del catálogo ya exige el bloque de CSS).
 4. Revisa con `?tema=<id>` en computadora y celular, y ejecuta `node --test tests/temas.test.js`,
    `node tests/revisar-paginas.mjs` y `node tests/revisar-enlaces.mjs`.
@@ -42,15 +43,15 @@ description: Cómo agregar, cambiar o quitar temas de temporada del sitio AEMATE
 ## Si cambia el diseño base del sitio
 Los temas se dibujan encima del diseño normal; sus colores son de cada celebración y no dependen de la paleta del
 sitio. Aun así, dependen de tres cosas del diseño base:
-- **El encabezado:** la franja es `html[data-tema] .site-header::after` (se dibuja sobre el borde inferior de
-  `.site-header`, que genera `assets/js/layout.js`). Si el encabezado cambia de clase, pasa a ser fijo o cambia de
-  forma, ajusta ese bloque.
+- **El encabezado y el pie:** la guirnalda cuelga de `.site-header` y la escena se apoya en `.site-footer` (los genera
+  `assets/js/layout.js`; `temas.css` les da `position: relative`). El fondo de la página y del encabezado se pintan con
+  `--tema-fondo` y `--tema-cabecera`. Si cambian de clase, pasan a ser fijos o cambian de forma, ajusta esos bloques.
 - **La línea del menú activo:** los temas cambian la variable `--aematec-teal-line` de `assets/css/site.css`. Si se
   renombra, actualízala en la primera regla de `temas.css`.
 - **El aviso:** usa el azul del sitio (`#0D2B45`), fondo blanco y Montserrat. Si cambian los colores base o las
   tipografías, ajusta `.tema-aviso` para que combine.
 
-Después de un rediseño, revisa con `?tema=semana-carrera` (franja más alta), `?tema=navidad` (animación), `?tema=8m` y
+Después de un rediseño, revisa con `?tema=semana-carrera`, `?tema=navidad` (guirnalda y animación), `?tema=8m` y
 `?tema=juan-santamaria` (escenas), en computadora y celular, y también en `arcade.html?tema=…`.
 
 ## Reglas

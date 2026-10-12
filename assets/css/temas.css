@@ -1,10 +1,11 @@
 /* Temas de temporada. Los activa assets/js/temas.js poniendo data-tema y data-tema-estilo en <html>.
    CSS plano (no depende de Tailwind). Cada tema define:
-   --tema-acento  color del aviso y de la línea del menú activo
-   --tema-cinta   fondo de la franja bajo el encabezado (color, degradado o dibujo) */
+   --tema-acento    color del aviso y de la línea del menú activo
+   --tema-fondo     fondo de la página
+   --tema-cabecera  fondo del encabezado
+   La guirnalda y la escena del pie las arma temas.js (decorar) con los sprites de temas-pixel.js. */
 
-html[data-tema] { --tema-alto: 6px; --aematec-teal-line: var(--tema-acento); }
-html[data-tema-estilo="festivo"] { --tema-alto: 16px; }
+html[data-tema] { --aematec-teal-line: var(--tema-acento); }
 
 /* ---------- Decoración propia de cada tema (temas.js, decorar) ---------- */
 /* La guirnalda cuelga bajo el encabezado y la escena se apoya en el borde de arriba del pie: ninguna mueve el contenido. */
@@ -118,29 +119,23 @@ html[data-tema="anio-nuevo"] {
   --tema-fondo: #FBF6E6;
   --tema-cabecera: #FFF9E0;
   --tema-acento: #B8901F;
-  --tema-cinta: linear-gradient(90deg, #0D2B45, #C9A227, #F4D06F, #C9A227, #0D2B45);
 }
 html[data-tema="8m"] {
   --tema-fondo: #F6EDF9;
   --tema-cabecera: #EFDDF5;
   --tema-acento: #7B2D8E;
-  --tema-cinta: linear-gradient(90deg, #5B1F6E, #9B59B6, #5B1F6E);
 }
 html[data-tema="juan-santamaria"] {
   --tema-fondo: #FFF1E6;
   --tema-cabecera: #FFDFC8;
   /* Franja de brasas: rojo oscuro, naranja y amarillo, como la llama de la antorcha. */
   --tema-acento: #C2410C;
-  --tema-alto: 16px;
-  --tema-cinta: linear-gradient(90deg, #7A1E0E, #D8481B, #F6A623, #FFD866, #F6A623, #D8481B, #7A1E0E);
 }
 html[data-tema="semana-carrera"] {
   --tema-fondo: #EEF2F8;
   --tema-cabecera: #DFE7F3;
   /* Estilo griego antiguo: greca (meandro) dorada sobre azul, por «La constante de Arquímedes». */
   --tema-acento: #B8901F;
-  --tema-alto: 18px;
-  --tema-cinta: #0D2B45 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'%3E%3Cpath d='M0 19H19V1H3V15H15V5H7V11H11' fill='none' stroke='%23D4AF37' stroke-width='2'/%3E%3C/svg%3E") repeat-x center / 12px 12px;
 }
 html[data-tema="semana-carrera"] .tema-aviso { border-top: 4px solid #0D2B45; }
 
@@ -148,27 +143,22 @@ html[data-tema="orgullo"] {
   --tema-fondo: #F7F2FB;
   --tema-cabecera: #EFE6F7;
   --tema-acento: #7B2D8E;
-  --tema-cinta: linear-gradient(90deg, #E40303 0 16.66%, #FF8C00 0 33.33%, #FFED00 0 50%, #008026 0 66.66%, #004DFF 0 83.33%, #750787 0);
 }
 html[data-tema="dia-padre"] {
   --tema-fondo: #E8F3F9;
   --tema-cabecera: #D6EAF5;
   --tema-acento: #0B6E99;
-  --tema-cinta: linear-gradient(90deg, #0D2B45, #0B6E99, #00A6B8, #0B6E99, #0D2B45);
 }
 html[data-tema="dia-madre"] {
   --tema-fondo: #FCEEF4;
   --tema-cabecera: #F8DCE9;
   --tema-acento: #B0336B;
-  --tema-cinta: linear-gradient(90deg, #B0336B, #F29BBE, #B0336B);
 }
 html[data-tema="mes-patrio"], html[data-tema="faroles"] {
   --tema-fondo: #F2F5FC;
   --tema-cabecera: #E6ECF8;
   /* Bandera de Costa Rica: azul, blanco, rojo (doble), blanco, azul. */
   --tema-acento: #002B7F;
-  --tema-alto: 18px;
-  --tema-cinta: linear-gradient(180deg, #002B7F 0 16.66%, #FFFFFF 0 33.33%, #CE1126 0 66.66%, #FFFFFF 0 83.33%, #002B7F 0);
 }
 html[data-tema="faroles"] { --tema-acento: #C77700; --tema-fondo: #FFF6E5; --tema-cabecera: #FFE9BF; }
 
@@ -176,20 +166,17 @@ html[data-tema="halloween"] {
   --tema-fondo: #FFF3E6;
   --tema-cabecera: #FFE0C2;
   --tema-acento: #D8661B;
-  --tema-cinta: repeating-linear-gradient(135deg, #1F1A24 0 10px, #F28C28 10px 20px);
 }
 
 html[data-tema="dia-docente"] {
   --tema-fondo: #E6F2EA;
   --tema-cabecera: #CFE8D8;
   --tema-acento: #087F8C;
-  --tema-cinta: linear-gradient(90deg, #0D2B45, #00A6B8, #39C7D5, #00A6B8, #0D2B45);
 }
 html[data-tema="navidad"] {
   --tema-fondo: #F1F8F3;
   --tema-cabecera: #E0F0E5;
   --tema-acento: #B3202A;
-  --tema-cinta: repeating-linear-gradient(90deg, #B3202A 0 18px, #F4F4F4 18px 22px, #1E7B4B 22px 40px, #F4F4F4 40px 44px);
 }
 
 /* ---------- 8 bits: sprites, partículas y escenas (los dibujos están en assets/js/temas-pixel.js) ---------- */
@@ -249,7 +236,7 @@ html[data-tema="navidad"] {
 @keyframes juan-sale { to { opacity: 0; } }
 
 /* ---------- En el Arcade (arcade.html trae data-sitio="arcade") ---------- */
-/* No tiene encabezado del sitio: la franja del tema va fija arriba, y el aviso se ve como un cuadro de juego. */
+/* No tiene encabezado del sitio: la guirnalda del tema va fija arriba, y el aviso se ve como un cuadro de juego. */
 html[data-sitio="arcade"] .tema-aviso {
   border: 4px solid #F4F4F4;
   border-radius: 0;

@@ -64,7 +64,7 @@
 
   // Lista sin vacíos ni repetidas, cada una normalizada. Acepta texto con "/" o "," o una lista.
   function normalizarLista(valor) {
-    const partes = Array.isArray(valor) ? valor : String(valor ?? "").split(/[\/,]/);
+    const partes = Array.isArray(valor) ? valor : String(valor ?? "").split(/[/,]/);
     const vistas = new Map();
     for (const parte of partes) {
       const categoria = normalizarCategoria(parte);

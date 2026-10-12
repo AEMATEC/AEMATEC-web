@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
-const { GRUPOS, FUSIONES, MAX_CATEGORIAS, normalizarCategoria, normalizarLista, categoriasDeLibro, grupoDe } = require("../assets/js/inventario-categorias.js");
+const { GRUPOS, FUSIONES, normalizarCategoria, normalizarLista, categoriasDeLibro, grupoDe } = require("../assets/js/inventario-categorias.js");
 
 describe("Categorías: cómo se escriben", () => {
   test("unifica mayúsculas, tildes, espacios y errores de escritura", () => {
