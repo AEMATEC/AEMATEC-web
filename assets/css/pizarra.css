@@ -79,5 +79,25 @@ h3.pz-centro::after { content: ""; display: block; width: 70%; height: 6px; marg
 .pz-cerrar { position: absolute; top: 18px; right: 18px; width: 36px; height: 36px; border: 0; border-radius: 50%; background: rgba(255, 255, 255, 0.15); color: #FFF; font-size: 16px; cursor: pointer; }
 .pz-cerrar:hover { background: rgba(255, 255, 255, 0.3); }
 
-@media (max-width: 640px) { .pz-asa { top: auto; bottom: 90px; } .pz-titulo { font-size: 26px; padding-right: 40px; } .pz-nota { flex-basis: 100%; } }
+@media (max-width: 640px) {
+  .pz-asa { top: auto; bottom: 90px; padding: 8px 6px; gap: 5px; font-size: 10px; }
+  .pz-titulo { font-size: 24px; padding-right: 40px; margin-bottom: 10px; }
+  .pz-titulo small { font-size: 15px; }
+  .pz { padding: 8px; border-radius: 12px; }
+  .pz-caida { padding: 0 6px 8px; }
+  .pz-pizarra { padding: 14px 10px 24px; font-size: 16px; }
+  .pz-cerrar { top: 10px; right: 10px; width: 32px; height: 32px; }
+  .pz-tabs { gap: 6px; margin-bottom: 12px; }
+  .pz-tab { padding: 4px 12px; font-size: 17px; }
+  .pz-notas { gap: 12px; margin: 0 auto 16px; }
+  .pz-centro { font-size: 30px; }
+  .pz-centro--pregunta h3 { font-size: 24px; }
+  .pz-nota { flex-basis: 100%; padding: 10px 12px 8px; }
+  .pz-nota h3 { font-size: 20px; }
+  .pz-nota p, .pz-ayuda, .pz-campo { font-size: 16px; }
+  .pz-form { padding: 12px 12px 2px; margin-top: 12px; }
+  .pz-campo { margin-bottom: 8px; }
+  .pz-control { padding: 5px 10px; font-size: 16px; }
+  .pz-boton { padding: 5px 16px; font-size: 18px; }
+}
 @media (prefers-reduced-motion: reduce) { .pz-caida, .pz-fondo { transition: none; } .pz-nota { transform: none; } }
