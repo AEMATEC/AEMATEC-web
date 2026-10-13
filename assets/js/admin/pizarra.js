@@ -5,6 +5,7 @@
 import { db } from "../firebase.js";
 import { collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, addDoc, writeBatch, query, where, Timestamp, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { escapeHtml } from "../util.js";
+import { reducirImagen } from "../imagen-aviso.js";
 
 const $ = selector => document.querySelector(selector);
 const TIPOS = { noticia: "Noticia", recordatorio: "Recordatorio", aviso: "Aviso" };
@@ -19,8 +20,9 @@ export function iniciarPizarra({ junta }) {
   const fila = (a, aprobado) => `<li class="flex flex-wrap items-start justify-between gap-2 py-3">
       <span class="max-w-[640px]"><strong class="font-sans text-sm">${escapeHtml(a.titulo)}</strong>
         <span class="ml-2 rounded-full bg-[#EEF4F6] px-2 py-0.5 font-sans text-[11px] font-bold text-[#405769]">${escapeHtml(TIPOS[a.tipo] || a.tipo)}</span>
-        <span class="block text-sm text-[#405769]">${escapeHtml(a.texto)}</span>
-        <span class="block text-xs text-[#607480]">${escapeHtml([a.autor, a.vence && `hasta ${a.vence}`].filter(Boolean).join(" · ") || "Sin nombre")}</span></span>
+        <span class="block whitespace-pre-line text-sm text-[#405769]">${escapeHtml(a.texto)}</span>
+        ${typeof a.imagen === "string" && a.imagen.startsWith("data:image/jpeg;base64,") ? `<img src="${escapeHtml(a.imagen)}" alt="Imagen del anuncio" class="mt-2 max-h-40 rounded-md border border-[#E2E9EC]">` : ""}
+        <span class="block text-xs text-[#607480]">${escapeHtml([a.autor, a.tiza && `tiza ${a.tiza}`, a.vence && `hasta ${a.vence}`].filter(Boolean).join(" · ") || "Sin nombre")}</span></span>
       <span class="flex gap-4">
         ${aprobado ? "" : `<button data-accion="aprobar" data-id="${escapeHtml(a.id)}" class="font-sans text-xs font-bold text-[#00798A] underline">Aprobar</button>`}
         <button data-accion="borrar" data-id="${escapeHtml(a.id)}" class="font-sans text-xs font-bold text-[#C2413B] underline">Eliminar</button></span></li>`;
@@ -50,6 +52,8 @@ export function iniciarPizarra({ junta }) {
     try {
       const datos = { tipo: f.tipo.value, titulo: f.titulo.value.trim(), texto: f.texto.value.trim(), aprobado: true, creado: serverTimestamp() };
       if (f.vence.value) datos.vence = f.vence.value;
+      if (f.tiza.value !== "blanca") datos.tiza = f.tiza.value;
+      if (f.imagen.files[0]) datos.imagen = await reducirImagen(f.imagen.files[0]);
       await addDoc(collection(db, "anuncios"), datos);
       event.target.reset();
       avisar("Publicado en la pizarra.");

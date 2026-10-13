@@ -28,6 +28,15 @@ h3.pz-centro::after { content: ""; display: block; width: 70%; height: 6px; marg
 .pz-nota--noticia { --borde: var(--tiza-amarilla); }
 .pz-nota--recordatorio { --borde: var(--tiza-azul); }
 .pz-nota--aviso { --borde: var(--tiza-rosa); }
+/* Color de tiza escogido por quien publica (gana sobre el color del tipo). */
+.pz-tiza--blanca { --borde: var(--tiza); }
+.pz-tiza--amarilla { --borde: var(--tiza-amarilla); }
+.pz-tiza--azul { --borde: var(--tiza-azul); }
+.pz-tiza--rosa { --borde: var(--tiza-rosa); }
+.pz-tiza--verde { --borde: #A8F0B4; }
+.pz-tiza--naranja { --borde: #FFB366; }
+.pz-nota__texto { white-space: pre-line; } /* conserva los saltos de renglón */
+.pz-nota__img { display: block; max-width: 100%; max-height: 220px; margin: 6px auto 8px; border: 2px solid var(--borde, var(--tiza)); border-radius: 8px 3px 7px 4px; object-fit: contain; }
 .pz-nota h3 { margin: 2px 0 4px; font: 400 23px/1.2 "Patrick Hand", cursive; color: var(--borde); }
 .pz-nota p { margin: 0; font-size: 18px; line-height: 1.35; overflow-wrap: anywhere; }
 .pz-nota__tipo { display: inline-block; font: 400 15px "Patrick Hand", cursive; letter-spacing: 0.08em; text-transform: uppercase; color: var(--borde, #CFE3D5); opacity: 0.9; }
@@ -44,6 +53,8 @@ h3.pz-centro::after { content: ""; display: block; width: 70%; height: 6px; marg
 .pz-control { display: block; width: 100%; margin-top: 4px; padding: 7px 12px; border: 2px solid var(--tiza-azul); border-radius: 12px 4px 10px 6px; background: rgba(255, 255, 255, 0.07); color: var(--tiza); font: 400 18px "Patrick Hand", cursive; }
 .pz-control::placeholder { color: rgba(244, 247, 242, 0.55); }
 .pz-control option { color: #0D2B45; }
+.pz-control[type="file"] { padding: 5px 8px; font-size: 16px; }
+.pz-form .pz-nota__img { margin: 0 0 12px; }
 .pz-control[type="date"] { color-scheme: dark; }
 .pz-boton { padding: 7px 22px; border: 2px solid var(--tiza-amarilla); border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px; background: rgba(255, 230, 128, 0.12); color: var(--tiza-amarilla); font: 400 20px "Patrick Hand", cursive; cursor: pointer; }
 .pz-boton:hover { background: rgba(255, 230, 128, 0.25); }
