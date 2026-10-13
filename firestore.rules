@@ -101,8 +101,16 @@ service cloud.firestore {
     // Pizarra de anuncios (pizarra.html y la portada). Cualquier persona puede proponer un anuncio, pero queda
     // con aprobado:false y solo se ve cuando la Junta o la moderación lo aprueban. Sin correos ni datos personales:
     // el nombre es opcional y se escribe a mano.
+    // `tiza` (color de la tiza) e `imagen` (foto ya reducida en el navegador, guardada como texto data:) son opcionales.
+    function esExtraAnuncio(d) {
+      return d.get('tiza', 'blanca') in ['blanca', 'amarilla', 'azul', 'rosa', 'verde', 'naranja']
+        && d.get('imagen', 'data:image/jpeg;base64,') is string
+        && d.get('imagen', 'data:image/jpeg;base64,').size() <= 200000
+        && d.get('imagen', 'data:image/jpeg;base64,').matches('data:image/jpeg;base64,[A-Za-z0-9+/=]*');
+    }
     function esAnuncioNuevo(d) {
-      return d.keys().hasOnly(['tipo', 'titulo', 'texto', 'autor', 'vence', 'aprobado', 'creado'])
+      return d.keys().hasOnly(['tipo', 'titulo', 'texto', 'autor', 'vence', 'tiza', 'imagen', 'aprobado', 'creado'])
+        && esExtraAnuncio(d)
         && d.keys().hasAll(['tipo', 'titulo', 'texto', 'aprobado', 'creado'])
         && d.tipo in ['noticia', 'recordatorio', 'aviso']
         && d.titulo is string && d.titulo.size() >= 3 && d.titulo.size() <= 80
@@ -115,7 +123,8 @@ service cloud.firestore {
       allow read: if resource.data.aprobado == true || isJunta() || isModerator();
       allow create: if esAnuncioNuevo(request.resource.data)
         || ((isJunta() || isModerator()) && request.resource.data.aprobado is bool
-          && request.resource.data.keys().hasOnly(['tipo', 'titulo', 'texto', 'autor', 'vence', 'aprobado', 'creado']));
+          && request.resource.data.keys().hasOnly(['tipo', 'titulo', 'texto', 'autor', 'vence', 'tiza', 'imagen', 'aprobado', 'creado'])
+          && esExtraAnuncio(request.resource.data));
       allow update, delete: if isJunta() || isModerator();
     }
 

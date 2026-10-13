@@ -3,6 +3,7 @@
 // Pregunta quincenal: la Junta publica config/pregunta; cualquiera responde una vez; las respuestas se ven al cerrar
 // (colección `preguntaRespuestas`). Reglas y límites: firestore.rules. Panel de la Junta: assets/js/admin/pizarra.js.
 import { db } from "./firebase.js";
+import { reducirImagen, TIZAS } from "./imagen-aviso.js";
 import { collection, query, where, getDocs, getDoc, addDoc, setDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const el = (etiqueta, clase, texto) => { const e = document.createElement(etiqueta); if (clase) e.className = clase; if (texto != null) e.textContent = texto; return e; };
@@ -59,7 +60,10 @@ async function panelAnuncios() {
     docs.forEach((a, i) => {
       const nota = el("article", `pz-nota pz-nota--${TIPOS[a.tipo] ? a.tipo : "aviso"}`);
       nota.style.setProperty("--giro", `${[-1.6, 1.2, -0.8, 1.8, -1.2][i % 5]}deg`);
-      nota.append(el("span", "pz-nota__tipo", TIPOS[a.tipo] || "Aviso"), el("h3", "", a.titulo), el("p", "", a.texto));
+      if (TIZAS[a.tiza]) nota.classList.add(`pz-tiza--${a.tiza}`);
+      nota.append(el("span", "pz-nota__tipo", TIPOS[a.tipo] || "Aviso"), el("h3", "", a.titulo));
+      if (typeof a.imagen === "string" && a.imagen.startsWith("data:image/jpeg;base64,")) { const img = el("img", "pz-nota__img"); img.src = a.imagen; img.alt = ""; img.loading = "lazy"; nota.appendChild(img); }
+      nota.appendChild(el("p", "pz-nota__texto", a.texto)); // los saltos de renglón se conservan con CSS (white-space: pre-line)
       const pie = [a.autor, a.creado && fechaLarga(a.creado.toDate())].filter(Boolean).join(" · ");
       if (pie) nota.appendChild(el("p", "pz-nota__pie", pie));
       notas.push(nota);
@@ -79,9 +83,21 @@ async function panelAnuncios() {
   const autor = entrada("text", { maxLength: 40, placeholder: "Opcional" });
   const vence = entrada("date");
   vence.min = hoyCR();
+  const tiza = el("select", "pz-control");
+  Object.entries(TIZAS).forEach(([v, t]) => tiza.add(new Option(`Tiza ${t.toLowerCase()}`, v)));
+  tiza.value = "blanca";
+  const foto = entrada("file", { accept: "image/*" });
+  const vista = el("img", "pz-nota__img"); vista.alt = "Vista previa de la imagen"; vista.hidden = true;
+  let imagen = null;
+  foto.addEventListener("change", async () => {
+    imagen = null; vista.hidden = true;
+    if (!foto.files[0]) return;
+    try { imagen = await reducirImagen(foto.files[0]); vista.src = imagen; vista.hidden = false; estado(aviso, ""); }
+    catch { foto.value = ""; estado(aviso, "No se pudo usar esa imagen. Prueba con otra foto.", false); }
+  });
   const boton = el("button", "pz-boton", "Enviar para revisión");
   const aviso = el("p", "pz-estado"); aviso.hidden = true; aviso.setAttribute("role", "status");
-  form.append(campo("Tipo", tipo), campo("Título", titulo), campo("Mensaje", texto), campo("Tu nombre", autor), campo("Mostrar hasta (opcional)", vence), boton, aviso);
+  form.append(campo("Tipo", tipo), campo("Título", titulo), campo("Mensaje (los saltos de renglón se respetan)", texto), campo("Color de la tiza", tiza), campo("Imagen (opcional)", foto), vista, campo("Tu nombre", autor), campo("Mostrar hasta (opcional)", vence), boton, aviso);
   form.addEventListener("submit", async e => {
     e.preventDefault();
     const ultimo = Number(guardar("pz-ultimo-anuncio")) || 0;
@@ -91,9 +107,11 @@ async function panelAnuncios() {
       const datos = { tipo: tipo.value, titulo: titulo.value.trim(), texto: texto.value.trim(), aprobado: false, creado: serverTimestamp() };
       if (autor.value.trim()) datos.autor = autor.value.trim();
       if (vence.value) datos.vence = vence.value;
+      if (tiza.value !== "blanca") datos.tiza = tiza.value;
+      if (imagen) datos.imagen = imagen;
       await addDoc(collection(db, "anuncios"), datos);
       guardar("pz-ultimo-anuncio", String(Date.now()));
-      form.reset();
+      form.reset(); imagen = null; vista.hidden = true;
       estado(aviso, "¡Gracias! Tu anuncio se publicará cuando la Junta o la moderación lo aprueben.");
     } catch {
       estado(aviso, "No se pudo enviar. Revisa los datos e intenta de nuevo.", false);

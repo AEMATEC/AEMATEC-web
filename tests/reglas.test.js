@@ -109,6 +109,14 @@ describe("Pizarra de anuncios", () => {
     await assertFails(crear(anonimo(), anuncio({ correo: "a@b.cr" })), "sin campos extra");
     await assertFails(crear(anonimo(), anuncio({ creado: Timestamp.fromDate(new Date("2020-01-01")) })));
   });
+  test("color de tiza e imagen: opcionales y validados", async () => {
+    await assertSucceeds(crear(anonimo(), anuncio({ tiza: "azul", imagen: "data:image/jpeg;base64,/9j/4AAQ" }), "conextra"));
+    await assertFails(crear(anonimo(), anuncio({ tiza: "negra" })), "color desconocido");
+    await assertFails(crear(anonimo(), anuncio({ imagen: "https://ejemplo.cr/x.jpg" })), "la imagen no es un enlace");
+    await assertFails(crear(anonimo(), anuncio({ imagen: "data:image/svg+xml;base64,PHN2Zz4=" })), "solo JPEG");
+    await assertFails(crear(anonimo(), anuncio({ imagen: "data:image/jpeg;base64," + "A".repeat(200000) })), "demasiado grande");
+    await assertSucceeds(crear(usuario(JUNTA), anuncio({ aprobado: true, tiza: "rosa" }), "directo2"));
+  });
   test("el público solo ve los aprobados; la Junta y la moderación ven todos", async () => {
     await sembrar("ok", { ...anuncio(), aprobado: true, creado: Timestamp.now() });
     await sembrar("pend", { ...anuncio(), creado: Timestamp.now() });
