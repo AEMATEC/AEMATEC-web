@@ -624,3 +624,22 @@ button.recursos-filtro-boton {
     transition: none;
   }
 }
+
+/* ==========================================================================
+   Celular: menos aire y tarjetas más compactas en todas las páginas
+   Las páginas usan utilidades de Tailwind con valores fijos (py-[56px], text-[30px], p-8…) pensadas para
+   escritorio; aquí se reducen solo en pantallas angostas. Los selectores llevan `main` y el atributo para
+   ganarle a Tailwind, que se carga después de este archivo.
+   ========================================================================== */
+@media (max-width: 767px) {
+  main section[class*="py-["] { padding-top: 2rem; padding-bottom: 2rem; }
+  main section[class*="pb-["] { padding-bottom: 2rem; }
+  main section[class*="mb-["] { margin-bottom: 2rem; }
+  main h2[class*="text-[30px]"] { font-size: 1.45rem; }
+  main .mb-7 { margin-bottom: 1rem; }
+  main a[class*="p-8"], main article[class*="p-8"], main div[class*="p-8"] { padding: 1rem; }
+  main a[class*="p-6"], main article[class*="p-6"] { padding: 0.9rem; }
+  .hero-portada .site-container { min-height: 0; padding-top: 2rem; padding-bottom: 2rem; }
+  .hero-portada .site-container > p { margin-top: 0.75rem; font-size: 0.95rem; line-height: 1.6; }
+  .hero-portada h1 { font-size: clamp(1.9rem, 8vw, 2.4rem); }
+}
