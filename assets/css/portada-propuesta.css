@@ -1,0 +1,94 @@
+/* Propuesta de portada simplificada (index-propuesta.html). Solo la usa esa página; index.html no cambia. */
+body.pp { margin: 0; background: #F4F8FA; color: #0D2B45; font-family: Montserrat, sans-serif; }
+.pp h1, .pp h2, .pp h3, .pp p { margin: 0; }
+
+/* Un solo flotante: el asistente. Arcade y Pizarra van como enlaces en el pie. */
+.pp .arcade-fab { display: none; }
+
+.pp-eyebrow { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: #00798A; }
+.pp-h2 { margin-top: 0.4rem !important; font-size: 26px; font-weight: 700; letter-spacing: -0.02em; }
+.pp-seccion { padding: 48px 0; }
+.pp-seccion__cabeza { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 0.75rem 1.5rem; margin-bottom: 1.5rem; }
+.pp-enlace { font-size: 14px; font-weight: 700; color: #00798A; text-decoration: none; }
+.pp-enlace:hover { text-decoration: underline; }
+
+/* Hero */
+.pp-hero { position: relative; isolation: isolate; overflow: hidden; background: #EAF5F7; border-bottom: 1px solid #D5E5EA; }
+.pp-hero #hero-trig { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: .38; }
+.pp-hero__contenido { position: relative; z-index: 1; padding-top: 64px; padding-bottom: 56px; }
+.pp-hero h1 { max-width: 620px; font-size: 46px; line-height: 1.1; letter-spacing: -0.04em; font-weight: 700; }
+.pp-hero h1 span { color: #00798A; }
+.pp-hero__texto { max-width: 560px; margin-top: 1rem !important; font-size: 18px; line-height: 1.6; color: #405769; }
+#home-search-form { box-sizing: border-box; display: flex; align-items: center; width: 100%; max-width: 560px; height: 58px; margin-top: 1.75rem; padding: 0.4rem;
+  background: #fff; border: 2px solid #8497A3; border-radius: 14px; box-shadow: 0 12px 35px rgba(13, 43, 69, 0.10); }
+#home-search-form > i { margin-left: 0.75rem; color: #00798A; }
+#home-search-form input { flex: 1; min-width: 0; height: 100%; padding: 0 0.9rem; border: 0; background: transparent; outline: none; font: inherit; font-size: 16px; color: #233F53; }
+#home-search-form input::placeholder { color: #627683; }
+#home-search-form button { height: 42px; padding: 0 1.4rem; border: 0; border-radius: 10px; background: #087F8C; color: #fff; font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
+#home-search-form button:hover { background: #066F7C; }
+
+/* Servicios: las 4 tarjetas comparten estilo, tamaño y flecha. */
+.pp-servicios { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.25rem; }
+.pp-card { display: flex; flex-direction: column; gap: 0.9rem; padding: 1.5rem; background: #fff; border: 1px solid #D8E3E9; border-radius: 18px;
+  color: inherit; text-decoration: none; transition: border-color .15s, box-shadow .15s; }
+.pp-card:hover { border-color: #00B5C8; box-shadow: 0 10px 28px rgba(13, 43, 69, 0.08); }
+.pp-card__icono { display: flex; align-items: center; justify-content: center; width: 52px; height: 52px; border-radius: 14px; background: #E6F8FA; color: #00798A; font-size: 21px; }
+.pp-card__titulo { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; font-size: 19px; font-weight: 700; }
+.pp-card__titulo i { color: #00798A; font-size: 15px; transition: transform .15s; }
+.pp-card:hover .pp-card__titulo i { transform: translateX(3px); }
+.pp-card[aria-expanded="true"] .pp-card__titulo i { transform: rotate(90deg); }
+.pp-card p { font-size: 14px; line-height: 1.5; color: #405769; }
+.pp-inv-panel { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.75rem; padding: 1rem; background: #F4FAFB; border: 1px solid #D8E3E9; border-radius: 18px; }
+.pp-inv-panel[hidden] { display: none; }
+.pp-inv-panel a { display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.9rem; background: #fff; border: 1px solid #D8E3E9; border-radius: 12px;
+  color: inherit; font-size: 14px; font-weight: 700; text-decoration: none; }
+.pp-inv-panel a:hover { border-color: #00B5C8; }
+.pp-inv-panel i { color: #00798A; }
+
+/* Actividades: cuadrícula fija, sin carrusel. */
+.pp-fotos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.9rem; margin: 0; padding: 0; list-style: none; }
+.pp-fotos img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 14px; background: #D8E3E9; }
+.pp-mas { margin-top: 1rem; }
+.pp-mas summary { display: inline-block; cursor: pointer; font-size: 14px; font-weight: 700; color: #00798A; list-style: none; }
+.pp-mas summary::-webkit-details-marker { display: none; }
+.pp-mas[open] summary { margin-bottom: 1rem; }
+.pp-mas .pp-mas__cerrar, .pp-mas[open] .pp-mas__abrir { display: none; }
+.pp-mas[open] .pp-mas__cerrar { display: inline; }
+
+/* Canales oficiales: franja compacta. */
+.pp-medios { background: #EAF1F4; border-top: 1px solid #D7E3E8; padding: 36px 0; }
+.pp-medios__lista { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.75rem; margin-top: 1rem; }
+.pp-medios__lista a { display: flex; align-items: center; gap: 0.75rem; min-width: 0; padding: 0.85rem 1rem; background: #fff; border: 1px solid #D8E3E9; border-radius: 12px; color: inherit; text-decoration: none; }
+.pp-medios__lista a:hover { border-color: #00B5C8; }
+.pp-medios__lista i { flex: none; font-size: 20px; }
+.pp-medios__lista strong { display: block; font-size: 14px; }
+.pp-medios__lista span { display: block; font-size: 12px; color: #405769; overflow-wrap: anywhere; }
+.pp-medios__nota { margin-top: 1rem !important; font-size: 13px; line-height: 1.6; color: #405769; }
+.pp-medios__nota a { font-weight: 600; color: #00798A; }
+
+@media (max-width: 1023px) {
+  .pp-servicios { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pp-medios__lista { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 767px) {
+  .pp-hero__contenido { padding-top: 40px; padding-bottom: 36px; }
+  .pp-hero h1 { font-size: 32px; }
+  .pp-hero__texto { font-size: 16px; }
+  #home-search-form { height: 54px; margin-top: 1.25rem; padding: 0.35rem; }
+  #home-search-form button { height: 40px; padding: 0 1rem; }
+  .pp-seccion { padding: 32px 0; }
+  .pp-h2 { font-size: 22px; }
+  .pp-servicios { grid-template-columns: 1fr; gap: 0.75rem; }
+  .pp-card { flex-direction: row; align-items: center; gap: 0.9rem; padding: 0.9rem 1rem; }
+  .pp-card__icono { flex: none; width: 46px; height: 46px; font-size: 19px; }
+  .pp-card > div:last-child { flex: 1; min-width: 0; }
+  .pp-card__titulo { font-size: 17px; }
+  .pp-card p { margin-top: 0.15rem !important; font-size: 13px; }
+  .pp-inv-panel { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 0.75rem; gap: 0.6rem; }
+  .pp-fotos { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.6rem; }
+  .pp-medios { padding: 28px 0; }
+  .pp-medios__lista a { padding: 0.7rem; gap: 0.5rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pp-card, .pp-card__titulo i { transition: none; }
+}
