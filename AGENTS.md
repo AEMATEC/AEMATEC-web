@@ -86,6 +86,10 @@ revisa la pestaña **Actions** del repositorio en GitHub.
 - **Temas de temporada:** ya no llevan franja de color bajo el encabezado; cada tema trae `--tema-fondo` y `--tema-cabecera` (colores de la página) en `assets/css/temas.css`. Un tema nuevo debe definirlos.
 - **Pizarra:** los anuncios públicos se crean siempre con `aprobado:false`; no muestres nada sin aprobar ni agregues datos personales.
 - **Efemérides:** para agregar o corregir una fecha del calendario edita `assets/js/efemerides-datos.js` (`FIJAS` para fechas que no cambian, `movibles` para las que se mueven) y corre `node --test tests/efemerides.test.js`. Los calendarios MEP y TEC no tienen fuente automática: sus fechas las edita la Junta desde `admin.html` (colección `efemerides`); no inventes fechas de años que aún no publican. Solo fechas ciertas y con descripción corta; no afirmes que algo es feriado: la página remite al calendario oficial del MTSS.
+- **Propuesta de portada y Documentación** (`index-propuesta.html`, `documentacion.html`): usan solo
+  `assets/css/portada-propuesta.css`; sus reglas de diseño están en README → «Diseño de la propuesta de portada». Las
+  carpetas de Documentación son enlaces de SharePoint que solo abren con cuenta `@estudiantec.cr`: no copies sus
+  archivos al repositorio. Por decisión de la Junta, Documentación todavía no va en el menú ni en `site-pages.js`.
 - Si agregas o renombras una página, agrégala también en `assets/js/site-pages.js` (buscador de la portada y
   asistente).
 - Mientras el sitio no sea público, una página se puede renombrar sin dejar redirección: actualiza todos los enlaces

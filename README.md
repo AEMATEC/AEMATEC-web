@@ -15,6 +15,8 @@ dependen de él citan el artículo correspondiente en el código y en [`docs/PLA
 | Módulo | Páginas | Qué hace |
 |---|---|---|
 | Portada | `index.html` | Acceso a los servicios, Medios Oficiales (RI Art. 102) y un carrusel de fotos de actividades (ver [abajo](#carrusel-de-fotos-de-actividades-portada)). |
+| Propuesta de portada | `index-propuesta.html` (estilos en `assets/css/portada-propuesta.css`) | Versión más simple de la portada para comparar con `index.html` (que no cambia). Mismo encabezado, buscador y pie; 5 tarjetas de servicios iguales (Repositorio, Inventario, Junta, Trámites y Documentación); 6 fotos de actividades en cuadrícula con «Ver más fotos» (sin carrusel); el video se abre en una ventana encima de la página; franja compacta de Medios Oficiales con la nota de los Art. 102 y 104. Pizarra y Arcade no flotan: se abren desde dos botones del hero con su estilo propio (tiza y pixel). Único flotante: el asistente. Ver [Diseño de la propuesta de portada](#diseño-de-la-propuesta-de-portada). |
+| Documentación | `documentacion.html` (anillo: `assets/js/anillo-documentos.js`) | Enlaces a las carpetas oficiales de SharePoint/Teams de la Junta: Reglamentos, Actas (RI Art. 86), Memorandos, Finanzas e Informes de Labores. Solo se abren con una cuenta `@estudiantec.cr` (lo decide el TEC, no el sitio). Por ahora solo se enlaza desde la propuesta de portada; no está en el menú ni en `site-pages.js`. |
 | Repositorio | `repositorio.html`, `repositorio-docentes.html`, `repositorio-academicos.html`, `repositorio-subir.html`, `repositorio-moderacion.html` | Repositorio digital de materiales didácticos y académicos (RI Art. 4 f). Consulta pública; cualquiera puede proponer material, que queda pendiente de moderación. **Moderación** (`repositorio-moderacion.html`, código en `assets/js/moderacion.js`) tiene su propio acceso solo para la lista `moderators` (no hace falta ser de la Junta): pendientes, edición y equipo de moderación. Con la sesión abierta, Recursos docentes y académicos muestran la barra "Sesión de moderación" y botones para editar y eliminar cada material. |
 | Inventario | `inventario.html` | Consulta pública de bienes (RI Art. 118) y solicitudes de préstamo (RI Art. 120-123). Administración para la Junta. |
 | Junta Directiva | `junta-directiva.html` | Integrantes de la Junta y de la Fiscalía (nombre, puesto y foto opcional, desde `config/junta_publica` y `config/fiscalia_publica`) y medios de contacto. Las fotos se suben desde `admin.html` → Asociación solo con el consentimiento de la persona (Ley 8968). |
@@ -53,6 +55,30 @@ quitarlas; si eres de la Junta y quieres fotos nuevas, pásaselas a quien manten
   colegiales en talleres o ferias) sin permiso escrito de su encargado o del colegio. Si alguien pide quitar una foto
   donde aparece, se quita (lo promete `legal.html`).
 - Antes de abrir el PR corre `node tests/revisar-paginas.mjs` y `node tests/revisar-enlaces.mjs`.
+
+## Diseño de la propuesta de portada
+
+`index-propuesta.html` y `documentacion.html` comparten `assets/css/portada-propuesta.css` (clases `pp-…`, sin
+Tailwind nuevo). Reglas de diseño que siguen:
+
+- **Paleta:** azul marino `#0D2B45`, verde azulado `#00798A` / `#087F8C`, fondos `#EAF5F7` y `#EAF1F4`. En
+  Documentación cada categoría tiene su color (`--doc` y `--doc-claro` en el `style` de cada tarjeta): Reglamentos
+  `#0D2B45`, Actas `#00798A`, Memorandos `#486398`, Finanzas `#276B43`, Informes de Labores `#8B5A2B`. Todos tienen
+  contraste AA (≥ 4.5:1) sobre blanco y sobre su color claro; si agregas una categoría, comprueba su contraste.
+- **Tipografía:** Montserrat en todo. Las únicas excepciones son los dos botones del hero: Pizarra usa la letra de
+  tiza (Patrick Hand, la de `pizarra.css`) y Arcade la pixelada (Press Start 2P, la de `arcade.css`).
+- **Flotantes:** en la portada solo el asistente (`body.pp-portada` oculta el botón del Arcade y la pestaña de la
+  Pizarra; ambos siguen funcionando desde los botones del hero). Las demás páginas no cambian.
+- **Tarjetas de servicios:** todas iguales (mismo fondo, ícono y flecha →). Inventario despliega sus divisiones al
+  tocarla y su flecha gira.
+- **Anillo de Documentación** (boceto de la Junta): la carpeta elegida queda grande arriba y las demás alrededor de
+  una elipse punteada; al tocar una, el anillo gira por la curva hasta traerla al frente (también con las flechas ‹ ›
+  o las del teclado). Las de atrás se ven más oscuras según su distancia al frente («no les da la luz»). Respeta
+  «reducir movimiento». Sin JavaScript se ve una cuadrícula con los mismos enlaces. Para agregar una carpeta, copia
+  un `<li class="pp-doc">` en `documentacion.html`; el anillo se acomoda solo.
+- **Medidas:** la portada propuesta mide unos 2200 px de alto a 1440 px de ancho (la actual, unos 3500). Revisa
+  1440 px y 375 px sin scroll lateral.
+- Encabezado, menú y pie siguen saliendo de `assets/js/layout.js`, igual que en todas las páginas.
 
 ## Roles y permisos
 

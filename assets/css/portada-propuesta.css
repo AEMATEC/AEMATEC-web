@@ -2,8 +2,8 @@
 body.pp { margin: 0; background: #F4F8FA; color: #0D2B45; font-family: Montserrat, sans-serif; }
 .pp h1, .pp h2, .pp h3, .pp p { margin: 0; }
 
-/* Un solo flotante: el asistente. Arcade y Pizarra van como enlaces en el pie. */
-.pp .arcade-fab { display: none; }
+/* Portada: un solo flotante (el asistente). Arcade y Pizarra se abren desde los atajos del hero. */
+.pp-portada .arcade-fab { display: none; }
 
 .pp-eyebrow { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: #00798A; }
 .pp-h2 { margin-top: 0.4rem !important; font-size: 26px; font-weight: 700; letter-spacing: -0.02em; }
@@ -97,7 +97,7 @@ body.pp { margin: 0; background: #F4F8FA; color: #0D2B45; font-family: Montserra
 }
 
 /* Atajos a Pizarra y Arcade: visibles en el hero, sin flotar sobre toda la página. */
-.pp .pz-asa { display: none; }
+.pp-portada .pz-asa { display: none; }
 .pp-atajos { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 1.25rem; margin-top: 1.25rem; padding-left: 4px; }
 .pp-atajo { display: inline-flex; align-items: center; gap: 0.6rem; cursor: pointer; text-decoration: none; line-height: 1; }
 .pp-atajo:hover { filter: brightness(1.12); }
