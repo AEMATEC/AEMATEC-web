@@ -32,6 +32,10 @@
             placeholder="Buscar materiales, libros, cursos…">
           <button type="submit">Buscar</button>
         </form>
+        <div class="pp-atajos">
+          <button type="button" id="pp-abrir-pizarra" class="pp-atajo"><i class="fa-solid fa-thumbtack" aria-hidden="true"></i> Pizarra de anuncios</button>
+          <a href="arcade.html" id="pp-abrir-arcade" class="pp-atajo"><i class="fa-solid fa-gamepad" aria-hidden="true"></i> Arcade AEMATEC</a>
+        </div>
       </div>
     </section>
 
@@ -113,7 +117,7 @@
           <p class="pp-eyebrow">Conócenos · Vida estudiantil</p>
           <h2 class="pp-h2">Actividades de la asociación</h2>
         </div>
-        <a class="pp-enlace" href="assets/video/aematec-promo.mp4"><i class="fa-solid fa-circle-play" aria-hidden="true"></i> Ver el video “Esto es AEMATEC”</a>
+        <button type="button" id="pp-abrir-video" class="pp-enlace"><i class="fa-solid fa-circle-play" aria-hidden="true"></i> Ver el video “Esto es AEMATEC”</button>
       </div>
       <ul class="pp-fotos">
         <li><img src="assets/img/actividades/semana-carrera-carreta.jpg" alt="Estudiantes de MATEC con una carreta decorada en la Semana de la Carrera" loading="lazy"></li>
@@ -155,6 +159,14 @@
     </section>
   </main>
 
+  <dialog id="pp-video" class="pp-video" aria-label="Video: Esto es AEMATEC">
+    <button type="button" class="pp-video__cerrar" aria-label="Cerrar el video"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+    <video controls preload="none" playsinline poster="assets/video/aematec-promo.jpg">
+      <source src="assets/video/aematec-promo.mp4" type="video/mp4">
+      Tu navegador no puede reproducir el video.
+    </video>
+  </dialog>
+
   <script src="assets/js/layout.js" data-part="footer"></script>
   <script>
     // Pizarra y Arcade dejan de flotar en esta propuesta: quedan como enlaces en el pie (sus páginas propias).
@@ -163,6 +175,29 @@
   </script>
   <script src="assets/js/hero-trig.js"></script>
   <script src="assets/js/secreto.js"></script>
+  <script src="assets/js/pizarra-colgante.js"></script>
+  <script>
+    // Pizarra y Arcade se abren desde los atajos del hero (y el pie), no desde botones flotantes.
+    (() => {
+      const asa = document.querySelector(".pz-asa"), atajo = document.querySelector("#pp-abrir-pizarra");
+      atajo.addEventListener("click", () => asa.click());
+      // La pestaña original está oculta: al cerrar la pizarra el foco vuelve al atajo.
+      new MutationObserver(() => { if (asa.getAttribute("aria-expanded") === "false") atajo.focus(); })
+        .observe(asa, { attributes: true, attributeFilter: ["aria-expanded"] });
+      // Si ya cargó el botón del Arcade, se usa su transición pixelada; si no, el enlace navega normal.
+      document.querySelector("#pp-abrir-arcade").addEventListener("click", event => {
+        const fab = document.querySelector(".arcade-fab");
+        if (fab) { event.preventDefault(); fab.click(); }
+      });
+      // Video: se reproduce en la misma página, en una ventana encima.
+      const dialogo = document.querySelector("#pp-video"), video = dialogo.querySelector("video");
+      document.querySelector("#pp-abrir-video").addEventListener("click", () => { dialogo.showModal(); video.play().catch(() => {}); });
+      dialogo.querySelector(".pp-video__cerrar").addEventListener("click", () => dialogo.close());
+      dialogo.addEventListener("click", event => { if (event.target === dialogo) dialogo.close(); });
+      dialogo.addEventListener("close", () => video.pause());
+      video.addEventListener("play", () => { if (!dialogo.open) video.pause(); }); // por si empezó a sonar justo al cerrar
+    })();
+  </script>
   <script>
     // Tarjeta de Inventario: en vez de ir directo a la página, primero despliega sus divisiones.
     (() => {
