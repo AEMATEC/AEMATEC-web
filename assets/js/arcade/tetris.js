@@ -1,12 +1,13 @@
-// TETRIS del Arcade AEMATEC (tetris.html): pantalla, teclado/táctil, sonido y partidas 1 contra 1 en línea.
+// TETRIS del Arcade AEMATEC (sección #g-tetris de arcade.html): pantalla, teclado/táctil, sonido y partidas 1 contra 1 en línea.
 // Las reglas están en tetris-motor.js (probadas con tests/tetris.test.js). Usa core.js para Firebase (proyecto
-// arcade-matec), apodo, sonido, tabla de puntajes y salas, igual que el resto del Arcade.
+// arcade-matec), apodo, sonido, tabla de puntajes y salas, igual que el resto del Arcade. La portada, el botón INICIAR y la
+// música los maneja arcade.html como en los demás juegos (la miniatura está en portadas.js).
 //
 // Salas en línea: colección `tetris/{sala}` ({host, hostName, state: lobby|playing, round, seed, created, expiraEn,
 // lastSeen}) y `tetris/{sala}/players/{uid}` ({name, round, alive, board, score, lines, sent, lastSeen}). Cada quien
 // escribe SOLO su documento; la "basura" se manda como un total (`sent`) que el rival lee. Reglas: arcade-firebase/firestore.rules.
-import { $, esc, SFX, LB, setUpdateMenuMusicHook, fbReady, db, fs, UID, genCode, presenceLoop, expiraEn, liveRooms, playerName, nameMissing, isStale } from './core.js';
-import { MUSIC, setMusicToggleHook } from './musica.js';
+import { $, esc, SFX, LB, FIT_EXTRAS, fbReady, db, fs, UID, genCode, presenceLoop, expiraEn, liveRooms, playerName, nameMissing, isStale } from './core.js';
+import { arcade, registrarBucle } from './estado.js';
 import { Partida, COLS, ROWS, celdas, serializar, deserializar } from './tetris-motor.js';
 
 const COLORES = { 0: null, 1: '#73eff7', 2: '#ffcd75', 3: '#b55fd0', 4: '#38b764', 5: '#b13e53', 6: '#3b5dc9', 7: '#ef7d57', 8: '#566c86' };
@@ -14,7 +15,6 @@ const TIPO_COLOR = { I: 1, O: 2, T: 3, S: 4, Z: 5, J: 6, L: 7 };
 const VISTAS = { menu: 'tt-menu', sala: 'tt-lobby', juego: 'tt-game' };
 const vista = nombre => Object.entries(VISTAS).forEach(([v, id]) => { $('#' + id).hidden = v !== nombre; });
 const aleatorio = () => (Math.random() * 2 ** 31) | 0;
-$('#arcade-volver').onclick = () => { if (window.arcadeTransition) window.arcadeTransition('arcade.html'); else location.href = 'arcade.html'; };
 
 /* ---------- dibujo ---------- */
 function celda(ctx, x, y, s, codigo, alfa = 1) {
@@ -49,6 +49,9 @@ function dibujarMini(ctx, tipos, ancho, alto, s = 12) {
   });
 }
 const cvJuego = $('#tt-cv'), ctx = cvJuego.getContext('2d');
+// El tablero tiene su propio tamaño (tetris.css: 248 px, o el ancho disponible). El ajuste genérico de fitAll() (core.js) lo
+// achicaba en el celular porque mide la altura con las columnas y los botones que quedan debajo; aquí se deshace.
+FIT_EXTRAS.push(() => { $('#g-tetris .tt-stage').style.maxWidth = ''; });
 const ctxHold = $('#tt-hold').getContext('2d'), ctxNext = $('#tt-next').getContext('2d'), ctxRival = $('#tt-cv-rival').getContext('2d');
 [ctx, ctxHold, ctxNext, ctxRival].forEach(c => { c.imageSmoothingEnabled = false; });
 
@@ -66,7 +69,7 @@ const SON = {
   cuenta: () => snd(() => SFX.tone(440, .12, 'square', .07)),
   ya: () => snd(() => SFX.tone(880, .3, 'square', .08))
 };
-// La música es la del resto del Arcade (assets/js/arcade/musica/tetris.js, con el botón ♪ del encabezado).
+// La música es la del resto del Arcade (assets/js/arcade/musica/tetris.js); la pone arcade.html al abrir la pestaña.
 
 /* ---------- entrada: teclado y botones táctiles ---------- */
 const entrada = { izq: false, der: false, abajo: false };
@@ -87,13 +90,13 @@ function pulsar(k, abajo) {
 }
 const TECLAS = { ArrowLeft: 'izq', KeyA: 'izq', ArrowRight: 'der', KeyD: 'der', ArrowDown: 'abajo', KeyS: 'abajo', ArrowUp: 'giro', KeyX: 'giro', KeyW: 'giro', KeyZ: 'giro2', Space: 'caer', KeyC: 'hold', ShiftLeft: 'hold', ShiftRight: 'hold' };
 window.addEventListener('keydown', e => {
-  if ($('#tt-game').hidden || e.target.tagName === 'INPUT') return;
+  if (arcade.tab !== 'tetris' || $('#tt-game').hidden || e.target.tagName === 'INPUT') return;
   if (e.code === 'KeyP' || e.code === 'Escape') { if (!e.repeat) alternarPausa(); return; }
   const k = TECLAS[e.code]; if (!k) return;
   e.preventDefault();
   if (!e.repeat) pulsar(k, true);
 });
-window.addEventListener('keyup', e => { const k = TECLAS[e.code]; if (k === 'izq' || k === 'der' || k === 'abajo') pulsar(k, false); });
+window.addEventListener('keyup', e => { if (arcade.tab !== 'tetris') return; const k = TECLAS[e.code]; if (k === 'izq' || k === 'der' || k === 'abajo') pulsar(k, false); });
 document.querySelectorAll('.tt-botones [data-k]').forEach(b => {
   const k = b.dataset.k;
   b.addEventListener('pointerdown', e => { e.preventDefault(); pulsar(k, true); });
@@ -104,7 +107,7 @@ document.querySelectorAll('.tt-botones [data-k]').forEach(b => {
 let juego = null; // { p, online, ronda, pausa, cuenta, fin, t0, ultimoEnvio, ... }
 
 function empezar({ semilla, online = false, ronda = 0 }) {
-  juego = { p: new Partida(semilla), online, ronda, pausa: false, cuenta: online ? 3 : 0, fin: false, ultimaEscritura: 0, sucio: true, tick: performance.now(), rival: null, viRival: false };
+  juego = { p: new Partida(semilla), online, ronda, pausa: false, cuenta: online ? 3 : 0, fin: false, ultimaEscritura: 0, sucio: true, rival: null, viRival: false };
   entrada.izq = entrada.der = entrada.abajo = false; das = { dir: 0, espera: 0, rep: 0 };
   vista('juego');
   $('#tt-rival').hidden = !online;
@@ -117,7 +120,6 @@ function empezar({ semilla, online = false, ronda = 0 }) {
     escribirYo(true);
   } else { SON.cuenta(); }
   actualizarHud();
-  requestAnimationFrame(bucle);
 }
 function cartel(titulo, texto = '', botones = []) {
   const o = $('#tt-over');
@@ -147,9 +149,8 @@ function despuesDeFijar() {
   juego.sucio = true;
   actualizarHud();
 }
-function bucle(ahora) {
+function bucle(dt) {
   if (!juego || juego.fin) return;
-  const dt = Math.min(0.1, (ahora - juego.tick) / 1000); juego.tick = ahora;
   const p = juego.p;
   if (juego.cuenta > 0) {
     const antes = Math.ceil(juego.cuenta);
@@ -177,14 +178,17 @@ function bucle(ahora) {
     else rejilla(ctxRival, 12);
     escribirYo(false);
   }
-  if (juego && !juego.fin) requestAnimationFrame(bucle);
 }
+// Lo corre el bucle de arcade.html. Si la persona se va a otra pestaña en modo solo, la partida se pausa sola.
+registrarBucle(dt => {
+  if (arcade.tab === 'tetris') { bucle(dt); return; }
+  if (juego && !juego.online && !juego.fin && !juego.pausa && juego.cuenta <= 0) alternarPausa();
+});
 function alternarPausa() {
   if (!juego || juego.online || juego.fin || juego.cuenta > 0) return;
   juego.pausa = !juego.pausa;
   $('#tt-pause').textContent = juego.pausa ? 'SEGUIR' : 'PAUSA';
   cartel(juego.pausa ? 'PAUSA' : null, 'P PARA SEGUIR');
-  if (!juego.pausa) juego.tick = performance.now();
 }
 $('#tt-pause').onclick = alternarPausa;
 
@@ -328,7 +332,7 @@ $('#tt-leave').onclick = async () => {
   try { await fs.deleteDoc(refYo(code)); if (anfitrion) await fs.deleteDoc(refSala(code)); } catch (e) { console.warn(e); }
   cerrarLocal();
 };
-window.addEventListener('pagehide', () => { if (sala) { try { fs.deleteDoc(refYo(sala.code)); } catch {} } });
+window.addEventListener('beforeunload', () => { if (sala) { try { fs.deleteDoc(refYo(sala.code)); } catch {} } });
 
 /* ---------- lo que se comparte durante la partida ---------- */
 function escribirYo(forzar, vivo) {
@@ -380,24 +384,5 @@ $('#tt-code').addEventListener('input', e => { e.target.value = e.target.value.t
 vista('menu');
 cargarTablas();
 fbReady.then(() => cargarSalas());
-setInterval(() => { if (!$('#tt-menu').hidden) cargarSalas(); }, 15000);
+setInterval(() => { if (arcade.tab === 'tetris' && !$('#tt-menu').hidden) cargarSalas(); }, 15000);
 
-/* ---------- portada (igual que la de los demás juegos) ---------- */
-function dibujarSplash(c) {
-  const x = c.getContext('2d'); x.imageSmoothingEnabled = false;
-  x.fillStyle = '#0b0c18'; x.fillRect(0, 0, 160, 72);
-  const bl = (X, Y, col) => celda(x, X, Y, 8, col);
-  const pz = (X, Y, col, f) => f.forEach(([i, j]) => bl(X + i * 8, Y + j * 8, col));
-  pz(28, 40, 7, [[0, 0], [1, 0], [2, 0], [2, -1]]); pz(52, 48, 1, [[0, 0], [1, 0], [2, 0], [3, 0]]); pz(84, 48, 2, [[0, 0], [1, 0], [0, -1], [1, -1]]);
-  pz(100, 40, 3, [[0, 0], [1, 0], [2, 0], [1, -1]]); pz(124, 48, 4, [[0, 0], [1, 0], [1, -1], [2, -1]]); pz(36, 56, 5, [[0, 0], [1, 0], [1, 1], [2, 1]]); pz(18, 8, 6, [[0, 0], [0, 1], [0, 2], [1, 2]]);
-  pz(120, 4, 3, [[0, 0], [1, 0], [2, 0], [1, 1]]); pz(66, 10, 2, [[0, 0], [1, 0], [0, 1], [1, 1]]);
-}
-const splash = document.querySelector('.splash[data-g="tetris"]');
-dibujarSplash(splash.querySelector('canvas'));
-document.fonts && document.fonts.ready.then(() => dibujarSplash(splash.querySelector('canvas')));
-// Música como en los demás juegos: a volumen normal en la portada y más baja ya dentro (la del Arcade, musica/tetris.js).
-function actualizarMusica() { if (!splash.hidden) MUSIC.stop(); else if (MUSIC.audible()) MUSIC.play('tetris', 'low'); else MUSIC.stop(); }
-setUpdateMenuMusicHook(actualizarMusica); setMusicToggleHook(actualizarMusica);
-document.addEventListener('visibilitychange', actualizarMusica);
-splash.querySelector('.btn').onclick = () => { SFX.init(); SFX.play('start'); splash.hidden = true; splash.nextElementSibling.hidden = false; vista('menu'); actualizarMusica(); };
-window.addEventListener('pagehide', () => MUSIC.stop());

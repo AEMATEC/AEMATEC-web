@@ -1,4 +1,4 @@
-// Reglas del Tetris del Arcade (tetris.html), sin nada de pantalla ni de Firebase, para poder probarlas con Node
+// Reglas del Tetris del Arcade (pestaña Tetris de arcade.html), sin nada de pantalla ni de Firebase, para poder probarlas con Node
 // (tests/tetris.test.js). El dibujo, el teclado y las salas en línea están en tetris.js.
 //
 // Para jugar 1 contra 1 las dos personas reciben las MISMAS piezas: la bolsa de 7 se mezcla con una semilla que

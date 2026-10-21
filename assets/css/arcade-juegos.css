@@ -1,4 +1,4 @@
-/* Estilo del Arcade AEMATEC: lo usan arcade.html (todos los juegos) y tetris.html.
+/* Estilo del Arcade AEMATEC: lo usa arcade.html (todos los juegos, Tetris incluido).
    Los estilos de un juego van aquí con el prefijo de su id (p. ej. #g-duelo) para no pisar a los demás. */
 :root{
   --bg:#1a1c2c; --panel:#333c57; --panel2:#29366f; --ink:#f4f4f4; --mute:#94b0c2; --dark:#0f1020;

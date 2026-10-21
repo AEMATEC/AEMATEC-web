@@ -11,6 +11,7 @@
 <!-- Temas de temporada también en el Arcade (en 8 bits): ver assets/js/temas.js y temas-pixel.js -->
 <script src="assets/js/temas.js" defer></script>
 <link rel="stylesheet" href="assets/css/arcade-juegos.css">
+<link rel="stylesheet" href="assets/css/tetris.css">
 </head>
 <body>
 <div class="wrap">
@@ -714,6 +715,78 @@
     </aside>
   </section>
 
+  <!-- ============ TETRIS (las reglas están en tetris-motor.js) ============ -->
+  <section class="game" id="g-tetris">
+    <div class="main px">
+      <div class="splash" data-g="tetris"><canvas width="160" height="72" aria-hidden="true"></canvas><h2>TETRIS</h2><p>ENCAJA LAS PIEZAS PARA COMPLETAR LÍNEAS. SI LAS PIEZAS LLEGAN HASTA ARRIBA, SE ACABÓ. JUEGA SOLO PARA BATIR EL RÉCORD O RETA A ALGUIEN EN LÍNEA: LAS LÍNEAS QUE LIMPIES LE LLEGAN A TU RIVAL COMO BASURA.</p><button class="btn red">INICIAR</button></div>
+      <div class="gbody" hidden>
+        <div id="tt-menu">
+          <h4>¿CÓMO QUIERES JUGAR?</h4>
+          <div class="row left"><button class="btn green" id="tt-solo">JUGAR SOLO</button></div>
+          <div class="row left">
+            <button class="btn" id="tt-create">CREAR PARTIDA ONLINE</button>
+            <input id="tt-code" class="px-in" placeholder="CÓDIGO" maxlength="5">
+            <button class="btn orange" id="tt-join">UNIRSE</button>
+          </div>
+          <p class="msg" id="tt-menu-msg" style="text-align:left" aria-live="polite"></p>
+          <h4 style="margin-top:14px">PARTIDAS EN VIVO</h4>
+          <ul class="spec-list" id="tt-rooms"></ul>
+        </div>
+        <div id="tt-lobby" hidden>
+          <div class="rc-top"><span class="tag" id="tt-room"></span><button class="btn gray" id="tt-leave">SALIR</button></div>
+          <p class="sub" id="tt-lobby-msg"></p>
+          <ul class="plist" id="tt-plist"></ul>
+          <div class="row left"><button class="btn green" id="tt-go">¡EMPEZAR!</button></div>
+        </div>
+        <div id="tt-game" hidden>
+          <div class="rc-top">
+            <span class="tag" id="tt-room2" hidden></span>
+            <button class="btn gray" id="tt-pause">PAUSA</button>
+            <button class="btn gray" id="tt-quit">SALIR</button>
+          </div>
+          <div class="fc-bar"><span id="tt-status"></span><span id="tt-score"></span></div>
+          <div class="tt-fila">
+            <div class="tt-col">
+              <div class="tt-caja">GUARDADA<canvas id="tt-hold" width="64" height="64" style="width:64px;height:64px"></canvas></div>
+              <div class="tt-caja"><b id="tt-puntos">0</b>PUNTOS<b id="tt-nivel" style="margin-top:8px">1</b>NIVEL<b id="tt-lineas" style="margin-top:8px">0</b>LÍNEAS</div>
+            </div>
+            <div class="stage tt-stage">
+              <canvas id="tt-cv" width="240" height="480" role="img" aria-label="Tablero de Tetris"></canvas>
+              <div class="over" id="tt-over" hidden>
+                <h3 class="grande" id="tt-over-t"></h3>
+                <p id="tt-over-p"></p>
+                <div class="row" id="tt-over-b"></div>
+              </div>
+            </div>
+            <div class="tt-col">
+              <div class="tt-caja">SIGUIENTES<canvas id="tt-next" width="64" height="176" style="width:64px;height:176px"></canvas></div>
+              <div class="tt-caja tt-rival" id="tt-rival" hidden><b id="tt-rival-n">RIVAL</b><canvas id="tt-cv-rival" width="120" height="240"></canvas><span id="tt-rival-i"></span></div>
+              <div class="tt-basura" id="tt-basura"></div>
+            </div>
+          </div>
+          <div class="tt-botones">
+            <button class="btn gray" data-k="izq" aria-label="Izquierda">◄</button>
+            <button class="btn gray" data-k="abajo" aria-label="Bajar">▼</button>
+            <button class="btn gray" data-k="der" aria-label="Derecha">►</button>
+            <button class="btn orange" data-k="giro" aria-label="Rotar la pieza">⟳ ROTAR</button>
+            <button class="btn" data-k="hold" aria-label="Guardar la pieza">GUARDAR</button>
+            <button class="btn green" data-k="caer" aria-label="Caer de una">CAER</button>
+          </div>
+          <p class="keys">← → MOVER · ↓ BAJAR · ↑ / X ROTAR · Z ROTAR AL REVÉS · ESPACIO CAER · C GUARDAR · P PAUSA</p>
+        </div>
+      </div>
+    </div>
+    <aside class="side px">
+      <h3>TOP 10</h3>
+      <p class="sub">PUNTOS EN MODO SOLO</p>
+      <ol class="lb" id="tt-lb"></ol>
+      <h4 style="margin-top:16px">MÁS VICTORIAS EN LÍNEA</h4>
+      <ol class="lb" id="tt-lb-vs"></ol>
+      <h4 style="margin-top:16px">CÓMO SE JUEGA</h4>
+      <p class="howto">GIRA Y MUEVE LAS PIEZAS PARA LLENAR FILAS COMPLETAS: DESAPARECEN Y SUMAN PUNTOS (MÁS SI LIMPIAS VARIAS A LA VEZ). CADA 10 LÍNEAS SUBES DE NIVEL Y TODO VA MÁS RÁPIDO. PUEDES GUARDAR UNA PIEZA PARA DESPUÉS. EN LÍNEA, TUS LÍNEAS LE LLEGAN AL RIVAL COMO BASURA Y LAS TUYAS SE CANCELAN CON LAS QUE TE MANDAN.</p>
+    </aside>
+  </section>
+
   <!-- ============ PERFIL (opcional) ============ -->
   <section class="game" id="g-perfil">
     <div class="main px">
@@ -846,10 +919,11 @@ import "./assets/js/arcade/cruce.js";
 import "./assets/js/arcade/minas.js";
 import "./assets/js/arcade/tiro.js";
 import "./assets/js/arcade/runner.js";
+import "./assets/js/arcade/tetris.js";
 
 /* ---------- pestañas ---------- */
 let tab = 'menu';
-document.querySelectorAll('.tab').forEach(b => b.onclick = () => { SFX.play('click'); if (b.dataset.t === 'tetris') location.href = 'tetris.html'; else goTab(b.dataset.t); }); // Tetris es una página aparte
+document.querySelectorAll('.tab').forEach(b => b.onclick = () => { SFX.play('click'); goTab(b.dataset.t); });
 
 
 /* =========================================================
@@ -1136,7 +1210,7 @@ const GAMES = [
   { g: 'billar', n: 'BILLAR' }, { g: 'duelo', n: 'DUELO DEL OESTE' }, { g: 'runner', n: 'LA HUIDA DEL ZORRO' },
   { g: 'golf', n: 'GOLF' },
   { g: 'cruce', n: 'CRUZAR LA CALLE' },
-  { g: 'tetris', n: 'TETRIS', href: 'tetris.html' }, // página aparte (tetris.html)
+  { g: 'tetris', n: 'TETRIS' },
 ];
 (() => {
   const grid = $('#menu-grid');
@@ -1257,7 +1331,7 @@ const INTRO = (() => {
   raf = requestAnimationFrame(frame);
   return { skip, insert, salir() { el.hidden = true; cancelAnimationFrame(raf); } };
 })();
-// Enlace directo a un juego (arcade.html?juego=golf): se salta la intro y abre esa pestaña. Lo usa la barra de tetris.html.
+// Enlace directo a un juego (arcade.html?juego=golf): se salta la intro y abre esa pestaña. También lo usa tetris.html, que solo redirige aquí.
 (() => {
   const h = new URLSearchParams(location.search).get('juego') || '';
   if (h && (h === 'perfil' || GAMES.some(g => g.g === h && !g.href))) { INTRO.salir(); goTab(h); }

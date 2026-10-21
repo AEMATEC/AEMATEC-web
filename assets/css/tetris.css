@@ -1,4 +1,4 @@
-/* Estilos propios del Tetris (tetris.html). Lo demás viene de arcade-juegos.css, igual que en el resto de los juegos. */
+/* Estilos propios del Tetris (sección #g-tetris de arcade.html). Lo demás viene de arcade-juegos.css, igual que en el resto de los juegos. */
 /* ===== Tetris ===== */
 #g-tetris .tt-fila{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;align-items:flex-start;margin-top:6px}
 #g-tetris .tt-col{display:flex;flex-direction:column;gap:12px;width:96px}
