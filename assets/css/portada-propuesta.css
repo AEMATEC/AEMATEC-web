@@ -95,11 +95,26 @@ body.pp { margin: 0; background: #F4F8FA; color: #0D2B45; font-family: Montserra
 
 /* Atajos a Pizarra y Arcade: visibles en el hero, sin flotar sobre toda la página. */
 .pp .pz-asa { display: none; }
-.pp-atajos { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 1rem; }
-.pp-atajo { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.55rem 1rem; border: 1.5px solid #00798A; border-radius: 999px; background: #fff;
-  color: #0D2B45; font: inherit; font-size: 14px; font-weight: 600; text-decoration: none; cursor: pointer; }
-.pp-atajo i { color: #00798A; }
-.pp-atajo:hover { background: #E6F8FA; }
+.pp-atajos { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 1.25rem; margin-top: 1.25rem; padding-left: 4px; }
+.pp-atajo { display: inline-flex; align-items: center; gap: 0.6rem; cursor: pointer; text-decoration: none; line-height: 1; }
+.pp-atajo:hover { filter: brightness(1.12); }
+/* Pizarra: tiza sobre pizarra verde con marco de madera, como el panel que abre (assets/css/pizarra.css). */
+.pp-atajo--pizarra { padding: 0.5rem 1.1rem 0.55rem; border: 5px solid #8B5A2B; border-radius: 6px; background: #1F4D3A; color: #F4F7F2;
+  font: 400 21px "Patrick Hand", cursive; letter-spacing: 0.03em; text-shadow: 0 0 2px rgba(255, 255, 255, 0.35);
+  box-shadow: inset 0 0 0 1px #5E3A17, 0 6px 14px rgba(13, 43, 69, 0.22); transform: rotate(-1.5deg); transition: transform .15s; }
+.pp-atajo--pizarra i { color: #FFD866; transform: rotate(25deg); }
+.pp-atajo--pizarra:hover { transform: rotate(0deg); }
+/* Arcade: el mismo botón pixelado que antes flotaba (assets/css/arcade.css), ahora fijo en el hero. */
+.pp-atajo--arcade { padding: 16px 18px; background: #3b5dc9; color: #f4f4f4; font: 12px "Press Start 2P", monospace;
+  box-shadow: 0 -4px 0 0 #0f1020, 0 4px 0 0 #0f1020, -4px 0 0 0 #0f1020, 4px 0 0 0 #0f1020,
+    inset -4px -4px 0 0 rgba(0, 0, 0, .3), inset 4px 4px 0 0 rgba(255, 255, 255, .22); }
+.pp-atajo--arcade:active { transform: translateY(2px); box-shadow: 0 -4px 0 0 #0f1020, 0 4px 0 0 #0f1020, -4px 0 0 0 #0f1020, 4px 0 0 0 #0f1020, inset 4px 4px 0 0 rgba(0, 0, 0, .3); }
+@media (prefers-reduced-motion: reduce) { .pp-atajo--pizarra { transition: none; } }
+@media (max-width: 767px) {
+  .pp-atajos { gap: 0.9rem 1rem; }
+  .pp-atajo--pizarra { font-size: 18px; padding: 0.4rem 0.8rem 0.45rem; }
+  .pp-atajo--arcade { padding: 13px 12px; font-size: 10px; }
+}
 button.pp-enlace { padding: 0; border: 0; background: none; font: inherit; font-size: 14px; font-weight: 700; color: #00798A; cursor: pointer; }
 
 /* Video en ventana encima de la página. */
