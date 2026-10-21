@@ -105,7 +105,7 @@ nuevos, documéntalo para quien administra `arcade-matec` (ver `docs/arcade-fire
 El Arcade es **una sola página con pestañas** (`arcade.html`), pero el código de cada juego vive en su propio archivo
 (cambiar de juego sigue siendo instantáneo, sin recargar). Cómo está armado:
 - `assets/js/arcade/<juego>.js`: un módulo por juego — `minas.js`, `batalla.js`, `tiro.js`, `carreras.js`, `funciones.js`,
-  `casino21.js`, `billar.js`, `duelo.js`, `runner.js`, `golf.js` y `cruce.js`. Cada uno trabaja sobre su sección HTML
+  `casino21.js`, `billar.js`, `duelo.js`, `runner.js`, `golf.js`, `cruce.js` y `tetris.js`. Cada uno trabaja sobre su sección HTML
   (`#g-<id>`) de `arcade.html`, que importa el módulo y este se conecta solo (su bucle de dibujo y su teclado van al final del archivo).
 - `core.js`: todo lo compartido (Firebase, `$`/`esc`/`store`, `SFX`, `LB`, sprites base, ajuste de tamaño `fitAll`/`fitOver`/`fitSoon`).
   Si un juego necesita algo propio en el ajuste de tamaño, se registra en `FIT_EXTRAS` desde su archivo.
@@ -123,7 +123,7 @@ El Arcade es **una sola página con pestañas** (`arcade.html`), pero el código
 - Los juegos con partidas en línea se prueban de verdad con dos sesiones a la vez (emulador de Firestore con
   `arcade-firebase/firestore.rules`), no solo el modo local/CPU.
 
-**Tetris** es una página aparte (`tetris.html`, con `assets/js/arcade/tetris.js` y las reglas del juego en `tetris-motor.js`, probadas con `tests/tetris.test.js`). Usa `core.js` y `musica.js` (su canción es `musica/tetris.js`) y el mismo estilo del Arcade (`assets/css/arcade-juegos.css` + `tetris.css` con lo suyo). Las pestañas de tetris.html abren `arcade.html?juego=<id>`; la pestaña TETRIS de arcade.html y la tarjeta del menú (`href` en `GAMES`) llevan a tetris.html. Sus reglas de Firebase (`tetris`, `tetris_vs`) viven en `arcade-firebase/firestore.rules` y se copian a mano.
+**Tetris** es una pestaña más de `arcade.html` (sección `#g-tetris`, módulo `assets/js/arcade/tetris.js`), con las reglas del juego aparte en `tetris-motor.js` (probadas con `tests/tetris.test.js`; es el único módulo extra que un juego puede importar). Sus estilos propios están en `assets/css/tetris.css`, que arcade.html carga después de `arcade-juegos.css`. `tetris.html` ya no es un juego: solo redirige a `arcade.html?juego=tetris` para no romper enlaces guardados. Sus reglas de Firebase (`tetris`, `tetris_vs`) viven en `arcade-firebase/firestore.rules` y se copian a mano.
 
 Hay un agente por juego (`.claude/agents/juego-*.md`) con los detalles de cada uno (prefijo de su estado,
 si tiene modo en línea, en qué archivo vive). También hay `mejorar-menu-arcade` (menú, miniaturas,

@@ -363,7 +363,7 @@ ese cambio junto con las colecciones de esta sección.
 
 ---
 
-## 3.5 Tetris (página aparte `tetris.html`): colección nueva y dos tablas
+## 3.5 Tetris (pestaña de `arcade.html`; antes era la página aparte `tetris.html`): colección nueva y dos tablas
 
 **Hay que copiar `arcade-firebase/firestore.rules` a la consola de Firebase de `arcade-matec`** (como siempre, no se publica solo).
 Sin eso, el Tetris SOLO funciona, pero no se pueden crear salas en línea ni publicar puntajes.
