@@ -1,5 +1,5 @@
 // Transición "pixelada" hacia y desde el Arcade AEMATEC (arcade.html).
-// La usa el botón flotante ARCADE (assets/js/arcade-launcher.js) y el botón "← AEMATEC" de arcade.html.
+// La usan los enlaces al Arcade (assets/js/arcade-launcher.js) y el botón "← AEMATEC" de arcade.html.
 // Expone window.arcadeTransition(url): cubre la pantalla con un mosaico de pixeles y luego navega.
 (function () {
   function arcadeTransition(url) {

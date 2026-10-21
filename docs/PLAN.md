@@ -92,7 +92,7 @@ Estos puntos condicionan el diseño y no deberían contradecirse:
 - **Postulaciones (Art. 51 c, 92-93).** Las comisiones y representaciones se convocan por los Medios
   Oficiales, indicando órgano, requisitos, plazo y beneficios.
 - **Actas y transparencia (Art. 86).** La Secretaría General publica las actas firmes en 5 días hábiles.
-  `documentacion.html` (propuesta, 2026-10) enlaza la carpeta de Actas de SharePoint; publicar en 5 días
+  `documentacion.html` (2026-10) enlaza la carpeta de Actas de SharePoint; publicar en 5 días
   hábiles sigue dependiendo de que la Secretaría suba el acta firme a esa carpeta.
 - **Traspaso (Art. 107).** Al cambiar de administración se entregan las credenciales de los medios y
   repositorios. Los correos de dueño quedaron en 4 lugares documentados (README → Roles y permisos).

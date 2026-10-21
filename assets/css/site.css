@@ -190,7 +190,7 @@ main[tabindex="-1"]:focus { outline: none; }
   align-items: center;
   justify-content: space-between;
   gap: 1.5rem;
-  padding: 2.25rem 0 5rem; /* espacio abajo para que el botón flotante del Arcade no tape los enlaces */
+  padding: 2.25rem 0 5rem; /* espacio abajo para que el botón flotante del asistente no tape los enlaces */
 }
 
 .site-footer__brand { display: flex; align-items: center; gap: 1rem; }

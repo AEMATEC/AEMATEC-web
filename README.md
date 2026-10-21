@@ -14,27 +14,26 @@ dependen de él citan el artículo correspondiente en el código y en [`docs/PLA
 
 | Módulo | Páginas | Qué hace |
 |---|---|---|
-| Portada | `index.html` | Acceso a los servicios, Medios Oficiales (RI Art. 102) y un carrusel de fotos de actividades (ver [abajo](#carrusel-de-fotos-de-actividades-portada)). |
-| Propuesta de portada | `index-propuesta.html` (estilos en `assets/css/portada-propuesta.css`) | Versión más simple de la portada para comparar con `index.html` (que no cambia). Mismo encabezado, buscador y pie; 5 tarjetas de servicios iguales (Repositorio, Inventario, Junta, Trámites y Documentación); 6 fotos de actividades en cuadrícula con «Ver más fotos» (sin carrusel); el video se abre en una ventana encima de la página; franja compacta de Medios Oficiales con la nota de los Art. 102 y 104. Pizarra y Arcade no flotan: se abren desde dos botones del hero con su estilo propio (tiza y pixel). Único flotante: el asistente. Ver [Diseño de la propuesta de portada](#diseño-de-la-propuesta-de-portada). |
-| Documentación | `documentacion.html` (anillo: `assets/js/anillo-documentos.js`) | Enlaces a las carpetas oficiales de SharePoint/Teams de la Junta: Reglamentos, Actas (RI Art. 86), Memorandos, Finanzas e Informes de Labores. Solo se abren con una cuenta `@estudiantec.cr` (lo decide el TEC, no el sitio). Por ahora solo se enlaza desde la propuesta de portada; no está en el menú ni en `site-pages.js`. |
+| Portada | `index.html` (estilos en `assets/css/portada.css`) | Buscador de todo el sitio; botones de **Pizarra** (estilo tiza) y **Arcade** (estilo pixel) en el hero; 5 tarjetas de servicios iguales (Repositorio, Inventario, Junta, Trámites y Documentación); 6 fotos de actividades en cuadrícula con «Ver más fotos» (ver [abajo](#fotos-de-actividades-portada)); el video «Esto es AEMATEC» se abre en una ventana encima de la página; franja de Medios Oficiales (RI Art. 102 y 104). Ver [Diseño de la portada](#diseño-de-la-portada). |
+| Documentación | `documentacion.html` (anillo: `assets/js/anillo-documentos.js`) | Enlaces a las carpetas oficiales de SharePoint/Teams de la Junta: Reglamentos, Actas (RI Art. 86), Memorandos, Finanzas e Informes de Labores. Solo se abren con una cuenta `@estudiantec.cr` (lo decide el TEC, no el sitio). Se enlaza desde la tarjeta de la portada; no está en el menú ni en `site-pages.js`. |
 | Repositorio | `repositorio.html`, `repositorio-docentes.html`, `repositorio-academicos.html`, `repositorio-subir.html`, `repositorio-moderacion.html` | Repositorio digital de materiales didácticos y académicos (RI Art. 4 f). Consulta pública; cualquiera puede proponer material, que queda pendiente de moderación. **Moderación** (`repositorio-moderacion.html`, código en `assets/js/moderacion.js`) tiene su propio acceso solo para la lista `moderators` (no hace falta ser de la Junta): pendientes, edición y equipo de moderación. Con la sesión abierta, Recursos docentes y académicos muestran la barra "Sesión de moderación" y botones para editar y eliminar cada material. |
 | Inventario | `inventario.html` | Consulta pública de bienes (RI Art. 118) y solicitudes de préstamo (RI Art. 120-123). Administración para la Junta. |
 | Junta Directiva | `junta-directiva.html` | Integrantes de la Junta y de la Fiscalía (nombre, puesto y foto opcional, desde `config/junta_publica` y `config/fiscalia_publica`) y medios de contacto. Las fotos se suben desde `admin.html` → Asociación solo con el consentimiento de la persona (Ley 8968). |
-| Pizarra y pregunta quincenal | `pizarra.html` y el botón «Pizarra» de la portada (`assets/js/pizarra-colgante.js`, baja desde arriba) | Anuncios que cualquiera propone y que la Junta o la moderación aprueban (colección `anuncios`, campo `aprobado`), y una pregunta cada 15 días que publica la Junta (`config/pregunta`): se responde una vez y las respuestas (`preguntaRespuestas`) solo se leen al cerrar el plazo; al publicar una pregunta nueva el panel borra las respuestas anteriores. Se administra en `admin.html` → «Pizarra y pregunta». Lógica pública: `assets/js/pizarra.js`; panel: `assets/js/admin/pizarra.js`; reglas y pruebas en `firestore.rules` / `tests/reglas.test.js`. |
+| Pizarra y pregunta quincenal | `pizarra.html` y el botón «Pizarra de anuncios» del hero de la portada (`assets/js/pizarra-colgante.js`, baja desde arriba) | Anuncios que cualquiera propone y que la Junta o la moderación aprueban (colección `anuncios`, campo `aprobado`), y una pregunta cada 15 días que publica la Junta (`config/pregunta`): se responde una vez y las respuestas (`preguntaRespuestas`) solo se leen al cerrar el plazo; al publicar una pregunta nueva el panel borra las respuestas anteriores. Se administra en `admin.html` → «Pizarra y pregunta». Lógica pública: `assets/js/pizarra.js`; panel: `assets/js/admin/pizarra.js`; reglas y pruebas en `firestore.rules` / `tests/reglas.test.js`. |
 | Efemérides | `efemerides.html` | Calendario de fechas internacionales, de Costa Rica, de matemática y de AEMATEC (mes por mes, con filtros, detalle del día y próximas). Los datos están en `assets/js/efemerides-datos.js` (fechas fijas en `FIJAS`; las que cambian cada año, como Semana Santa o el Día del Padre, se calculan en `movibles`); la pantalla, en `assets/js/efemerides.js`. Las fechas con tema de temporada enlazan a su vista previa. Tiene tres pestañas: Efemérides, **Calendario MEP** y **Calendario TEC** (`?vista=mep` / `?vista=tec`). El MEP y el TEC no publican un archivo que se pueda leer solo, así que sus fechas se cargan a mano: `efemerides-datos.js` trae la semilla de 2026 y desde `admin.html` → «Efemérides, MEP y TEC» la Junta o la moderación agregan, cambian, ocultan o eliminan fechas, o pegan la lista de un año nuevo (se guardan en la colección `efemerides`, de lectura pública y escritura de Junta y moderación; ver `firestore.rules`). La función `recordatorioCalendarios` avisa por correo a la Junta cada 1 de diciembre si falta cargar el año siguiente. Es informativa: no reemplaza el calendario oficial de feriados. Prueba: `node --test tests/efemerides.test.js`. |
 | Panel de administración | `admin.html` | Un solo acceso. Cada cuenta ve lo de sus roles: **Trámites** (la Junta los suyos; la Fiscalía sus casos), **Asociación** (la Junta: Padrón, Junta, Fiscalía y Medios; la Fiscalía: solo la lista de Fiscalía), **Tema del sitio** (Junta) y **Efemérides** (Junta y moderación). La moderación del Repositorio está en su propia página (`repositorio-moderacion.html`). |
 | Temas de temporada | todas (`assets/js/temas.js`, `assets/css/temas.css`) | Decoración automática por fecha: sutil en celebraciones de un día (8M, Día de la Madre…) y festiva en épocas (Navidad, Halloween, mes patrio, Semana de la Carrera). La Junta puede apagarla o fijar un tema en `admin.html` → Tema del sitio (`config/tema`). Vista previa: `?tema=<id>`. |
 | Asistente | todas las que usan el encabezado común (`assets/js/chatbot.js`) | Botón flotante para buscar páginas (lista en `assets/js/site-pages.js`) y reportar un problema. Los reportes van a `chatbotReportes` y llegan por correo a moderación. No pide cuenta; el contacto es opcional. |
 | Trámites | `tramites.html` | Solicitudes a la Junta, postulaciones, AGEC extraordinaria (con adhesiones) y consultas o denuncias a Fiscalía (anónimas o no). Se verifica el correo `@estudiantec.cr` con un enlace, sin contraseña. Incluye "Mis trámites" y seguimiento de casos anónimos por código. |
 | Privacidad y términos | `legal.html` | Política de privacidad (Ley 8968), términos de uso y política de cookies. Enlazada desde el pie de página y desde cada formulario. Si cambias qué datos pide un formulario, actualiza su tabla. Ver [`docs/auditoria-legal.md`](docs/auditoria-legal.md). |
-| Arcade | `arcade.html` (una sola página con todos los juegos como pestañas; el código de cada juego está en su propio archivo de `assets/js/arcade/`; botón flotante en todas las páginas, `assets/js/arcade-launcher.js`) | Minijuegos pixelados (buscaminas, batalla naval, carreras, etc.) hechos por un estudiante. Es una página aparte, con su propio estilo y su propio proyecto de Firebase (`arcade-matec`, distinto del sitio); no usa cuentas ni datos del padrón. Público, sin inicio de sesión. Sus reglas de Firebase no están en este repositorio: si un cambio escribe datos nuevos, documéntalo para quien administra `arcade-matec` (ver `docs/arcade-firebase-cambios.md`). |
+| Arcade | `arcade.html` (una sola página con todos los juegos como pestañas; el código de cada juego está en su propio archivo de `assets/js/arcade/`; se entra desde el botón ARCADE de la portada; `assets/js/arcade-launcher.js` da la transición pixelada a todo enlace `<a href="arcade.html" data-arcade>`) | Minijuegos pixelados (buscaminas, batalla naval, carreras, etc.) hechos por un estudiante. Es una página aparte, con su propio estilo y su propio proyecto de Firebase (`arcade-matec`, distinto del sitio); no usa cuentas ni datos del padrón. Público, sin inicio de sesión. Sus reglas de Firebase no están en este repositorio: si un cambio escribe datos nuevos, documéntalo para quien administra `arcade-matec` (ver `docs/arcade-firebase-cambios.md`). |
 
 > **Nota de nombres:** el repositorio digital de materiales se llama **Repositorio** (antes "Biblioteca").
 > **Biblioteca** es solo la colección física de libros para préstamo del RI (Art. 128-129), que está en **Inventario → Biblioteca**.
 
-## Carrusel de fotos de actividades (portada)
+## Fotos de actividades (portada)
 
-`index.html` muestra en la portada un carrusel con fotos de actividades de la asociación. Son archivos
+`index.html` muestra en la portada una cuadrícula con fotos de actividades de la asociación (6 a la vista y el resto en «Ver más fotos»). Son archivos
 fijos del sitio (no Firestore ni Storage), así que solo alguien con acceso al código puede agregarlas o
 quitarlas; si eres de la Junta y quieres fotos nuevas, pásaselas a quien mantenga el sitio (o a Claude Code).
 
@@ -42,23 +41,23 @@ quitarlas; si eres de la Junta y quieres fotos nuevas, pásaselas a quien manten
   guiones que describa la actividad (por ejemplo `semana-carrera-carreta.jpg`).
 - Antes de subir una foto, redúcela a un ancho máximo de unos 1100 px y guárdala con calidad JPEG
   alrededor de 65-70; cada foto debería pesar menos de 150-200 KB para que la portada cargue rápido.
-- Para agregarla, copia el archivo a esa carpeta y agrega un bloque dentro de `#carrusel-track` en
-  `index.html`, igual a los que ya hay:
+- Para agregarla, copia el archivo a esa carpeta y agrega una línea en una de las listas `<ul class="pp-fotos">` de
+  `index.html` (la primera son las 6 a la vista; la segunda, la de «Ver más fotos»), igual a las que ya hay:
   ```html
-  <div class="w-full shrink-0 aspect-[16/9] md:aspect-[21/9]"><img src="assets/img/actividades/NOMBRE.jpg" alt="Descripción de la foto" class="w-full h-full object-cover" loading="lazy"></div>
+  <li><img src="assets/img/actividades/NOMBRE.jpg" alt="Descripción de la foto" loading="lazy"></li>
   ```
-  El texto de `alt` describe la foto para quien no puede verla (lectores de pantalla), no hace falta nada más:
-  `assets/js/carrusel-actividades.js` cuenta las fotos solas y arma las flechas y los puntos.
-- Para quitar una foto, borra su bloque del HTML (y el archivo, si ya no se va a usar).
+  El texto de `alt` describe la foto para quien no puede verla (lectores de pantalla). Si agregas una foto en la
+  segunda lista, actualiza el número de «Ver más fotos (N)».
+- Para quitar una foto, borra su línea del HTML (y el archivo, si ya no se va a usar).
 - **Permiso de las personas (Código Civil Art. 47; Código de la Niñez Art. 27):** sube solo fotos tomadas por la
   asociación o con permiso de quien las tomó. No subas fotos donde se vea la cara de menores de edad (por ejemplo,
   colegiales en talleres o ferias) sin permiso escrito de su encargado o del colegio. Si alguien pide quitar una foto
   donde aparece, se quita (lo promete `legal.html`).
 - Antes de abrir el PR corre `node tests/revisar-paginas.mjs` y `node tests/revisar-enlaces.mjs`.
 
-## Diseño de la propuesta de portada
+## Diseño de la portada
 
-`index-propuesta.html` y `documentacion.html` comparten `assets/css/portada-propuesta.css` (clases `pp-…`, sin
+`index.html` y `documentacion.html` comparten `assets/css/portada.css` (clases `pp-…`, sin
 Tailwind nuevo). Reglas de diseño que siguen:
 
 - **Paleta:** azul marino `#0D2B45`, verde azulado `#00798A` / `#087F8C`, fondos `#EAF5F7` y `#EAF1F4`. En
@@ -67,8 +66,9 @@ Tailwind nuevo). Reglas de diseño que siguen:
   contraste AA (≥ 4.5:1) sobre blanco y sobre su color claro; si agregas una categoría, comprueba su contraste.
 - **Tipografía:** Montserrat en todo. Las únicas excepciones son los dos botones del hero: Pizarra usa la letra de
   tiza (Patrick Hand, la de `pizarra.css`) y Arcade la pixelada (Press Start 2P, la de `arcade.css`).
-- **Flotantes:** en la portada solo el asistente (`body.pp-portada` oculta el botón del Arcade y la pestaña de la
-  Pizarra; ambos siguen funcionando desde los botones del hero). Las demás páginas no cambian.
+- **Flotantes:** en todo el sitio el único botón flotante es el asistente (decisión de la Junta, 2026-10). El Arcade
+  se abre desde su botón del hero (`data-arcade`) y la Pizarra desde el suyo (`body.pp-portada` oculta su pestaña
+  lateral). No agregues otros flotantes.
 - **Tarjetas de servicios:** todas iguales (mismo fondo, ícono y flecha →). Inventario despliega sus divisiones al
   tocarla y su flecha gira.
 - **Anillo de Documentación** (boceto de la Junta): la carpeta elegida queda grande arriba y las demás alrededor de
@@ -76,7 +76,7 @@ Tailwind nuevo). Reglas de diseño que siguen:
   o las del teclado). Las de atrás se ven más oscuras según su distancia al frente («no les da la luz»). Respeta
   «reducir movimiento». Sin JavaScript se ve una cuadrícula con los mismos enlaces. Para agregar una carpeta, copia
   un `<li class="pp-doc">` en `documentacion.html`; el anillo se acomoda solo.
-- **Medidas:** la portada propuesta mide unos 2200 px de alto a 1440 px de ancho (la actual, unos 3500). Revisa
+- **Medidas:** la portada mide unos 2200 px de alto a 1440 px de ancho (la anterior, con carrusel y video, unos 3500). Revisa
   1440 px y 375 px sin scroll lateral.
 - Encabezado, menú y pie siguen saliendo de `assets/js/layout.js`, igual que en todas las páginas.
 
@@ -122,7 +122,7 @@ que la necesita y en ese momento (por ejemplo, al enviar un trámite, con el enl
   moderación (lápiz de editar), íconos, fechas, paginación, enlaces de archivo (solo https) y el bloque
   "Explicación" de la ventana de detalle. El HTML de las tarjetas sigue en cada página.
 - `layout.js`: encabezado, menú y pie de página; además carga en cada página los temas de temporada (`temas.js`),
-  el botón del Arcade (`arcade-launcher.js`) y el asistente (`chatbot.js`).
+  la transición de los enlaces al Arcade (`arcade-launcher.js`) y el asistente (`chatbot.js`).
 - `site-pages.js`: lista de páginas públicas que usan el buscador de la portada y el asistente. Si agregas o
   renombras una página, actualízala aquí.
 - `tramites.js` (página de Trámites) y `admin/` (secciones del panel: `panel.js`, `asociacion.js`, `tramites.js`,

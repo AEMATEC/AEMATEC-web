@@ -1,7 +1,6 @@
-// Botón flotante "ARCADE" en todas las páginas del sitio (menos arcade.html).
-// Lo carga assets/js/layout.js en todas las páginas; no hay que agregarlo a mano.
-// Al hacer clic, cubre la pantalla con una transición pixelada (assets/js/arcade-transition.js)
-// y luego navega a arcade.html.
+// Enlaces al Arcade AEMATEC con transición pixelada (assets/js/arcade-transition.js).
+// Lo carga assets/js/layout.js en todas las páginas (menos arcade.html). Ya no hay botón flotante (decisión de la
+// Junta, 2026-10: el único flotante es el asistente); cualquier <a href="arcade.html" data-arcade> usa la transición.
 (function () {
   if (/(^|\/)arcade\.html$/.test(window.location.pathname)) return;
 
@@ -28,17 +27,16 @@
     document.body.appendChild(script);
   }
 
-  function agregarBoton() {
+  function conectarEnlaces() {
+    const enlaces = document.querySelectorAll("a[data-arcade]");
+    if (!enlaces.length) return;
     cargarEstilos();
-    const boton = document.createElement("button");
-    boton.type = "button";
-    boton.className = "arcade-fab";
-    boton.setAttribute("aria-label", "Ir al Arcade AEMATEC");
-    boton.innerHTML = '<i class="fa-solid fa-gamepad" aria-hidden="true"></i> ARCADE';
-    boton.addEventListener("click", () => cargarTransicion(() => window.arcadeTransition("arcade.html")));
-    document.body.appendChild(boton);
+    enlaces.forEach(enlace => enlace.addEventListener("click", evento => {
+      evento.preventDefault();
+      cargarTransicion(() => window.arcadeTransition(enlace.href));
+    }));
   }
 
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", agregarBoton);
-  else agregarBoton();
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", conectarEnlaces);
+  else conectarEnlaces();
 })();

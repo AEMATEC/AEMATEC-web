@@ -1,9 +1,7 @@
-/* Propuesta de portada simplificada (index-propuesta.html). Solo la usa esa página; index.html no cambia. */
+/* Portada (index.html) y Documentación (documentacion.html). Ver README → «Diseño de la portada». */
 body.pp { margin: 0; background: #F4F8FA; color: #0D2B45; font-family: Montserrat, sans-serif; }
 .pp h1, .pp h2, .pp h3, .pp p { margin: 0; }
 
-/* Portada: un solo flotante (el asistente). Arcade y Pizarra se abren desde los atajos del hero. */
-.pp-portada .arcade-fab { display: none; }
 
 .pp-eyebrow { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: #00798A; }
 .pp-h2 { margin-top: 0.4rem !important; font-size: 26px; font-weight: 700; letter-spacing: -0.02em; }
