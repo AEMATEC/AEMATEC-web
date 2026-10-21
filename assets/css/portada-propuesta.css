@@ -181,3 +181,6 @@ button.pp-enlace { padding: 0; border: 0; background: none; font: inherit; font-
 @media (max-width: 639px) { .pp-anillo .pp-doc:not(.es-frente) .pp-doc__titulo { font-size: 13px; } }
 @media (prefers-reduced-motion: reduce) { .pp-anillo .pp-doc { transition: none; } .pp-anillo .es-frente .pp-doc__detalle { animation: none; } }
 .pp-anillo__pista { position: absolute; z-index: 0; box-sizing: border-box; border: 2px dashed #9FCBD3; border-radius: 50%; pointer-events: none; }
+.pp-anillo__pista svg { display: none; overflow: visible; }
+.pp-anillo__pista.es-plano { border: 0; border-radius: 0; }
+.pp-anillo__pista.es-plano svg { display: block; }

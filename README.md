@@ -72,7 +72,7 @@ Tailwind nuevo). Reglas de diseño que siguen:
 - **Tarjetas de servicios:** todas iguales (mismo fondo, ícono y flecha →). Inventario despliega sus divisiones al
   tocarla y su flecha gira.
 - **Anillo de Documentación** (boceto de la Junta): la carpeta elegida queda grande arriba y las demás alrededor de
-  una elipse punteada; al tocar una, el anillo gira por la curva hasta traerla al frente (también con las flechas ‹ ›
+  una elipse punteada (en celular la mitad de abajo se aplana para que las del fondo no queden lejos); al tocar una, el anillo gira por la curva hasta traerla al frente (también con las flechas ‹ ›
   o las del teclado). Las de atrás se ven más oscuras según su distancia al frente («no les da la luz»). Respeta
   «reducir movimiento». Sin JavaScript se ve una cuadrícula con los mismos enlaces. Para agregar una carpeta, copia
   un `<li class="pp-doc">` en `documentacion.html`; el anillo se acomoda solo.
