@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/svg+xml" href="assets/logo-aematec-compas.svg">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="assets/css/site.css">
+  <link rel="stylesheet" href="assets/css/tailwind.css">
+  <link rel="stylesheet" href="assets/css/portada-propuesta.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&display=swap" rel="stylesheet">
+  <script src="assets/firebase-config.js"></script>
+  <title>Documentación — AEMATEC</title>
+</head>
+
+<!-- Parte de la propuesta de portada (index-propuesta.html): los documentos viven en la carpeta de Teams de la
+     asociación; esta página solo enlaza a cada categoría. Una categoría sin enlace usa la clase pp-card--pendiente. -->
+<body class="pp">
+  <script src="assets/js/layout.js" data-part="header"></script>
+
+  <main>
+    <section class="pp-seccion site-container mx-auto">
+      <div class="pp-seccion__cabeza">
+        <div>
+          <p class="pp-eyebrow">Para las personas asociadas</p>
+          <h1 class="pp-h2">Documentación</h1>
+        </div>
+        <a class="pp-enlace" href="index-propuesta.html"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Volver al inicio</a>
+      </div>
+      <div class="pp-servicios pp-servicios--docs">
+        <div class="pp-card pp-card--pendiente">
+          <div class="pp-card__icono" aria-hidden="true"><i class="fa-solid fa-scale-balanced"></i></div>
+          <div>
+            <h3 class="pp-card__titulo">Reglamentos</h3>
+            <p>Reglamento Interno y demás normativa de la asociación.</p>
+            <span class="pp-pendiente">Enlace pendiente</span>
+          </div>
+        </div>
+        <div class="pp-card pp-card--pendiente">
+          <div class="pp-card__icono" aria-hidden="true"><i class="fa-solid fa-file-lines"></i></div>
+          <div>
+            <h3 class="pp-card__titulo">Actas</h3>
+            <p>Actas firmes de Asamblea y de Junta Directiva.</p>
+            <span class="pp-pendiente">Enlace pendiente</span>
+          </div>
+        </div>
+        <div class="pp-card pp-card--pendiente">
+          <div class="pp-card__icono" aria-hidden="true"><i class="fa-solid fa-envelope-open-text"></i></div>
+          <div>
+            <h3 class="pp-card__titulo">Memorandos</h3>
+            <p>Comunicados y memorandos oficiales.</p>
+            <span class="pp-pendiente">Enlace pendiente</span>
+          </div>
+        </div>
+        <div class="pp-card pp-card--pendiente">
+          <div class="pp-card__icono" aria-hidden="true"><i class="fa-solid fa-coins"></i></div>
+          <div>
+            <h3 class="pp-card__titulo">Finanzas</h3>
+            <p>Informes financieros de la asociación.</p>
+            <span class="pp-pendiente">Enlace pendiente</span>
+          </div>
+        </div>
+        <div class="pp-card pp-card--pendiente">
+          <div class="pp-card__icono" aria-hidden="true"><i class="fa-solid fa-clipboard-list"></i></div>
+          <div>
+            <h3 class="pp-card__titulo">Informes de Labores</h3>
+            <p>Informes de labores de cada Junta Directiva.</p>
+            <span class="pp-pendiente">Enlace pendiente</span>
+          </div>
+        </div>
+        <div class="pp-card pp-card--pendiente">
+          <div class="pp-card__icono" aria-hidden="true"><i class="fa-solid fa-folder"></i></div>
+          <div>
+            <h3 class="pp-card__titulo">Otros documentos</h3>
+            <p>Otros documentos de interés para las personas asociadas.</p>
+            <span class="pp-pendiente">Enlace pendiente</span>
+          </div>
+        </div>
+      </div>
+      <p class="pp-nota">Los documentos están en la carpeta de Teams de la asociación; al abrirlos puede pedirse iniciar sesión con tu cuenta del TEC. Las actas se publican cuando quedan firmes (Reglamento Interno, Art. 86).</p>
+    </section>
+  </main>
+
+  <script src="assets/js/layout.js" data-part="footer"></script>
+</body>
+
+</html>
