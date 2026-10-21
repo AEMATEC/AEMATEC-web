@@ -9,7 +9,6 @@
   let actual = 0, desde = 0, hasta = 0, inicio = 0, cuadro = 0;
 
   anillo.classList.add("pp-anillo");
-  document.querySelector(".pp-anillo__ayuda").hidden = false;
   flechas.hidden = false;
 
   // Línea de la elipse que une las carpetas (decorativa, como en el boceto de la Junta).
@@ -44,7 +43,7 @@
       item.style.height = `${t.h}px`;
       item.style.transform = `translate(${m.ancho / 2 + m.rx * Math.sin(ang) - t.w / 2}px, ${m.cy - m.ry * Math.cos(ang) - t.h / 2}px) scale(${0.88 + 0.12 * cerca})`;
       item.style.zIndex = String(Math.round(cerca * 10));
-      item.style.opacity = String(0.75 + 0.25 * cerca);
+      item.style.filter = `brightness(${(0.8 + 0.2 * cerca).toFixed(3)})`; // las de atrás quedan en sombra, lejos de la luz del frente
     });
   }
 
